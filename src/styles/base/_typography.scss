@@ -1,0 +1,32 @@
+// 사용하는 GmarketSans 폰트 굵기
+$gmarket_available: "Light", "Medium", "Bold";
+
+@each $name, $weight in $weights {
+  @if index($gmarket_available, $name) {
+    @font-face {
+      font-family: $font_family;
+      src: url("/src/assets/font/GmarketSansTTF#{$name}.woff") format("woff");
+      font-weight: $weight;
+      font-style: normal;
+      font-display: swap;
+    }
+  }
+}
+
+@each $name, $weight in $weights {
+  @font-face {
+    font-family: $font_family_sub;
+    src: url("/src/assets/font/Pretendard-#{$name}.woff") format("woff");
+    font-weight: $weight;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+.main-font {
+  @include Default_font();
+}
+
+.sub-font {
+  @include Default_font_sub();
+}

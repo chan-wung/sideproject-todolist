@@ -1,0 +1,118 @@
+// RESPONSIVE MIXINS
+@mixin tablet {
+  @media (min-width: #{$break_tab}) and (max-width: #{$break_pc - 1px}) {
+    @content;
+  }
+}
+
+@mixin pc {
+  @media (min-width: #{$break_pc}) {
+    @content;
+  }
+}
+
+@mixin tablet_pc {
+  @media (min-width: #{$break_tab}) {
+    @content;
+  }
+}
+
+// FONT MIXINS
+@mixin Default_font {
+  font-family: $font_family;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: $font_color;
+  line-height: 1.5;
+}
+
+@mixin Default_font_sub {
+  font-family: $font_family_sub;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: $font_color;
+  line-height: 1.5;
+}
+
+@mixin font($size, $weight: "regular") {
+  $target-size: $size;
+  @if map-has-key($sizes, $size) {
+    $target-size: map-get($sizes, $size);
+  }
+  font-size: ($target-size * 0.1) + rem;
+
+  @if type-of($weight) == 'number' {
+    font-weight: $weight;
+  } @else if map-has-key($weights, $weight) {
+    font-weight: map-get($weights, $weight);
+  }
+}
+
+@function rem($px) {
+  @return ($px * 0.1) + rem;
+}
+
+// UTILITY MIXINS
+@mixin contents_default {
+  max-width: $site_max_width;
+  margin: 0 auto;
+}
+
+@mixin btn-filled($bg) {
+  --btn-accent: #{$bg};
+  background: $bg;
+  border: 1px solid $bg;
+  @include transition();
+
+  @if lightness($bg) > 60% {
+    color: $black1;
+  } @else {
+    color: #fff;
+  }
+
+  &:not(.btn--ani):not(.btn--slide):not(.btn--lines):hover,
+  &:not(.btn--ani):not(.btn--slide):not(.btn--lines):focus {
+    background: darken($bg, 10%);
+    border-color: darken($bg, 10%);
+  }
+}
+
+@mixin btn-outline($color) {
+  background: transparent;
+  border: 1px solid $color;
+
+  @if lightness($color) > 60% {
+    color: $black1;
+  } @else {
+    color: $color;
+  }
+
+  &:not(.btn--ani):not(.btn--slide):hover,
+  &:not(.btn--ani):not(.btn--slide):focus {
+    background: $color;
+    border-color: $color;
+    color: #fff;
+  }
+}
+
+@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
+  transition: $property $duration $timing;
+}
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin size($w, $h: $w) {
+  width: rem($w);
+  height: rem($h);
+}

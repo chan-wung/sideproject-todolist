@@ -1,0 +1,89 @@
+// =============================================
+// FORM
+// =============================================
+
+// ── 기본 폼 요소 글로벌 스타일 ──
+input:not([type="checkbox"]):not([type="radio"]),
+select {
+  height: 45px;
+  border: 1px solid $border_color;
+  background-color: $white;
+  border-radius: 8px;
+  box-sizing: border-box;
+
+  &:disabled {
+    background-color: #F8F8F8;
+    cursor: not-allowed;
+  }
+}
+
+input:not([type="checkbox"]):not([type="radio"]):read-only {
+  background-color: #F8F8F8;
+  cursor: not-allowed;
+}
+
+textarea {
+  border: 1px solid $border_color;
+  background-color: $white;
+  border-radius: 8px;
+  box-sizing: border-box;
+  padding: 15px;
+
+  &:disabled,
+  &:read-only {
+    background-color: #F8F8F8;
+    cursor: not-allowed;
+  }
+}
+
+// ── 필수 입력표시 ──
+.star {
+  color: $red;
+  font-size: 15px;
+  margin-left: 4px;
+}
+
+// ── 입력 필드 (Form Item) ──
+.form-item {
+  display: block;
+  width: 100%;
+
+  & + & { margin-top: 15px; }
+
+  &__label {
+    display: block;
+    margin-bottom: 8px;
+    @include font(14, "Bold");
+    color: $font_tit_color;
+  }
+
+  &__input,
+  &__select,
+  &__textarea {
+    width: 100%;
+    border: 1px solid $border_color;
+    background-color: $white;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: $default-color;
+    @include transition(border-color);
+
+    &:focus {
+      border-color: $main-color;
+      outline: none;
+    }
+
+    &:disabled,
+    &[readonly] {
+      background-color: #F8F8F8;
+      cursor: not-allowed;
+    }
+  }
+
+  &__input,
+  &__select {
+    height: 45px;
+  }
+
+  &__input { padding: 0 15px; }
+}

@@ -1,0 +1,20 @@
+// 공통 로직: 색상값에서 #을 제거하고 URL용 %23을 붙여주는 함수
+@function set-icon-color($color) {
+  $color-str: inspect($color);
+  @if str-index($color-str, '#') == 1 {
+    $color-str: str-slice($color-str, 2);
+  }
+  @return '%23' + $color-str;
+}
+
+@function svgIcoArrowDown($color, $bg: transparent) {
+  $c: set-icon-color($color);
+  $icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='8' viewBox='0 0 13 8' fill='none'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.65654 7.071L-0.00046164 1.414L1.41354 -4.94551e-07L6.36354 4.95L11.3135 -6.18079e-08L12.7275 1.414L7.07054 7.071C6.88301 7.25847 6.6287 7.36379 6.36354 7.36379C6.09837 7.36379 5.84407 7.25847 5.65654 7.071Z' fill='#{$c}'/%3E%3C/svg%3E";
+  @return $bg url("#{$icon}");
+}
+
+@function svgIcoCheck($color, $bg: transparent) {
+  $c: set-icon-color($color);
+  $icon: "%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E %3Cpath d='M6 12L10.2426 16.2426L18.727 7.75732' stroke='#{$c}' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E %3C/svg%3E";
+  @return $bg url("data:image/svg+xml,#{$icon}");
+}

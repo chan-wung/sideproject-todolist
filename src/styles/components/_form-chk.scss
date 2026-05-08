@@ -1,0 +1,49 @@
+// =============================================
+// FORM-CHK : 체크박스
+// =============================================
+
+.form-chk {
+  display: inline-flex;
+  cursor: pointer;
+
+  input[type="radio"],
+  input[type="checkbox"] {
+    display: none;
+  }
+
+  &__text {
+    display: flex;
+    align-items: center;
+    position: relative;
+    @include font(14);
+    @include transition(color, 0.2s);
+
+    &::before {
+      content: '';
+      display: inline-block;
+      flex-shrink: 0;
+      margin-right: 8px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+  }
+
+  // ── 체크박스 ──
+  &--checkbox {
+    input[type="checkbox"] + .form-chk__text::before {
+      width: 20px;
+      height: 20px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='1' width='14' height='14' rx='2' fill='none' stroke='%23ccc' stroke-width='1.5'/%3E%3C/svg%3E");
+    }
+
+    input[type="checkbox"]:checked + .form-chk__text::before {
+      background: svgIcoCheck(#fff, $main-color) no-repeat center;
+      background-size: 20px;
+    }
+
+    input[type="checkbox"]:checked + .form-chk__text {
+      color: $main-color;
+    }
+  }
+}

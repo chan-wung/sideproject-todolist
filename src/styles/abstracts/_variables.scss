@@ -1,0 +1,123 @@
+// ==========================================
+// 1. SCSS 전용 변수 (컴파일 타임에 필요한 값들)
+// ==========================================
+
+// BREAKPOINTS (미디어 쿼리에 사용되므로 SCSS 변수로 유지)
+$break_pc: 1200px;
+$break_tab: 768px;
+$break_mob: 340px;
+
+// 폰트 굵기 & 사이즈 맵 (Mixin에서 사용되므로 SCSS Map으로 유지)
+$weights: (
+        "Thin": 100, "ExtraLight": 200, "Light": 300, "Regular": 400,
+        "Medium": 500, "SemiBold": 600, "Bold": 700, "ExtraBold": 800, "Black": 900
+);
+
+$sizes: (
+        12: 12, 14: 14, 16: 16, 18: 18, 20: 20,
+        23: 23, 25: 25, 30: 30, 35: 35, 40: 40, 45: 45
+);
+
+// 폰트 설정
+$font_family: 'GmarketSans';
+$font_family_sub: 'Pretendard';
+
+// 레이아웃 너비
+$site_max_width: 640px;
+$site_min_width: 340px;
+
+// ==========================================
+// 2. SCSS 색상 변수 (컴파일 타임 연산용)
+// ==========================================
+
+// Brand Colors
+$main-color: #2B82B3;
+$main-color20: #D6D6FF;
+$main-color10: #EBEAFF;
+$main-color5:  #F5F5FF;
+$sub-color: #FFB904;
+
+// Text Colors
+$font_active_color: #111;
+$font_color: #060303;
+$font_form_color: #666;
+$font_tit_color: #111;
+
+$default-color: #333;
+
+// Base Colors
+$white: #fff;
+$black: #000;
+$black1: #111;
+$black2: #222;
+$black4: #444;
+$black7: #777;
+$black8: #888;
+
+// Gray Scale
+$gray5: #555;
+$gray6: #666;
+$gray9: #999;
+$grayA: #aaa;
+$grayC: #ccc;
+$grayD: #ddd;
+
+// Semantic Colors
+$red: #E52E2C;
+$crimson: #ce2d32;
+$blue: #2c9ff3;
+$green: #11ae5b;
+$purple: #7d1ff3;
+$navy: #1d2f51;
+$pink: #e4205b;
+$lightBlue: #dce8ff;
+$dkBlGray: #5b6270;
+$blGray: #f2f4f8;
+$orange: #CA5005;
+$mint: #077DA5;
+
+// Border
+$border_color: #EDEDED;
+$tbl_border: 1px solid $border_color;
+
+// ==========================================
+// 3. CSS 변수 선언 (:root) - 런타임 제어용
+// ==========================================
+:root {
+  /* Brand Colors - 테마 변경의 핵심 변수 */
+  --main-color: #{$main-color};
+  --color-main: #{$main-color};
+  --color-main-20: #{$main-color20};
+  --color-main-10: #{$main-color10};
+  --color-main-5:  #{$main-color5};
+  --color-sub: #{$sub-color};
+
+  /* Fonts */
+  --font-main: #{$font_family}, sans-serif;
+  --font-sub: #{$font_family_sub}, sans-serif;
+
+  /* Text Colors */
+  --txt-color-base: #{$font_color};
+  --txt-color-tit: #{$font_tit_color};
+  --txt-color-active: #{$font_active_color};
+  --txt-color-form: #{$font_form_color};
+
+  /* Base Colors */
+  --color-white: #{$white};
+  --color-black: #{$black};
+  --color-border: #{$border_color};
+  --color-danger: #{$red};
+  --color-success: #{$green};
+
+  /* Layout */
+  --layout-max-width: #{$site_max_width};
+}
+
+// 다크 모드 (JS에서 document.body.dataset.theme = 'dark' 로 토글)
+[data-theme="dark"] {
+  --txt-color-base: #ddd;
+  --txt-color-tit: #fff;
+  --color-white: #1a1a1a;
+  --color-black: #fff;
+  --color-border: #333;
+}

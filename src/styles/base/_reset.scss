@@ -1,0 +1,143 @@
+// =============================================
+// Reset & Base Styles
+// =============================================
+
+// ── 1. Universal ──────────────────────────────
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// ── 2. html ───────────────────────────────────
+html {
+  font-size: 62.5%; // 기본 16px의 62.5% = 10px → 1rem = 10px
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+// ── 3. body ───────────────────────────────────
+body {
+  @include Default_font_sub();
+  @include font(14, "Regular");
+  height: 100%;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+  letter-spacing: -0.03em;
+  top: 0 !important;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background-color: var(--color-white);
+  color: var(--txt-color-base);
+
+  @include tablet_pc {
+    @include font(16, "Regular");
+  }
+}
+
+body.on {
+  overflow: hidden;
+}
+
+// ── 4. Semantic block ─────────────────────────
+article, aside, details, figcaption, figure,
+footer, header, menu, nav, section {
+  display: block;
+}
+
+// ── 5. Headings ───────────────────────────────
+h1, h2, h3, h4, h5, h6 {
+  font-size: 100%;
+  font-weight: bold;
+  color: var(--txt-color-tit);
+}
+
+// ── 6. Text / Inline ──────────────────────────
+address, em, i, u, cite { font-style: normal; }
+strong, b { font-weight: normal; }
+hr { display: none; }
+
+// ── 7. Links ──────────────────────────────────
+a {
+  text-decoration: none;
+  color: $font_color;
+}
+
+// ── 8. Lists ──────────────────────────────────
+ol, ul { list-style: none; }
+
+// ── 9. Media ──────────────────────────────────
+img, picture, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  font-style: italic;
+  shape-margin: 0.75rem;
+}
+
+fieldset, img { border: 0; }
+
+// ── 10. Form ──────────────────────────────────
+input, select, textarea, button {
+  @include Default_font_sub();
+  @include font(14, "Regular");
+  border: none;
+  background: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+button, input {
+  border-radius: 0;
+}
+
+button, input, select {
+  vertical-align: middle;
+}
+
+input {
+  -webkit-appearance: none;
+  padding: 0 15px;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: $font_form_color;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: svgIcoArrowDown($gray5) 96% 50% no-repeat;
+  padding: 0 25px 0 15px;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+textarea {
+  width: 100%;
+  resize: none;
+}
+
+fieldset {
+  border: 0;
+  min-width: 0;
+}
+
+// ── 11. Table ─────────────────────────────────
+table {
+  @include Default_font_sub();
+  @include font(14, "Regular");
+  border: none;
+  background: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+}

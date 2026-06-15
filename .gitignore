@@ -29,3 +29,5 @@ dist-ssr
 # Todo 백업 파일 (개인/업무 데이터 — 커밋 금지)
 *.todolist-backup.json
 /backups/
+.vercel
+.env*

@@ -28,7 +28,7 @@ body {
   top: 0 !important;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  background-color: var(--color-white);
+  background-color: var(--color-bg);
   color: var(--txt-color-base);
 
   @include tablet_pc {

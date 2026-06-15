@@ -104,6 +104,7 @@ $tbl_border: 1px solid $border_color;
 
   /* Base Colors */
   --color-white: #{$white};
+  --color-bg: #f9fafb;
   --color-black: #{$black};
   --color-border: #{$border_color};
   --color-danger: #{$red};
@@ -115,7 +116,7 @@ $tbl_border: 1px solid $border_color;
 
 // 다크 모드 (JS에서 document.body.dataset.theme = 'dark' 로 토글)
 [data-theme="dark"] {
-  --txt-color-base: #ddd; --txt-color-tit: #fff; --txt-color-form: #aaa; --txt-color-active: #fff;
-  --color-white: #1a1a1a; --color-black: #fff; --color-border: #333;
+  --txt-color-base: #e0e0e0; --txt-color-tit: #fff; --txt-color-form: #aaa; --txt-color-active: #fff;
+  --color-bg: #121212; --color-white: #1e1e1e; --color-black: #fff; --color-border: #333;
   --color-main-5: #20262b; --color-main-10: #243038; --color-main-20: #2d3d48;
 }

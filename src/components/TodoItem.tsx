@@ -82,7 +82,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
 
   if (isEditing) {
     return (
-      <div className={`todo-item todo-item--${todo.priority} todo-item--editing`}>
+      <div id={`todo-item-${todo.id}`} className={`todo-item todo-item--${todo.priority} todo-item--editing`}>
         <div className="todo-item__edit-wrap">
           <div className="todo-item__edit-main">
             <textarea
@@ -142,6 +142,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
 
   return (
     <div
+      id={`todo-item-${todo.id}`}
       className={[
         'todo-item',
         `todo-item--${todo.priority}`,

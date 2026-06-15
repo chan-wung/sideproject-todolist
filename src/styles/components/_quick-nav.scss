@@ -1,25 +1,30 @@
 .quick-nav {
+  position: absolute;
+  left: rem(-260);
+  top: 0;
+  width: rem(240);
   display: flex;
   flex-direction: column;
-  gap: rem(24);
-  padding: rem(16) rem(8);
-  border-right: 1px solid $border_color;
+  gap: rem(16);
+  padding: rem(16) rem(12);
   background: var(--color-white);
-  height: 100%;
+  border: 1px solid $border_color;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  max-height: calc(100vh - 120px);
   overflow-y: auto;
 
-  &__section {
-    display: flex;
-    flex-direction: column;
-    gap: rem(8);
+  // 창이 좁을 때 숨기기 처리 (본문 침범 방지)
+  @media (max-width: 1480px) {
+    display: none;
   }
 
-  &__section-tit {
-    @include font(12, "Bold");
-    color: $gray9;
-    padding-left: rem(8);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  &__tit {
+    @include font(14, "Bold");
+    color: var(--txt-color-tit);
+    padding-bottom: rem(12);
+    border-bottom: 1px solid $border_color;
+    margin: 0;
   }
 
   &__list {
@@ -28,18 +33,18 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: rem(2);
+    gap: rem(4);
   }
 
   &__item {
-    @include font(14, "Medium");
+    @include font(13, "Medium");
     color: var(--txt-color-base);
     padding: rem(8) rem(12);
     border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: rem(6);
     @include transition();
 
     &:hover {
@@ -50,6 +55,8 @@
     &--empty {
       color: $gray9;
       cursor: default;
+      justify-content: center;
+      padding: rem(20) 0;
       &:hover {
         background: transparent;
         color: $gray9;
@@ -57,18 +64,13 @@
     }
   }
 
-  &__count {
-    @include font(11, "Bold");
-    background: var(--color-main-10);
-    color: $main-color;
-    padding: rem(2) rem(6);
-    border-radius: 10px;
-    min-width: rem(20);
-    text-align: center;
+  &__item-text {
+    display: flex;
+    align-items: center;
+    gap: rem(4);
+  }
 
-    &--red {
-      background: rgba($red, 0.1);
-      color: $red;
-    }
+  &__pin {
+    font-size: rem(12);
   }
 }

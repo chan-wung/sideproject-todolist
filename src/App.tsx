@@ -12,7 +12,6 @@ import './styles/main.scss';
 
 export default function App() {
   const {
-    allTodos,
     filteredTodos,
     filterStatus,
     setFilterStatus,
@@ -84,61 +83,46 @@ export default function App() {
         </div>
       </header>
 
-      <main className="todo-app__body" style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-        <div style={{ position: 'sticky', top: '24px', width: '220px', flexShrink: 0, maxHeight: 'calc(100vh - 48px)' }}>
-          <QuickNav
-            allTodos={allTodos}
-            onJumpCategory={setFilterCategory}
-            onJumpPinned={() => {
-              setFilterStatus('active');
-              setDueScope('all');
-              setQuery('');
-            }}
-            setDueScope={setDueScope}
-            setSortKey={setSortKey}
-            setFilterStatus={setFilterStatus}
-            dueTodayCount={dueTodayCount}
-            overdueCount={overdueCount}
-          />
+      <main className="todo-app__body">
+        <div style={{ position: 'sticky', top: '24px', width: 0, height: 0, overflow: 'visible', zIndex: 10 }}>
+          <QuickNav filteredTodos={filteredTodos} />
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <TodoInput onAdd={addTodo} categories={categories.filter(c => c !== 'all')} />
+        <TodoInput onAdd={addTodo} categories={categories.filter(c => c !== 'all')} />
           
-          <DueSummary 
-            dueTodayCount={dueTodayCount} 
-            overdueCount={overdueCount} 
-            onJump={(scope) => setDueScope(scope)} 
-          />
+        <DueSummary 
+          dueTodayCount={dueTodayCount} 
+          overdueCount={overdueCount} 
+          onJump={(scope) => setDueScope(scope)} 
+        />
 
-          <FilterBar
-            filterStatus={filterStatus}
-            setFilterStatus={setFilterStatus}
-            filterCategory={filterCategory}
-            setFilterCategory={setFilterCategory}
-            sortKey={sortKey}
-            setSortKey={setSortKey}
-            query={query}
-            setQuery={setQuery}
-            dueScope={dueScope}
-            setDueScope={setDueScope}
-            categories={categories}
-            activeCount={activeCount}
-            completedCount={completedCount}
-            onClearCompleted={clearCompleted}
-          />
-          <TodoList
-            todos={filteredTodos}
-            filterStatus={filterStatus}
-            categories={categories.filter(c => c !== 'all')}
-            onToggle={toggleTodo}
-            onDelete={deleteTodo}
-            onUpdate={updateTodo}
-            onPin={pinTodo}
-            onAddSubtask={addSubtask}
-            onToggleSubtask={toggleSubtask}
-            onDeleteSubtask={deleteSubtask}
-          />
-        </div>
+        <FilterBar
+          filterStatus={filterStatus}
+          setFilterStatus={setFilterStatus}
+          filterCategory={filterCategory}
+          setFilterCategory={setFilterCategory}
+          sortKey={sortKey}
+          setSortKey={setSortKey}
+          query={query}
+          setQuery={setQuery}
+          dueScope={dueScope}
+          setDueScope={setDueScope}
+          categories={categories}
+          activeCount={activeCount}
+          completedCount={completedCount}
+          onClearCompleted={clearCompleted}
+        />
+        <TodoList
+          todos={filteredTodos}
+          filterStatus={filterStatus}
+          categories={categories.filter(c => c !== 'all')}
+          onToggle={toggleTodo}
+          onDelete={deleteTodo}
+          onUpdate={updateTodo}
+          onPin={pinTodo}
+          onAddSubtask={addSubtask}
+          onToggleSubtask={toggleSubtask}
+          onDeleteSubtask={deleteSubtask}
+        />
       </main>
       
       <Sidebar 

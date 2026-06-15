@@ -184,6 +184,10 @@ dialog.confirm-modal {
     color: $gray9;
     margin-top: rem(4);
   }
+
+  &__body {
+    position: relative;
+  }
 }
 
 // =============================================

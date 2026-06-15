@@ -347,7 +347,7 @@ dialog.confirm-modal {
   &__tabs {
     display: flex;
     gap: rem(4);
-    background: var(--color-main-5);
+    background: var(--color-bg);
     border-radius: 8px;
     padding: rem(4);
   }
@@ -363,13 +363,13 @@ dialog.confirm-modal {
     @include transition();
 
     &--active {
-      background: var(--color-main);
-      color: #fff;
-      box-shadow: none;
+      background: var(--color-white);
+      color: var(--txt-color-tit);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
 
     &:not(&--active):hover {
-      color: $black2;
+      color: var(--txt-color-tit);
     }
   }
 
@@ -410,7 +410,7 @@ dialog.confirm-modal {
   &__sort {
     display: flex;
     gap: rem(2);
-    background: $blGray;
+    background: var(--color-bg);
     border-radius: 8px;
     padding: rem(3);
   }
@@ -428,12 +428,12 @@ dialog.confirm-modal {
 
     &--active {
       background: var(--color-white);
-      color: $main-color;
+      color: var(--txt-color-tit);
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
 
     &:not(&--active):hover {
-      color: $black2;
+      color: var(--txt-color-tit);
     }
   }
 

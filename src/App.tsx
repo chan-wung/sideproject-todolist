@@ -6,6 +6,8 @@ import TodoList from './components/TodoList';
 import DueSummary from './components/DueSummary';
 import AppToolbar from './components/AppToolbar';
 import Toast from './components/Toast';
+import QuickMemo from './components/QuickMemo';
+import Sidebar from './components/Sidebar';
 import './styles/main.scss';
 
 export default function App() {
@@ -48,17 +50,38 @@ export default function App() {
     }
   }
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMemoOpen, setIsMemoOpen] = useState(false);
+
   return (
     <div className="todo-app">
       {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
-      <AppToolbar exportData={exportData} importData={importData} onImportResult={handleImportResult} />
+      
       <header className="todo-app__header">
-        <h1 className="todo-app__tit">Todo List</h1>
-        <p className="todo-app__subtitle">할 일을 체계적으로 관리하세요</p>
+        <div className="todo-app__header-left">
+          <h1 className="todo-app__tit">Todo List</h1>
+          <p className="todo-app__subtitle">할 일을 체계적으로 관리하세요</p>
+        </div>
+        <div className="todo-app__header-actions">
+          <button 
+            className="todo-app__memo-btn" 
+            onClick={() => setIsMemoOpen(true)}
+            aria-label="빠른 메모장 열기"
+          >
+            📝 메모장
+          </button>
+          <button 
+            className="todo-app__hamburger" 
+            onClick={() => setIsSidebarOpen(true)}
+            aria-label="메뉴 열기"
+          >
+            ☰
+          </button>
+        </div>
       </header>
 
       <main className="todo-app__body">
-        <TodoInput onAdd={addTodo} />
+        <TodoInput onAdd={addTodo} categories={categories.filter(c => c !== 'all')} />
         
         <DueSummary 
           dueTodayCount={dueTodayCount} 
@@ -85,6 +108,7 @@ export default function App() {
         <TodoList
           todos={filteredTodos}
           filterStatus={filterStatus}
+          categories={categories.filter(c => c !== 'all')}
           onToggle={toggleTodo}
           onDelete={deleteTodo}
           onUpdate={updateTodo}
@@ -93,6 +117,20 @@ export default function App() {
           onDeleteSubtask={deleteSubtask}
         />
       </main>
+      
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+        exportData={exportData} 
+        importData={importData} 
+        onImportResult={handleImportResult} 
+        onOpenMemo={() => setIsMemoOpen(true)} 
+      />
+      
+      <QuickMemo 
+        isOpen={isMemoOpen} 
+        onClose={() => setIsMemoOpen(false)} 
+      />
     </div>
   );
 }

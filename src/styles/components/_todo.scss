@@ -122,9 +122,55 @@ dialog.confirm-modal {
   min-height: 100vh;
 
   &__header {
-    padding: rem(32) 0 rem(24);
+    padding: rem(10) 0 rem(24);
     border-bottom: 2px solid $main-color;
     margin-bottom: rem(24);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  &__header-left {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+  }
+
+  &__memo-btn {
+    background: transparent;
+    border: 1px solid $border_color;
+    padding: rem(6) rem(12);
+    border-radius: 8px;
+    color: var(--txt-color-tit);
+    @include font(14, "Medium");
+    cursor: pointer;
+    @include transition();
+    
+    &:hover {
+      background: var(--color-main-5);
+      border-color: $main-color;
+      color: $main-color;
+    }
+  }
+
+  &__hamburger {
+    background: transparent;
+    border: none;
+    font-size: rem(24);
+    cursor: pointer;
+    color: var(--txt-color-tit);
+    padding: rem(6) rem(8);
+    border-radius: 8px;
+    @include transition();
+    
+    &:hover {
+      background: $blGray;
+    }
   }
 
   &__tit {
@@ -150,7 +196,10 @@ dialog.confirm-modal {
   border-radius: 12px;
   padding: rem(20);
   margin-bottom: rem(20);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: rem(16);
+  z-index: 100;
 
   &__row {
     & + & {
@@ -191,6 +240,14 @@ dialog.confirm-modal {
     &--error {
       border-color: $red;
       &:focus { border-color: $red; }
+    }
+
+    &--textarea {
+      height: auto;
+      min-height: rem(60);
+      resize: vertical;
+      padding: rem(12) rem(15);
+      line-height: 1.4;
     }
   }
 
@@ -471,10 +528,12 @@ dialog.confirm-modal {
   }
 
   &__txt {
-    @include font(15, "Medium");
-    color: var(--txt-color-base);
+    @include font(18, "Bold");
+    color: var(--txt-color-tit);
     word-break: break-word;
+    white-space: pre-wrap;
     line-height: 1.5;
+    margin-bottom: rem(4);
   }
 
   &__meta {
@@ -572,14 +631,15 @@ dialog.confirm-modal {
 
   &__edit-field {
     width: 100%;
-    height: rem(40);
+    min-height: rem(40);
     border: 1px solid $main-color;
     border-radius: 8px;
-    padding: 0 rem(12);
+    padding: rem(10) rem(12);
     @include font(14);
     background: var(--color-white);
     color: var(--txt-color-base);
     @include transition(border-color);
+    resize: vertical;
 
     &:focus {
       outline: none;
@@ -663,12 +723,21 @@ dialog.confirm-modal {
 
   &__subtask {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
+    gap: rem(8);
+    
+    .form-chk {
+      flex: 1;
+    }
     
     .form-chk__text {
-      @include font(13);
+      @include font(14);
       color: var(--txt-color-base);
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding-top: rem(2);
     }
     
     input:checked + .form-chk__text {
@@ -691,36 +760,5 @@ dialog.confirm-modal {
     display: flex;
     gap: rem(6);
     margin-top: rem(4);
-    
-    input {
-      flex: 1;
-      height: rem(30);
-      border: 1px solid $border_color;
-      border-radius: 4px;
-      padding: 0 rem(8);
-      @include font(12);
-      background: var(--color-white);
-      color: var(--txt-color-base);
-      
-      &:focus {
-        outline: none;
-        border-color: $main-color;
-      }
-    }
-    
-    button {
-      height: rem(30);
-      padding: 0 rem(10);
-      border-radius: 4px;
-      border: none;
-      background: $blGray;
-      color: $gray6;
-      @include font(12, "Medium");
-      cursor: pointer;
-      &:hover {
-        background: darken($blGray, 5%);
-        color: $black2;
-      }
-    }
   }
 }

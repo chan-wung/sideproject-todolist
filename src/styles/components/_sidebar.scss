@@ -1,0 +1,80 @@
+.sidebar-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 900;
+  opacity: 0;
+  visibility: hidden;
+  @include transition(opacity visibility);
+
+  &--open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: rem(320);
+  background: var(--color-white);
+  z-index: 1000;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.1);
+  transform: translateX(100%);
+  @include transition(transform);
+  display: flex;
+  flex-direction: column;
+
+  &--open {
+    transform: translateX(0);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: rem(20) rem(24);
+    border-bottom: 1px solid $border_color;
+    
+    h2 {
+      @include font(18, "Bold");
+      color: var(--txt-color-tit);
+      margin: 0;
+    }
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    font-size: rem(28);
+    color: $gray9;
+    cursor: pointer;
+    line-height: 1;
+    &:hover { color: $red; }
+  }
+
+  &__body {
+    padding: rem(24);
+    display: flex;
+    flex-direction: column;
+    gap: rem(20);
+  }
+
+  &__memo-btn {
+    width: 100%;
+    padding: rem(14);
+    border-radius: 8px;
+    border: 1px solid $border_color;
+    background: var(--color-main-5);
+    color: var(--txt-color-tit);
+    @include font(15, "Medium");
+    cursor: pointer;
+    @include transition();
+    
+    &:hover {
+      background: var(--color-main-10);
+      border-color: $main-color;
+      color: $main-color;
+    }
+  }
+}

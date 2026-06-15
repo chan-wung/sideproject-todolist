@@ -1,15 +1,17 @@
 .app-toolbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: rem(20);
+  flex-direction: column;
+  gap: rem(12);
   
   &__backup {
     display: flex;
+    width: 100%;
     gap: rem(8);
   }
 
   &__btn {
+    flex: 1;
+    justify-content: center;
     padding: rem(6) rem(12);
     border-radius: 6px;
     border: 1px solid $border_color;
@@ -28,6 +30,7 @@
     }
 
     &--theme {
+      width: 100%;
       border-color: transparent;
       background: $blGray;
       &:hover {

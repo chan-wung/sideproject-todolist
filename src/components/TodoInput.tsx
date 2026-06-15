@@ -4,9 +4,10 @@ import Toast from './Toast';
 
 interface Props {
   onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string) => void;
+  categories: string[];
 }
 
-export default function TodoInput({ onAdd }: Props) {
+export default function TodoInput({ onAdd, categories }: Props) {
   const [text, setText] = useState('');
   const [priority, setPriority] = useState<Todo['priority']>('medium');
   const [dueDate, setDueDate] = useState('');
@@ -27,8 +28,15 @@ export default function TodoInput({ onAdd }: Props) {
     setPriority('medium');
   }
 
-  function handleTextChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setText(e.target.value);
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
   }
 
   return (
@@ -36,12 +44,13 @@ export default function TodoInput({ onAdd }: Props) {
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
 
       <div className="todo-input__main-row">
-        <input
-          className="todo-input__field"
-          type="text"
-          placeholder="할 일을 입력하세요..."
+        <textarea
+          className="todo-input__field todo-input__field--textarea"
+          placeholder="크게 할 일을 입력하세요... (줄바꿈: Shift+Enter)"
           value={text}
           onChange={handleTextChange}
+          onKeyDown={handleKeyDown}
+          rows={2}
         />
         <button className="todo-input__btn" type="submit">추가</button>
       </div>
@@ -78,7 +87,11 @@ export default function TodoInput({ onAdd }: Props) {
             placeholder="예: 업무, 개인..."
             value={category}
             onChange={e => setCategory(e.target.value)}
+            list="category-options-input"
           />
+          <datalist id="category-options-input">
+            {categories.map(c => <option key={c} value={c} />)}
+          </datalist>
         </div>
       </div>
     </form>

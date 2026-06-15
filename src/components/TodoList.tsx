@@ -4,6 +4,7 @@ import TodoItem from './TodoItem';
 interface Props {
   todos: Todo[];
   filterStatus: FilterStatus;
+  categories: string[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category'>>) => void;
@@ -18,7 +19,7 @@ const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
   completed: { icon: '📝', text: '완료된 항목이 없어요.' },
 };
 
-export default function TodoList({ todos, filterStatus, onToggle, onDelete, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask }: Props) {
+export default function TodoList({ todos, filterStatus, categories, onToggle, onDelete, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask }: Props) {
   if (todos.length === 0) {
     const { icon, text } = EMPTY_MESSAGES[filterStatus];
     return (
@@ -35,6 +36,7 @@ export default function TodoList({ todos, filterStatus, onToggle, onDelete, onUp
         <li key={todo.id}>
           <TodoItem
             todo={todo}
+            categories={categories}
             onToggle={onToggle}
             onDelete={onDelete}
             onUpdate={onUpdate}

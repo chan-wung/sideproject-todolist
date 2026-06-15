@@ -11,6 +11,7 @@ interface Props {
   onAddSubtask: (id: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
+  categories: string[];
 }
 
 const PRIORITY_LABEL: Record<Todo['priority'], string> = {
@@ -19,7 +20,7 @@ const PRIORITY_LABEL: Record<Todo['priority'], string> = {
   low: '낮음',
 };
 
-export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask }: Props) {
+export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, categories }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [editText, setEditText] = useState(todo.text);
@@ -27,7 +28,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubt
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
   const [editCategory, setEditCategory] = useState(todo.category);
   const [subText, setSubText] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (isEditing) inputRef.current?.focus();
@@ -56,8 +57,11 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubt
     setIsEditing(false);
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter') handleSave();
+  function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSave();
+    }
     if (e.key === 'Escape') handleCancel();
   }
 
@@ -80,13 +84,13 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubt
       <div className={`todo-item todo-item--${todo.priority} todo-item--editing`}>
         <div className="todo-item__edit-wrap">
           <div className="todo-item__edit-main">
-            <input
+            <textarea
               ref={inputRef}
-              className="todo-item__edit-field"
-              type="text"
+              className="todo-item__edit-field todo-input__field--textarea"
               value={editText}
               onChange={e => setEditText(e.target.value)}
               onKeyDown={handleKeyDown}
+              rows={3}
             />
           </div>
           <div className="todo-item__edit-row">
@@ -119,7 +123,11 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubt
                 value={editCategory}
                 onChange={e => setEditCategory(e.target.value)}
                 onKeyDown={handleKeyDown}
+                list={`category-options-${todo.id}`}
               />
+              <datalist id={`category-options-${todo.id}`}>
+                {categories.map(c => <option key={c} value={c} />)}
+              </datalist>
             </div>
           </div>
           <div className="todo-item__edit-actions">
@@ -193,13 +201,14 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubt
           ))}
           <div className="todo-item__sub-add">
             <input
+              className="todo-input__field"
               type="text"
               placeholder="하위 항목 추가"
               value={subText}
               onChange={e => setSubText(e.target.value)}
               onKeyDown={handleSubtaskKeyDown}
             />
-            <button type="button" onClick={handleAddSubtask}>추가</button>
+            <button className="todo-input__btn" type="button" onClick={handleAddSubtask}>추가</button>
           </div>
         </div>
       </div>

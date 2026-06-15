@@ -190,7 +190,9 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
                     onClick={(e) => { e.stopPropagation(); toggleMemoPin(m.id); }}
                     aria-label={m.pinned ? '고정 해제' : '메모 고정'}
                   >
-                    <span aria-hidden="true">📌</span>
+                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                    </svg>
                   </button>
                   <button
                     type="button"

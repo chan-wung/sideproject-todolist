@@ -21,43 +21,6 @@
 
 ## B. 보더 통일 + 탭 다크모드 수정
 
-> Claude가 `_variables.scss`에 CSS 변수 기반만 추가해둔 상태. `_todo.scss` 적용은 아직 안 함.
-
-### 현재 상황 (이미 완료)
-`src/styles/abstracts/_variables.scss` `:root`에 추가됨:
-```scss
---color-tab-bg: rgba(0, 0, 0, 0.07);
---color-tab-active-bg: #ffffff;
-```
-`[data-theme="dark"]`에 추가됨:
-```scss
---color-main: #5AA0FF;   /* 다크모드 소프트 블루 */
---color-main-5: #0D1F3A; --color-main-10: #122850; --color-main-20: #1A3D78;
---color-tab-bg: rgba(255, 255, 255, 0.08);
---color-tab-active-bg: #2C2C2E;
-```
-
-### B-1. `_todo.scss` — 탭 컨테이너에 CSS 변수 적용
-`.filter-bar__tabs`와 `.filter-bar__sort`의 `background`:
-```scss
-// Before
-background: rgba(0, 0, 0, 0.07);
-
-// After
-background: var(--color-tab-bg);
-```
-(두 군데 모두 동일하게 교체)
-
-### B-2. `_todo.scss` — 활성 탭 배경에 CSS 변수 적용
-`.filter-bar__tab--active`와 `.filter-bar__sort-btn--active`의 `background`:
-```scss
-// Before
-background: var(--color-white);
-
-// After
-background: var(--color-tab-active-bg);
-```
-
 ### B-3. `_todo.scss` — 카운트 배지 비활성 상태 (파란 배경 → 회색)
 `.filter-bar__count` 기본 스타일:
 ```scss
@@ -75,22 +38,10 @@ background: var(--color-main-5);
 color: var(--color-main);
 ```
 
-### B-4. `_todo.scss` — 편집 필드 기본 보더 통일
-`.todo-item__edit-field` 기본 `border`를 다른 인풋과 동일하게:
-```scss
-// Before
-border: 1px solid $main-color;
-
-// After
-border: 1px solid var(--color-border);
-```
-focus 상태는 그대로 유지 (`border-color: darken($main-color, 10%)`).
-
-### B-5. 검증
-- 라이트 모드: 탭 컨테이너가 회색(`rgba(0,0,0,0.07)`), 활성 탭이 흰 카드 + 그림자
-- 다크 모드: 탭 컨테이너가 보이는 회색(`rgba(255,255,255,0.08)`), 활성 탭이 `#2C2C2E`로 구분
+### B-4. 검증
+- 라이트 모드: 활성 탭이 흰 카드 + 그림자
+- 다크 모드: 활성 탭이 `#2C2C2E`로 구분
 - 다크 모드: 파란색이 `#5AA0FF`(소프트) 로 적용되는지 확인 — 탭 활성 텍스트, 카테고리 칩, 포커스 링
-- 모든 인풋·셀렉트·날짜 필드의 기본 테두리가 동일한 회색(`var(--color-border)`)인지 확인
 
 ---
 

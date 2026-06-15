@@ -137,18 +137,18 @@ dialog.quick-memo-modal {
     }
 
     &--active {
-      background: var(--color-main-5);
+      background: var(--color-main);
       border-left-color: var(--color-main);
       box-shadow: 0 1px 4px color-mix(in srgb, var(--color-main) 15%, transparent);
     }
 
     &--pinned {
-      background: color-mix(in srgb, var(--color-sub) 10%, transparent);
-      border-left-color: var(--color-sub);
+      background: $green;
+      border-left-color: $green;
     }
 
     &--active#{&}--pinned {
-      background: var(--color-main-5);
+      background: var(--color-main);
       border-left-color: var(--color-main);
     }
 
@@ -179,14 +179,14 @@ dialog.quick-memo-modal {
     text-overflow: ellipsis;
     flex: 1;
 
-    .quick-memo-modal__item--active & {
+    .quick-memo-modal__item--active:not(.quick-memo-modal__item--pinned) & {
       @include font(13, "Bold");
-      color: var(--color-main);
+      color: #fff;
     }
 
-    .quick-memo-modal__item--pinned:not(.quick-memo-modal__item--active) & {
+    .quick-memo-modal__item--pinned & {
       @include font(13, "Medium");
-      color: var(--txt-color-tit);
+      color: #fff;
     }
   }
 
@@ -198,6 +198,12 @@ dialog.quick-memo-modal {
     cursor: pointer;
     padding: 0 rem(4);
     &:hover { color: var(--color-danger); }
+
+    .quick-memo-modal__item--active &,
+    .quick-memo-modal__item--pinned & {
+      color: rgba(255, 255, 255, 0.7);
+      &:hover { color: #fff; }
+    }
   }
 
   &__item-pin {
@@ -206,7 +212,6 @@ dialog.quick-memo-modal {
     cursor: pointer;
     padding: 0 rem(4);
     opacity: 0.4;
-    font-size: rem(14);
     @include transition();
     
     &--active {

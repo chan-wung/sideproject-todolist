@@ -79,7 +79,24 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
   }
 
   function toggleMemoPin(id: string) {
-    setMemos(memos.map(m => m.id === id ? { ...m, pinned: !m.pinned } : m));
+    const targetIndex = memos.findIndex(m => m.id === id);
+    if (targetIndex === -1) return;
+    const target = memos[targetIndex];
+    const isNowPinned = !target.pinned;
+    
+    const nextMemos = [...memos];
+    nextMemos.splice(targetIndex, 1);
+    
+    if (isNowPinned) {
+      nextMemos.unshift({ ...target, pinned: true });
+    } else {
+      // 고정 해제 시에는 맨 뒤로 보내거나 고정된 항목들 바로 뒤에 두는 방식 중
+      // 간단하게 고정 항목들 맨 뒤(혹은 배열 맨 뒤)로 보냅니다.
+      // 여기서는 명시적으로 배열 맨 뒤로 보냅니다.
+      nextMemos.push({ ...target, pinned: false });
+    }
+    
+    setMemos(nextMemos);
   }
 
   function handleDragStart(id: string) {

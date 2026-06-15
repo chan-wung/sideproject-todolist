@@ -22,6 +22,7 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
   useEffect(() => {
     if (isOpen) {
       dialogRef.current?.showModal();
+      document.body.style.overflow = 'hidden';
       
       // 만약 메모가 하나도 없다면 기본 메모 1개 생성 (이전 단일 메모 내용이 있다면 복원)
       if (memos.length === 0) {
@@ -40,7 +41,12 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
       }
     } else {
       dialogRef.current?.close();
+      document.body.style.overflow = '';
     }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen, memos.length, activeId, setMemos, setActiveId]);
 
   function handleAdd() {

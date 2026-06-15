@@ -13,10 +13,13 @@ export default function ConfirmModal({ message, onConfirm, onCancel }: Props) {
     const dialog = dialogRef.current;
     if (!dialog) return;
     dialog.showModal();
+    document.body.style.overflow = 'hidden';
+
     // Escape 키로 닫힐 때 상태 동기화
     dialog.addEventListener('cancel', onCancel);
     return () => {
       dialog.removeEventListener('cancel', onCancel);
+      document.body.style.overflow = '';
       if (!dialog.open) return;
       dialog.close();
     };

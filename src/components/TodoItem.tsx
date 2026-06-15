@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Todo } from '../types/todo';
 import ConfirmModal from './ConfirmModal';
+import DatePicker from './DatePicker';
 import { isOverdue, formatDate } from '../utils/date';
 
 interface Props {
@@ -109,12 +110,9 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
             </div>
             <div className="todo-item__edit-group">
               <label className="todo-item__edit-label">마감일</label>
-              <input
-                className="todo-item__edit-date"
-                type="date"
-                value={editDueDate}
-                onChange={e => setEditDueDate(e.target.value)}
-              />
+              <div style={{ width: '150px' }}>
+                <DatePicker value={editDueDate} onChange={setEditDueDate} className="todo-item__edit-date-picker" />
+              </div>
             </div>
             <div className="todo-item__edit-group">
               <label className="todo-item__edit-label">카테고리</label>

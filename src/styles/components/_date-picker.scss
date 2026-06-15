@@ -1,0 +1,149 @@
+.date-picker {
+  position: relative;
+  width: 100%;
+
+  &__input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: rem(42);
+    padding: 0 rem(12);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-white);
+    color: var(--txt-color-base);
+    cursor: pointer;
+    @include transition(border-color, box-shadow);
+
+    &--active, &:hover {
+      border-color: var(--color-main);
+    }
+
+    &--active {
+      box-shadow: 0 0 0 2px rgba($main-color, 0.1);
+    }
+  }
+
+  &__placeholder {
+    color: $gray5;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: rem(4);
+  }
+
+  &__clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: rem(20);
+    height: rem(20);
+    border-radius: 50%;
+    background: var(--color-main-5);
+    color: var(--color-sub);
+    border: none;
+    cursor: pointer;
+    @include transition(background-color);
+
+    &:hover {
+      background: var(--color-main-20);
+    }
+  }
+
+  &__icon {
+    font-size: rem(16);
+    opacity: 0.7;
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: rem(280);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: rem(16);
+    z-index: 100;
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: rem(12);
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: rem(28);
+    height: rem(28);
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--txt-color-tit);
+    font-weight: bold;
+    @include transition();
+
+    &:hover {
+      background: var(--color-main-5);
+      color: var(--color-main);
+    }
+  }
+
+  &__month {
+    @include font(15, "Bold");
+    color: var(--txt-color-tit);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: rem(4);
+  }
+
+  &__cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: rem(32);
+    @include font(13);
+    border-radius: 6px;
+
+    &--head {
+      @include font(12, "Medium");
+      color: $gray6;
+      margin-bottom: rem(4);
+    }
+
+    &--day {
+      color: var(--txt-color-base);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      @include transition();
+
+      &:hover:not(&--selected) {
+        background: var(--color-main-5);
+      }
+    }
+
+    &--today {
+      color: var(--color-main);
+      font-weight: bold;
+    }
+
+    &--selected {
+      background: var(--color-main);
+      color: #fff;
+      font-weight: bold;
+    }
+  }
+}

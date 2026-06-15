@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Todo } from '../types/todo';
 import Toast from './Toast';
+import DatePicker from './DatePicker';
 
 interface Props {
   onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string) => void;
@@ -71,12 +72,9 @@ export default function TodoInput({ onAdd, categories }: Props) {
 
         <div>
           <label className="todo-input__label">마감일</label>
-          <input
-            className="todo-input__date"
-            type="date"
-            value={dueDate}
-            onChange={e => setDueDate(e.target.value)}
-          />
+          <div style={{ width: '180px' }}>
+            <DatePicker value={dueDate} onChange={setDueDate} />
+          </div>
         </div>
 
         <div>

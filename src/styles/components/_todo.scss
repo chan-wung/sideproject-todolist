@@ -761,4 +761,23 @@ dialog.confirm-modal {
     gap: rem(6);
     margin-top: rem(4);
   }
+
+  &__sub-add-btn {
+    flex-shrink: 0;
+    height: rem(45);
+    padding: 0 rem(16);
+    border-radius: 8px;
+    @include font(13, "Bold");
+    background: var(--color-main-5);
+    color: var(--txt-color-base);
+    border: 1px solid $border_color;
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      background: var(--color-main-10);
+      border-color: $main-color;
+      color: $main-color;
+    }
+  }
 }

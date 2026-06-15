@@ -208,7 +208,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubt
               onChange={e => setSubText(e.target.value)}
               onKeyDown={handleSubtaskKeyDown}
             />
-            <button className="todo-input__btn" type="button" onClick={handleAddSubtask}>추가</button>
+            <button className="todo-item__sub-add-btn" type="button" onClick={handleAddSubtask}>추가</button>
           </div>
         </div>
       </div>

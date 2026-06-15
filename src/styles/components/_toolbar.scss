@@ -25,16 +25,16 @@
     gap: rem(4);
 
     &:hover {
-      background: $blGray;
-      color: $black2;
+      background: var(--color-main-5);
+      color: var(--txt-color-tit);
     }
 
     &--theme {
       width: 100%;
       border-color: transparent;
-      background: $blGray;
+      background: var(--color-main-5);
       &:hover {
-        background: darken($blGray, 5%);
+        background: var(--color-main-10);
       }
     }
   }

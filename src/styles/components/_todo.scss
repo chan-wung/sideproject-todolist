@@ -347,7 +347,7 @@ dialog.confirm-modal {
   &__tabs {
     display: flex;
     gap: rem(4);
-    background: var(--color-bg);
+    background: var(--color-main-5);
     border-radius: 8px;
     padding: rem(4);
   }
@@ -410,7 +410,7 @@ dialog.confirm-modal {
   &__sort {
     display: flex;
     gap: rem(2);
-    background: var(--color-bg);
+    background: var(--color-main-5);
     border-radius: 8px;
     padding: rem(3);
   }

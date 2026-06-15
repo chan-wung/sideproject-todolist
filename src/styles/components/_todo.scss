@@ -709,11 +709,12 @@ dialog.confirm-modal {
 
   // ── 서브태스크 ──────────────────────────────────
   &__sub-progress {
-    @include font(11, "Medium");
-    color: $main-color;
-    background: lighten($main-color, 45%);
+    @include font(11, "Bold");
+    color: var(--color-main);
+    background: transparent;
+    border: 1px solid var(--color-main);
     padding: rem(2) rem(8);
-    border-radius: 4px;
+    border-radius: 12px;
     margin-left: auto;
   }
 

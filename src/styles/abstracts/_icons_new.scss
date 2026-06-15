@@ -3165,12 +3165,6 @@
   height: rem(24);
   display: inline-block;
 
-  // Element — file-based SVG icons (img file path)
-  &__external {
-    background: url("/_user/basicFolder/img/icon/icon-link.svg") no-repeat center;
-    background-size: contain;
-  }
-
   // Modifier — inline SVG function, icon only (transparent background)
   &--arrow-down {
     background: svgIcoArrowCircleDown(#333) no-repeat center / cover;

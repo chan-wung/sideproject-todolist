@@ -140,6 +140,9 @@ export function useTodos() {
       return statusMatch && categoryMatch && queryMatch && dueMatch;
     })
     .sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+
       if (sortKey === 'priority') {
         return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
       }
@@ -157,7 +160,12 @@ export function useTodos() {
   const dueTodayCount = todos.filter(t => !t.completed && isToday(t.dueDate)).length;
   const overdueCount = todos.filter(t => !t.completed && isOverdue(t.dueDate)).length;
 
+  function pinTodo(id: string) {
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, pinned: !t.pinned } : t));
+  }
+
   return {
+    allTodos: todos,
     filteredTodos,
     filterStatus,
     setFilterStatus,
@@ -178,6 +186,7 @@ export function useTodos() {
     toggleTodo,
     deleteTodo,
     updateTodo,
+    pinTodo,
     clearCompleted,
     addSubtask,
     toggleSubtask,

@@ -7,6 +7,7 @@ interface Props {
   categories: string[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onPin: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category'>>) => void;
   onAddSubtask: (todoId: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
@@ -19,7 +20,7 @@ const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
   completed: { icon: '📝', text: '완료된 항목이 없어요.' },
 };
 
-export default function TodoList({ todos, filterStatus, categories, onToggle, onDelete, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask }: Props) {
+export default function TodoList({ todos, filterStatus, categories, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask }: Props) {
   if (todos.length === 0) {
     const { icon, text } = EMPTY_MESSAGES[filterStatus];
     return (
@@ -39,6 +40,7 @@ export default function TodoList({ todos, filterStatus, categories, onToggle, on
             categories={categories}
             onToggle={onToggle}
             onDelete={onDelete}
+            onPin={onPin}
             onUpdate={onUpdate}
             onAddSubtask={onAddSubtask}
             onToggleSubtask={onToggleSubtask}

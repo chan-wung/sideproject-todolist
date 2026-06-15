@@ -123,7 +123,7 @@ dialog.quick-memo-modal {
     align-items: center;
     padding: rem(12) rem(16);
     border-bottom: 1px solid $border_color;
-    cursor: pointer;
+    cursor: grab;
     @include transition(background-color);
 
     &:hover {
@@ -135,6 +135,29 @@ dialog.quick-memo-modal {
       border-left: 3px solid $main-color;
       padding-left: rem(13);
     }
+
+    &--pinned {
+      font-weight: 700;
+      border-left: 2px solid var(--color-sub);
+    }
+
+    &--dragging {
+      opacity: 0.4;
+      cursor: grabbing;
+    }
+
+    &--drag-over {
+      border-top: 2px solid $main-color;
+    }
+  }
+
+  &__drag-handle {
+    flex-shrink: 0;
+    color: var(--color-border);
+    font-size: 1.4rem;
+    cursor: grab;
+    user-select: none;
+    margin-right: rem(4);
   }
 
   &__item-tit {
@@ -154,6 +177,21 @@ dialog.quick-memo-modal {
     cursor: pointer;
     padding: 0 rem(4);
     &:hover { color: $red; }
+  }
+
+  &__item-pin {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0 rem(4);
+    opacity: 0.4;
+    font-size: rem(14);
+    @include transition();
+    
+    &--active {
+      opacity: 1;
+      color: var(--color-sub);
+    }
   }
 
   &__content {

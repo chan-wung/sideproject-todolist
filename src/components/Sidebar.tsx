@@ -16,7 +16,7 @@ export default function Sidebar({ isOpen, onClose, exportData, importData, onImp
       <div className={`sidebar ${isOpen ? 'sidebar--open' : ''}`}>
         <div className="sidebar__header">
           <h2>컨트롤 패널</h2>
-          <button className="sidebar__close" onClick={onClose} type="button">&times;</button>
+          <button className="sidebar__close" onClick={onClose} type="button" aria-label="닫기"><span aria-hidden="true">&times;</span></button>
         </div>
         <div className="sidebar__body">
           <AppToolbar exportData={exportData} importData={importData} onImportResult={onImportResult} />

@@ -513,6 +513,11 @@ dialog.confirm-modal {
     border-left-color: $red !important;
   }
 
+  &--pinned {
+    border-left: 3px solid var(--color-sub);
+    background: var(--color-main-5);
+  }
+
   &--completed {
     opacity: 0.65;
 
@@ -615,6 +620,17 @@ dialog.confirm-modal {
         background: lighten($red, 40%);
         color: $red;
       }
+    }
+
+    &--pin {
+      color: var(--txt-color-form);
+      &:hover {
+        background: var(--color-main-5);
+      }
+    }
+    
+    &--pin-active {
+      color: var(--color-sub);
     }
   }
 

@@ -1,10 +1,12 @@
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useEffect, useRef, useState } from 'react';
+import ConfirmModal from './ConfirmModal';
 
 interface Memo {
   id: string;
   title: string;
   content: string;
+  pinned?: boolean;
 }
 
 interface Props {
@@ -16,7 +18,11 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
   const [memos, setMemos] = usePersistentState<Memo[]>('todolist-memos-array', []);
   const [activeId, setActiveId] = usePersistentState<string | null>('todolist-active-memo', null);
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -24,7 +30,6 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
       dialogRef.current?.showModal();
       document.body.style.overflow = 'hidden';
       
-      // 만약 메모가 하나도 없다면 기본 메모 1개 생성 (이전 단일 메모 내용이 있다면 복원)
       if (memos.length === 0) {
         let oldContent = '';
         try {
@@ -47,7 +52,7 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isOpen, memos.length, activeId, setMemos, setActiveId]);
+  }, [isOpen, memos, activeId, setMemos, setActiveId]);
 
   function handleAdd() {
     const newId = crypto.randomUUID();
@@ -55,26 +60,57 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
     setActiveId(newId);
   }
 
-  function handleDelete(id: string, e: React.MouseEvent) {
-    e.stopPropagation();
-    if (!confirm('이 메모를 삭제하시겠습니까?')) return;
+  function handleDeleteConfirm(id: string) {
     const newMemos = memos.filter(m => m.id !== id);
     setMemos(newMemos);
-    
     if (activeId === id) {
       setActiveId(newMemos.length > 0 ? newMemos[0].id : null);
     }
-    
-    // 마지막 메모를 지웠다면 빈 메모 하나 자동 생성
     if (newMemos.length === 0) {
       const newId = crypto.randomUUID();
       setMemos([{ id: newId, title: '새 메모', content: '' }]);
       setActiveId(newId);
     }
+    setConfirmDeleteId(null);
   }
 
   function updateActiveMemo(updates: Partial<Memo>) {
     setMemos(memos.map(m => m.id === activeId ? { ...m, ...updates } : m));
+  }
+
+  function toggleMemoPin(id: string) {
+    setMemos(memos.map(m => m.id === id ? { ...m, pinned: !m.pinned } : m));
+  }
+
+  function handleDragStart(id: string) {
+    setDraggingId(id);
+  }
+
+  function handleDragOver(e: React.DragEvent, id: string) {
+    e.preventDefault();
+    if (id !== draggingId) setDragOverId(id);
+  }
+
+  function handleDrop(targetId: string) {
+    if (!draggingId || draggingId === targetId) {
+      setDraggingId(null);
+      setDragOverId(null);
+      return;
+    }
+    const from = memos.findIndex(m => m.id === draggingId);
+    const to = memos.findIndex(m => m.id === targetId);
+    if (from === -1 || to === -1) return;
+    const next = [...memos];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setMemos(next);
+    setDraggingId(null);
+    setDragOverId(null);
+  }
+
+  function handleDragEnd() {
+    setDraggingId(null);
+    setDragOverId(null);
   }
 
   const activeMemo = memos.find(m => m.id === activeId);
@@ -88,18 +124,20 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
 
   if (!isOpen) return null;
 
+  const confirmTarget = confirmDeleteId ? memos.find(m => m.id === confirmDeleteId) : null;
+
   return (
     <dialog ref={dialogRef} className="quick-memo-modal" onCancel={onClose} onClick={handleBackdropClick}>
       <div className="quick-memo-modal__container">
         <div className="quick-memo-modal__header">
           <h2>📝 메모장 (탭 관리)</h2>
-          <button className="quick-memo-modal__close" onClick={onClose} type="button">&times;</button>
+          <button className="quick-memo-modal__close" onClick={onClose} type="button" aria-label="닫기"><span aria-hidden="true">&times;</span></button>
         </div>
         
         <div className="quick-memo-modal__body">
           {/* 왼쪽: 탭(목록) 영역 */}
           <div className="quick-memo-modal__sidebar">
-            <button className="quick-memo-modal__add" onClick={handleAdd}>+ 새 메모 추가</button>
+            <button type="button" className="quick-memo-modal__add" onClick={handleAdd}>+ 새 메모 추가</button>
             <div className="quick-memo-modal__search">
               <input 
                 type="text" 
@@ -112,15 +150,36 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
               {filteredMemos.map(m => (
                 <li 
                   key={m.id} 
-                  className={`quick-memo-modal__item ${m.id === activeId ? 'quick-memo-modal__item--active' : ''}`}
+                  draggable
+                  onDragStart={() => handleDragStart(m.id)}
+                  onDragOver={(e) => handleDragOver(e, m.id)}
+                  onDrop={() => handleDrop(m.id)}
+                  onDragEnd={handleDragEnd}
+                  className={[
+                    'quick-memo-modal__item',
+                    m.id === activeId ? 'quick-memo-modal__item--active' : '',
+                    m.pinned ? 'quick-memo-modal__item--pinned' : '',
+                    m.id === draggingId ? 'quick-memo-modal__item--dragging' : '',
+                    m.id === dragOverId ? 'quick-memo-modal__item--drag-over' : '',
+                  ].filter(Boolean).join(' ')}
                   onClick={() => setActiveId(m.id)}
                 >
+                  <span className="quick-memo-modal__drag-handle" aria-hidden="true">⠿</span>
                   <span className="quick-memo-modal__item-tit">{m.title || '제목 없음'}</span>
-                  <button 
-                    className="quick-memo-modal__item-del" 
-                    onClick={(e) => handleDelete(m.id, e)}
-                    title="삭제"
-                  >&times;</button>
+                  <button
+                    type="button"
+                    className={`quick-memo-modal__item-pin${m.pinned ? ' quick-memo-modal__item-pin--active' : ''}`}
+                    onClick={(e) => { e.stopPropagation(); toggleMemoPin(m.id); }}
+                    aria-label={m.pinned ? '고정 해제' : '메모 고정'}
+                  >
+                    <span aria-hidden="true">📌</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="quick-memo-modal__item-del"
+                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(m.id); }}
+                    aria-label="메모 삭제"
+                  ><span aria-hidden="true">&times;</span></button>
                 </li>
               ))}
             </ul>
@@ -150,6 +209,13 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
           </div>
         </div>
       </div>
+      {confirmTarget && (
+        <ConfirmModal
+          message={`"${confirmTarget.title}" 메모를 삭제할까요?`}
+          onConfirm={() => handleDeleteConfirm(confirmTarget.id)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
+      )}
     </dialog>
   );
 }

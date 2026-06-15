@@ -9,6 +9,7 @@ export interface Todo {
   category: string;
   createdAt: string;
   subtasks?: Subtask[];
+  pinned?: boolean;
 }
 
 export type FilterStatus = 'all' | 'active' | 'completed';

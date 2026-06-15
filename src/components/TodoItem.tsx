@@ -7,6 +7,7 @@ interface Props {
   todo: Todo;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onPin: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category'>>) => void;
   onAddSubtask: (id: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
@@ -20,7 +21,7 @@ const PRIORITY_LABEL: Record<Todo['priority'], string> = {
   low: '낮음',
 };
 
-export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, categories }: Props) {
+export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, categories }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [editText, setEditText] = useState(todo.text);
@@ -146,6 +147,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubt
         `todo-item--${todo.priority}`,
         todo.completed ? 'todo-item--completed' : '',
         overdue ? 'todo-item--overdue' : '',
+        todo.pinned ? 'todo-item--pinned' : '',
       ].filter(Boolean).join(' ')}
     >
       <label className="todo-item__check form-chk form-chk--checkbox">
@@ -214,6 +216,16 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubt
       </div>
 
       <div className="todo-item__actions">
+        <button
+          type="button"
+          className={`todo-item__btn todo-item__btn--pin${todo.pinned ? ' todo-item__btn--pin-active' : ''}`}
+          onClick={() => onPin(todo.id)}
+          aria-label={todo.pinned ? '고정 해제' : '상단 고정'}
+        >
+          <svg viewBox="0 0 24 24" fill={todo.pinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </button>
         <button
           className="todo-item__btn todo-item__btn--edit"
           type="button"

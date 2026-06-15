@@ -366,6 +366,11 @@ dialog.confirm-modal {
       background: var(--color-main);
       color: #fff;
       box-shadow: none;
+
+      .filter-bar__count {
+        background: #fff;
+        color: var(--color-main);
+      }
     }
 
     &:not(&--active):hover {

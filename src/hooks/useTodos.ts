@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { Todo, FilterStatus, SortKey, DueScope } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
 import { isToday, isThisWeek, isOverdue } from '../utils/date';
@@ -119,7 +119,15 @@ export function useTodos() {
     return true;
   }
 
-  const categories = ['all', ...Array.from(new Set(todos.map(t => t.category)))];
+  const categories = useMemo(() => {
+    return ['all', ...Array.from(new Set(todos.map(t => t.category)))];
+  }, [todos]);
+
+  useEffect(() => {
+    if (filterCategory !== 'all' && !categories.includes(filterCategory)) {
+      setFilterCategory('all');
+    }
+  }, [categories, filterCategory, setFilterCategory]);
 
   const filteredTodos = todos
     .filter(t => {

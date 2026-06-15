@@ -7,6 +7,13 @@
   @return '%23' + $color-str;
 }
 
+// 외부 링크 화살표 (springworks-basic에서 이식, _utilities.scss 에서 사용)
+@function svgShortcut($color) {
+  $c: '%23' + $color;
+  $icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9'%3E%3Cpath d='M4,8.012V9.148h6.818L7.693,12.273l.807.807L13,8.58,8.5,4.08l-.807.807,3.125,3.125Z' transform='translate(-4 -4.08)' fill='#{$c}'/%3E%3C/svg%3E";
+  @return url($icon);
+}
+
 @function svgIcoArrowDown($color, $bg: transparent) {
   $c: set-icon-color($color);
   $icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='8' viewBox='0 0 13 8' fill='none'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M5.65654 7.071L-0.00046164 1.414L1.41354 -4.94551e-07L6.36354 4.95L11.3135 -6.18079e-08L12.7275 1.414L7.07054 7.071C6.88301 7.25847 6.6287 7.36379 6.36354 7.36379C6.09837 7.36379 5.84407 7.25847 5.65654 7.071Z' fill='#{$c}'/%3E%3C/svg%3E";

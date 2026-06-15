@@ -6,32 +6,32 @@
 input:not([type="checkbox"]):not([type="radio"]),
 select {
   height: 45px;
-  border: 1px solid $border_color;
-  background-color: $white;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-white);
   border-radius: 8px;
   box-sizing: border-box;
 
   &:disabled {
-    background-color: #F8F8F8;
+    background-color: var(--color-main-5);
     cursor: not-allowed;
   }
 }
 
 input:not([type="checkbox"]):not([type="radio"]):read-only {
-  background-color: #F8F8F8;
+  background-color: var(--color-main-5);
   cursor: not-allowed;
 }
 
 textarea {
-  border: 1px solid $border_color;
-  background-color: $white;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-white);
   border-radius: 8px;
   box-sizing: border-box;
   padding: 15px;
 
   &:disabled,
   &:read-only {
-    background-color: #F8F8F8;
+    background-color: var(--color-main-5);
     cursor: not-allowed;
   }
 }
@@ -61,21 +61,21 @@ textarea {
   &__select,
   &__textarea {
     width: 100%;
-    border: 1px solid $border_color;
-    background-color: $white;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-white);
     border-radius: 8px;
     box-sizing: border-box;
-    color: $default-color;
+    color: var(--txt-color-base);
     @include transition(border-color);
 
     &:focus {
-      border-color: $main-color;
+      border-color: var(--color-main);
       outline: none;
     }
 
     &:disabled,
     &[readonly] {
-      background-color: #F8F8F8;
+      background-color: var(--color-main-5);
       cursor: not-allowed;
     }
   }

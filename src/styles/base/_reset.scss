@@ -84,6 +84,7 @@ input, select, textarea, button {
   @include font(14, "Regular");
   border: none;
   background: none;
+  color: inherit;
 }
 
 button {
@@ -105,7 +106,7 @@ input {
 
 input::placeholder,
 textarea::placeholder {
-  color: $font_form_color;
+  color: var(--txt-color-form);
 }
 
 select {

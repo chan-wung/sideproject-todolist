@@ -347,7 +347,7 @@ dialog.confirm-modal {
   &__tabs {
     display: flex;
     gap: rem(4);
-    background: $blGray;
+    background: var(--color-main-5);
     border-radius: 8px;
     padding: rem(4);
   }

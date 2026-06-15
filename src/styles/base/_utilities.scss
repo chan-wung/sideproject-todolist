@@ -1,0 +1,187 @@
+@include color_factory ('main', $main-color);
+@include color_factory ('sub', $sub-color);
+@include color_factory ('default', $default-color);
+@include color_factory ('white', $white);
+@include color_factory ('black', $black);
+@include color_factory ('gray5', $gray5);
+@include color_factory ('gray6', $gray6);
+@include color_factory ('gray9', $gray9);
+@include color_factory ('grayA', $grayA);
+@include color_factory ('grayC', $grayC);
+@include color_factory ('grayD', $grayD);
+@include color_factory ('red', $red);
+@include color_factory ('crimson', $crimson);
+@include color_factory ('green', $green);
+@include color_factory ('blue', $blue);
+@include color_factory ('purple', $purple);
+@include color_factory ('navy', $navy);
+@include color_factory ('pink', $pink);
+@include color_factory ('orange', $orange);
+@include color_factory ('mint', $mint);
+
+@include bg_factory ('bg-main', $main-color);
+@include bg_factory ('bg-sub', $sub-color);
+@include bg_factory ('bg-white', $white);
+@include bg_factory ('bg-gray5', $gray5);
+@include bg_factory ('bg-blGray', $blGray); // 배경용으로 추가
+// 버튼 시스템용 배경색 (_button.scss hover와 쌍을 이룸)
+@include bg_factory ('bg-point', $blue);
+@include bg_factory ('bg-blue', $blue);
+@include bg_factory ('bg-gray', $gray5);
+@include bg_factory ('bg-lightgray', $grayC);
+@include bg_factory ('bg-lightgray2', $blGray);
+@include bg_factory ('bg-mint', $mint);
+
+@include border_factory ('border-main', $main-color);
+@include border_factory ('border-grayD', $grayD); // 테두리용으로 추가
+
+.border-none {border: none !important;}
+
+@include padding_factory (0, 10, 10);
+@include margin_factory (5, 5, 10);
+.pb0 {padding-bottom: 0 !important;}
+.pt0 {padding-top: 0 !important;}
+.ml5 {margin-left: 5px;}
+.m-auto {margin: 0 auto;}
+
+// full
+.w-full {width: 100%; max-width: none !important;}
+.h-full {height: 100%;}
+.w-fit {width: fit-content;}
+.h-fit {height: fit-content;}
+.w-50 {width: 50%;}
+.h-50 {height: 50%;}
+.w-vw {width: 100vw;}
+.h-vh {height: 100vh;}
+.wid70 {width: 70px !important;}
+.wid100 {width: 100px !important;}
+.wid200 {width: 200px !important;}
+
+// position
+.absolute {position: absolute;}
+.fixed {position: fixed;}
+.relative {position: relative;}
+.sticky {position: sticky;}
+
+// border-radius
+.radius-circle {border-radius: 50%;}
+.radius-15 {border-radius: 15px;}
+.radius-10 {border-radius: 10px;}
+.radius-5 {border-radius: 5px;}
+
+// flex
+.flex {display: flex;}
+.flex-wrap {display: flex; flex-wrap: wrap;}
+.flex-row {flex-direction: row;}
+.flex-col {flex-direction: column;}
+.space-around {justify-content: space-around;}
+.justify-center {justify-content: center;}
+.justify-between {justify-content: space-between;}
+.justify-end {justify-content: flex-end;}
+.baseline {align-items: baseline;}
+.align-center {align-items: center;}
+.gap3 {gap: 3px;}
+.gap5 {gap: 5px;}
+.gap10 {gap: 10px;}
+.gap30 {gap: 30px;}
+
+// grid
+.grid {display: grid;}
+@media screen and (min-width: 1450px){ .max-pc-grid {display: grid;} }
+
+// display
+.block {display: block !important;}
+.inline-block {display: inline-block !important;}
+
+// font-weight
+.regular {font-weight: 400;}
+.medium {font-weight: 500;}
+.bold {font-weight: 700;}
+span.bold {display: contents;}
+
+// text options
+.underline {text-decoration: underline; text-underline-position: under; -ms-text-underline-position: below;}
+.white-nowrap {white-space: nowrap;}
+.dotdot {white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.line2-dot {display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;}
+.break-all {word-break: break-all;}
+.keep-all {word-break: keep-all;}
+.vertical-middle {vertical-align: middle;}
+.vertical-baseline {vertical-align: baseline;}
+.tl {text-align: left !important;}
+.tr {text-align: right !important;}
+.tc {text-align: center !important;}
+
+// bullet type
+.arrow-bullet {
+  display: flex;
+  &:before {
+    content: ''; position: relative; min-width: 5px; height: 5px; margin-right: 10px; border-top-width: 2px; border-right-width: 2px; border-left-width: 0; border-bottom-width: 0; border-style: solid; transform: rotate(45deg); border-color: $main-color; top: 7px;
+    @include pc { top: 10px; }
+  }
+}
+.circle-bullet {
+  display: flex;
+  &:before {content: ''; position: relative; min-width: 4px; height: 4px; margin-right: 5px; border-radius: 50%; background: $main-color; top: 8px;}
+}
+
+.out-link {text-decoration: underline; text-underline-position: under; padding-bottom: 1px;}
+.point-color {color: $main-color;}
+
+em.bar, em.mobhide-bar {
+  position: relative; top: 0; text-align: center; margin: 0 8px 0 11px; display: inline-block; width: 1px; height: 18px; border-left: 1px solid #D5D5D5;
+  @include pc { height: 30px; margin: 0 12px 0 15px; }
+}
+em.row-bar {display: block; width: 25px; height: 1px; background: #707070; margin: 6px 0;}
+em.mobhide-bar {
+  display: none;
+  @include tablet_pc { display: inline-block; }
+}
+em.hyphen {
+  line-height: 40px; text-align: center; display: block; padding: 0 3px; color: #111;
+  @include tablet_pc { line-height: 40px; }
+}
+
+.svg-shortcut {
+  background-image: svgShortcut('777'); background-repeat: no-repeat; background-position: 0 0;
+}
+
+// Responsive Utility Classes
+.mobhide, .webshow {
+  display: none;
+  @include tablet_pc { display: block; }
+  @include pc { display: block; }
+}
+.mobshow {
+  display: block;
+  @include tablet_pc { display: none; }
+  @include pc { display: none; }
+}
+.webhide {
+  @include tablet_pc { display: block; }
+  @include pc { display: none; }
+}
+
+span.br, span.br2 {display: block; border: none;}
+@include tablet_pc { span.br {display: inline;} }
+@include pc { span.br2 {display: inline;} }
+
+.webhide-important {
+  display: block !important;
+  @include pc { display: none !important; }
+}
+.webshow-important {
+  display: none !important;
+  @include pc { display: block !important; }
+}
+
+@include tablet_pc {
+  .tab-tl {text-align: left;}
+  .tab-tr {text-align: right;}
+  .tab-tc {text-align: center;}
+  .tab-flex {display: flex; align-items: center;}
+}
+
+@include pc {
+  .web-flex {display: flex; align-items: center;}
+}

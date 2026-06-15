@@ -7,11 +7,14 @@
 @import 'abstracts/variables';
 @import 'abstracts/icons';
 @import 'abstracts/mixins';
+@import 'abstracts/icons_new';
 
 // base
 @import 'base/typography';
 @import 'base/reset';
 @import 'base/accessibility';
+@import 'base/custom-scroll';
+@import 'base/utilities';
 
 // components
 @import 'components/button';

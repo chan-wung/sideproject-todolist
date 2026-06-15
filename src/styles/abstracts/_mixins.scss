@@ -52,6 +52,38 @@
   @return ($px * 0.1) + rem;
 }
 
+// UTILITY CLASS FACTORIES (springworks-basic에서 이식)
+@mixin color_factory($name, $color) {
+  .#{$name} { color: $color !important; }
+}
+@mixin bg_factory($name, $color) {
+  .#{$name} { background-color: $color !important; }
+}
+@mixin border_factory($name, $color) {
+  .#{$name} { border-color: $color !important; }
+}
+@mixin fill_factory($name, $color) {
+  .#{$name} { fill: $color; }
+}
+@mixin stroke_factory($name, $color) {
+  .#{$name} { stroke: $color; }
+}
+
+@mixin padding_factory($base, $unit, $step) {
+  @for $i from 0 to $step {
+    $val: $unit * $i + $base;
+    .pt#{$val} { padding-top: rem($val) !important; }
+    .pb#{$val} { padding-bottom: rem($val) !important; }
+  }
+}
+@mixin margin_factory($base, $unit, $step) {
+  @for $i from 0 to $step {
+    $val: $unit * $i + $base;
+    .mt#{$val} { margin-top: rem($val) !important; }
+    .mb#{$val} { margin-bottom: rem($val) !important; }
+  }
+}
+
 // UTILITY MIXINS
 @mixin contents_default {
   max-width: $site_max_width;

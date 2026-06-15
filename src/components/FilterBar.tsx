@@ -1,4 +1,4 @@
-import type { FilterStatus, SortKey } from '../types/todo';
+import type { FilterStatus, SortKey, DueScope } from '../types/todo';
 
 interface Props {
   filterStatus: FilterStatus;
@@ -7,6 +7,10 @@ interface Props {
   setFilterCategory: (v: string) => void;
   sortKey: SortKey;
   setSortKey: (v: SortKey) => void;
+  query: string;
+  setQuery: (v: string) => void;
+  dueScope: DueScope;
+  setDueScope: (v: DueScope) => void;
   categories: string[];
   activeCount: number;
   completedCount: number;
@@ -25,6 +29,13 @@ const SORT_BTNS: { value: SortKey; label: string }[] = [
   { value: 'dueDate', label: '마감일순' },
 ];
 
+const DUE_BTNS: { value: DueScope; label: string }[] = [
+  { value: 'all', label: '마감일 전체' },
+  { value: 'today', label: '오늘 마감' },
+  { value: 'week', label: '이번주 마감' },
+  { value: 'overdue', label: '지연' },
+];
+
 export default function FilterBar({
   filterStatus,
   setFilterStatus,
@@ -32,6 +43,10 @@ export default function FilterBar({
   setFilterCategory,
   sortKey,
   setSortKey,
+  query,
+  setQuery,
+  dueScope,
+  setDueScope,
   categories,
   activeCount,
   completedCount,
@@ -39,6 +54,9 @@ export default function FilterBar({
 }: Props) {
   return (
     <div className="filter-bar">
+      <input className="filter-bar__search" type="search" placeholder="검색 (제목·카테고리)"
+        value={query} onChange={e => setQuery(e.target.value)} />
+      
       <div className="filter-bar__tabs">
         {STATUS_TABS.map(tab => (
           <button
@@ -56,6 +74,18 @@ export default function FilterBar({
       </div>
 
       <div className="filter-bar__right">
+        <div className="filter-bar__sort">
+          {DUE_BTNS.map(btn => (
+            <button
+              key={btn.value}
+              className={`filter-bar__sort-btn${dueScope === btn.value ? ' filter-bar__sort-btn--active' : ''}`}
+              type="button"
+              onClick={() => setDueScope(btn.value)}
+            >
+              {btn.label}
+            </button>
+          ))}
+        </div>
         <div className="filter-bar__sort">
           {SORT_BTNS.map(btn => (
             <button

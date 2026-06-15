@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Todo } from '../types/todo';
 import ConfirmModal from './ConfirmModal';
+import { isOverdue, formatDate } from '../utils/date';
 
 interface Props {
   todo: Todo;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category'>>) => void;
+  onAddSubtask: (id: string, text: string) => void;
+  onToggleSubtask: (todoId: string, subId: string) => void;
+  onDeleteSubtask: (todoId: string, subId: string) => void;
 }
 
 const PRIORITY_LABEL: Record<Todo['priority'], string> = {
@@ -15,23 +19,14 @@ const PRIORITY_LABEL: Record<Todo['priority'], string> = {
   low: '낮음',
 };
 
-function isOverdue(dueDate?: string) {
-  if (!dueDate) return false;
-  return new Date(dueDate) < new Date(new Date().toDateString());
-}
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-}
-
-export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: Props) {
+export default function TodoItem({ todo, onToggle, onDelete, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [editPriority, setEditPriority] = useState<Todo['priority']>(todo.priority);
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
   const [editCategory, setEditCategory] = useState(todo.category);
+  const [subText, setSubText] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -66,7 +61,19 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: Props) 
     if (e.key === 'Escape') handleCancel();
   }
 
+  function handleAddSubtask() {
+    if (!subText.trim()) return;
+    onAddSubtask(todo.id, subText);
+    setSubText('');
+  }
+  
+  function handleSubtaskKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') handleAddSubtask();
+  }
+
   const overdue = !todo.completed && isOverdue(todo.dueDate);
+  const done = (todo.subtasks ?? []).filter(s => s.completed).length;
+  const total = (todo.subtasks ?? []).length;
 
   if (isEditing) {
     return (
@@ -158,6 +165,42 @@ export default function TodoItem({ todo, onToggle, onDelete, onUpdate }: Props) 
               {overdue ? '⚠ ' : ''}{formatDate(todo.dueDate)}
             </span>
           )}
+          {total > 0 && (
+             <span className="todo-item__sub-progress">진행도 {done}/{total}</span>
+          )}
+        </div>
+        
+        <div className="todo-item__subtasks">
+          {(todo.subtasks ?? []).map(sub => (
+            <div key={sub.id} className="todo-item__subtask">
+              <label className="form-chk form-chk--checkbox">
+                <input
+                  type="checkbox"
+                  checked={sub.completed}
+                  onChange={() => onToggleSubtask(todo.id, sub.id)}
+                />
+                <span className="form-chk__text">{sub.text}</span>
+              </label>
+              <button
+                type="button"
+                className="todo-item__btn-sub-del"
+                onClick={() => onDeleteSubtask(todo.id, sub.id)}
+                aria-label="서브태스크 삭제"
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+          <div className="todo-item__sub-add">
+            <input
+              type="text"
+              placeholder="하위 항목 추가"
+              value={subText}
+              onChange={e => setSubText(e.target.value)}
+              onKeyDown={handleSubtaskKeyDown}
+            />
+            <button type="button" onClick={handleAddSubtask}>추가</button>
+          </div>
         </div>
       </div>
 

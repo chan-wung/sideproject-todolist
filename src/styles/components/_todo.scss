@@ -641,4 +641,86 @@ dialog.confirm-modal {
     display: flex;
     gap: rem(8);
   }
+
+  // ── 서브태스크 ──────────────────────────────────
+  &__sub-progress {
+    @include font(11, "Medium");
+    color: $main-color;
+    background: lighten($main-color, 45%);
+    padding: rem(2) rem(8);
+    border-radius: 4px;
+    margin-left: auto;
+  }
+
+  &__subtasks {
+    margin-top: rem(12);
+    display: flex;
+    flex-direction: column;
+    gap: rem(6);
+    padding-top: rem(12);
+    border-top: 1px dashed $border_color;
+  }
+
+  &__subtask {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    .form-chk__text {
+      @include font(13);
+      color: var(--txt-color-base);
+    }
+    
+    input:checked + .form-chk__text {
+      text-decoration: line-through;
+      color: $gray9;
+    }
+  }
+
+  &__btn-sub-del {
+    background: transparent;
+    border: none;
+    color: $grayA;
+    font-size: rem(16);
+    cursor: pointer;
+    padding: 0 rem(4);
+    &:hover { color: $red; }
+  }
+
+  &__sub-add {
+    display: flex;
+    gap: rem(6);
+    margin-top: rem(4);
+    
+    input {
+      flex: 1;
+      height: rem(30);
+      border: 1px solid $border_color;
+      border-radius: 4px;
+      padding: 0 rem(8);
+      @include font(12);
+      background: var(--color-white);
+      color: var(--txt-color-base);
+      
+      &:focus {
+        outline: none;
+        border-color: $main-color;
+      }
+    }
+    
+    button {
+      height: rem(30);
+      padding: 0 rem(10);
+      border-radius: 4px;
+      border: none;
+      background: $blGray;
+      color: $gray6;
+      @include font(12, "Medium");
+      cursor: pointer;
+      &:hover {
+        background: darken($blGray, 5%);
+        color: $black2;
+      }
+    }
+  }
 }

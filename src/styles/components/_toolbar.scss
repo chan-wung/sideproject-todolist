@@ -1,0 +1,38 @@
+.app-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: rem(20);
+  
+  &__backup {
+    display: flex;
+    gap: rem(8);
+  }
+
+  &__btn {
+    padding: rem(6) rem(12);
+    border-radius: 6px;
+    border: 1px solid $border_color;
+    background: var(--color-white);
+    color: var(--txt-color-base);
+    @include font(13, "Medium");
+    cursor: pointer;
+    @include transition();
+    display: inline-flex;
+    align-items: center;
+    gap: rem(4);
+
+    &:hover {
+      background: $blGray;
+      color: $black2;
+    }
+
+    &--theme {
+      border-color: transparent;
+      background: $blGray;
+      &:hover {
+        background: darken($blGray, 5%);
+      }
+    }
+  }
+}

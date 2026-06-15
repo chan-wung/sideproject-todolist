@@ -1,3 +1,5 @@
+export interface Subtask { id: string; text: string; completed: boolean; }
+
 export interface Todo {
   id: string;
   text: string;
@@ -6,7 +8,9 @@ export interface Todo {
   dueDate?: string;
   category: string;
   createdAt: string;
+  subtasks?: Subtask[];
 }
 
 export type FilterStatus = 'all' | 'active' | 'completed';
 export type SortKey = 'default' | 'priority' | 'dueDate';
+export type DueScope = 'all' | 'today' | 'week' | 'overdue';

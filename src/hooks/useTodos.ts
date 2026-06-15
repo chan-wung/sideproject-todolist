@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import type { Todo, FilterStatus, SortKey } from '../types/todo';
+import type { Todo, FilterStatus, SortKey, DueScope } from '../types/todo';
+import { usePersistentState } from './usePersistentState';
+import { isToday, isThisWeek, isOverdue } from '../utils/date';
 
 const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, low: 2 };
 
@@ -16,9 +18,11 @@ function loadFromStorage(): Todo[] {
 
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>(loadFromStorage);
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
-  const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [sortKey, setSortKey] = useState<SortKey>('default');
+  const [filterStatus, setFilterStatus] = usePersistentState<FilterStatus>('todolist-pref-status', 'all');
+  const [filterCategory, setFilterCategory] = usePersistentState<string>('todolist-pref-category', 'all');
+  const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default');
+  const [query, setQuery] = usePersistentState<string>('todolist-pref-query', '');
+  const [dueScope, setDueScope] = usePersistentState<DueScope>('todolist-pref-due', 'all');
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
@@ -63,6 +67,33 @@ export function useTodos() {
     setTodos(prev => prev.filter(t => !t.completed));
   }
 
+  function addSubtask(todoId: string, text: string) {
+    if (!text.trim()) return;
+    setTodos(prev => prev.map(t => t.id === todoId
+      ? { ...t, subtasks: [...(t.subtasks ?? []), { id: crypto.randomUUID(), text: text.trim(), completed: false }] } : t));
+  }
+
+  function toggleSubtask(todoId: string, subId: string) {
+    setTodos(prev => prev.map(t => t.id === todoId
+      ? { ...t, subtasks: (t.subtasks ?? []).map(s => s.id === subId ? { ...s, completed: !s.completed } : s) } : t));
+  }
+
+  function deleteSubtask(todoId: string, subId: string) {
+    setTodos(prev => prev.map(t => t.id === todoId
+      ? { ...t, subtasks: (t.subtasks ?? []).filter(s => s.id !== subId) } : t));
+  }
+
+  function exportData(): Todo[] { return todos; }
+
+  function importData(incoming: unknown): boolean {
+    if (!Array.isArray(incoming)) return false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const ok = incoming.every((o: any) => o && typeof o.id === 'string' && typeof o.text === 'string');
+    if (!ok) return false;
+    setTodos(incoming as Todo[]);
+    return true;
+  }
+
   const categories = ['all', ...Array.from(new Set(todos.map(t => t.category)))];
 
   const filteredTodos = todos
@@ -72,7 +103,17 @@ export function useTodos() {
         (filterStatus === 'active' && !t.completed) ||
         (filterStatus === 'completed' && t.completed);
       const categoryMatch = filterCategory === 'all' || t.category === filterCategory;
-      return statusMatch && categoryMatch;
+      
+      const q = query.trim().toLowerCase();
+      const queryMatch = !q || t.text.toLowerCase().includes(q) || t.category.toLowerCase().includes(q);
+      
+      const dueMatch =
+        dueScope === 'all' ||
+        (dueScope === 'today' && isToday(t.dueDate)) ||
+        (dueScope === 'week' && isThisWeek(t.dueDate)) ||
+        (dueScope === 'overdue' && !t.completed && isOverdue(t.dueDate));
+        
+      return statusMatch && categoryMatch && queryMatch && dueMatch;
     })
     .sort((a, b) => {
       if (sortKey === 'priority') {
@@ -89,6 +130,8 @@ export function useTodos() {
 
   const activeCount = todos.filter(t => !t.completed).length;
   const completedCount = todos.filter(t => t.completed).length;
+  const dueTodayCount = todos.filter(t => !t.completed && isToday(t.dueDate)).length;
+  const overdueCount = todos.filter(t => !t.completed && isOverdue(t.dueDate)).length;
 
   return {
     filteredTodos,
@@ -98,13 +141,24 @@ export function useTodos() {
     setFilterCategory,
     sortKey,
     setSortKey,
+    query,
+    setQuery,
+    dueScope,
+    setDueScope,
     categories,
     activeCount,
     completedCount,
+    dueTodayCount,
+    overdueCount,
     addTodo,
     toggleTodo,
     deleteTodo,
     updateTodo,
     clearCompleted,
+    addSubtask,
+    toggleSubtask,
+    deleteSubtask,
+    exportData,
+    importData,
   };
 }

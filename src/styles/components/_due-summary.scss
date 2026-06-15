@@ -1,0 +1,32 @@
+.due-summary {
+  display: flex;
+  gap: rem(8);
+  margin-bottom: rem(16);
+
+  &__item {
+    flex: 1;
+    padding: rem(12) rem(16);
+    border-radius: 8px;
+    border: none;
+    @include font(14, "Bold");
+    cursor: pointer;
+    text-align: center;
+    @include transition(opacity);
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &--overdue {
+      background: lighten($red, 45%);
+      color: $red;
+      border: 1px solid lighten($red, 25%);
+    }
+
+    &--today {
+      background: lighten($main-color, 40%);
+      color: $main-color;
+      border: 1px solid lighten($main-color, 20%);
+    }
+  }
+}

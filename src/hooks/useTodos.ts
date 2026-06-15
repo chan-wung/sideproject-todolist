@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Todo, FilterStatus, SortKey, DueScope } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
 import { isToday, isThisWeek, isOverdue } from '../utils/date';
+import { generateId } from '../utils/id';
 
 const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, low: 2 };
 
@@ -36,7 +37,7 @@ export function useTodos() {
   ) {
     if (!text.trim()) return;
     const next: Todo = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       text: text.trim(),
       completed: false,
       priority,
@@ -80,7 +81,7 @@ export function useTodos() {
   function addSubtask(todoId: string, text: string) {
     if (!text.trim()) return;
     setTodos(prev => prev.map(t => t.id === todoId
-      ? { ...t, subtasks: [...(t.subtasks ?? []), { id: crypto.randomUUID(), text: text.trim(), completed: false }] } : t));
+      ? { ...t, subtasks: [...(t.subtasks ?? []), { id: generateId(), text: text.trim(), completed: false }] } : t));
   }
 
   function toggleSubtask(todoId: string, subId: string) {

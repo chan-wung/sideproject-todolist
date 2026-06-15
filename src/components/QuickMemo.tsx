@@ -1,6 +1,7 @@
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useEffect, useRef, useState } from 'react';
 import ConfirmModal from './ConfirmModal';
+import { generateId } from '../utils/id';
 
 interface Memo {
   id: string;
@@ -38,7 +39,7 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
         } catch {
           // ignore
         }
-        const newId = crypto.randomUUID();
+        const newId = generateId();
         setMemos([{ id: newId, title: '기본 메모', content: oldContent }]);
         setActiveId(newId);
       } else if (!activeId || !memos.find(m => m.id === activeId)) {
@@ -55,7 +56,7 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
   }, [isOpen, memos, activeId, setMemos, setActiveId]);
 
   function handleAdd() {
-    const newId = crypto.randomUUID();
+    const newId = generateId();
     setMemos([...memos, { id: newId, title: '새 메모', content: '' }]);
     setActiveId(newId);
   }
@@ -67,7 +68,7 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
       setActiveId(newMemos.length > 0 ? newMemos[0].id : null);
     }
     if (newMemos.length === 0) {
-      const newId = crypto.randomUUID();
+      const newId = generateId();
       setMemos([{ id: newId, title: '새 메모', content: '' }]);
       setActiveId(newId);
     }

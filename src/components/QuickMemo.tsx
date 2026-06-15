@@ -74,10 +74,16 @@ export default function QuickMemo({ isOpen, onClose }: Props) {
   const activeMemo = memos.find(m => m.id === activeId);
   const filteredMemos = memos.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
+  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
+    if (e.target === dialogRef.current) {
+      onClose();
+    }
+  }
+
   if (!isOpen) return null;
 
   return (
-    <dialog ref={dialogRef} className="quick-memo-modal" onCancel={onClose}>
+    <dialog ref={dialogRef} className="quick-memo-modal" onCancel={onClose} onClick={handleBackdropClick}>
       <div className="quick-memo-modal__container">
         <div className="quick-memo-modal__header">
           <h2>📝 메모장 (탭 관리)</h2>

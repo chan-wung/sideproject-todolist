@@ -169,7 +169,7 @@ dialog.quick-memo-modal {
     width: 100%;
     border: none;
     border-bottom: 2px solid transparent;
-    padding: rem(8) 0;
+    padding: rem(12) rem(16);
     @include font(20, "Bold");
     color: var(--txt-color-tit);
     background: transparent;

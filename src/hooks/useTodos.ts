@@ -49,7 +49,17 @@ export function useTodos() {
 
   function toggleTodo(id: string) {
     setTodos(prev =>
-      prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t)
+      prev.map(t => {
+        if (t.id === id) {
+          const newCompleted = !t.completed;
+          return {
+            ...t,
+            completed: newCompleted,
+            subtasks: t.subtasks?.map(s => ({ ...s, completed: newCompleted }))
+          };
+        }
+        return t;
+      })
     );
   }
 
@@ -74,13 +84,27 @@ export function useTodos() {
   }
 
   function toggleSubtask(todoId: string, subId: string) {
-    setTodos(prev => prev.map(t => t.id === todoId
-      ? { ...t, subtasks: (t.subtasks ?? []).map(s => s.id === subId ? { ...s, completed: !s.completed } : s) } : t));
+    setTodos(prev => prev.map(t => {
+      if (t.id === todoId) {
+        const newSubtasks = (t.subtasks ?? []).map(s =>
+          s.id === subId ? { ...s, completed: !s.completed } : s
+        );
+        const allCompleted = newSubtasks.length > 0 && newSubtasks.every(s => s.completed);
+        return { ...t, subtasks: newSubtasks, completed: allCompleted };
+      }
+      return t;
+    }));
   }
 
   function deleteSubtask(todoId: string, subId: string) {
-    setTodos(prev => prev.map(t => t.id === todoId
-      ? { ...t, subtasks: (t.subtasks ?? []).filter(s => s.id !== subId) } : t));
+    setTodos(prev => prev.map(t => {
+      if (t.id === todoId) {
+        const newSubtasks = (t.subtasks ?? []).filter(s => s.id !== subId);
+        const allCompleted = newSubtasks.length > 0 ? newSubtasks.every(s => s.completed) : false;
+        return { ...t, subtasks: newSubtasks, completed: allCompleted };
+      }
+      return t;
+    }));
   }
 
   function exportData(): Todo[] { return todos; }

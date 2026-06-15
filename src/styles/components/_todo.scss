@@ -363,9 +363,9 @@ dialog.confirm-modal {
     @include transition();
 
     &--active {
-      background: var(--color-white);
-      color: var(--txt-color-tit);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      background: var(--color-main);
+      color: #fff;
+      box-shadow: none;
     }
 
     &:not(&--active):hover {
@@ -427,9 +427,9 @@ dialog.confirm-modal {
     white-space: nowrap;
 
     &--active {
-      background: var(--color-white);
-      color: var(--txt-color-tit);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      background: var(--color-main);
+      color: #fff;
+      box-shadow: none;
     }
 
     &:not(&--active):hover {

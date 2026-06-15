@@ -44,23 +44,28 @@
       }
     }
 
-    &--export,
-    &--import {
-      &::before {
-        content: '';
-        display: block;
-        @include size(16);
-        flex-shrink: 0;
-        background: no-repeat center / 16px 16px;
-      }
+    &--export::before,
+    &--import::before {
+      content: '';
+      display: block;
+      @include size(16);
+      flex-shrink: 0;
     }
 
     &--export::before {
-      background-image: svgIcoFileDownload($default-color);
+      background: svgIcoFileDownload($default-color) no-repeat center / 16px 16px;
     }
 
     &--import::before {
-      background-image: svgIcoFileUpload($default-color);
+      background: svgIcoFileUpload($default-color) no-repeat center / 16px 16px;
+    }
+
+    [data-theme="dark"] &--export::before {
+      background: svgIcoFileDownload(#e0e0e0) no-repeat center / 16px 16px;
+    }
+
+    [data-theme="dark"] &--import::before {
+      background: svgIcoFileUpload(#e0e0e0) no-repeat center / 16px 16px;
     }
   }
 }

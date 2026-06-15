@@ -7,10 +7,9 @@ interface Props {
   exportData: () => Todo[];
   importData: (incoming: unknown) => boolean;
   onImportResult: (success: boolean) => void;
-  onOpenMemo: () => void;
 }
 
-export default function Sidebar({ isOpen, onClose, exportData, importData, onImportResult, onOpenMemo }: Props) {
+export default function Sidebar({ isOpen, onClose, exportData, importData, onImportResult }: Props) {
   return (
     <>
       <div className={`sidebar-overlay ${isOpen ? 'sidebar-overlay--open' : ''}`} onClick={onClose} />

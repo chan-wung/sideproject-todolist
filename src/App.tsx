@@ -4,7 +4,6 @@ import TodoInput from './components/TodoInput';
 import FilterBar from './components/FilterBar';
 import TodoList from './components/TodoList';
 import DueSummary from './components/DueSummary';
-import AppToolbar from './components/AppToolbar';
 import Toast from './components/Toast';
 import QuickMemo from './components/QuickMemo';
 import Sidebar from './components/Sidebar';
@@ -124,7 +123,6 @@ export default function App() {
         exportData={exportData} 
         importData={importData} 
         onImportResult={handleImportResult} 
-        onOpenMemo={() => setIsMemoOpen(true)} 
       />
       
       <QuickMemo 

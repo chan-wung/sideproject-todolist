@@ -63,11 +63,11 @@ export default function AppToolbar({ exportData, importData, onImportResult }: P
         {theme === 'light' ? '🌙 다크모드' : '☀️ 라이트모드'}
       </button>
       <div className="app-toolbar__backup">
-        <button type="button" className="app-toolbar__btn" onClick={handleExport}>
-          📥 내보내기
+        <button type="button" className="app-toolbar__btn app-toolbar__btn--export" onClick={handleExport}>
+          내보내기
         </button>
         <label className="app-toolbar__btn app-toolbar__btn--import">
-          📤 가져오기
+          가져오기
           <input type="file" accept="application/json" onChange={handleImport} style={{ display: 'none' }} />
         </label>
       </div>

@@ -38,10 +38,29 @@
       @include font(15, "Bold");
       background: var(--color-main-5);
       color: var(--color-main);
-      
+
       &:hover {
         background: var(--color-main-10);
       }
+    }
+
+    &--export,
+    &--import {
+      &::before {
+        content: '';
+        display: block;
+        @include size(16);
+        flex-shrink: 0;
+        background: no-repeat center / 16px 16px;
+      }
+    }
+
+    &--export::before {
+      background-image: svgIcoFileDownload($default-color);
+    }
+
+    &--import::before {
+      background-image: svgIcoFileUpload($default-color);
     }
   }
 }

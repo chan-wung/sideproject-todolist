@@ -34,7 +34,7 @@
     justify-content: space-between;
     align-items: center;
     padding: rem(20) rem(24);
-    border-bottom: 1px solid $border_color;
+    border-bottom: 1px solid var(--color-border);
     
     h2 {
       @include font(18, "Bold");
@@ -50,7 +50,7 @@
     color: $gray9;
     cursor: pointer;
     line-height: 1;
-    &:hover { color: $red; }
+    &:hover { color: var(--color-danger); }
   }
 
   &__body {
@@ -64,7 +64,7 @@
     width: 100%;
     padding: rem(14);
     border-radius: 8px;
-    border: 1px solid $border_color;
+    border: 1px solid var(--color-border);
     background: var(--color-main-5);
     color: var(--txt-color-tit);
     @include font(15, "Medium");
@@ -73,8 +73,8 @@
     
     &:hover {
       background: var(--color-main-10);
-      border-color: $main-color;
-      color: $main-color;
+      border-color: var(--color-main);
+      color: var(--color-main);
     }
   }
 }

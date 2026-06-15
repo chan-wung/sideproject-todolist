@@ -39,7 +39,7 @@ dialog.quick-memo-modal {
     justify-content: space-between;
     align-items: center;
     padding: rem(20) rem(24);
-    border-bottom: 1px solid $border_color;
+    border-bottom: 1px solid var(--color-border);
     
     h2 {
       @include font(18, "Bold");
@@ -55,7 +55,7 @@ dialog.quick-memo-modal {
     color: $gray9;
     cursor: pointer;
     line-height: 1;
-    &:hover { color: $red; }
+    &:hover { color: var(--color-danger); }
   }
 
   &__body {
@@ -66,79 +66,90 @@ dialog.quick-memo-modal {
 
   &__sidebar {
     width: rem(200);
-    border-right: 1px solid $border_color;
-    background: var(--color-main-5);
+    border-right: 1px solid var(--color-border);
+    background: #F4F5F7;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
   }
 
   &__add {
-    background: transparent;
+    background: var(--color-white);
     border: none;
-    border-bottom: 1px solid $border_color;
-    padding: rem(16);
+    border-bottom: 1px solid var(--color-border);
+    padding: rem(14) rem(16);
     width: 100%;
     text-align: left;
     @include font(14, "Bold");
-    color: $main-color;
+    color: var(--color-main);
     cursor: pointer;
-    @include transition();
+    @include transition(background-color);
 
     &:hover {
-      background: rgba($main-color, 0.05);
+      background: var(--color-main-5);
     }
   }
 
   &__search {
-    padding: rem(12);
-    border-bottom: 1px solid $border_color;
-    background: var(--color-white);
+    padding: rem(10) rem(12);
+    border-bottom: 1px solid var(--color-border);
+    background: #F4F5F7;
 
     input {
       width: 100%;
-      border: 1px solid $border_color;
+      border: 1px solid var(--color-border);
       border-radius: 6px;
       padding: rem(8);
       @include font(13);
-      background: var(--color-main-5);
+      background: var(--color-white);
       color: var(--txt-color-base);
 
       &:focus {
         outline: none;
-        border-color: $main-color;
+        border-color: var(--color-main);
       }
     }
   }
 
   &__list {
     list-style: none;
-    margin: 0;
+    margin: rem(6) rem(8);
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: rem(4);
   }
 
   &__item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: rem(12) rem(16);
-    border-bottom: 1px solid $border_color;
+    padding: rem(10) rem(12);
+    border-radius: 8px;
+    border-left: 3px solid transparent;
+    background: var(--color-white);
     cursor: grab;
-    @include transition(background-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    @include transition(background-color, border-color, box-shadow);
 
     &:hover {
-      background: rgba(0,0,0,0.03);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     &--active {
-      background: var(--color-white);
-      border-left: 3px solid $main-color;
-      padding-left: rem(13);
+      background: var(--color-main-5);
+      border-left-color: var(--color-main);
+      box-shadow: 0 1px 4px color-mix(in srgb, var(--color-main) 15%, transparent);
     }
 
     &--pinned {
-      font-weight: 700;
-      border-left: 2px solid var(--color-sub);
+      background: color-mix(in srgb, var(--color-sub) 10%, transparent);
+      border-left-color: var(--color-sub);
+    }
+
+    &--active#{&}--pinned {
+      background: var(--color-main-5);
+      border-left-color: var(--color-main);
     }
 
     &--dragging {
@@ -147,13 +158,13 @@ dialog.quick-memo-modal {
     }
 
     &--drag-over {
-      border-top: 2px solid $main-color;
+      box-shadow: 0 -2px 0 var(--color-main), 0 1px 3px rgba(0, 0, 0, 0.05);
     }
   }
 
   &__drag-handle {
     flex-shrink: 0;
-    color: var(--color-border);
+    color: $grayC;
     font-size: 1.4rem;
     cursor: grab;
     user-select: none;
@@ -167,6 +178,16 @@ dialog.quick-memo-modal {
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
+
+    .quick-memo-modal__item--active & {
+      @include font(13, "Bold");
+      color: var(--color-main);
+    }
+
+    .quick-memo-modal__item--pinned:not(.quick-memo-modal__item--active) & {
+      @include font(13, "Medium");
+      color: var(--txt-color-tit);
+    }
   }
 
   &__item-del {
@@ -176,7 +197,7 @@ dialog.quick-memo-modal {
     font-size: rem(16);
     cursor: pointer;
     padding: 0 rem(4);
-    &:hover { color: $red; }
+    &:hover { color: var(--color-danger); }
   }
 
   &__item-pin {
@@ -215,18 +236,18 @@ dialog.quick-memo-modal {
 
     &:focus {
       outline: none;
-      border-color: $main-color;
+      border-color: var(--color-main);
     }
   }
 
   &__textarea {
     flex: 1;
     width: 100%;
-    border: 1px solid $border_color;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: rem(16);
     @include font(14);
-    background: var(--color-main-5);
+    background: var(--color-white);
     color: var(--txt-color-base);
     resize: none;
     font-family: inherit;
@@ -234,9 +255,9 @@ dialog.quick-memo-modal {
 
     &:focus {
       outline: none;
-      border-color: $main-color;
+      border-color: var(--color-main);
       background: var(--color-white);
-      box-shadow: 0 0 0 3px rgba($main-color, 0.1);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-main) 10%, transparent);
     }
   }
 

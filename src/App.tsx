@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTodos } from './hooks/useTodos';
 import TodoInput from './components/TodoInput';
 import FilterBar from './components/FilterBar';
@@ -53,6 +53,19 @@ export default function App() {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMemoOpen, setIsMemoOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const inputSentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const sentinel = inputSentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowScrollTop(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-16px 0px 0px 0px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="todo-app">
@@ -87,6 +100,7 @@ export default function App() {
         <div style={{ position: 'sticky', top: '24px', width: 0, height: 0, overflow: 'visible', zIndex: 10 }}>
           <QuickNav filteredTodos={filteredTodos} />
         </div>
+        <div ref={inputSentinelRef} />
         <TodoInput onAdd={addTodo} categories={categories.filter(c => c !== 'all')} />
           
         <DueSummary 
@@ -133,10 +147,28 @@ export default function App() {
         onImportResult={handleImportResult} 
       />
       
-      <QuickMemo 
-        isOpen={isMemoOpen} 
-        onClose={() => setIsMemoOpen(false)} 
+      <QuickMemo
+        isOpen={isMemoOpen}
+        onClose={() => setIsMemoOpen(false)}
       />
+
+      {showScrollTop && (
+        <button
+          type="button"
+          className="scroll-top-btn"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="맨 위로"
+        >
+          ↑
+        </button>
+      )}
+
+      <footer className="todo-app__footer">
+        <p className="todo-app__footer-copy">
+          &copy; 2026 parkchanwung. All Rights Reserved.
+          <span className="todo-app__footer-legal">무단 복제 및 배포를 금지합니다.</span>
+        </p>
+      </footer>
     </div>
   );
 }

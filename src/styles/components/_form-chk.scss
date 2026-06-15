@@ -43,7 +43,7 @@
     }
 
     input[type="checkbox"]:checked + .form-chk__text {
-      color: $main-color;
+      color: var(--color-main);
     }
   }
 }

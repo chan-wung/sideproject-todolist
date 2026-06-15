@@ -1,0 +1,29 @@
+{
+  "reference_id": "toss",
+  "description": "개인 Todo List 앱. React 18 + TS + Vite + SCSS. 토스 앱 느낌으로 디자인. 깔끔하고 미니멀한 분위기.",
+  "mode": "inspired",
+  "delta_set": {
+    "axes": {
+      "color.primary": "#0064FF vs canonical #3182f6 — intentional. See omd:unresolved in DESIGN.md.",
+      "font.family": "Pretendard (not Toss Product Sans — project already uses Pretendard)",
+      "radius.delta_px": "+4 (cards use 16px vs Toss 12px baseline)"
+    },
+    "voiceHints": [
+      "Korean UI labels, English code identifiers",
+      "Short imperative verbs for buttons (추가, 저장, 삭제)",
+      "Calm, direct, practical — productivity tool not marketing"
+    ],
+    "matchedKeywords": [
+      "minimal",
+      "calm",
+      "fintech",
+      "trustworthy",
+      "clean",
+      "focused"
+    ],
+    "warnings": [
+      "color.primary-intent: Using #0064FF (Toss brand/logo blue, Pantone 2175C) as UI interactive color instead of TDS canonical #3182f6 (blue500). This is intentional — richer saturation preferred on web canvas. To realign: set $main-color: #3182f6 in _variables.scss."
+    ]
+  },
+  "bootstrapped_at": "2026-06-15"
+}

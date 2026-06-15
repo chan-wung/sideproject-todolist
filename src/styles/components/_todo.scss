@@ -23,8 +23,8 @@
   align-items: center;
   gap: rem(8);
   background: #fff;
-  border: 1px solid lighten($red, 25%);
-  border-left: 4px solid $red;
+  border: 1px solid color-mix(in srgb, var(--color-danger) 75%, white);
+  border-left: 4px solid var(--color-danger);
   border-radius: 10px;
   padding: rem(12) rem(18);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -37,7 +37,7 @@
     justify-content: center;
     @include size(18);
     border-radius: 50%;
-    background: $red;
+    background: var(--color-danger);
     color: #fff;
     @include font(11, "Bold");
     flex-shrink: 0;
@@ -45,7 +45,7 @@
 
   &__msg {
     @include font(14, "Medium");
-    color: darken($red, 10%);
+    color: color-mix(in srgb, var(--color-danger) 90%, black);
   }
 }
 
@@ -108,7 +108,7 @@ dialog.confirm-modal {
   }
 
   &__delete-btn {
-    @include btn-filled($red);
+    @include btn-filled(var(--color-danger));
   }
 }
 
@@ -122,9 +122,8 @@ dialog.confirm-modal {
   min-height: 100vh;
 
   &__header {
-    padding: rem(10) 0 rem(24);
-    border-bottom: 2px solid $main-color;
-    margin-bottom: rem(24);
+    padding: rem(24) 0 rem(20);
+    margin-bottom: rem(20);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -142,19 +141,20 @@ dialog.confirm-modal {
   }
 
   &__memo-btn {
-    background: transparent;
-    border: 1px solid $border_color;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
     padding: rem(6) rem(12);
     border-radius: 8px;
     color: var(--txt-color-tit);
     @include font(14, "Medium");
     cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
     @include transition();
-    
+
     &:hover {
-      background: var(--color-main-5);
-      border-color: $main-color;
-      color: $main-color;
+      background: var(--color-white);
+      border-color: var(--color-main);
+      color: var(--color-main);
     }
   }
 
@@ -174,9 +174,9 @@ dialog.confirm-modal {
   }
 
   &__tit {
-    @include font(28, "Bold");
-    font-family: $font_family;
+    @include font(28, "ExtraBold");
     color: var(--txt-color-tit);
+    letter-spacing: -0.5px;
   }
 
   &__subtitle {
@@ -196,8 +196,9 @@ dialog.confirm-modal {
 
 .todo-input {
   background: var(--color-white);
-  border: 1px solid $border_color;
-  border-radius: 12px;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
   padding: rem(20);
   margin-bottom: rem(20);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -226,9 +227,11 @@ dialog.confirm-modal {
   }
 
   &__field {
+    display: block;
+    width: 100%;
     flex: 1;
     height: rem(45);
-    border: 1px solid $border_color;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0 rem(15);
     @include font(14);
@@ -238,12 +241,12 @@ dialog.confirm-modal {
 
     &:focus {
       outline: none;
-      border-color: $main-color;
+      border-color: var(--color-main);
     }
 
     &--error {
-      border-color: $red;
-      &:focus { border-color: $red; }
+      border-color: var(--color-danger);
+      &:focus { border-color: var(--color-danger); }
     }
 
     &--textarea {
@@ -255,9 +258,27 @@ dialog.confirm-modal {
     }
   }
 
+  &__select {
+    &--high { 
+      background: svgIcoArrowDown(#fff, var(--color-danger)) calc(100% - 10px) 50% / 10px no-repeat;
+      color: #fff; 
+      border-color: var(--color-danger);
+    }
+    &--medium { 
+      background-color: var(--color-sub); 
+      color: var(--txt-color-tit); 
+      border-color: var(--color-sub);
+    }
+    &--low { 
+      background: svgIcoArrowDown(#fff, var(--color-success)) calc(100% - 10px) 50% / 10px no-repeat;
+      color: #fff; 
+      border-color: var(--color-success);
+    }
+  }
+
   &__error {
     @include font(12, "Medium");
-    color: $red;
+    color: var(--color-danger);
     margin-top: rem(6);
     padding-left: rem(2);
     display: flex;
@@ -272,7 +293,7 @@ dialog.confirm-modal {
       width: rem(14);
       height: rem(14);
       border-radius: 50%;
-      background: $red;
+      background: var(--color-danger);
       color: #fff;
       font-size: rem(10);
       font-weight: 700;
@@ -282,7 +303,7 @@ dialog.confirm-modal {
 
   &__select {
     height: rem(45);
-    border: 1px solid $border_color;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0 rem(30) 0 rem(12);
     @include font(13);
@@ -295,13 +316,13 @@ dialog.confirm-modal {
 
     &:focus {
       outline: none;
-      border-color: $main-color;
+      border-color: var(--color-main);
     }
   }
 
   &__date {
     height: rem(45);
-    border: 1px solid $border_color;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0 rem(12);
     @include font(13);
@@ -312,7 +333,7 @@ dialog.confirm-modal {
 
     &:focus {
       outline: none;
-      border-color: $main-color;
+      border-color: var(--color-main);
     }
   }
 
@@ -330,7 +351,7 @@ dialog.confirm-modal {
     padding: 0 rem(16);
     border-radius: 8px;
     @include font(14, "Bold");
-    @include btn-filled($main-color);
+    @include btn-filled(var(--color-main));
     @include flex-center;
     cursor: pointer;
     border: none;
@@ -350,42 +371,43 @@ dialog.confirm-modal {
 
   &__tabs {
     display: flex;
-    gap: rem(4);
-    background: var(--color-main-5);
-    border-radius: 8px;
-    padding: rem(4);
+    gap: rem(2);
+    background: var(--color-tab-bg);
+    border-radius: 10px;
+    padding: rem(3);
     margin-left: auto;
   }
 
   &__tab {
     padding: rem(6) rem(14);
-    border-radius: 6px;
+    border-radius: 8px;
     @include font(13, "Medium");
     color: $gray6;
     cursor: pointer;
     border: none;
     background: transparent;
-    @include transition();
+    @include transition(background-color, box-shadow, color);
 
     &--active {
       background: var(--color-main);
       color: #fff;
-      box-shadow: none;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 
       .filter-bar__count {
-        background: #fff;
+        background: var(--color-white);
         color: var(--color-main);
       }
     }
 
     &:not(&--active):hover {
       color: var(--txt-color-tit);
+      background: rgba(0, 0, 0, 0.04);
     }
   }
 
   &__count {
     @include font(12, "Medium");
-    background: $main-color;
+    background: var(--color-main);
     color: #fff;
     border-radius: 20px;
     padding: rem(2) rem(8);
@@ -400,7 +422,7 @@ dialog.confirm-modal {
 
   &__category {
     height: rem(34);
-    border: 1px solid $border_color;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0 rem(28) 0 rem(10);
     @include font(13);
@@ -412,37 +434,38 @@ dialog.confirm-modal {
 
     &:focus {
       outline: none;
-      border-color: $main-color;
+      border-color: var(--color-main);
     }
   }
 
   &__sort {
     display: flex;
     gap: rem(2);
-    background: var(--color-main-5);
-    border-radius: 8px;
+    background: var(--color-tab-bg);
+    border-radius: 10px;
     padding: rem(3);
   }
 
   &__sort-btn {
     padding: rem(4) rem(10);
-    border-radius: 6px;
+    border-radius: 8px;
     @include font(12, "Medium");
     color: $gray6;
     cursor: pointer;
     border: none;
     background: transparent;
-    @include transition();
+    @include transition(background-color, box-shadow, color);
     white-space: nowrap;
 
     &--active {
       background: var(--color-main);
       color: #fff;
-      box-shadow: none;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
     }
 
     &:not(&--active):hover {
       color: var(--txt-color-tit);
+      background: rgba(0, 0, 0, 0.04);
     }
   }
 
@@ -450,17 +473,18 @@ dialog.confirm-modal {
     height: rem(34);
     padding: 0 rem(12);
     border-radius: 8px;
-    border: 1px solid lighten($red, 25%);
-    background: lighten($red, 45%);
-    color: $red;
+    border: 1px solid color-mix(in srgb, var(--color-danger) 20%, transparent);
+    background: color-mix(in srgb, var(--color-danger) 5%, transparent);
+    color: var(--color-danger);
     @include font(12, "Medium");
     cursor: pointer;
     white-space: nowrap;
     @include transition();
 
     &:hover {
-      background: lighten($red, 35%);
-      border-color: lighten($red, 15%);
+      background: var(--color-danger);
+      border-color: var(--color-danger);
+      color: #fff;
     }
   }
 }
@@ -494,32 +518,32 @@ dialog.confirm-modal {
 
 .todo-item {
   background: var(--color-white);
-  border: 1px solid $border_color;
-  border-radius: 10px;
-  padding: rem(14) rem(16);
+  border-radius: 16px;
+  border-left: 3px solid transparent;
+  padding: rem(16) rem(20);
   display: flex;
   align-items: flex-start;
   gap: rem(12);
-  border-left-width: 4px;
-  @include transition(box-shadow);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
+  @include transition(box-shadow, transform);
 
   &:hover {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
   }
 
   // 우선순위 좌측 border 색상
-  &--high   { border-left-color: $red; }
-  &--medium { border-left-color: $sub-color; }
-  &--low    { border-left-color: $green; }
+  &--high   { border-left-color: var(--color-danger); }
+  &--medium { border-left-color: var(--color-sub); }
+  &--low    { border-left-color: var(--color-success); }
 
   &--overdue {
-    background-color: lighten($red, 46%);
-    border-left-color: $red !important;
+    background-color: color-mix(in srgb, var(--color-danger) 54%, white);
+    border-left-color: var(--color-danger) !important;
   }
 
   &--pinned {
-    border-left: 3px solid var(--color-sub);
-    background: var(--color-main-5);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--color-main) 12%, transparent), 0 4px 16px color-mix(in srgb, var(--color-main) 16%, transparent);
   }
 
   &--completed {
@@ -560,21 +584,20 @@ dialog.confirm-modal {
 
   &__badge {
     @include font(11, "Bold");
-    padding: rem(2) rem(8);
-    border-radius: 4px;
-    text-transform: uppercase;
+    padding: rem(3) rem(9);
+    border-radius: 100px;
 
-    &--high   { background: lighten($red, 42%);       color: darken($red, 10%); }
-    &--medium { background: lighten($sub-color, 35%); color: darken($sub-color, 20%); }
-    &--low    { background: lighten($green, 52%);     color: darken($green, 10%); }
+    &--high   { background: var(--color-danger); color: #fff; }
+    &--medium { background: var(--color-sub); color: var(--txt-color-tit); }
+    &--low    { background: var(--color-success); color: #fff; }
   }
 
   &__category {
-    @include font(11);
-    background: $blGray;
-    color: $gray5;
-    padding: rem(2) rem(8);
-    border-radius: 4px;
+    @include font(11, "Medium");
+    background: var(--color-main);
+    color: #fff;
+    padding: rem(3) rem(9);
+    border-radius: 100px;
   }
 
   &__date {
@@ -582,7 +605,7 @@ dialog.confirm-modal {
     color: $gray9;
 
     &--overdue {
-      color: $red;
+      color: var(--color-danger);
       font-weight: 600;
     }
   }
@@ -613,16 +636,16 @@ dialog.confirm-modal {
     &--edit {
       color: $grayC;
       &:hover {
-        background: lighten($main-color, 45%);
-        color: $main-color;
+        background: var(--color-main-5);
+        color: var(--color-main);
       }
     }
 
     &--delete {
       color: $grayC;
       &:hover {
-        background: lighten($red, 40%);
-        color: $red;
+        background: color-mix(in srgb, var(--color-danger) 60%, white);
+        color: var(--color-danger);
       }
     }
 
@@ -657,7 +680,7 @@ dialog.confirm-modal {
   &__edit-field {
     width: 100%;
     min-height: rem(40);
-    border: 1px solid $main-color;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: rem(10) rem(12);
     @include font(14);
@@ -668,8 +691,8 @@ dialog.confirm-modal {
 
     &:focus {
       outline: none;
-      border-color: darken($main-color, 10%);
-      box-shadow: 0 0 0 3px rgba($main-color, 0.1);
+      border-color: color-mix(in srgb, var(--color-main) 90%, black);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-main) 10%, transparent);
     }
 
     &--sm {
@@ -700,7 +723,7 @@ dialog.confirm-modal {
   &__edit-select,
   &__edit-date {
     height: rem(36);
-    border: 1px solid $border_color;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0 rem(28) 0 rem(10);
     @include font(13);
@@ -713,7 +736,25 @@ dialog.confirm-modal {
 
     &:focus {
       outline: none;
-      border-color: $main-color;
+      border-color: var(--color-main);
+    }
+  }
+
+  &__edit-select {
+    &--high { 
+      background: svgIcoArrowDown(#fff, var(--color-danger)) calc(100% - 8px) 50% / 10px no-repeat;
+      color: #fff; 
+      border-color: var(--color-danger);
+    }
+    &--medium { 
+      background-color: var(--color-sub); 
+      color: var(--txt-color-tit); 
+      border-color: var(--color-sub);
+    }
+    &--low { 
+      background: svgIcoArrowDown(#fff, var(--color-success)) calc(100% - 8px) 50% / 10px no-repeat;
+      color: #fff; 
+      border-color: var(--color-success);
     }
   }
 
@@ -744,7 +785,7 @@ dialog.confirm-modal {
     flex-direction: column;
     gap: rem(6);
     padding-top: rem(12);
-    border-top: 1px dashed $border_color;
+    border-top: 1px dashed var(--color-border);
   }
 
   &__subtask {
@@ -773,13 +814,22 @@ dialog.confirm-modal {
   }
 
   &__btn-sub-del {
-    background: transparent;
+    flex-shrink: 0;
+    @include size(24);
+    border-radius: 50%;
+    background: svgIcoCloseCircle($gray9) no-repeat center / 16px 16px;
+    background-color: transparent;
     border: none;
-    color: $grayA;
-    font-size: rem(16);
     cursor: pointer;
-    padding: 0 rem(4);
-    &:hover { color: $red; }
+    @include transition(background-color, transform, opacity);
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 1;
+      background: svgIcoCloseCircle($red) no-repeat center / 16px 16px;
+      background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
+      transform: scale(1.1);
+    }
   }
 
   &__sub-add {
@@ -790,20 +840,63 @@ dialog.confirm-modal {
 
   &__sub-add-btn {
     flex-shrink: 0;
-    height: rem(45);
-    padding: 0 rem(16);
+    @include size(45);
     border-radius: 8px;
-    @include font(13, "Bold");
-    background: var(--color-main-5);
-    color: var(--txt-color-base);
-    border: 1px solid $border_color;
+    background: svgIcoAddPlus(#fff, var(--color-main)) no-repeat center / 20px 20px;
+    border: 1px solid var(--color-main);
     cursor: pointer;
-    @include transition();
+    @include transition(background-color, transform);
 
     &:hover {
-      background: var(--color-main-10);
-      border-color: $main-color;
-      color: $main-color;
+      background-color: color-mix(in srgb, var(--color-main) 85%, black);
     }
+  }
+}
+
+// =============================================
+// FOOTER
+// =============================================
+.scroll-top-btn {
+  position: fixed;
+  right: rem(24);
+  bottom: rem(24);
+  @include size(44);
+  border-radius: 50%;
+  background: var(--color-main);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  @include font(20, "Bold");
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 200;
+  @include transition(background-color, transform, opacity);
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-main) 92%, black);
+    transform: translateY(-2px);
+  }
+}
+
+.todo-app__footer {
+  margin-top: rem(32);
+  padding: rem(16) rem(20);
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+
+  &-copy {
+    display: flex;
+    flex-direction: column;
+    gap: rem(4);
+    @include font(13, "Medium");
+    color: var(--txt-color-base);
+    line-height: 1.6;
+  }
+
+  &-legal {
+    @include font(13, "Regular");
+    color: var(--txt-color-form);
   }
 }

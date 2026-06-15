@@ -30,20 +30,20 @@ $site_min_width: 340px;
 // 2. SCSS 색상 변수 (컴파일 타임 연산용)
 // ==========================================
 
-// Brand Colors
-$main-color: #2B82B3;
-$main-color20: #D6D6FF;
-$main-color10: #EBEAFF;
-$main-color5:  #F5F5FF;
+// Brand Colors — Toss Blue
+$main-color: #0064FF;
+$main-color20: #A6C8FF;
+$main-color10: #D2E5FF;
+$main-color5:  #EBF3FF;
 $sub-color: #FFB904;
 
-// Text Colors
-$font_active_color: #111;
-$font_color: #060303;
-$font_form_color: #666;
-$font_tit_color: #111;
+// Text Colors — Toss Neutrals
+$font_active_color: #191F28;
+$font_color: #191F28;
+$font_form_color: #8B95A1;
+$font_tit_color: #191F28;
 
-$default-color: #333;
+$default-color: #4E5968;
 
 // Base Colors
 $white: #fff;
@@ -77,7 +77,7 @@ $orange: #CA5005;
 $mint: #077DA5;
 
 // Border
-$border_color: #EDEDED;
+$border_color: #E5E8EB;
 $tbl_border: 1px solid $border_color;
 
 // ==========================================
@@ -92,6 +92,10 @@ $tbl_border: 1px solid $border_color;
   --color-main-5:  #{$main-color5};
   --color-sub: #{$sub-color};
 
+  /* Segmented Control (탭·정렬) */
+  --color-tab-bg: rgba(0, 0, 0, 0.07);
+  --color-tab-active-bg: #{$white};
+
   /* Fonts */
   --font-main: #{$font_family}, sans-serif;
   --font-sub: #{$font_family_sub}, sans-serif;
@@ -104,7 +108,7 @@ $tbl_border: 1px solid $border_color;
 
   /* Base Colors */
   --color-white: #{$white};
-  --color-bg: #f9fafb;
+  --color-bg: #F2F4F6;
   --color-black: #{$black};
   --color-border: #{$border_color};
   --color-danger: #{$red};
@@ -118,6 +122,8 @@ $tbl_border: 1px solid $border_color;
 [data-theme="dark"] {
   color-scheme: dark;
   --txt-color-base: #e0e0e0; --txt-color-tit: #fff; --txt-color-form: #aaa; --txt-color-active: #fff;
-  --color-bg: #121212; --color-white: #1e1e1e; --color-black: #fff; --color-border: #333;
-  --color-main-5: #20262b; --color-main-10: #243038; --color-main-20: #2d3d48;
+  --color-bg: #0D0D0D; --color-white: #1C1C1E; --color-black: #fff; --color-border: rgba(255, 255, 255, 0.25);
+  --color-main: #5AA0FF; --main-color: #5AA0FF;
+  --color-main-5: #0D1F3A; --color-main-10: #122850; --color-main-20: #1A3D78;
+  --color-tab-bg: rgba(255, 255, 255, 0.08); --color-tab-active-bg: #2C2C2E;
 }

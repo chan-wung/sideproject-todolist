@@ -99,7 +99,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
             <div className="todo-item__edit-group">
               <label className="todo-item__edit-label">우선순위</label>
               <select
-                className="todo-item__edit-select"
+                className={`todo-item__edit-select todo-item__edit-select--${editPriority}`}
                 value={editPriority}
                 onChange={e => setEditPriority(e.target.value as Todo['priority'])}
               >
@@ -110,9 +110,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
             </div>
             <div className="todo-item__edit-group">
               <label className="todo-item__edit-label">마감일</label>
-              <div style={{ width: '150px' }}>
-                <DatePicker value={editDueDate} onChange={setEditDueDate} className="todo-item__edit-date-picker" />
-              </div>
+              <DatePicker value={editDueDate} onChange={setEditDueDate} className="todo-item__edit-date-picker" />
             </div>
             <div className="todo-item__edit-group">
               <label className="todo-item__edit-label">카테고리</label>
@@ -196,7 +194,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
                 onClick={() => onDeleteSubtask(todo.id, sub.id)}
                 aria-label="서브태스크 삭제"
               >
-                &times;
+                <span className="screen-out">삭제</span>
               </button>
             </div>
           ))}
@@ -209,7 +207,9 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
               onChange={e => setSubText(e.target.value)}
               onKeyDown={handleSubtaskKeyDown}
             />
-            <button className="todo-item__sub-add-btn" type="button" onClick={handleAddSubtask}>추가</button>
+            <button className="todo-item__sub-add-btn" type="button" onClick={handleAddSubtask} aria-label="하위 항목 추가">
+              <span className="screen-out">추가</span>
+            </button>
           </div>
         </div>
       </div>

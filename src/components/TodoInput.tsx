@@ -60,7 +60,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
         <div>
           <label className="todo-input__label">우선순위</label>
           <select
-            className="todo-input__select"
+            className={`todo-input__select todo-input__select--${priority}`}
             value={priority}
             onChange={e => setPriority(e.target.value as Todo['priority'])}
           >
@@ -72,9 +72,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
 
         <div>
           <label className="todo-input__label">마감일</label>
-          <div style={{ width: '180px' }}>
-            <DatePicker value={dueDate} onChange={setDueDate} />
-          </div>
+          <DatePicker value={dueDate} onChange={setDueDate} />
         </div>
 
         <div>

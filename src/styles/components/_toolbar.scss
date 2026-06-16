@@ -50,6 +50,10 @@
       }
     }
 
+    &--settings {
+      svg { display: block; }
+    }
+
     &--export::before {
       background: svgIcoFileDownload($default-color) no-repeat center / 15px 15px;
     }

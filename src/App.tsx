@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTodos } from './hooks/useTodos';
+import { useMemos } from './hooks/useMemos';
 import TodoInput from './components/TodoInput';
 import FilterBar from './components/FilterBar';
 import TodoList from './components/TodoList';
@@ -7,6 +8,7 @@ import DueSummary from './components/DueSummary';
 import Toast from './components/Toast';
 import QuickMemo from './components/QuickMemo';
 import AppToolbar from './components/AppToolbar';
+import SettingsModal from './components/SettingsModal';
 import QuickNav from './components/QuickNav';
 import './styles/main.scss';
 
@@ -39,9 +41,40 @@ export default function App() {
     deleteSubtask,
     exportData,
     importData,
+    resetTodos,
   } = useTodos();
 
+  const { memos, setMemos, activeId, setActiveId, resetMemos, replaceMemos } = useMemos();
+
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  function getBackup() {
+    return { version: 1, todos: exportData(), memos };
+  }
+
+  function applyBackup(parsed: unknown): boolean {
+    if (Array.isArray(parsed)) {
+      return importData(parsed);
+    }
+    if (parsed && typeof parsed === 'object') {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const p = parsed as any;
+      let ok = false;
+      let todosSuccess = true;
+      let memosSuccess = true;
+      
+      if (p.todos !== undefined) {
+        todosSuccess = importData(p.todos);
+        ok = true;
+      }
+      if (p.memos !== undefined) {
+        memosSuccess = replaceMemos(p.memos);
+        ok = true;
+      }
+      return ok && todosSuccess && memosSuccess;
+    }
+    return false;
+  }
 
   function handleImportResult(success: boolean) {
     if (success) {
@@ -49,6 +82,24 @@ export default function App() {
     } else {
       setToastMessage('데이터 불러오기에 실패했습니다.');
     }
+  }
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  function handleResetTodos() {
+    resetTodos();
+    setToastMessage('할일을 초기화했습니다.');
+  }
+
+  function handleResetMemos() {
+    resetMemos();
+    setToastMessage('메모를 초기화했습니다.');
+  }
+
+  function handleResetAll() {
+    resetTodos();
+    resetMemos();
+    setToastMessage('전체 데이터를 초기화했습니다.');
   }
 
   const [isMemoOpen, setIsMemoOpen] = useState(false);
@@ -69,7 +120,7 @@ export default function App() {
   return (
     <>
       {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
-      <AppToolbar exportData={exportData} importData={importData} onImportResult={handleImportResult} />
+      <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onSettingsOpen={() => setIsSettingsOpen(true)} />
       <div className="todo-app">
       <header className="todo-app__header">
         <div className="todo-app__header-left">
@@ -134,6 +185,18 @@ export default function App() {
       <QuickMemo
         isOpen={isMemoOpen}
         onClose={() => setIsMemoOpen(false)}
+        memos={memos}
+        setMemos={setMemos}
+        activeId={activeId}
+        setActiveId={setActiveId}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onResetTodos={handleResetTodos}
+        onResetMemos={handleResetMemos}
+        onResetAll={handleResetAll}
       />
 
       {showScrollTop && (

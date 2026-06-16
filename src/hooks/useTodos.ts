@@ -108,6 +108,8 @@ export function useTodos() {
     }));
   }
 
+  function resetTodos() { setTodos([]); }
+
   function exportData(): Todo[] { return todos; }
 
   function importData(incoming: unknown): boolean {
@@ -200,6 +202,7 @@ export function useTodos() {
     addSubtask,
     toggleSubtask,
     deleteSubtask,
+    resetTodos,
     exportData,
     importData,
   };

@@ -1,23 +1,18 @@
-import { usePersistentState } from '../hooks/usePersistentState';
 import { useEffect, useRef, useState } from 'react';
 import ConfirmModal from './ConfirmModal';
 import { generateId } from '../utils/id';
-
-interface Memo {
-  id: string;
-  title: string;
-  content: string;
-  pinned?: boolean;
-}
+import type { Memo } from '../hooks/useMemos';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  memos: Memo[];
+  setMemos: (memos: Memo[]) => void;
+  activeId: string | null;
+  setActiveId: (id: string | null) => void;
 }
 
-export default function QuickMemo({ isOpen, onClose }: Props) {
-  const [memos, setMemos] = usePersistentState<Memo[]>('todolist-memos-array', []);
-  const [activeId, setActiveId] = usePersistentState<string | null>('todolist-active-memo', null);
+export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, setActiveId }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 

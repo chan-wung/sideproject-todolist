@@ -31,3 +31,6 @@ dist-ssr
 /backups/
 .vercel
 .env*
+
+# Crash dumps
+bash.exe.stackdump

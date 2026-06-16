@@ -6,7 +6,7 @@ import TodoList from './components/TodoList';
 import DueSummary from './components/DueSummary';
 import Toast from './components/Toast';
 import QuickMemo from './components/QuickMemo';
-import Sidebar from './components/Sidebar';
+import AppToolbar from './components/AppToolbar';
 import QuickNav from './components/QuickNav';
 import './styles/main.scss';
 
@@ -51,7 +51,6 @@ export default function App() {
     }
   }
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMemoOpen, setIsMemoOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const inputSentinelRef = useRef<HTMLDivElement>(null);
@@ -68,9 +67,10 @@ export default function App() {
   }, []);
 
   return (
-    <div className="todo-app">
+    <>
       {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
-      
+      <AppToolbar exportData={exportData} importData={importData} onImportResult={handleImportResult} />
+      <div className="todo-app">
       <header className="todo-app__header">
         <div className="todo-app__header-left">
           <h1 className="todo-app__tit">Todo List</h1>
@@ -84,14 +84,6 @@ export default function App() {
             aria-label="빠른 메모장 열기"
           >
             📝 메모장
-          </button>
-          <button
-            type="button"
-            className="todo-app__hamburger"
-            onClick={() => setIsSidebarOpen(true)}
-            aria-label="메뉴 열기"
-          >
-            ☰
           </button>
         </div>
       </header>
@@ -139,14 +131,6 @@ export default function App() {
         />
       </main>
       
-      <Sidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
-        exportData={exportData} 
-        importData={importData} 
-        onImportResult={handleImportResult} 
-      />
-      
       <QuickMemo
         isOpen={isMemoOpen}
         onClose={() => setIsMemoOpen(false)}
@@ -170,5 +154,6 @@ export default function App() {
         </p>
       </footer>
     </div>
+    </>
   );
 }

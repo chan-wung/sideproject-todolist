@@ -12,6 +12,8 @@ interface Props {
   onAddSubtask: (todoId: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
+  onUpdateSubtask: (todoId: string, subId: string, text: string) => void;
+  onReorderSubtasks: (todoId: string, fromIndex: number, toIndex: number) => void;
 }
 
 const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
@@ -20,7 +22,7 @@ const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
   completed: { icon: '📝', text: '완료된 항목이 없어요.' },
 };
 
-export default function TodoList({ todos, filterStatus, categories, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask }: Props) {
+export default function TodoList({ todos, filterStatus, categories, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks }: Props) {
   if (todos.length === 0) {
     const { icon, text } = EMPTY_MESSAGES[filterStatus];
     return (
@@ -45,6 +47,8 @@ export default function TodoList({ todos, filterStatus, categories, onToggle, on
             onAddSubtask={onAddSubtask}
             onToggleSubtask={onToggleSubtask}
             onDeleteSubtask={onDeleteSubtask}
+            onUpdateSubtask={onUpdateSubtask}
+            onReorderSubtasks={onReorderSubtasks}
           />
         </li>
       ))}

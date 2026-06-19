@@ -19,7 +19,7 @@ function loadFromStorage(): Todo[] {
 
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>(loadFromStorage);
-  const [filterStatus, setFilterStatus] = usePersistentState<FilterStatus>('todolist-pref-status', 'all');
+  const [filterStatus, setFilterStatus] = usePersistentState<FilterStatus>('todolist-pref-status', 'active');
   const [filterCategory, setFilterCategory] = usePersistentState<string>('todolist-pref-category', 'all');
   const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default');
   const [query, setQuery] = usePersistentState<string>('todolist-pref-query', '');
@@ -105,6 +105,26 @@ export function useTodos() {
         return { ...t, subtasks: newSubtasks, completed: allCompleted };
       }
       return t;
+    }));
+  }
+
+  function updateSubtask(todoId: string, subId: string, text: string) {
+    if (!text.trim()) return;
+    setTodos(prev => prev.map(t =>
+      t.id !== todoId ? t : {
+        ...t,
+        subtasks: (t.subtasks ?? []).map(s => s.id === subId ? { ...s, text: text.trim() } : s),
+      }
+    ));
+  }
+
+  function reorderSubtasks(todoId: string, fromIndex: number, toIndex: number) {
+    setTodos(prev => prev.map(t => {
+      if (t.id !== todoId) return t;
+      const subtasks = [...(t.subtasks ?? [])];
+      const [removed] = subtasks.splice(fromIndex, 1);
+      subtasks.splice(toIndex, 0, removed);
+      return { ...t, subtasks };
     }));
   }
 
@@ -202,6 +222,8 @@ export function useTodos() {
     addSubtask,
     toggleSubtask,
     deleteSubtask,
+    updateSubtask,
+    reorderSubtasks,
     resetTodos,
     exportData,
     importData,

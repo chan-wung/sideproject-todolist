@@ -778,11 +778,19 @@ dialog.confirm-modal {
     align-items: flex-start;
     justify-content: space-between;
     gap: rem(8);
-    
+    border-radius: rem(6);
+    @include transition(background-color, outline);
+
+    &--drag-over {
+      background: color-mix(in srgb, var(--color-main) 8%, transparent);
+      outline: 2px dashed color-mix(in srgb, var(--color-main) 35%, transparent);
+      outline-offset: rem(2);
+    }
+
     .form-chk {
       flex: 1;
     }
-    
+
     .form-chk__text {
       @include font(14);
       color: var(--txt-color-base);
@@ -791,10 +799,89 @@ dialog.confirm-modal {
       word-break: break-word;
       padding-top: rem(2);
     }
-    
+
     input:checked + .form-chk__text {
       text-decoration: line-through;
       color: $gray9;
+    }
+  }
+
+  &__sub-drag {
+    flex-shrink: 0;
+    color: $grayC;
+    cursor: grab;
+    display: flex;
+    align-items: flex-start;
+    padding-top: rem(4);
+
+    &:active { cursor: grabbing; }
+  }
+
+  &__sub-edit {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: rem(4);
+    min-width: 0;
+  }
+
+  &__btn-sub-edit {
+    flex-shrink: 0;
+    @include size(24);
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    @include flex-center;
+    @include transition(background-color, opacity);
+    opacity: 0.5;
+
+    svg {
+      width: rem(12);
+      height: rem(12);
+      color: $gray9;
+    }
+
+    &:hover {
+      opacity: 1;
+      background: var(--color-main-5);
+
+      svg { color: var(--color-main); }
+    }
+  }
+
+  &__btn-sub-action {
+    flex-shrink: 0;
+    @include size(26);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    @include flex-center;
+    @include transition();
+
+    svg {
+      width: rem(13);
+      height: rem(13);
+    }
+
+    &--save {
+      background: color-mix(in srgb, var(--color-success) 12%, transparent);
+      color: var(--color-success);
+
+      &:hover {
+        background: var(--color-success);
+        color: #fff;
+      }
+    }
+
+    &--cancel {
+      background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+      color: var(--color-danger);
+
+      &:hover {
+        background: var(--color-danger);
+        color: #fff;
+      }
     }
   }
 

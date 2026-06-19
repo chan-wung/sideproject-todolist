@@ -13,6 +13,8 @@ interface Props {
   onAddSubtask: (id: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
+  onUpdateSubtask: (todoId: string, subId: string, text: string) => void;
+  onReorderSubtasks: (todoId: string, fromIndex: number, toIndex: number) => void;
   categories: string[];
 }
 
@@ -22,7 +24,7 @@ const PRIORITY_LABEL: Record<Todo['priority'], string> = {
   low: '낮음',
 };
 
-export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, categories }: Props) {
+export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, categories }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [editText, setEditText] = useState(todo.text);
@@ -30,6 +32,10 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
   const [editCategory, setEditCategory] = useState(todo.category);
   const [subText, setSubText] = useState('');
+  const [editingSubId, setEditingSubId] = useState<string | null>(null);
+  const [editSubText, setEditSubText] = useState('');
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const dragFromRef = useRef<number | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -75,6 +81,12 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
   
   function handleSubtaskKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') handleAddSubtask();
+  }
+
+  function handleSaveSubEdit(subId: string) {
+    if (!editSubText.trim()) return;
+    onUpdateSubtask(todo.id, subId, editSubText);
+    setEditingSubId(null);
   }
 
   const overdue = !todo.completed && isOverdue(todo.dueDate);
@@ -178,24 +190,84 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
         </div>
         
         <div className="todo-item__subtasks">
-          {(todo.subtasks ?? []).map(sub => (
-            <div key={sub.id} className="todo-item__subtask">
-              <label className="form-chk form-chk--checkbox">
-                <input
-                  type="checkbox"
-                  checked={sub.completed}
-                  onChange={() => onToggleSubtask(todo.id, sub.id)}
-                />
-                <span className="form-chk__text">{sub.text}</span>
-              </label>
-              <button
-                type="button"
-                className="todo-item__btn-sub-del"
-                onClick={() => onDeleteSubtask(todo.id, sub.id)}
-                aria-label="서브태스크 삭제"
-              >
-                <span className="screen-out">삭제</span>
-              </button>
+          {(todo.subtasks ?? []).map((sub, index) => (
+            <div
+              key={sub.id}
+              className={['todo-item__subtask', dragOverIndex === index ? 'todo-item__subtask--drag-over' : ''].filter(Boolean).join(' ')}
+              draggable={editingSubId !== sub.id}
+              onDragStart={() => { dragFromRef.current = index; }}
+              onDragOver={(e) => { e.preventDefault(); if (dragOverIndex !== index) setDragOverIndex(index); }}
+              onDragLeave={() => setDragOverIndex(null)}
+              onDrop={() => {
+                if (dragFromRef.current !== null && dragFromRef.current !== index) {
+                  onReorderSubtasks(todo.id, dragFromRef.current, index);
+                }
+                setDragOverIndex(null);
+                dragFromRef.current = null;
+              }}
+              onDragEnd={() => { setDragOverIndex(null); dragFromRef.current = null; }}
+            >
+              {editingSubId === sub.id ? (
+                <div className="todo-item__sub-edit">
+                  <input
+                    className="todo-item__edit-field todo-item__edit-field--sm"
+                    type="text"
+                    value={editSubText}
+                    onChange={e => setEditSubText(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') handleSaveSubEdit(sub.id);
+                      if (e.key === 'Escape') setEditingSubId(null);
+                    }}
+                    autoFocus
+                  />
+                  <button type="button" className="todo-item__btn-sub-action todo-item__btn-sub-action--save" onClick={() => handleSaveSubEdit(sub.id)} aria-label="저장">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                    <span className="screen-out">저장</span>
+                  </button>
+                  <button type="button" className="todo-item__btn-sub-action todo-item__btn-sub-action--cancel" onClick={() => setEditingSubId(null)} aria-label="취소">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                    <span className="screen-out">취소</span>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span className="todo-item__sub-drag" aria-hidden="true">
+                    <svg viewBox="0 0 10 16" fill="currentColor" width="10" height="16">
+                      <circle cx="3" cy="4" r="1.5"/><circle cx="7" cy="4" r="1.5"/>
+                      <circle cx="3" cy="8" r="1.5"/><circle cx="7" cy="8" r="1.5"/>
+                      <circle cx="3" cy="12" r="1.5"/><circle cx="7" cy="12" r="1.5"/>
+                    </svg>
+                  </span>
+                  <label className="form-chk form-chk--checkbox">
+                    <input
+                      type="checkbox"
+                      checked={sub.completed}
+                      onChange={() => onToggleSubtask(todo.id, sub.id)}
+                    />
+                    <span className="form-chk__text">{sub.text}</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="todo-item__btn-sub-edit"
+                    onClick={() => { setEditingSubId(sub.id); setEditSubText(sub.text); }}
+                    aria-label="하위 항목 수정"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                    <span className="screen-out">수정</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="todo-item__btn-sub-del"
+                    onClick={() => onDeleteSubtask(todo.id, sub.id)}
+                    aria-label="서브태스크 삭제"
+                  >
+                    <span className="screen-out">삭제</span>
+                  </button>
+                </>
+              )}
             </div>
           ))}
           <div className="todo-item__sub-add">

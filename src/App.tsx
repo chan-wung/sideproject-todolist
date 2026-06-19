@@ -39,6 +39,8 @@ export default function App() {
     addSubtask,
     toggleSubtask,
     deleteSubtask,
+    updateSubtask,
+    reorderSubtasks,
     exportData,
     importData,
     resetTodos,
@@ -179,6 +181,8 @@ export default function App() {
           onAddSubtask={addSubtask}
           onToggleSubtask={toggleSubtask}
           onDeleteSubtask={deleteSubtask}
+          onUpdateSubtask={updateSubtask}
+          onReorderSubtasks={reorderSubtasks}
         />
       </main>
       

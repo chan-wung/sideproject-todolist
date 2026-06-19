@@ -30,7 +30,7 @@ const SORT_BTNS: { value: SortKey; label: string }[] = [
 ];
 
 const DUE_BTNS: { value: DueScope; label: string }[] = [
-  { value: 'all', label: '마감일 전체' },
+  { value: 'all', label: '전체' },
   { value: 'today', label: '오늘 마감' },
   { value: 'week', label: '이번주 마감' },
   { value: 'overdue', label: '지연' },
@@ -112,7 +112,7 @@ export default function FilterBar({
           </select>
         )}
 
-        {completedCount > 0 && (
+        {filterStatus === 'completed' && completedCount > 0 && (
           <button
             className="filter-bar__clear-btn"
             type="button"

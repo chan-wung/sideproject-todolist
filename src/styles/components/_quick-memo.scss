@@ -67,7 +67,7 @@ dialog.quick-memo-modal {
   &__sidebar {
     width: rem(200);
     border-right: 1px solid var(--color-border);
-    background: #F4F5F7;
+    background: var(--color-bg);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -93,7 +93,7 @@ dialog.quick-memo-modal {
   &__search {
     padding: rem(10) rem(12);
     border-bottom: 1px solid var(--color-border);
-    background: #F4F5F7;
+    background: var(--color-bg);
 
     input {
       width: 100%;

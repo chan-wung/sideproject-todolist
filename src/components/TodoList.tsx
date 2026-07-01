@@ -1,9 +1,11 @@
-import type { Todo, FilterStatus } from '../types/todo';
+import { useRef, useState } from 'react';
+import type { Todo, FilterStatus, SortKey } from '../types/todo';
 import TodoItem from './TodoItem';
 
 interface Props {
   todos: Todo[];
   filterStatus: FilterStatus;
+  sortKey: SortKey;
   categories: string[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
@@ -14,6 +16,7 @@ interface Props {
   onDeleteSubtask: (todoId: string, subId: string) => void;
   onUpdateSubtask: (todoId: string, subId: string, text: string) => void;
   onReorderSubtasks: (todoId: string, fromIndex: number, toIndex: number) => void;
+  onReorderTodos: (draggedId: string, targetId: string) => void;
 }
 
 const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
@@ -22,7 +25,11 @@ const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
   completed: { icon: '📝', text: '완료된 항목이 없어요.' },
 };
 
-export default function TodoList({ todos, filterStatus, categories, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks }: Props) {
+export default function TodoList({ todos, filterStatus, sortKey, categories, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onReorderTodos }: Props) {
+  const manualSort = sortKey === 'manual';
+  const dragFromIdRef = useRef<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+
   if (todos.length === 0) {
     const { icon, text } = EMPTY_MESSAGES[filterStatus];
     return (
@@ -36,10 +43,30 @@ export default function TodoList({ todos, filterStatus, categories, onToggle, on
   return (
     <ul className="todo-list">
       {todos.map(todo => (
-        <li key={todo.id}>
+        <li
+          key={todo.id}
+          className={[
+            'todo-list__item',
+            manualSort ? 'todo-list__item--draggable' : '',
+            manualSort && dragOverId === todo.id ? 'todo-list__item--drag-over' : '',
+          ].filter(Boolean).join(' ')}
+          draggable={manualSort}
+          onDragStart={manualSort ? () => { dragFromIdRef.current = todo.id; } : undefined}
+          onDragOver={manualSort ? (e) => { e.preventDefault(); if (dragOverId !== todo.id) setDragOverId(todo.id); } : undefined}
+          onDragLeave={manualSort ? () => setDragOverId(current => current === todo.id ? null : current) : undefined}
+          onDrop={manualSort ? () => {
+            if (dragFromIdRef.current && dragFromIdRef.current !== todo.id) {
+              onReorderTodos(dragFromIdRef.current, todo.id);
+            }
+            dragFromIdRef.current = null;
+            setDragOverId(null);
+          } : undefined}
+          onDragEnd={manualSort ? () => { dragFromIdRef.current = null; setDragOverId(null); } : undefined}
+        >
           <TodoItem
             todo={todo}
             categories={categories}
+            manualSort={manualSort}
             onToggle={onToggle}
             onDelete={onDelete}
             onPin={onPin}

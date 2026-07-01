@@ -14,5 +14,5 @@ export interface Todo {
 }
 
 export type FilterStatus = 'all' | 'active' | 'completed';
-export type SortKey = 'default' | 'priority' | 'dueDate';
+export type SortKey = 'default' | 'priority' | 'dueDate' | 'manual';
 export type DueScope = 'all' | 'today' | 'week' | 'overdue';

@@ -35,6 +35,7 @@ export default function App() {
     deleteTodo,
     updateTodo,
     pinTodo,
+    reorderTodos,
     clearCompleted,
     addSubtask,
     toggleSubtask,
@@ -201,6 +202,7 @@ export default function App() {
         <TodoList
           todos={filteredTodos}
           filterStatus={filterStatus}
+          sortKey={sortKey}
           categories={categories.filter(c => c !== 'all')}
           onToggle={toggleTodo}
           onDelete={deleteTodo}
@@ -211,6 +213,7 @@ export default function App() {
           onDeleteSubtask={deleteSubtask}
           onUpdateSubtask={updateSubtask}
           onReorderSubtasks={reorderSubtasks}
+          onReorderTodos={reorderTodos}
         />
       </main>
       

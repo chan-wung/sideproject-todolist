@@ -520,6 +520,16 @@ dialog.confirm-modal {
       display: block;
     }
   }
+
+  &__item {
+    border-radius: 16px;
+    @include transition(outline);
+
+    &--drag-over {
+      outline: 2px dashed color-mix(in srgb, var(--color-main) 40%, transparent);
+      outline-offset: rem(3);
+    }
+  }
 }
 
 // =============================================
@@ -563,6 +573,17 @@ dialog.confirm-modal {
       text-decoration: line-through;
       color: $gray9;
     }
+  }
+
+  &__drag-handle {
+    flex-shrink: 0;
+    padding-top: rem(4);
+    display: flex;
+    align-items: flex-start;
+    color: $grayC;
+    cursor: grab;
+
+    &:active { cursor: grabbing; }
   }
 
   &__check {

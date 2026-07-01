@@ -209,6 +209,9 @@ export function useTodos() {
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
 
+      if (sortKey === 'manual') {
+        return 0;
+      }
       if (sortKey === 'priority') {
         return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
       }
@@ -228,6 +231,19 @@ export function useTodos() {
 
   function pinTodo(id: string) {
     setTodos(prev => prev.map(t => t.id === id ? { ...t, pinned: !t.pinned } : t));
+  }
+
+  function reorderTodos(draggedId: string, targetId: string) {
+    if (draggedId === targetId) return;
+    setTodos(prev => {
+      const fromIndex = prev.findIndex(t => t.id === draggedId);
+      const toIndex = prev.findIndex(t => t.id === targetId);
+      if (fromIndex === -1 || toIndex === -1) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
   }
 
   return {
@@ -253,6 +269,7 @@ export function useTodos() {
     deleteTodo,
     updateTodo,
     pinTodo,
+    reorderTodos,
     clearCompleted,
     addSubtask,
     toggleSubtask,

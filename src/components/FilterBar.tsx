@@ -27,6 +27,7 @@ const SORT_BTNS: { value: SortKey; label: string }[] = [
   { value: 'default', label: '최신순' },
   { value: 'priority', label: '우선순위' },
   { value: 'dueDate', label: '마감일순' },
+  { value: 'manual', label: '직접 정렬' },
 ];
 
 const DUE_BTNS: { value: DueScope; label: string }[] = [

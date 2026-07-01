@@ -79,6 +79,7 @@ export default function App() {
       actionLabel: '실행취소',
       onAction: performUndo,
       duration: 5000,
+      type: 'danger',
     });
   }, [undoMessage, performUndo]);
 
@@ -166,18 +167,18 @@ export default function App() {
 
   function handleResetTodos() {
     resetTodos();
-    setToast({ message: '할일을 초기화했습니다.' });
+    setToast({ message: '할일을 초기화했습니다.', type: 'danger' });
   }
 
   function handleResetMemos() {
     resetMemos();
-    setToast({ message: '메모를 초기화했습니다.' });
+    setToast({ message: '메모를 초기화했습니다.', type: 'danger' });
   }
 
   function handleResetAll() {
     resetTodos();
     resetMemos();
-    setToast({ message: '전체 데이터를 초기화했습니다.' });
+    setToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
   }
 
   const [isMemoOpen, setIsMemoOpen] = useState(false);

@@ -44,11 +44,31 @@ export default function App() {
     exportData,
     importData,
     resetTodos,
+    undoMessage,
+    performUndo,
+    dismissUndo,
   } = useTodos();
 
   const { memos, setMemos, activeId, setActiveId, resetMemos, replaceMemos } = useMemos();
 
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  interface ToastState {
+    message: string;
+    actionLabel?: string;
+    onAction?: () => void;
+    duration?: number;
+  }
+
+  const [toast, setToast] = useState<ToastState | null>(null);
+
+  useEffect(() => {
+    if (!undoMessage) return;
+    setToast({
+      message: undoMessage,
+      actionLabel: '실행취소',
+      onAction: performUndo,
+      duration: 5000,
+    });
+  }, [undoMessage, performUndo]);
 
   function getBackup() {
     return { version: 1, todos: exportData(), memos };
@@ -80,9 +100,9 @@ export default function App() {
 
   function handleImportResult(success: boolean) {
     if (success) {
-      setToastMessage('데이터를 성공적으로 불러왔습니다.');
+      setToast({ message: '데이터를 성공적으로 불러왔습니다.' });
     } else {
-      setToastMessage('데이터 불러오기에 실패했습니다.');
+      setToast({ message: '데이터 불러오기에 실패했습니다.' });
     }
   }
 
@@ -90,18 +110,18 @@ export default function App() {
 
   function handleResetTodos() {
     resetTodos();
-    setToastMessage('할일을 초기화했습니다.');
+    setToast({ message: '할일을 초기화했습니다.' });
   }
 
   function handleResetMemos() {
     resetMemos();
-    setToastMessage('메모를 초기화했습니다.');
+    setToast({ message: '메모를 초기화했습니다.' });
   }
 
   function handleResetAll() {
     resetTodos();
     resetMemos();
-    setToastMessage('전체 데이터를 초기화했습니다.');
+    setToast({ message: '전체 데이터를 초기화했습니다.' });
   }
 
   const [isMemoOpen, setIsMemoOpen] = useState(false);
@@ -121,7 +141,15 @@ export default function App() {
 
   return (
     <>
-      {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
+      {toast && (
+        <Toast
+          message={toast.message}
+          duration={toast.duration}
+          actionLabel={toast.actionLabel}
+          onAction={toast.onAction}
+          onClose={() => { setToast(null); dismissUndo(); }}
+        />
+      )}
       <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onSettingsOpen={() => setIsSettingsOpen(true)} />
       <div className="todo-app">
       <header className="todo-app__header">

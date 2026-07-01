@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Todo, FilterStatus, SortKey, DueScope } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
 import { isToday, isThisWeek, isOverdue, calculateNextRecurrence } from '../utils/date';
@@ -24,10 +24,28 @@ export function useTodos() {
   const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default');
   const [query, setQuery] = usePersistentState<string>('todolist-pref-query', '');
   const [dueScope, setDueScope] = usePersistentState<DueScope>('todolist-pref-due', 'all');
+  const [undoInfo, setUndoInfo] = useState<{ message: string; snapshot: Todo[] } | null>(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
   }, [todos]);
+
+  function withUndo(message: string, mutate: (prev: Todo[]) => Todo[]) {
+    const snapshot = todos;
+    setTodos(mutate(snapshot));
+    setUndoInfo({ message, snapshot });
+  }
+
+  const performUndo = useCallback(() => {
+    setUndoInfo(current => {
+      if (current) setTodos(current.snapshot);
+      return null;
+    });
+  }, []);
+
+  const dismissUndo = useCallback(() => {
+    setUndoInfo(null);
+  }, []);
 
   function addTodo(
     text: string,
@@ -80,7 +98,7 @@ export function useTodos() {
   }
 
   function deleteTodo(id: string) {
-    setTodos(prev => prev.filter(t => t.id !== id));
+    withUndo('할 일을 삭제했습니다.', prev => prev.filter(t => t.id !== id));
   }
 
   function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence'>>) {
@@ -90,7 +108,9 @@ export function useTodos() {
   }
 
   function clearCompleted() {
-    setTodos(prev => prev.filter(t => !t.completed));
+    const count = todos.filter(t => t.completed).length;
+    if (count === 0) return;
+    withUndo(`완료된 항목 ${count}개를 삭제했습니다.`, prev => prev.filter(t => !t.completed));
   }
 
   function addSubtask(todoId: string, text: string) {
@@ -113,7 +133,7 @@ export function useTodos() {
   }
 
   function deleteSubtask(todoId: string, subId: string) {
-    setTodos(prev => prev.map(t => {
+    withUndo('하위 항목을 삭제했습니다.', prev => prev.map(t => {
       if (t.id === todoId) {
         const newSubtasks = (t.subtasks ?? []).filter(s => s.id !== subId);
         const allCompleted = newSubtasks.length > 0 ? newSubtasks.every(s => s.completed) : false;
@@ -242,5 +262,8 @@ export function useTodos() {
     resetTodos,
     exportData,
     importData,
+    undoMessage: undoInfo?.message ?? null,
+    performUndo,
+    dismissUndo,
   };
 }

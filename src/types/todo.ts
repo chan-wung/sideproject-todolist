@@ -10,6 +10,7 @@ export interface Todo {
   createdAt: string;
   subtasks?: Subtask[];
   pinned?: boolean;
+  recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
 }
 
 export type FilterStatus = 'all' | 'active' | 'completed';

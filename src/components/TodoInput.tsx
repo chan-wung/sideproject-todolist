@@ -4,7 +4,7 @@ import Toast from './Toast';
 import DatePicker from './DatePicker';
 
 interface Props {
-  onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string) => void;
+  onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string, recurrence?: Todo['recurrence']) => void;
   categories: string[];
 }
 
@@ -13,6 +13,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
   const [priority, setPriority] = useState<Todo['priority']>('medium');
   const [dueDate, setDueDate] = useState('');
   const [category, setCategory] = useState('');
+  const [recurrence, setRecurrence] = useState<Todo['recurrence']>('none');
   const [toast, setToast] = useState('');
 
   function handleSubmit(e: React.FormEvent) {
@@ -22,11 +23,12 @@ export default function TodoInput({ onAdd, categories }: Props) {
       setText('');
       return;
     }
-    onAdd(text, priority, dueDate, category);
+    onAdd(text, priority, dueDate, category, recurrence);
     setText('');
     setDueDate('');
     setCategory('');
     setPriority('medium');
+    setRecurrence('none');
   }
 
   function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -85,10 +87,24 @@ export default function TodoInput({ onAdd, categories }: Props) {
             onChange={e => setCategory(e.target.value)}
             list="category-options-input"
           />
-          <datalist id="category-options-input">
-            {categories.map(c => <option key={c} value={c} />)}
-          </datalist>
-        </div>
+            <datalist id="category-options-input">
+              {categories.map(c => <option key={c} value={c} />)}
+            </datalist>
+          </div>
+          
+          <div>
+            <label className="todo-input__label">반복 주기</label>
+            <select
+              className="todo-input__select"
+              value={recurrence}
+              onChange={e => setRecurrence(e.target.value as Todo['recurrence'])}
+            >
+              <option value="none">반복 안 함</option>
+              <option value="daily">매일</option>
+              <option value="weekly">매주</option>
+              <option value="monthly">매월</option>
+            </select>
+          </div>
       </div>
     </form>
   );

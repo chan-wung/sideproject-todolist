@@ -9,7 +9,7 @@ interface Props {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPin: (id: string) => void;
-  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category'>>) => void;
+  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence'>>) => void;
   onAddSubtask: (id: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
@@ -24,6 +24,13 @@ const PRIORITY_LABEL: Record<Todo['priority'], string> = {
   low: '낮음',
 };
 
+const RECURRENCE_LABEL: Record<string, string> = {
+  none: '',
+  daily: '매일',
+  weekly: '매주',
+  monthly: '매월'
+};
+
 export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, categories }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -31,6 +38,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
   const [editPriority, setEditPriority] = useState<Todo['priority']>(todo.priority);
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
   const [editCategory, setEditCategory] = useState(todo.category);
+  const [editRecurrence, setEditRecurrence] = useState<Todo['recurrence']>(todo.recurrence || 'none');
   const [subText, setSubText] = useState('');
   const [editingSubId, setEditingSubId] = useState<string | null>(null);
   const [editSubText, setEditSubText] = useState('');
@@ -47,6 +55,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
     setEditPriority(todo.priority);
     setEditDueDate(todo.dueDate ?? '');
     setEditCategory(todo.category);
+    setEditRecurrence(todo.recurrence || 'none');
     setIsEditing(true);
   }
 
@@ -57,6 +66,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
       priority: editPriority,
       dueDate: editDueDate || undefined,
       category: editCategory.trim() || '기본',
+      recurrence: editRecurrence !== 'none' ? editRecurrence : undefined,
     });
     setIsEditing(false);
   }
@@ -78,7 +88,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
     onAddSubtask(todo.id, subText);
     setSubText('');
   }
-  
+
   function handleSubtaskKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter') handleAddSubtask();
   }
@@ -138,6 +148,19 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
                 {categories.map(c => <option key={c} value={c} />)}
               </datalist>
             </div>
+            <div className="todo-item__edit-group">
+              <label className="todo-item__edit-label">반복 주기</label>
+              <select
+                className="todo-item__edit-select"
+                value={editRecurrence}
+                onChange={e => setEditRecurrence(e.target.value as Todo['recurrence'])}
+              >
+                <option value="none">없음</option>
+                <option value="daily">매일</option>
+                <option value="weekly">매주</option>
+                <option value="monthly">매월</option>
+              </select>
+            </div>
           </div>
           <div className="todo-item__edit-actions">
             <button className="btn btn--main btn--sm" type="button" onClick={handleSave}>저장</button>
@@ -179,6 +202,11 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
           {todo.category && (
             <span className="todo-item__category">{todo.category}</span>
           )}
+          {todo.recurrence && todo.recurrence !== 'none' && (
+            <span className="todo-item__badge todo-item__badge--recurrence">
+              🔁 {RECURRENCE_LABEL[todo.recurrence]}
+            </span>
+          )}
           {todo.dueDate && (
             <span className={`todo-item__date${overdue ? ' todo-item__date--overdue' : ''}`}>
               {overdue ? '⚠ ' : ''}{formatDate(todo.dueDate)}
@@ -188,7 +216,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onPin, onUpdate, on
              <span className="todo-item__sub-progress">진행도 {done}/{total}</span>
           )}
         </div>
-        
+
         <div className="todo-item__subtasks">
           {(todo.subtasks ?? []).map((sub, index) => (
             <div

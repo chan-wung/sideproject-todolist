@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Todo, FilterStatus, SortKey, DueScope } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
-import { isToday, isThisWeek, isOverdue } from '../utils/date';
+import { isToday, isThisWeek, isOverdue, calculateNextRecurrence } from '../utils/date';
 import { generateId } from '../utils/id';
 
 const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, low: 2 };
@@ -33,7 +33,8 @@ export function useTodos() {
     text: string,
     priority: Todo['priority'],
     dueDate: string,
-    category: string
+    category: string,
+    recurrence: Todo['recurrence'] = 'none'
   ) {
     if (!text.trim()) return;
     const next: Todo = {
@@ -44,15 +45,27 @@ export function useTodos() {
       dueDate: dueDate || undefined,
       category: category.trim() || '기본',
       createdAt: new Date().toISOString(),
+      recurrence: recurrence !== 'none' ? recurrence : undefined,
     };
     setTodos(prev => [next, ...prev]);
   }
 
   function toggleTodo(id: string) {
-    setTodos(prev =>
-      prev.map(t => {
+    setTodos(prev => {
+      let newlyCreated: Todo | null = null;
+      const nextList = prev.map(t => {
         if (t.id === id) {
           const newCompleted = !t.completed;
+          if (newCompleted && t.recurrence && t.recurrence !== 'none') {
+             newlyCreated = {
+               ...t,
+               id: generateId(),
+               completed: false,
+               dueDate: calculateNextRecurrence(t.dueDate, t.recurrence),
+               createdAt: new Date().toISOString(),
+               subtasks: t.subtasks?.map(s => ({ ...s, id: generateId(), completed: false }))
+             };
+          }
           return {
             ...t,
             completed: newCompleted,
@@ -60,15 +73,17 @@ export function useTodos() {
           };
         }
         return t;
-      })
-    );
+      });
+      if (newlyCreated) return [newlyCreated, ...nextList];
+      return nextList;
+    });
   }
 
   function deleteTodo(id: string) {
     setTodos(prev => prev.filter(t => t.id !== id));
   }
 
-  function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category'>>) {
+  function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence'>>) {
     setTodos(prev =>
       prev.map(t => t.id === id ? { ...t, ...updates, dueDate: updates.dueDate || undefined } : t)
     );

@@ -11,6 +11,7 @@ export interface Todo {
   subtasks?: Subtask[];
   pinned?: boolean;
   recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
+  memoId?: string;
 }
 
 export type FilterStatus = 'all' | 'active' | 'completed';

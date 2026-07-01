@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Todo } from '../types/todo';
+import type { Memo } from '../hooks/useMemos';
 import ConfirmModal from './ConfirmModal';
 import DatePicker from './DatePicker';
 import { isOverdue, formatDate } from '../utils/date';
@@ -13,13 +14,15 @@ interface Props {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPin: (id: string) => void;
-  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence'>>) => void;
+  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoId'>>) => void;
   onAddSubtask: (id: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
   onUpdateSubtask: (todoId: string, subId: string, text: string) => void;
   onReorderSubtasks: (todoId: string, fromIndex: number, toIndex: number) => void;
   categories: string[];
+  memos: Memo[];
+  onOpenMemo: (memoId: string) => void;
 }
 
 const PRIORITY_LABEL: Record<Todo['priority'], string> = {
@@ -35,7 +38,7 @@ const RECURRENCE_LABEL: Record<string, string> = {
   monthly: '매월'
 };
 
-export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, categories }: Props) {
+export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [editText, setEditText] = useState(todo.text);
@@ -43,6 +46,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
   const [editCategory, setEditCategory] = useState(todo.category);
   const [editRecurrence, setEditRecurrence] = useState<Todo['recurrence']>(todo.recurrence || 'none');
+  const [editMemoId, setEditMemoId] = useState(todo.memoId ?? '');
   const [subText, setSubText] = useState('');
   const [editingSubId, setEditingSubId] = useState<string | null>(null);
   const [editSubText, setEditSubText] = useState('');
@@ -60,6 +64,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
     setEditDueDate(todo.dueDate ?? '');
     setEditCategory(todo.category);
     setEditRecurrence(todo.recurrence || 'none');
+    setEditMemoId(todo.memoId ?? '');
     setIsEditing(true);
   }
 
@@ -71,6 +76,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
       dueDate: editDueDate || undefined,
       category: editCategory.trim() || '기본',
       recurrence: editRecurrence !== 'none' ? editRecurrence : undefined,
+      memoId: editMemoId || undefined,
     });
     setIsEditing(false);
   }
@@ -106,6 +112,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
   const overdue = !todo.completed && isOverdue(todo.dueDate);
   const done = (todo.subtasks ?? []).filter(s => s.completed).length;
   const total = (todo.subtasks ?? []).length;
+  const linkedMemo = todo.memoId ? memos.find(m => m.id === todo.memoId) : undefined;
 
   if (isEditing) {
     return (
@@ -163,6 +170,19 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                 <option value="daily">매일</option>
                 <option value="weekly">매주</option>
                 <option value="monthly">매월</option>
+              </select>
+            </div>
+            <div className="todo-item__edit-group">
+              <label className="todo-item__edit-label">연결 메모</label>
+              <select
+                className="todo-item__edit-select"
+                value={editMemoId}
+                onChange={e => setEditMemoId(e.target.value)}
+              >
+                <option value="">연결 안 함</option>
+                {memos.map(m => (
+                  <option key={m.id} value={m.id}>{m.title || '제목 없음'}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -239,6 +259,15 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           )}
           {total > 0 && (
              <span className="todo-item__sub-progress">진행도 {done}/{total}</span>
+          )}
+          {linkedMemo && (
+            <button
+              type="button"
+              className="todo-item__memo-link"
+              onClick={() => onOpenMemo(linkedMemo.id)}
+            >
+              📎 {linkedMemo.title || '제목 없음'}
+            </button>
           )}
         </div>
 

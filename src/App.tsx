@@ -41,6 +41,7 @@ export default function App() {
     bulkUpdateCategory,
     bulkUpdatePriority,
     bulkDelete,
+    pruneMemoLinks,
     clearCompleted,
     addSubtask,
     toggleSubtask,
@@ -56,6 +57,10 @@ export default function App() {
   } = useTodos();
 
   const { memos, setMemos, activeId, setActiveId, resetMemos, replaceMemos } = useMemos();
+
+  useEffect(() => {
+    pruneMemoLinks(memos.map(m => m.id));
+  }, [memos, pruneMemoLinks]);
 
   interface ToastState {
     message: string;
@@ -171,6 +176,12 @@ export default function App() {
   }
 
   const [isMemoOpen, setIsMemoOpen] = useState(false);
+
+  function handleOpenMemo(memoId: string) {
+    setActiveId(memoId);
+    setIsMemoOpen(true);
+  }
+
   const [showScrollTop, setShowScrollTop] = useState(false);
   const inputSentinelRef = useRef<HTMLDivElement>(null);
 
@@ -263,6 +274,8 @@ export default function App() {
           filterStatus={filterStatus}
           sortKey={sortKey}
           categories={categories.filter(c => c !== 'all')}
+          memos={memos}
+          onOpenMemo={handleOpenMemo}
           onToggle={toggleTodo}
           onDelete={deleteTodo}
           onUpdate={updateTodo}

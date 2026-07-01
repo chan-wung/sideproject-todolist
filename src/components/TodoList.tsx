@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { Todo, FilterStatus, SortKey } from '../types/todo';
+import type { Memo } from '../hooks/useMemos';
 import TodoItem from './TodoItem';
 
 interface Props {
@@ -7,10 +8,12 @@ interface Props {
   filterStatus: FilterStatus;
   sortKey: SortKey;
   categories: string[];
+  memos: Memo[];
+  onOpenMemo: (memoId: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPin: (id: string) => void;
-  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category'>>) => void;
+  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'memoId'>>) => void;
   onAddSubtask: (todoId: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
@@ -28,7 +31,7 @@ const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
   completed: { icon: '📝', text: '완료된 항목이 없어요.' },
 };
 
-export default function TodoList({ todos, filterStatus, sortKey, categories, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onReorderTodos, selectionMode, selectedIds, onToggleSelect }: Props) {
+export default function TodoList({ todos, filterStatus, sortKey, categories, memos, onOpenMemo, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onReorderTodos, selectionMode, selectedIds, onToggleSelect }: Props) {
   const manualSort = sortKey === 'manual';
   const dragFromIdRef = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -69,6 +72,8 @@ export default function TodoList({ todos, filterStatus, sortKey, categories, onT
           <TodoItem
             todo={todo}
             categories={categories}
+            memos={memos}
+            onOpenMemo={onOpenMemo}
             manualSort={manualSort}
             selectionMode={selectionMode}
             isSelected={selectedIds?.has(todo.id)}

@@ -101,7 +101,7 @@ export function useTodos() {
     withUndo('할 일을 삭제했습니다.', prev => prev.filter(t => t.id !== id));
   }
 
-  function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence'>>) {
+  function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoId'>>) {
     setTodos(prev =>
       prev.map(t => t.id === id ? { ...t, ...updates, dueDate: updates.dueDate || undefined } : t)
     );
@@ -265,6 +265,21 @@ export function useTodos() {
     withUndo(`선택한 항목 ${ids.length}개를 삭제했습니다.`, prev => prev.filter(t => !idSet.has(t.id)));
   }
 
+  const pruneMemoLinks = useCallback((validMemoIds: string[]) => {
+    const validSet = new Set(validMemoIds);
+    setTodos(prev => {
+      let changed = false;
+      const next = prev.map(t => {
+        if (t.memoId && !validSet.has(t.memoId)) {
+          changed = true;
+          return { ...t, memoId: undefined };
+        }
+        return t;
+      });
+      return changed ? next : prev;
+    });
+  }, []);
+
   return {
     allTodos: todos,
     filteredTodos,
@@ -292,6 +307,7 @@ export function useTodos() {
     bulkUpdateCategory,
     bulkUpdatePriority,
     bulkDelete,
+    pruneMemoLinks,
     clearCompleted,
     addSubtask,
     toggleSubtask,

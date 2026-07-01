@@ -842,6 +842,25 @@ dialog.confirm-modal {
     margin-left: auto;
   }
 
+  &__memo-link {
+    padding: rem(3) rem(9);
+    display: inline-flex;
+    align-items: center;
+    gap: rem(2);
+    border-radius: 100px;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    color: var(--txt-color-base);
+    @include font(11, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      border-color: var(--color-main);
+      color: var(--color-main);
+    }
+  }
+
   &__subtasks {
     margin-top: rem(12);
     display: flex;

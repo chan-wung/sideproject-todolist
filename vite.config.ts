@@ -9,6 +9,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       pwaAssets: { config: true },
       manifest: {
+        name: 'Todo List',
         short_name: 'Todo',
         description: '할 일을 관리하는 로컬 투두 앱',
         lang: 'ko',

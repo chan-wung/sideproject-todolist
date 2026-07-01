@@ -7,6 +7,9 @@ import { isOverdue, formatDate } from '../utils/date';
 interface Props {
   todo: Todo;
   manualSort?: boolean;
+  selectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPin: (id: string) => void;
@@ -32,7 +35,7 @@ const RECURRENCE_LABEL: Record<string, string> = {
   monthly: '매월'
 };
 
-export default function TodoItem({ todo, manualSort, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, categories }: Props) {
+export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, categories }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [editText, setEditText] = useState(todo.text);
@@ -183,6 +186,18 @@ export default function TodoItem({ todo, manualSort, onToggle, onDelete, onPin, 
         todo.pinned ? 'todo-item--pinned' : '',
       ].filter(Boolean).join(' ')}
     >
+      {selectionMode && (
+        <label className="todo-item__select form-chk form-chk--checkbox">
+          <input
+            type="checkbox"
+            checked={!!isSelected}
+            onChange={() => onToggleSelect?.(todo.id)}
+          />
+          <span className="form-chk__text">
+            <span className="screen-out">선택</span>
+          </span>
+        </label>
+      )}
       {manualSort && (
         <span className="todo-item__drag-handle" aria-hidden="true">
           <svg viewBox="0 0 10 16" fill="currentColor" width="10" height="16">

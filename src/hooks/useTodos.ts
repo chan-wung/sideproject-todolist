@@ -246,6 +246,25 @@ export function useTodos() {
     });
   }
 
+  function bulkUpdateCategory(ids: string[], category: string) {
+    const trimmed = category.trim();
+    if (!trimmed || ids.length === 0) return;
+    const idSet = new Set(ids);
+    setTodos(prev => prev.map(t => idSet.has(t.id) ? { ...t, category: trimmed } : t));
+  }
+
+  function bulkUpdatePriority(ids: string[], priority: Todo['priority']) {
+    if (ids.length === 0) return;
+    const idSet = new Set(ids);
+    setTodos(prev => prev.map(t => idSet.has(t.id) ? { ...t, priority } : t));
+  }
+
+  function bulkDelete(ids: string[]) {
+    if (ids.length === 0) return;
+    const idSet = new Set(ids);
+    withUndo(`선택한 항목 ${ids.length}개를 삭제했습니다.`, prev => prev.filter(t => !idSet.has(t.id)));
+  }
+
   return {
     allTodos: todos,
     filteredTodos,
@@ -270,6 +289,9 @@ export function useTodos() {
     updateTodo,
     pinTodo,
     reorderTodos,
+    bulkUpdateCategory,
+    bulkUpdatePriority,
+    bulkDelete,
     clearCompleted,
     addSubtask,
     toggleSubtask,

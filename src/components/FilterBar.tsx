@@ -15,6 +15,8 @@ interface Props {
   activeCount: number;
   completedCount: number;
   onClearCompleted: () => void;
+  selectionMode: boolean;
+  onToggleSelectionMode: () => void;
 }
 
 const STATUS_TABS: { value: FilterStatus; label: string }[] = [
@@ -52,6 +54,8 @@ export default function FilterBar({
   activeCount,
   completedCount,
   onClearCompleted,
+  selectionMode,
+  onToggleSelectionMode,
 }: Props) {
   return (
     <div className="filter-bar">
@@ -122,6 +126,14 @@ export default function FilterBar({
             완료 항목 삭제 ({completedCount})
           </button>
         )}
+
+        <button
+          className={`filter-bar__select-btn${selectionMode ? ' filter-bar__select-btn--active' : ''}`}
+          type="button"
+          onClick={onToggleSelectionMode}
+        >
+          {selectionMode ? '선택 취소' : '선택'}
+        </button>
       </div>
     </div>
   );

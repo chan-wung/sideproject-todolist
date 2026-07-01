@@ -17,6 +17,9 @@ interface Props {
   onUpdateSubtask: (todoId: string, subId: string, text: string) => void;
   onReorderSubtasks: (todoId: string, fromIndex: number, toIndex: number) => void;
   onReorderTodos: (draggedId: string, targetId: string) => void;
+  selectionMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
 }
 
 const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
@@ -25,7 +28,7 @@ const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
   completed: { icon: '📝', text: '완료된 항목이 없어요.' },
 };
 
-export default function TodoList({ todos, filterStatus, sortKey, categories, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onReorderTodos }: Props) {
+export default function TodoList({ todos, filterStatus, sortKey, categories, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onReorderTodos, selectionMode, selectedIds, onToggleSelect }: Props) {
   const manualSort = sortKey === 'manual';
   const dragFromIdRef = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -67,6 +70,9 @@ export default function TodoList({ todos, filterStatus, sortKey, categories, onT
             todo={todo}
             categories={categories}
             manualSort={manualSort}
+            selectionMode={selectionMode}
+            isSelected={selectedIds?.has(todo.id)}
+            onToggleSelect={onToggleSelect}
             onToggle={onToggle}
             onDelete={onDelete}
             onPin={onPin}

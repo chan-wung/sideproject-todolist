@@ -497,6 +497,33 @@ dialog.confirm-modal {
       color: #fff;
     }
   }
+
+  &__select-btn {
+    height: rem(34);
+    padding: 0 rem(12);
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    color: var(--txt-color-base);
+    @include font(12, "Medium");
+    cursor: pointer;
+    white-space: nowrap;
+    @include transition();
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    &--active {
+      background: var(--color-main);
+      border-color: var(--color-main);
+      color: #fff;
+
+      &:hover {
+        background: var(--color-main);
+      }
+    }
+  }
 }
 
 // =============================================
@@ -573,6 +600,11 @@ dialog.confirm-modal {
       text-decoration: line-through;
       color: $gray9;
     }
+  }
+
+  &__select {
+    flex-shrink: 0;
+    padding-top: rem(2);
   }
 
   &__drag-handle {
@@ -1016,5 +1048,153 @@ dialog.confirm-modal {
   &-legal {
     @include font(13, "Regular");
     color: var(--txt-color-form);
+  }
+}
+
+// =============================================
+// BULK ACTION BAR
+// =============================================
+.bulk-bar {
+  padding: rem(12) rem(16);
+  display: flex;
+  align-items: center;
+  gap: rem(12);
+  flex-wrap: wrap;
+  background: color-mix(in srgb, var(--color-main) 6%, var(--color-white));
+  border: 1px solid color-mix(in srgb, var(--color-main) 25%, transparent);
+  border-radius: 10px;
+
+  &__count {
+    color: var(--color-main);
+    @include font(13, "Bold");
+    white-space: nowrap;
+  }
+
+  &__group {
+    display: flex;
+    gap: rem(6);
+  }
+
+  &__link-btn {
+    padding: rem(6) rem(10);
+    border-radius: 6px;
+    border: none;
+    background: none;
+    color: var(--txt-color-base);
+    @include font(12, "Medium");
+    cursor: pointer;
+    text-decoration: underline;
+    @include transition();
+
+    &:hover {
+      color: var(--color-main);
+    }
+  }
+
+  &__category-form {
+    display: flex;
+    gap: rem(6);
+  }
+
+  &__category-input {
+    width: rem(140);
+    height: rem(32);
+    padding: 0 rem(10);
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    color: var(--txt-color-base);
+    @include font(12);
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+
+  &__apply-btn {
+    height: rem(32);
+    padding: 0 rem(12);
+    border-radius: 6px;
+    border: none;
+    background: var(--color-main);
+    color: #fff;
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled):hover {
+      background: color-mix(in srgb, var(--color-main) 85%, black);
+    }
+  }
+
+  &__priority-group {
+    display: flex;
+    gap: rem(6);
+  }
+
+  &__priority-btn {
+    height: rem(32);
+    padding: 0 rem(12);
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    color: var(--txt-color-base);
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--high:not(:disabled):hover    { background: var(--color-danger); border-color: var(--color-danger); color: #fff; }
+    &--medium:not(:disabled):hover  { background: var(--color-sub); border-color: var(--color-sub); color: var(--txt-color-tit); }
+    &--low:not(:disabled):hover     { background: var(--color-success); border-color: var(--color-success); color: #fff; }
+  }
+
+  &__delete-btn {
+    height: rem(32);
+    padding: 0 rem(12);
+    border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--color-danger) 30%, transparent);
+    background: color-mix(in srgb, var(--color-danger) 6%, transparent);
+    color: var(--color-danger);
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled):hover {
+      background: var(--color-danger);
+      color: #fff;
+    }
+  }
+
+  &__close-btn {
+    margin-left: auto;
+    @include size(28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    color: var(--txt-color-base);
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
   }
 }

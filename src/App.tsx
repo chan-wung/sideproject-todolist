@@ -10,6 +10,8 @@ import QuickMemo from './components/QuickMemo';
 import AppToolbar from './components/AppToolbar';
 import SettingsModal from './components/SettingsModal';
 import QuickNav from './components/QuickNav';
+import BulkActionBar from './components/BulkActionBar';
+import type { Todo } from './types/todo';
 import './styles/main.scss';
 
 export default function App() {
@@ -36,6 +38,9 @@ export default function App() {
     updateTodo,
     pinTodo,
     reorderTodos,
+    bulkUpdateCategory,
+    bulkUpdatePriority,
+    bulkDelete,
     clearCompleted,
     addSubtask,
     toggleSubtask,
@@ -108,6 +113,46 @@ export default function App() {
   }
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  function handleToggleSelectionMode() {
+    setSelectionMode(prev => !prev);
+    setSelectedIds(new Set());
+  }
+
+  function handleToggleSelect(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function handleSelectAll() {
+    setSelectedIds(new Set(filteredTodos.map(t => t.id)));
+  }
+
+  function handleClearSelection() {
+    setSelectedIds(new Set());
+  }
+
+  function handleBulkCategory(category: string) {
+    bulkUpdateCategory(Array.from(selectedIds), category);
+    setToast({ message: '선택한 항목의 카테고리를 변경했습니다.' });
+  }
+
+  function handleBulkPriority(priority: Todo['priority']) {
+    bulkUpdatePriority(Array.from(selectedIds), priority);
+    setToast({ message: '선택한 항목의 우선순위를 변경했습니다.' });
+  }
+
+  function handleBulkDelete() {
+    bulkDelete(Array.from(selectedIds));
+    setSelectedIds(new Set());
+  }
 
   function handleResetTodos() {
     resetTodos();
@@ -198,7 +243,21 @@ export default function App() {
           activeCount={activeCount}
           completedCount={completedCount}
           onClearCompleted={clearCompleted}
+          selectionMode={selectionMode}
+          onToggleSelectionMode={handleToggleSelectionMode}
         />
+        {selectionMode && (
+          <BulkActionBar
+            selectedCount={selectedIds.size}
+            categories={categories.filter(c => c !== 'all')}
+            onSelectAll={handleSelectAll}
+            onClearSelection={handleClearSelection}
+            onApplyCategory={handleBulkCategory}
+            onApplyPriority={handleBulkPriority}
+            onDelete={handleBulkDelete}
+            onClose={handleToggleSelectionMode}
+          />
+        )}
         <TodoList
           todos={filteredTodos}
           filterStatus={filterStatus}
@@ -214,6 +273,9 @@ export default function App() {
           onUpdateSubtask={updateSubtask}
           onReorderSubtasks={reorderSubtasks}
           onReorderTodos={reorderTodos}
+          selectionMode={selectionMode}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
         />
       </main>
       

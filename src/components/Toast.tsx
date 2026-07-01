@@ -6,9 +6,10 @@ interface Props {
   duration?: number;
   actionLabel?: string;
   onAction?: () => void;
+  type?: 'primary' | 'success' | 'danger';
 }
 
-export default function Toast({ message, onClose, duration = 2500, actionLabel, onAction }: Props) {
+export default function Toast({ message, onClose, duration = 2500, actionLabel, onAction, type = 'primary' }: Props) {
   useEffect(() => {
     const timer = setTimeout(onClose, duration);
     return () => clearTimeout(timer);
@@ -20,7 +21,7 @@ export default function Toast({ message, onClose, duration = 2500, actionLabel, 
   }
 
   return (
-    <div className="toast" role="alert">
+    <div className={`toast toast--${type}`} role="alert">
       <span className="toast__icon">!</span>
       <span className="toast__msg">{message}</span>
       {actionLabel && onAction && (

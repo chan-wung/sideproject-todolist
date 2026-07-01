@@ -5,10 +5,11 @@ interface Props {
   getBackup: () => unknown;
   applyBackup: (incoming: unknown) => boolean;
   onImportResult: (success: boolean) => void;
+  onExport: () => void;
   onSettingsOpen: () => void;
 }
 
-export default function AppToolbar({ getBackup, applyBackup, onImportResult, onSettingsOpen }: Props) {
+export default function AppToolbar({ getBackup, applyBackup, onImportResult, onExport, onSettingsOpen }: Props) {
   const [theme, setTheme] = usePersistentState<'light' | 'dark'>('todolist-pref-theme', 'light');
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onS
     
     a.click();
     URL.revokeObjectURL(url);
+    onExport();
   }
 
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {

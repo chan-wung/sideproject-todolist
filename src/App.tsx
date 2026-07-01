@@ -67,6 +67,7 @@ export default function App() {
     actionLabel?: string;
     onAction?: () => void;
     duration?: number;
+    type?: 'primary' | 'success' | 'danger';
   }
 
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -111,10 +112,14 @@ export default function App() {
 
   function handleImportResult(success: boolean) {
     if (success) {
-      setToast({ message: '데이터를 성공적으로 불러왔습니다.' });
+      setToast({ message: '데이터를 성공적으로 불러왔습니다.', type: 'primary' });
     } else {
-      setToast({ message: '데이터 불러오기에 실패했습니다.' });
+      setToast({ message: '데이터 불러오기에 실패했습니다.', type: 'danger' });
     }
+  }
+
+  function handleExportResult() {
+    setToast({ message: '데이터를 내보냈습니다.', type: 'success' });
   }
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -204,10 +209,11 @@ export default function App() {
           duration={toast.duration}
           actionLabel={toast.actionLabel}
           onAction={toast.onAction}
+          type={toast.type}
           onClose={() => { setToast(null); dismissUndo(); }}
         />
       )}
-      <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onSettingsOpen={() => setIsSettingsOpen(true)} />
+      <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} />
       <div className="todo-app">
       <header className="todo-app__header">
         <div className="todo-app__header-left">

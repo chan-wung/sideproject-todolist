@@ -319,6 +319,8 @@ export default function App() {
         setMemos={setMemos}
         activeId={activeId}
         setActiveId={setActiveId}
+        todos={allTodos}
+        onUpdateTodo={updateTodo}
       />
 
       <SettingsModal

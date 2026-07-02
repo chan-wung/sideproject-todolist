@@ -291,13 +291,22 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               🔁 {RECURRENCE_LABEL[todo.recurrence]}
             </span>
           )}
-          {linkedMemo && (
+          {linkedMemo ? (
             <button
               type="button"
               className="todo-item__memo-link"
               onClick={() => onOpenMemo(linkedMemo.id)}
             >
               📎 {linkedMemo.title || '제목 없음'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="todo-item__memo-link todo-item__memo-link--empty"
+              onClick={handleEditStart}
+              aria-label="메모 연결"
+            >
+              📎 메모 연결
             </button>
           )}
           <div className="todo-item__sub-meta">

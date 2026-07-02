@@ -371,6 +371,15 @@ dialog.confirm-modal {
     cursor: pointer;
     border: none;
   }
+
+  &__hint {
+    margin-top: rem(12);
+    display: flex;
+    align-items: center;
+    gap: rem(4);
+    @include font(12);
+    color: $gray9;
+  }
 }
 
 // =============================================
@@ -936,6 +945,11 @@ dialog.confirm-modal {
     &:hover {
       border-color: var(--color-main);
       color: var(--color-main);
+    }
+
+    &--empty {
+      border-style: dashed;
+      color: $gray9;
     }
   }
 

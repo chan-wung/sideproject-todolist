@@ -106,6 +106,8 @@ export default function TodoInput({ onAdd, categories }: Props) {
             </select>
           </div>
       </div>
+
+      <p className="todo-input__hint">📎 메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>
     </form>
   );
 }

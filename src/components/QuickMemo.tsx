@@ -12,13 +12,13 @@ interface Props {
   activeId: string | null;
   setActiveId: (id: string | null) => void;
   todos: Todo[];
-  onUpdateTodo: (id: string, updates: Partial<Pick<Todo, 'memoId'>>) => void;
+  onLinkMemo: (todoId: string, memoId: string) => void;
+  onUnlinkMemo: (todoId: string, memoId: string) => void;
 }
 
-export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, setActiveId, todos, onUpdateTodo }: Props) {
+export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, setActiveId, todos, onLinkMemo, onUnlinkMemo }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [selectedTodoId, setSelectedTodoId] = useState('');
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -54,15 +54,6 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
     };
   }, [isOpen, memos, activeId, setMemos, setActiveId]);
 
-  useEffect(() => {
-    setSelectedTodoId('');
-  }, [activeId]);
-
-  function handleLinkTodo() {
-    if (!selectedTodoId || !activeId) return;
-    onUpdateTodo(selectedTodoId, { memoId: activeId });
-    setSelectedTodoId('');
-  }
 
   function handleAdd() {
     const newId = generateId();
@@ -142,8 +133,6 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
 
   const activeMemo = memos.find(m => m.id === activeId);
   const filteredMemos = memos.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase()));
-  const linkedTodos = todos.filter(t => t.memoId === activeId);
-  const linkableTodos = todos.filter(t => t.memoId !== activeId);
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) {
@@ -228,43 +217,32 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                 />
                 <div className="quick-memo-modal__linked">
                   <span className="quick-memo-modal__linked-tit">📎 연결된 할 일</span>
-                  {linkedTodos.length > 0 && (
-                    <ul className="quick-memo-modal__linked-list">
-                      {linkedTodos.map(t => (
-                        <li key={t.id} className="quick-memo-modal__linked-item">
-                          <span className="quick-memo-modal__linked-text">{t.text}</span>
-                          <button
-                            type="button"
-                            className="quick-memo-modal__linked-unlink"
-                            onClick={() => onUpdateTodo(t.id, { memoId: undefined })}
-                            aria-label="연결 해제"
-                          >
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                  {todos.length > 0 ? (
+                    <div className="quick-memo-modal__linked-checklist">
+                      {todos.map(t => {
+                        const isLinked = activeId != null && (t.memoIds ?? []).includes(activeId);
+                        return (
+                          <label key={t.id} className="form-chk form-chk--checkbox">
+                            <input
+                              type="checkbox"
+                              checked={isLinked}
+                              onChange={() => {
+                                if (!activeId) return;
+                                if (isLinked) {
+                                  onUnlinkMemo(t.id, activeId);
+                                } else {
+                                  onLinkMemo(t.id, activeId);
+                                }
+                              }}
+                            />
+                            <span className="form-chk__text">{t.text}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="quick-memo-modal__linked-empty">할 일이 없습니다.</div>
                   )}
-                  <div className="quick-memo-modal__linked-add">
-                    <select
-                      className="quick-memo-modal__linked-select"
-                      value={selectedTodoId}
-                      onChange={e => setSelectedTodoId(e.target.value)}
-                    >
-                      <option value="">연결할 할 일 선택...</option>
-                      {linkableTodos.map(t => (
-                        <option key={t.id} value={t.id}>{t.text}</option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      className="quick-memo-modal__linked-add-btn"
-                      onClick={handleLinkTodo}
-                      disabled={!selectedTodoId}
-                    >
-                      연결
-                    </button>
-                  </div>
                 </div>
                 <textarea
                   className="quick-memo-modal__textarea"

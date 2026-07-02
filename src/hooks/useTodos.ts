@@ -8,10 +8,23 @@ const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, l
 
 const STORAGE_KEY = 'todolist-items';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function migrateTodo(raw: any): Todo {
+  const { memoId, ...rest } = raw;
+  if (Array.isArray(rest.memoIds)) {
+    return rest as Todo; // 이미 신규 포맷 — 그대로 통과 (idempotent)
+  }
+  if (typeof memoId === 'string' && memoId) {
+    return { ...rest, memoIds: [memoId] } as Todo;
+  }
+  return rest as Todo;
+}
+
 function loadFromStorage(): Todo[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return raw ? (JSON.parse(raw) as any[]).map(migrateTodo) : [];
   } catch {
     return [];
   }
@@ -101,7 +114,7 @@ export function useTodos() {
     withUndo('할 일을 삭제했습니다.', prev => prev.filter(t => t.id !== id));
   }
 
-  function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoId'>>) {
+  function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoIds'>>) {
     setTodos(prev =>
       prev.map(t => t.id === id ? { ...t, ...updates, dueDate: updates.dueDate || undefined } : t)
     );
@@ -118,6 +131,22 @@ export function useTodos() {
     setTodos(prev => prev.map(t => t.id === todoId
       ? { ...t, subtasks: [...(t.subtasks ?? []), { id: generateId(), text: text.trim(), completed: false }], subtasksCollapsed: false }
       : t));
+  }
+
+  function linkMemoToTodo(todoId: string, memoId: string) {
+    setTodos(prev => prev.map(t => {
+      if (t.id !== todoId) return t;
+      if ((t.memoIds ?? []).includes(memoId)) return t; // 중복 방지
+      return { ...t, memoIds: [...(t.memoIds ?? []), memoId] };
+    }));
+  }
+
+  function unlinkMemoFromTodo(todoId: string, memoId: string) {
+    setTodos(prev => prev.map(t => {
+      if (t.id !== todoId) return t;
+      const filtered = (t.memoIds ?? []).filter(id => id !== memoId);
+      return { ...t, memoIds: filtered.length > 0 ? filtered : undefined };
+    }));
   }
 
   // Toggle collapsed state for a specific Todo's subtasks
@@ -196,7 +225,8 @@ export function useTodos() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ok = incoming.every((o: any) => o && typeof o.id === 'string' && typeof o.text === 'string');
     if (!ok) return false;
-    setTodos(incoming as Todo[]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setTodos((incoming as any[]).map(migrateTodo));
     return true;
   }
 
@@ -294,11 +324,11 @@ export function useTodos() {
     setTodos(prev => {
       let changed = false;
       const next = prev.map(t => {
-        if (t.memoId && !validSet.has(t.memoId)) {
-          changed = true;
-          return { ...t, memoId: undefined };
-        }
-        return t;
+        if (!t.memoIds || t.memoIds.length === 0) return t;
+        const filtered = t.memoIds.filter(id => validSet.has(id));
+        if (filtered.length === t.memoIds.length) return t;
+        changed = true;
+        return { ...t, memoIds: filtered.length > 0 ? filtered : undefined };
       });
       return changed ? next : prev;
     });
@@ -344,6 +374,8 @@ export function useTodos() {
     undoMessage: undoInfo?.message ?? null,
     performUndo,
     dismissUndo,
+    linkMemoToTodo,
+    unlinkMemoFromTodo,
     // New collapsible subtask handlers
     toggleSubtasksCollapsed,
     collapseAllSubtasks,

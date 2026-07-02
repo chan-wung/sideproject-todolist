@@ -16,7 +16,7 @@ interface Props {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPin: (id: string) => void;
-  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoId'>>) => void;
+  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoIds'>>) => void;
   onAddSubtask: (id: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
@@ -48,7 +48,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
   const [editCategory, setEditCategory] = useState(todo.category);
   const [editRecurrence, setEditRecurrence] = useState<Todo['recurrence']>(todo.recurrence || 'none');
-  const [editMemoId, setEditMemoId] = useState(todo.memoId ?? '');
+  const [editMemoIds, setEditMemoIds] = useState<string[]>(todo.memoIds ?? []);
   const [subText, setSubText] = useState('');
   const [editingSubId, setEditingSubId] = useState<string | null>(null);
   const [editSubText, setEditSubText] = useState('');
@@ -66,8 +66,12 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
     setEditDueDate(todo.dueDate ?? '');
     setEditCategory(todo.category);
     setEditRecurrence(todo.recurrence || 'none');
-    setEditMemoId(todo.memoId ?? '');
+    setEditMemoIds(todo.memoIds ?? []);
     setIsEditing(true);
+  }
+
+  function toggleEditMemo(id: string) {
+    setEditMemoIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   }
 
   function handleSave() {
@@ -78,7 +82,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
       dueDate: editDueDate || undefined,
       category: editCategory.trim() || '기본',
       recurrence: editRecurrence !== 'none' ? editRecurrence : undefined,
-      memoId: editMemoId || undefined,
+      memoIds: editMemoIds.length > 0 ? editMemoIds : undefined,
     });
     setIsEditing(false);
   }
@@ -114,7 +118,9 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
   const overdue = !todo.completed && isOverdue(todo.dueDate);
   const done = (todo.subtasks ?? []).filter(s => s.completed).length;
   const total = (todo.subtasks ?? []).length;
-  const linkedMemo = todo.memoId ? memos.find(m => m.id === todo.memoId) : undefined;
+  const linkedMemos = (todo.memoIds ?? [])
+    .map(id => memos.find(m => m.id === id))
+    .filter((m): m is Memo => m !== undefined);
 
   if (isEditing) {
     return (
@@ -174,19 +180,25 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                 <option value="monthly">매월</option>
               </select>
             </div>
-            <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label">연결 메모</label>
-              <select
-                className="todo-item__edit-select"
-                value={editMemoId}
-                onChange={e => setEditMemoId(e.target.value)}
-              >
-                <option value="">연결 안 함</option>
+          </div>
+          <div className="todo-item__edit-group todo-item__edit-group--full">
+            <label className="todo-item__edit-label">연결 메모</label>
+            {memos.length > 0 ? (
+              <div className="todo-item__memo-checklist">
                 {memos.map(m => (
-                  <option key={m.id} value={m.id}>{m.title || '제목 없음'}</option>
+                  <label key={m.id} className="form-chk form-chk--checkbox">
+                    <input
+                      type="checkbox"
+                      checked={editMemoIds.includes(m.id)}
+                      onChange={() => toggleEditMemo(m.id)}
+                    />
+                    <span className="form-chk__text">{m.title || '제목 없음'}</span>
+                  </label>
                 ))}
-              </select>
-            </div>
+              </div>
+            ) : (
+              <p className="todo-item__memo-empty">메모 없음</p>
+            )}
           </div>
           <div className="todo-item__edit-actions">
             <button className="btn btn--main btn--sm" type="button" onClick={handleSave}>저장</button>
@@ -291,14 +303,17 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               🔁 {RECURRENCE_LABEL[todo.recurrence]}
             </span>
           )}
-          {linkedMemo ? (
-            <button
-              type="button"
-              className="todo-item__memo-link"
-              onClick={() => onOpenMemo(linkedMemo.id)}
-            >
-              📎 {linkedMemo.title || '제목 없음'}
-            </button>
+          {linkedMemos.length > 0 ? (
+            linkedMemos.map(m => (
+              <button
+                key={m.id}
+                type="button"
+                className="todo-item__memo-link"
+                onClick={() => onOpenMemo(m.id)}
+              >
+                📎 {m.title || '제목 없음'}
+              </button>
+            ))
           ) : (
             <button
               type="button"

@@ -58,6 +58,8 @@ export default function App() {
     undoMessage,
     performUndo,
     dismissUndo,
+    linkMemoToTodo,
+    unlinkMemoFromTodo,
   } = useTodos();
 
   const todosWithSubtasks = allTodos.filter(t => t.subtasks && t.subtasks.length > 0);
@@ -320,7 +322,8 @@ export default function App() {
         activeId={activeId}
         setActiveId={setActiveId}
         todos={allTodos}
-        onUpdateTodo={updateTodo}
+        onLinkMemo={linkMemoToTodo}
+        onUnlinkMemo={unlinkMemoFromTodo}
       />
 
       <SettingsModal

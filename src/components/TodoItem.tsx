@@ -421,19 +421,19 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               )}
             </div>
           ))}
-          <div className="todo-item__sub-add">
-            <input
-              className="todo-input__field"
-              type="text"
-              placeholder="하위 항목 추가"
-              value={subText}
-              onChange={e => setSubText(e.target.value)}
-              onKeyDown={handleSubtaskKeyDown}
-            />
-            <button className="todo-item__sub-add-btn" type="button" onClick={handleAddSubtask} aria-label="하위 항목 추가">
-              <span className="screen-out">추가</span>
-            </button>
-          </div>
+        </div>
+        <div className="todo-item__sub-add">
+          <input
+            className="todo-input__field"
+            type="text"
+            placeholder="하위 항목 추가"
+            value={subText}
+            onChange={e => setSubText(e.target.value)}
+            onKeyDown={handleSubtaskKeyDown}
+          />
+          <button className="todo-item__sub-add-btn" type="button" onClick={handleAddSubtask} aria-label="하위 항목 추가">
+            <span className="screen-out">추가</span>
+          </button>
         </div>
       </div>
 

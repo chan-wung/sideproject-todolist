@@ -1084,9 +1084,9 @@ dialog.confirm-modal {
   }
 
   &__sub-add {
+    margin-top: rem(10);
     display: flex;
     gap: rem(6);
-    margin-top: rem(4);
   }
 
   &__sub-add-btn {

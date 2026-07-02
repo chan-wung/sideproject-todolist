@@ -754,7 +754,7 @@ dialog.confirm-modal {
     }
 
     &--edit {
-      color: $grayC;
+      color: var(--txt-color-form);
       &:hover {
         background: var(--color-main-5);
         color: var(--color-main);
@@ -762,7 +762,7 @@ dialog.confirm-modal {
     }
 
     &--delete {
-      color: $grayC;
+      color: var(--txt-color-form);
       &:hover {
         background: color-mix(in srgb, var(--color-danger) 60%, white);
         color: var(--color-danger);
@@ -1031,17 +1031,15 @@ dialog.confirm-modal {
     border: none;
     cursor: pointer;
     @include flex-center;
-    @include transition(background-color, opacity);
-    opacity: 0.5;
+    @include transition(background-color);
 
     svg {
       width: rem(12);
       height: rem(12);
-      color: $gray9;
+      color: var(--txt-color-form);
     }
 
     &:hover {
-      opacity: 1;
       background: var(--color-main-5);
 
       svg { color: var(--color-main); }
@@ -1087,15 +1085,13 @@ dialog.confirm-modal {
     flex-shrink: 0;
     @include size(24);
     border-radius: 50%;
-    background: svgIcoCloseCircle($gray9) no-repeat center / 16px 16px;
+    background: svgIcoCloseCircle($font_form_color) no-repeat center / 16px 16px;
     background-color: transparent;
     border: none;
     cursor: pointer;
-    @include transition(background-color, transform, opacity);
-    opacity: 0.6;
+    @include transition(background-color, transform);
 
     &:hover {
-      opacity: 1;
       background: svgIcoCloseCircle($red) no-repeat center / 16px 16px;
       background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
       transform: scale(1.1);

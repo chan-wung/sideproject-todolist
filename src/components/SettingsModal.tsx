@@ -7,6 +7,8 @@ interface Props {
   onResetTodos: () => void;
   onResetMemos: () => void;
   onResetAll: () => void;
+  notifyEnabled: boolean;
+  onToggleNotify: (v: boolean) => void;
 }
 
 type PendingAction = 'todos' | 'memos' | 'all' | null;
@@ -17,7 +19,7 @@ const CONFIRM_MESSAGES: Record<Exclude<PendingAction, null>, string> = {
   all: '할일과 메모 전체가 삭제됩니다. 계속할까요?',
 };
 
-export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMemos, onResetAll }: Props) {
+export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMemos, onResetAll, notifyEnabled, onToggleNotify }: Props) {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -46,6 +48,14 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
 
   if (!isOpen) return null;
 
+  const notifySupported = 'Notification' in window;
+
+  async function handleNotifyToggle(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!e.target.checked) { onToggleNotify(false); return; }
+    const permission = await Notification.requestPermission();
+    onToggleNotify(permission === 'granted');
+  }
+
   return (
     <dialog ref={dialogRef} className="settings-modal" onCancel={onClose} onClick={handleBackdropClick}>
       <div className="settings-modal__container">
@@ -57,6 +67,33 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
         </div>
 
         <div className="settings-modal__body">
+          <section className="settings-modal__section">
+            <h3 className="settings-modal__section-tit">알림</h3>
+            <ul className="settings-modal__list">
+              <li className="settings-modal__item">
+                <div className="settings-modal__item-info">
+                  <strong className="settings-modal__item-tit">마감일 브라우저 알림</strong>
+                  <span className="settings-modal__item-desc">
+                    {notifySupported
+                      ? (Notification.permission === 'denied'
+                          ? '브라우저 설정에서 알림 권한이 차단되어 있습니다. 주소창의 사이트 설정에서 허용해 주세요.'
+                          : '앱을 열 때 하루 1회, 오늘 마감·지연 건수를 알려드립니다.')
+                      : '이 브라우저는 알림을 지원하지 않습니다.'}
+                  </span>
+                </div>
+                <label className="form-chk form-chk--checkbox">
+                  <input
+                    type="checkbox"
+                    checked={notifyEnabled}
+                    disabled={!notifySupported}
+                    onChange={handleNotifyToggle}
+                  />
+                  <span className="form-chk__text"><span className="screen-out">마감일 알림 사용</span></span>
+                </label>
+              </li>
+            </ul>
+          </section>
+
           <section className="settings-modal__section">
             <h3 className="settings-modal__section-tit">데이터 초기화</h3>
             <p className="settings-modal__desc">초기화 후 복구할 수 없습니다. 필요하다면 먼저 내보내기(백업)를 진행하세요.</p>

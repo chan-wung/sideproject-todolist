@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTodos } from './hooks/useTodos';
 import { useMemos } from './hooks/useMemos';
+import { useDueNotifications } from './hooks/useDueNotifications';
+import { usePersistentState } from './hooks/usePersistentState';
 import TodoInput from './components/TodoInput';
 import FilterBar from './components/FilterBar';
 import TodoList from './components/TodoList';
@@ -71,6 +73,9 @@ export default function App() {
   useEffect(() => {
     pruneMemoLinks(memos.map(m => m.id));
   }, [memos, pruneMemoLinks]);
+
+  const [notifyEnabled, setNotifyEnabled] = usePersistentState<boolean>('todolist-pref-notify', false);
+  useDueNotifications(allTodos, notifyEnabled);
 
   interface ToastState {
     message: string;
@@ -332,6 +337,8 @@ export default function App() {
         onResetTodos={handleResetTodos}
         onResetMemos={handleResetMemos}
         onResetAll={handleResetAll}
+        notifyEnabled={notifyEnabled}
+        onToggleNotify={setNotifyEnabled}
       />
 
       {showScrollTop && (

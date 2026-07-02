@@ -190,6 +190,26 @@ dialog.quick-memo-modal {
     }
   }
 
+  &__item-count {
+    min-width: rem(18);
+    height: rem(18);
+    padding: 0 rem(5);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: var(--color-main-5);
+    border-radius: 100px;
+    @include font(10, "Bold");
+    color: var(--color-main);
+
+    .quick-memo-modal__item--active &,
+    .quick-memo-modal__item--pinned & {
+      background: rgba(255, 255, 255, 0.25);
+      color: #fff;
+    }
+  }
+
   &__item-del {
     background: transparent;
     border: none;

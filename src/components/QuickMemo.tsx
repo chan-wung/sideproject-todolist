@@ -165,7 +165,9 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
               />
             </div>
             <ul className="quick-memo-modal__list">
-              {filteredMemos.map(m => (
+              {filteredMemos.map(m => {
+                const linkedCount = todos.filter(t => (t.memoIds ?? []).includes(m.id)).length;
+                return (
                 <li 
                   key={m.id} 
                   draggable
@@ -184,6 +186,11 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                 >
                   <span className="quick-memo-modal__drag-handle" aria-hidden="true">⠿</span>
                   <span className="quick-memo-modal__item-tit">{m.title || '제목 없음'}</span>
+                  {linkedCount > 0 && (
+                    <span className="quick-memo-modal__item-count" aria-label={`연결된 할 일 ${linkedCount}개`}>
+                      {linkedCount}
+                    </span>
+                  )}
                   <button
                     type="button"
                     className={`quick-memo-modal__item-pin${m.pinned ? ' quick-memo-modal__item-pin--active' : ''}`}
@@ -201,7 +208,8 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                     aria-label="메모 삭제"
                   ><span aria-hidden="true">&times;</span></button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </div>
           

@@ -833,7 +833,7 @@ dialog.confirm-modal {
 
   &__edit-select,
   &__edit-date {
-    height: rem(36);
+    height: rem(45);
     border: 1px solid var(--color-border);
     border-radius: 8px;
     padding: 0 rem(28) 0 rem(10);
@@ -876,6 +876,7 @@ dialog.confirm-modal {
 
   &__edit-actions {
     display: flex;
+    justify-content: flex-end;
     gap: rem(8);
   }
 

@@ -11,6 +11,8 @@ interface Props {
   selectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
+  // New prop for collapsing subtasks
+  onToggleSubtasksCollapsed: (id: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPin: (id: string) => void;
@@ -38,7 +40,7 @@ const RECURRENCE_LABEL: Record<string, string> = {
   monthly: '매월'
 };
 
-export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, categories, memos, onOpenMemo }: Props) {
+export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [editText, setEditText] = useState(todo.text);
@@ -227,19 +229,56 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           </svg>
         </span>
       )}
-      <label className="todo-item__check form-chk form-chk--checkbox">
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          onChange={() => onToggle(todo.id)}
-        />
-        <span className="form-chk__text">
-          <span className="screen-out">완료 여부</span>
-        </span>
-      </label>
-
       <div className="todo-item__body">
-        <p className="todo-item__txt">{todo.text}</p>
+        <div className="todo-item__actions">
+          <button
+            type="button"
+            className={`todo-item__btn todo-item__btn--pin${todo.pinned ? ' todo-item__btn--pin-active' : ''}`}
+            onClick={() => onPin(todo.id)}
+            aria-label={todo.pinned ? '고정 해제' : '상단 고정'}
+          >
+            <svg viewBox="0 0 24 24" fill={todo.pinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+          </button>
+          <button
+            className="todo-item__btn todo-item__btn--edit"
+            type="button"
+            onClick={handleEditStart}
+            aria-label="수정"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+          <button
+            className="todo-item__btn todo-item__btn--delete"
+            type="button"
+            onClick={() => setShowConfirm(true)}
+            aria-label="삭제"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14H6L5 6" />
+              <path d="M10 11v6M14 11v6" />
+              <path d="M9 6V4h6v2" />
+            </svg>
+          </button>
+        </div>
+        <div className="todo-item__title-wrap">
+          <label className="todo-item__check form-chk form-chk--checkbox">
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => onToggle(todo.id)}
+            />
+            <span className="form-chk__text">
+              <span className="screen-out">완료 여부</span>
+            </span>
+          </label>
+          <p className="todo-item__txt">{todo.text}</p>
+        </div>
         <div className="todo-item__meta">
           <span className={`todo-item__badge todo-item__badge--${todo.priority}`}>
             {PRIORITY_LABEL[todo.priority]}
@@ -252,14 +291,6 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               🔁 {RECURRENCE_LABEL[todo.recurrence]}
             </span>
           )}
-          {todo.dueDate && (
-            <span className={`todo-item__date${overdue ? ' todo-item__date--overdue' : ''}`}>
-              {overdue ? '⚠ ' : ''}{formatDate(todo.dueDate)}
-            </span>
-          )}
-          {total > 0 && (
-             <span className="todo-item__sub-progress">진행도 {done}/{total}</span>
-          )}
           {linkedMemo && (
             <button
               type="button"
@@ -269,9 +300,47 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               📎 {linkedMemo.title || '제목 없음'}
             </button>
           )}
+          <div className="todo-item__sub-meta">
+            {total > 0 && (
+              <span className="todo-item__sub-progress">진행도 {done}/{total}</span>
+            )}
+            <button
+              type="button"
+              className="todo-item__sub-toggle"
+              onClick={() => onToggleSubtasksCollapsed(todo.id)}
+              aria-expanded={!todo.subtasksCollapsed}
+              aria-controls={`todo-subtasks-${todo.id}`}
+            >
+              <svg
+                className={`todo-item__sub-toggle-icon${todo.subtasksCollapsed ? ' todo-item__sub-toggle-icon--collapsed' : ''}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+              {todo.subtasksCollapsed ? '더보기' : '접기'}
+            </button>
+          </div>
         </div>
 
-        <div className="todo-item__subtasks">
+        <div className="todo-item__dates">
+          <span className="todo-item__dates-text">등록일: {formatDate(todo.createdAt)}</span>
+          {todo.dueDate && (
+            <>
+              <span className="todo-item__dates-sep" aria-hidden="true">/</span>
+              <span className={`todo-item__dates-text${overdue ? ' todo-item__dates-text--overdue' : ''}`}>
+                마감일: {overdue ? '⚠ ' : ''}{formatDate(todo.dueDate)}
+              </span>
+            </>
+          )}
+        </div>
+
+        <div className={`todo-item__subtasks${todo.subtasksCollapsed ? ' todo-item__subtasks--collapsed' : ''}`} id={`todo-subtasks-${todo.id}`}>
           {(todo.subtasks ?? []).map((sub, index) => (
             <div
               key={sub.id}
@@ -366,43 +435,6 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
             </button>
           </div>
         </div>
-      </div>
-
-      <div className="todo-item__actions">
-        <button
-          type="button"
-          className={`todo-item__btn todo-item__btn--pin${todo.pinned ? ' todo-item__btn--pin-active' : ''}`}
-          onClick={() => onPin(todo.id)}
-          aria-label={todo.pinned ? '고정 해제' : '상단 고정'}
-        >
-          <svg viewBox="0 0 24 24" fill={todo.pinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        </button>
-        <button
-          className="todo-item__btn todo-item__btn--edit"
-          type="button"
-          onClick={handleEditStart}
-          aria-label="수정"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-          </svg>
-        </button>
-        <button
-          className="todo-item__btn todo-item__btn--delete"
-          type="button"
-          onClick={() => setShowConfirm(true)}
-          aria-label="삭제"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <polyline points="3 6 5 6 21 6" />
-            <path d="M19 6l-1 14H6L5 6" />
-            <path d="M10 11v6M14 11v6" />
-            <path d="M9 6V4h6v2" />
-          </svg>
-        </button>
       </div>
 
       {showConfirm && (

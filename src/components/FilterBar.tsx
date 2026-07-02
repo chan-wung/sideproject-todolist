@@ -17,6 +17,10 @@ interface Props {
   onClearCompleted: () => void;
   selectionMode: boolean;
   onToggleSelectionMode: () => void;
+  hasSubtasks: boolean;
+  allCollapsed: boolean;
+  onCollapseAll: () => void;
+  onExpandAll: () => void;
 }
 
 const STATUS_TABS: { value: FilterStatus; label: string }[] = [
@@ -56,6 +60,10 @@ export default function FilterBar({
   onClearCompleted,
   selectionMode,
   onToggleSelectionMode,
+  hasSubtasks,
+  allCollapsed,
+  onCollapseAll,
+  onExpandAll,
 }: Props) {
   return (
     <div className="filter-bar">
@@ -132,8 +140,18 @@ export default function FilterBar({
           type="button"
           onClick={onToggleSelectionMode}
         >
-          {selectionMode ? '선택 취소' : '선택'}
+          {selectionMode ? '선택 취소' : '할일 선택'}
         </button>
+
+        {hasSubtasks && (
+          <button
+            className="filter-bar__collapse-btn"
+            type="button"
+            onClick={allCollapsed ? onExpandAll : onCollapseAll}
+          >
+            {allCollapsed ? '전체 더보기' : '전체 접기'}
+          </button>
+        )}
       </div>
     </div>
   );

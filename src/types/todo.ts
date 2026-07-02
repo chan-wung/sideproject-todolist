@@ -12,6 +12,7 @@ export interface Todo {
   pinned?: boolean;
   recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
   memoId?: string;
+  subtasksCollapsed?: boolean; // 기본값 false (펼침). 하위 항목 없는 Todo는 의미 없음.
 }
 
 export type FilterStatus = 'all' | 'active' | 'completed';

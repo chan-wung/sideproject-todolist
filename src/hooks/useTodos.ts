@@ -116,8 +116,32 @@ export function useTodos() {
   function addSubtask(todoId: string, text: string) {
     if (!text.trim()) return;
     setTodos(prev => prev.map(t => t.id === todoId
-      ? { ...t, subtasks: [...(t.subtasks ?? []), { id: generateId(), text: text.trim(), completed: false }] } : t));
+      ? { ...t, subtasks: [...(t.subtasks ?? []), { id: generateId(), text: text.trim(), completed: false }], subtasksCollapsed: false }
+      : t));
   }
+
+  // Toggle collapsed state for a specific Todo's subtasks
+  function toggleSubtasksCollapsed(todoId: string) {
+    setTodos(prev => prev.map(t =>
+      t.id === todoId ? { ...t, subtasksCollapsed: !t.subtasksCollapsed } : t
+    ));
+  }
+
+  // Collapse all subtasks for todos that have subtasks
+  function collapseAllSubtasks() {
+    setTodos(prev => prev.map(t =>
+      (t.subtasks && t.subtasks.length > 0) ? { ...t, subtasksCollapsed: true } : t
+    ));
+  }
+
+  // Expand all subtasks for todos that have subtasks
+  function expandAllSubtasks() {
+    setTodos(prev => prev.map(t =>
+      (t.subtasks && t.subtasks.length > 0) ? { ...t, subtasksCollapsed: false } : t
+    ));
+  }
+
+
 
   function toggleSubtask(todoId: string, subId: string) {
     setTodos(prev => prev.map(t => {
@@ -320,5 +344,11 @@ export function useTodos() {
     undoMessage: undoInfo?.message ?? null,
     performUndo,
     dismissUndo,
+    // New collapsible subtask handlers
+    toggleSubtasksCollapsed,
+    collapseAllSubtasks,
+    expandAllSubtasks,
   };
+
+
 }

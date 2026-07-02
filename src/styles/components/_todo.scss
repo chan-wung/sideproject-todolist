@@ -529,6 +529,28 @@ dialog.confirm-modal {
       }
     }
   }
+
+  &__collapse-btn {
+    height: rem(34);
+    padding: 0 rem(12);
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background: var(--color-white);
+    color: var(--txt-color-base);
+    @include font(12, "Medium");
+    cursor: pointer;
+    white-space: nowrap;
+    @include transition();
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
 }
 
 // =============================================
@@ -623,14 +645,20 @@ dialog.confirm-modal {
     &:active { cursor: grabbing; }
   }
 
-  &__check {
-    flex-shrink: 0;
-    padding-top: rem(2);
-  }
-
   &__body {
     flex: 1;
     min-width: 0;
+  }
+
+  &__title-wrap {
+    margin-bottom: rem(4);
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+  }
+
+  &__check {
+    flex-shrink: 0;
   }
 
   &__txt {
@@ -639,7 +667,6 @@ dialog.confirm-modal {
     word-break: break-word;
     white-space: pre-wrap;
     line-height: 1.5;
-    margin-bottom: rem(4);
   }
 
   &__meta {
@@ -668,22 +695,38 @@ dialog.confirm-modal {
     border-radius: 100px;
   }
 
-  &__date {
-    @include font(11);
-    color: $gray9;
+  &__sub-meta {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+  }
 
+  &__dates {
+    margin-top: rem(6);
+    display: flex;
+    align-items: center;
+    gap: rem(6);
+    @include font(11, "Medium");
+    color: $gray9;
+  }
+
+  &__dates-text {
     &--overdue {
       color: var(--color-danger);
       font-weight: 600;
     }
   }
 
+  &__dates-sep {
+    color: var(--color-border);
+  }
+
   &__actions {
+    margin-bottom: rem(6);
     display: flex;
+    justify-content: flex-end;
     gap: rem(4);
-    flex-shrink: 0;
-    align-self: flex-start;
-    padding-top: rem(2);
   }
 
   &__btn {
@@ -723,7 +766,7 @@ dialog.confirm-modal {
         background: var(--color-main-5);
       }
     }
-    
+
     &--pin-active {
       color: var(--color-sub);
     }
@@ -838,13 +881,42 @@ dialog.confirm-modal {
 
   // ── 서브태스크 ──────────────────────────────────
   &__sub-progress {
-    @include font(11, "Bold");
-    color: var(--color-main);
+    flex-shrink: 0;
+    padding: rem(2) rem(8);
     background: transparent;
     border: 1px solid var(--color-main);
-    padding: rem(2) rem(8);
     border-radius: 12px;
-    margin-left: auto;
+    @include font(11, "Bold");
+    color: var(--color-main);
+  }
+
+  &__sub-toggle {
+    flex-shrink: 0;
+    padding: rem(2) rem(8);
+    display: inline-flex;
+    align-items: center;
+    gap: rem(4);
+    background: transparent;
+    border: 1px solid var(--color-main);
+    border-radius: 12px;
+    @include font(12, "Medium");
+    color: var(--color-main);
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  &__sub-toggle-icon {
+    width: rem(12);
+    height: rem(12);
+    @include transition(transform);
+
+    &--collapsed {
+      transform: rotate(180deg);
+    }
   }
 
   &__memo-link {
@@ -873,6 +945,10 @@ dialog.confirm-modal {
     gap: rem(6);
     padding-top: rem(12);
     border-top: 1px dashed var(--color-border);
+
+    &--collapsed {
+      display: none;
+    }
   }
 
   &__subtask {
@@ -1117,6 +1193,7 @@ dialog.confirm-modal {
 
   &__category-form {
     display: flex;
+    align-items: center;
     gap: rem(6);
   }
 

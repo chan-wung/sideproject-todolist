@@ -16,6 +16,7 @@ import './styles/main.scss';
 
 export default function App() {
   const {
+    allTodos,
     filteredTodos,
     filterStatus,
     setFilterStatus,
@@ -48,6 +49,9 @@ export default function App() {
     deleteSubtask,
     updateSubtask,
     reorderSubtasks,
+    toggleSubtasksCollapsed,
+    collapseAllSubtasks,
+    expandAllSubtasks,
     exportData,
     importData,
     resetTodos,
@@ -55,6 +59,10 @@ export default function App() {
     performUndo,
     dismissUndo,
   } = useTodos();
+
+  const todosWithSubtasks = allTodos.filter(t => t.subtasks && t.subtasks.length > 0);
+  const hasSubtasks = todosWithSubtasks.length > 0;
+  const allCollapsed = hasSubtasks && todosWithSubtasks.every(t => t.subtasksCollapsed);
 
   const { memos, setMemos, activeId, setActiveId, resetMemos, replaceMemos } = useMemos();
 
@@ -263,6 +271,10 @@ export default function App() {
           onClearCompleted={clearCompleted}
           selectionMode={selectionMode}
           onToggleSelectionMode={handleToggleSelectionMode}
+          hasSubtasks={hasSubtasks}
+          allCollapsed={allCollapsed}
+          onCollapseAll={collapseAllSubtasks}
+          onExpandAll={expandAllSubtasks}
         />
         {selectionMode && (
           <BulkActionBar
@@ -293,6 +305,7 @@ export default function App() {
           onUpdateSubtask={updateSubtask}
           onReorderSubtasks={reorderSubtasks}
           onReorderTodos={reorderTodos}
+          onToggleSubtasksCollapsed={toggleSubtasksCollapsed}
           selectionMode={selectionMode}
           selectedIds={selectedIds}
           onToggleSelect={handleToggleSelect}

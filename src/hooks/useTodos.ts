@@ -9,7 +9,7 @@ const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, l
 const STORAGE_KEY = 'todolist-items';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function migrateTodo(raw: any): Todo {
+export function migrateTodo(raw: any): Todo {
   const { memoId, ...rest } = raw;
   if (Array.isArray(rest.memoIds)) {
     return rest as Todo; // 이미 신규 포맷 — 그대로 통과 (idempotent)

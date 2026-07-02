@@ -62,6 +62,10 @@ dialog.quick-memo-modal {
     flex: 1;
     display: flex;
     overflow: hidden;
+
+    @media (max-width: $break_tab) {
+      flex-direction: column;
+    }
   }
 
   &__sidebar {
@@ -71,6 +75,13 @@ dialog.quick-memo-modal {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+      height: rem(150);
+      border-right: none;
+      border-bottom: 1px solid var(--color-border);
+    }
   }
 
   &__add {

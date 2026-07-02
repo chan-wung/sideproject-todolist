@@ -145,7 +145,7 @@ export default function FilterBar({
 
         {hasSubtasks && (
           <button
-            className="filter-bar__collapse-btn"
+            className={`filter-bar__collapse-btn${allCollapsed ? '' : ' filter-bar__collapse-btn--active'}`}
             type="button"
             onClick={allCollapsed ? onExpandAll : onCollapseAll}
           >

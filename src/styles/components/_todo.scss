@@ -157,6 +157,12 @@ dialog.confirm-modal {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    @media (max-width: $break_tab) {
+      align-items: flex-start;
+      gap: rem(16);
+      padding: 0;
+    }
   }
   
   &__header-left {
@@ -227,18 +233,67 @@ dialog.confirm-modal {
     }
   }
 
+  &__options {
+    @media (max-width: $break_tab) {
+      display: none;
+      &--expanded {
+        display: block;
+      }
+    }
+  }
+
+  &__toggle-btn {
+    display: none;
+    @media (max-width: $break_tab) {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: rem(36);
+      justify-content: center;
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      color: var(--txt-color-base);
+      @include font(13, "Medium");
+      cursor: pointer;
+      margin-top: rem(4);
+
+      &::after {
+        content: '';
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        margin-left: rem(4);
+        background: svgIcoArrowDownMD($gray6) center / contain no-repeat;
+      }
+      
+      &--expanded::after {
+        background: svgIcoArrowUpMD($gray6) center / contain no-repeat;
+      }
+    }
+  }
+
   &__row--flex {
     display: flex;
     gap: rem(8);
     align-items: flex-end;
 
     > * { flex: 1; }
+
+    @media (max-width: $break_tab) {
+      flex-direction: column;
+      align-items: stretch;
+    }
   }
 
   &__main-row {
     display: flex;
     gap: rem(8);
     margin-bottom: rem(16);
+
+    @media (max-width: $break_tab) {
+      flex-direction: column;
+    }
   }
 
   &__field {
@@ -393,6 +448,11 @@ dialog.confirm-modal {
   margin-bottom: rem(16);
   flex-wrap: wrap;
 
+  @media (max-width: $break_tab) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   &__tabs {
     display: flex;
     gap: rem(2);
@@ -400,6 +460,11 @@ dialog.confirm-modal {
     border-radius: 10px;
     padding: rem(3);
     margin-left: auto;
+
+    @media (max-width: $break_tab) {
+      margin-left: 0;
+      width: 100%;
+    }
   }
 
   &__tab {
@@ -427,6 +492,13 @@ dialog.confirm-modal {
       color: var(--txt-color-tit);
       background: rgba(0, 0, 0, 0.04);
     }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   &__count {
@@ -442,6 +514,11 @@ dialog.confirm-modal {
     display: flex;
     align-items: center;
     gap: rem(8);
+    flex-wrap: wrap;
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
   }
 
   &__category {
@@ -460,6 +537,11 @@ dialog.confirm-modal {
       outline: none;
       border-color: var(--color-main);
     }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      text-align: left;
+    }
   }
 
   &__sort {
@@ -468,6 +550,10 @@ dialog.confirm-modal {
     background: var(--color-tab-bg);
     border-radius: 10px;
     padding: rem(3);
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
   }
 
   &__sort-btn {
@@ -491,6 +577,13 @@ dialog.confirm-modal {
       color: var(--txt-color-tit);
       background: rgba(0, 0, 0, 0.04);
     }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+      display: flex;
+    }
   }
 
   &__clear-btn {
@@ -509,6 +602,11 @@ dialog.confirm-modal {
       background: var(--color-danger);
       border-color: var(--color-danger);
       color: #fff;
+    }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      text-align: center;
     }
   }
 
@@ -537,19 +635,28 @@ dialog.confirm-modal {
         background: var(--color-main);
       }
     }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      text-align: center;
+    }
   }
 
   &__collapse-btn {
     height: rem(34);
-    padding: 0 rem(12);
+    padding: 0 rem(24) 0 rem(12);
     border-radius: 8px;
     border: 1px solid var(--color-border);
-    background: var(--color-white);
+    background: svgIcoArrowDownMD($gray6) calc(100% - 8px) 50% / 12px no-repeat, var(--color-white);
     color: var(--txt-color-base);
     @include font(12, "Medium");
     cursor: pointer;
     white-space: nowrap;
     @include transition();
+
+    &--active {
+      background: svgIcoArrowUpMD($gray6) calc(100% - 8px) 50% / 12px no-repeat, var(--color-white);
+    }
 
     &:hover {
       background: rgba(0, 0, 0, 0.04);
@@ -558,6 +665,11 @@ dialog.confirm-modal {
     &:disabled {
       opacity: 0.4;
       cursor: not-allowed;
+    }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      text-align: center;
     }
   }
 }
@@ -740,7 +852,7 @@ dialog.confirm-modal {
     display: flex;
     align-items: flex-start;
     gap: rem(4);
-    margin-left: rem(12);
+    margin-left: rem(10);
   }
 
   &__btn {

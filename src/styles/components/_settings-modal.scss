@@ -58,7 +58,9 @@ dialog.settings-modal {
   &__body {
     padding: rem(24);
   }
-
+  &__section{
+    margin-bottom: rem(10);
+  }
   &__section-tit {
     @include font(14, "SemiBold");
     color: var(--txt-color-tit);

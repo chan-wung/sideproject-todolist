@@ -66,3 +66,30 @@
   padding-top: 20px;
   box-sizing: border-box;
 }
+
+.scroll-top-btn {
+  position: fixed;
+  bottom: rem(24);
+  right: max(24px, calc(50% - 480px + 24px));
+  width: rem(48);
+  height: rem(48);
+  border-radius: 50%;
+  background-color: var(--color-main);
+  color: #fff;
+  border: none;
+  @include flex-center;
+  @include font(20, "Bold");
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  cursor: pointer;
+  z-index: 50;
+  @include transition();
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}

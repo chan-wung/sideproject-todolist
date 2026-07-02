@@ -3,6 +3,10 @@
   gap: rem(8);
   margin-bottom: rem(16);
 
+  @media (max-width: $break_tab) {
+    flex-direction: column;
+  }
+
   &__item {
     flex: 1;
     padding: rem(12) rem(16);

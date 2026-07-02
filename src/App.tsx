@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useTodos } from './hooks/useTodos';
 import { useMemos } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
@@ -204,17 +204,15 @@ export default function App() {
   }
 
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const inputSentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const sentinel = inputSentinelRef.current;
-    if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowScrollTop(!entry.isIntersecting),
-      { threshold: 0, rootMargin: '-16px 0px 0px 0px' }
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 0);
+    };
+    window.addEventListener('scroll', handleScroll);
+    // 초기 로드 시에도 한 번 체크
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
@@ -252,7 +250,7 @@ export default function App() {
         <div style={{ position: 'sticky', top: '24px', width: 0, height: 0, overflow: 'visible', zIndex: 10 }}>
           <QuickNav filteredTodos={filteredTodos} />
         </div>
-        <div ref={inputSentinelRef} />
+
         <TodoInput onAdd={addTodo} categories={categories.filter(c => c !== 'all')} />
           
         <DueSummary 

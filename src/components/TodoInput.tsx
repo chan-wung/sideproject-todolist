@@ -15,6 +15,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
   const [category, setCategory] = useState('');
   const [recurrence, setRecurrence] = useState<Todo['recurrence']>('none');
   const [toast, setToast] = useState('');
+  const [isExpanded, setIsExpanded] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,40 +59,41 @@ export default function TodoInput({ onAdd, categories }: Props) {
         <button className="todo-input__btn" type="submit">추가</button>
       </div>
 
-      <div className="todo-input__row todo-input__row--flex">
-        <div>
-          <label className="todo-input__label">우선순위</label>
-          <select
-            className={`todo-input__select todo-input__select--${priority}`}
-            value={priority}
-            onChange={e => setPriority(e.target.value as Todo['priority'])}
-          >
-            <option value="high">높음</option>
-            <option value="medium">보통</option>
-            <option value="low">낮음</option>
-          </select>
-        </div>
+      <div className={`todo-input__options ${isExpanded ? 'todo-input__options--expanded' : ''}`}>
+        <div className="todo-input__row todo-input__row--flex">
+          <div>
+            <label className="todo-input__label">우선순위</label>
+            <select
+              className={`todo-input__select todo-input__select--${priority}`}
+              value={priority}
+              onChange={e => setPriority(e.target.value as Todo['priority'])}
+            >
+              <option value="high">높음</option>
+              <option value="medium">보통</option>
+              <option value="low">낮음</option>
+            </select>
+          </div>
 
-        <div>
-          <label className="todo-input__label">마감일</label>
-          <DatePicker value={dueDate} onChange={setDueDate} />
-        </div>
+          <div>
+            <label className="todo-input__label">마감일</label>
+            <DatePicker value={dueDate} onChange={setDueDate} />
+          </div>
 
-        <div>
-          <label className="todo-input__label">카테고리</label>
-          <input
-            className="todo-input__field"
-            type="text"
-            placeholder="예: 업무, 개인..."
-            value={category}
-            onChange={e => setCategory(e.target.value)}
-            list="category-options-input"
-          />
+          <div>
+            <label className="todo-input__label">카테고리</label>
+            <input
+              className="todo-input__field"
+              type="text"
+              placeholder="예: 업무, 개인..."
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+              list="category-options-input"
+            />
             <datalist id="category-options-input">
               {categories.map(c => <option key={c} value={c} />)}
             </datalist>
           </div>
-          
+            
           <div>
             <label className="todo-input__label">반복 주기</label>
             <select
@@ -105,9 +107,18 @@ export default function TodoInput({ onAdd, categories }: Props) {
               <option value="monthly">매월</option>
             </select>
           </div>
+        </div>
+
+        <p className="todo-input__hint">📎 메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>
       </div>
 
-      <p className="todo-input__hint">📎 메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>
+      <button 
+        type="button" 
+        className={`todo-input__toggle-btn ${isExpanded ? 'todo-input__toggle-btn--expanded' : ''}`}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {isExpanded ? '상세 옵션 접기' : '상세 옵션 열기'}
+      </button>
     </form>
   );
 }

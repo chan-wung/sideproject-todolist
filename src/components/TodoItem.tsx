@@ -309,32 +309,32 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               📎 메모 연결
             </button>
           )}
-          <div className="todo-item__sub-meta">
-            {total > 0 && (
+          {total > 0 && (
+            <div className="todo-item__sub-meta">
               <span className="todo-item__sub-progress">진행도 {done}/{total}</span>
-            )}
-            <button
-              type="button"
-              className="todo-item__sub-toggle"
-              onClick={() => onToggleSubtasksCollapsed(todo.id)}
-              aria-expanded={!todo.subtasksCollapsed}
-              aria-controls={`todo-subtasks-${todo.id}`}
-            >
-              <svg
-                className={`todo-item__sub-toggle-icon${todo.subtasksCollapsed ? ' todo-item__sub-toggle-icon--collapsed' : ''}`}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
+              <button
+                type="button"
+                className="todo-item__sub-toggle"
+                onClick={() => onToggleSubtasksCollapsed(todo.id)}
+                aria-expanded={!todo.subtasksCollapsed}
+                aria-controls={`todo-subtasks-${todo.id}`}
               >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-              {todo.subtasksCollapsed ? '더보기' : '접기'}
-            </button>
-          </div>
+                <svg
+                  className={`todo-item__sub-toggle-icon${todo.subtasksCollapsed ? ' todo-item__sub-toggle-icon--collapsed' : ''}`}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+                {todo.subtasksCollapsed ? '더보기' : '접기'}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="todo-item__dates">

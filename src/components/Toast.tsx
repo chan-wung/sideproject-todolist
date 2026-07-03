@@ -30,13 +30,15 @@ export default function Toast({ message, onClose, duration = 2500, actionLabel, 
       <span className="toast__icon">!</span>
       <span className="toast__msg">{message}</span>
       {actionLabel && onAction && (
-        <button type="button" className="toast__action" onClick={handleAction}>
-          {actionLabel}
-        </button>
+        <>
+          <button type="button" className="toast__action" onClick={handleAction}>
+            {actionLabel}
+          </button>
+          <div className="toast__progress-track" aria-hidden="true">
+            <div className="toast__progress-bar" style={{ animationDuration: `${duration}ms` }} />
+          </div>
+        </>
       )}
-      <div className="toast__progress-track" aria-hidden="true">
-        <div className="toast__progress-bar" style={{ animationDuration: `${duration}ms` }} />
-      </div>
     </div>
   );
 }

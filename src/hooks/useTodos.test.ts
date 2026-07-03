@@ -296,6 +296,118 @@ describe('useTodos', () => {
     });
   });
 
+  describe('completionLog', () => {
+    it('clearCompleted logs only completed items, and deleting an incomplete item logs nothing', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('done task', 'high', '', '업무');
+        result.current.addTodo('active task', 'low', '', '개인');
+      });
+      const doneId = result.current.allTodos.find(t => t.text === 'done task')!.id;
+      const activeId = result.current.allTodos.find(t => t.text === 'active task')!.id;
+
+      act(() => {
+        result.current.toggleTodo(doneId);
+      });
+      act(() => {
+        result.current.clearCompleted();
+      });
+
+      expect(result.current.allTodos.some(t => t.id === doneId)).toBe(false);
+      expect(result.current.completionLog.length).toBe(1);
+      expect(result.current.completionLog[0]).toMatchObject({ id: doneId, text: 'done task', category: '업무', priority: 'high' });
+
+      act(() => {
+        result.current.deleteTodo(activeId);
+      });
+      expect(result.current.completionLog.length).toBe(1); // 미완료 항목 삭제는 기록되지 않음
+    });
+
+    it('clearCompleted preserves subtasks (text + completed) in the log entry', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('parent task', 'medium', '', '');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.addSubtask(id, 'sub A');
+        result.current.addSubtask(id, 'sub B');
+      });
+      const subAId = result.current.allTodos[0].subtasks![0].id;
+      act(() => {
+        result.current.toggleSubtask(id, subAId);
+      });
+      act(() => {
+        result.current.toggleTodo(id);
+      });
+      act(() => {
+        result.current.clearCompleted();
+      });
+
+      expect(result.current.completionLog[0].subtasks).toEqual([
+        { text: 'sub A', completed: true },
+        { text: 'sub B', completed: true },
+      ]);
+    });
+
+    it('deleteTodo logs an individually-deleted completed item', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('finished', 'medium', '', '');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.toggleTodo(id);
+      });
+      act(() => {
+        result.current.deleteTodo(id);
+      });
+      expect(result.current.completionLog.length).toBe(1);
+      expect(result.current.completionLog[0].id).toBe(id);
+    });
+
+    it('performUndo also reverts the completion log', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('finished', 'medium', '', '');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.toggleTodo(id);
+      });
+      act(() => {
+        result.current.deleteTodo(id);
+      });
+      expect(result.current.completionLog.length).toBe(1);
+
+      act(() => {
+        result.current.performUndo();
+      });
+      expect(result.current.completionLog.length).toBe(0);
+      expect(result.current.allTodos.some(t => t.id === id)).toBe(true);
+    });
+
+    it('resetCompletionLog clears the log', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('finished', 'medium', '', '');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.toggleTodo(id);
+      });
+      act(() => {
+        result.current.deleteTodo(id);
+      });
+      expect(result.current.completionLog.length).toBe(1);
+
+      act(() => {
+        result.current.resetCompletionLog();
+      });
+      expect(result.current.completionLog.length).toBe(0);
+    });
+  });
+
   describe('localStorage migration', () => {
     it('migrates raw stored data on init', () => {
       localStorage.setItem('todolist-items', JSON.stringify([{ id: '1', text: 't', memoId: 'memo-a' }]));

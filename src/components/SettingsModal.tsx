@@ -7,19 +7,21 @@ interface Props {
   onResetTodos: () => void;
   onResetMemos: () => void;
   onResetAll: () => void;
+  onResetCompletionLog: () => void;
   notifyEnabled: boolean;
   onToggleNotify: (v: boolean) => void;
 }
 
-type PendingAction = 'todos' | 'memos' | 'all' | null;
+type PendingAction = 'todos' | 'memos' | 'all' | 'completionLog' | null;
 
 const CONFIRM_MESSAGES: Record<Exclude<PendingAction, null>, string> = {
   todos: '모든 할일이 삭제됩니다. 계속할까요?',
   memos: '모든 메모가 삭제됩니다. 계속할까요?',
   all: '할일과 메모 전체가 삭제됩니다. 계속할까요?',
+  completionLog: '완료 이력이 모두 삭제됩니다. 계속할까요?',
 };
 
-export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMemos, onResetAll, notifyEnabled, onToggleNotify }: Props) {
+export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMemos, onResetAll, onResetCompletionLog, notifyEnabled, onToggleNotify }: Props) {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -38,6 +40,7 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
     if (pendingAction === 'todos') onResetTodos();
     else if (pendingAction === 'memos') onResetMemos();
     else if (pendingAction === 'all') onResetAll();
+    else if (pendingAction === 'completionLog') onResetCompletionLog();
     setPendingAction(null);
     onClose();
   }
@@ -113,6 +116,15 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
                   <span className="settings-modal__item-desc">모든 메모를 삭제합니다.</span>
                 </div>
                 <button type="button" className="settings-modal__reset-btn settings-modal__reset-btn--danger" onClick={() => setPendingAction('memos')}>
+                  초기화
+                </button>
+              </li>
+              <li className="settings-modal__item">
+                <div className="settings-modal__item-info">
+                  <strong className="settings-modal__item-tit">완료 이력 초기화</strong>
+                  <span className="settings-modal__item-desc">완료 항목 삭제 시 쌓인 이력을 모두 삭제합니다.</span>
+                </div>
+                <button type="button" className="settings-modal__reset-btn settings-modal__reset-btn--danger" onClick={() => setPendingAction('completionLog')}>
                   초기화
                 </button>
               </li>

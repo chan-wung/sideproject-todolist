@@ -1,0 +1,246 @@
+// =============================================
+// COMPLETION LOG MODAL
+// =============================================
+
+dialog.completion-log-modal {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0 rem(16);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border: none;
+
+  &[open] { display: flex; }
+  &::backdrop { background: rgba(0, 0, 0, 0.5); }
+}
+
+.completion-log-modal {
+  &__container {
+    width: 100%;
+    max-width: rem(720);
+    height: 80vh;
+    max-height: rem(760);
+    display: flex;
+    flex-direction: column;
+    background: var(--color-white);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    // overflow: hidden를 두지 않음 — 날짜 검색용 DatePicker 드롭다운이 잘리지 않도록
+  }
+
+  &__header {
+    flex-shrink: 0;
+    padding: rem(20) rem(24);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  &__search {
+    flex-shrink: 0;
+    padding: rem(12) rem(24);
+    display: flex;
+    gap: rem(8);
+    border-bottom: 1px solid var(--color-border);
+
+    @media (max-width: $break_tab) {
+      flex-direction: column;
+    }
+  }
+
+  &__search-input {
+    flex: 1;
+    padding: 0 rem(12);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(13);
+    @include transition(border-color);
+
+    // 전역 input 리셋(input:not([type="checkbox"]):not([type="radio"]) { height: 45px; })이
+    // 특이성이 더 높아 height가 먹히지 않아 type 속성까지 명시해 특이성을 맞춤
+    &[type="search"] {
+      height: rem(40);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-main);
+    }
+  }
+
+  &__search-date {
+    width: rem(180);
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
+
+    .date-picker__input {
+      height: rem(40);
+      @include font(13);
+    }
+  }
+
+  &__tit {
+    margin: 0;
+    color: var(--txt-color-tit);
+    @include font(18, "Bold");
+  }
+
+  &__close {
+    color: $gray9;
+    background: transparent;
+    border: none;
+    @include font(24);
+    line-height: 1;
+    cursor: pointer;
+    &:hover { color: var(--color-danger); }
+  }
+
+  &__body {
+    flex: 1;
+    min-height: 0;
+    padding: rem(16) rem(24);
+    display: flex;
+    flex-direction: column;
+    gap: rem(20);
+    overflow-y: auto;
+  }
+
+  &__empty {
+    padding: rem(48) 0;
+    color: $gray9;
+    text-align: center;
+    @include font(14);
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: rem(8);
+  }
+
+  &__date {
+    margin: 0;
+    padding-bottom: rem(6);
+    color: var(--txt-color-tit);
+    border-bottom: 1px solid var(--color-border);
+    @include font(13, "Bold");
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: rem(4);
+    list-style: none;
+  }
+
+  &__item {
+    padding: rem(10) rem(8);
+    display: flex;
+    flex-direction: column;
+    gap: rem(6);
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__item-meta {
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+  }
+
+  &__item-time {
+    flex-shrink: 0;
+    color: $gray9;
+    @include font(12);
+  }
+
+  &__item-text {
+    margin: 0;
+    color: var(--txt-color-base);
+    word-break: break-word;
+    white-space: pre-wrap;
+    @include font(14);
+  }
+
+  &__item-subtasks {
+    margin: 0;
+    padding-left: rem(16);
+    display: flex;
+    flex-direction: column;
+    gap: rem(2);
+    list-style: none;
+  }
+
+  &__item-subtask {
+    position: relative;
+    color: var(--txt-color-base);
+    @include font(13);
+
+    &::before {
+      content: '· ';
+      color: $gray9;
+    }
+  }
+
+  &__item-badge {
+    flex-shrink: 0;
+    padding: rem(2) rem(8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 100px;
+    @include font(11, "Bold");
+
+    &--high   { color: var(--color-on-accent); background: var(--color-danger); }
+    &--medium { color: var(--txt-color-tit); background: var(--color-sub); }
+    &--low    { color: var(--color-on-accent); background: var(--color-success); }
+  }
+
+  &__item-category {
+    flex-shrink: 0;
+    padding: rem(2) rem(8);
+    color: var(--color-on-accent);
+    background: var(--color-main);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 100px;
+    @include font(11, "Medium");
+  }
+
+  &__footer {
+    flex-shrink: 0;
+    padding: rem(16) rem(24);
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-border);
+  }
+
+  &__reset-btn {
+    padding: rem(8) rem(16);
+    color: var(--color-danger);
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
+    border-radius: rem(6);
+    @include font(13, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      color: var(--color-on-accent);
+      background: var(--color-danger);
+      border-color: var(--color-danger);
+    }
+  }
+}

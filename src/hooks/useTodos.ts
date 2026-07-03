@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import type { Todo, FilterStatus, SortKey, DueScope } from '../types/todo';
+import type { Todo, FilterStatus, SortKey, DueScope, CompletionLogEntry } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
 import { isToday, isThisWeek, isOverdue, calculateNextRecurrence, todayStr } from '../utils/date';
 import { generateId } from '../utils/id';
@@ -72,6 +72,25 @@ export function validateTodos(incoming: unknown): Todo[] | null {
   });
 }
 
+export function validateCompletionLog(incoming: unknown): CompletionLogEntry[] | null {
+  if (!Array.isArray(incoming)) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ok = incoming.every((o: any) => o && typeof o.id === 'string' && typeof o.text === 'string' && typeof o.completedAt === 'string');
+  if (!ok) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return incoming.map((o: any) => ({
+    id: o.id,
+    text: o.text,
+    category: typeof o.category === 'string' ? o.category : '기본',
+    priority: ['low', 'medium', 'high'].includes(o.priority) ? o.priority : 'medium',
+    completedAt: o.completedAt,
+    subtasks: Array.isArray(o.subtasks)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? o.subtasks.filter((s: any) => s && typeof s.text === 'string').map((s: any) => ({ text: s.text, completed: !!s.completed }))
+      : undefined,
+  }));
+}
+
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>(loadFromStorage);
   const [filterStatus, setFilterStatus] = usePersistentState<FilterStatus>('todolist-pref-status', 'active');
@@ -80,8 +99,10 @@ export function useTodos() {
   const [query, setQuery] = usePersistentState<string>('todolist-pref-query', '');
   const [dueScope, setDueScope] = usePersistentState<DueScope>('todolist-pref-due', 'all');
   const [recurrenceOnly, setRecurrenceOnly] = usePersistentState<boolean>('todolist-pref-recurrence-only', false);
+  const [completionLog, setCompletionLog] = usePersistentState<CompletionLogEntry[]>('todolist-completion-log', []);
   const [undoInfo, setUndoInfo] = useState<{ message: string } | null>(null);
   const undoSnapshotRef = useRef<Todo[] | null>(null);
+  const undoLogSnapshotRef = useRef<CompletionLogEntry[] | null>(null);
 
   useEffect(() => {
     try {
@@ -99,16 +120,48 @@ export function useTodos() {
     setUndoInfo({ message });
   }
 
+  // 완료 이력에 남길 항목을 기록한다. withUndo와 함께, 삭제되는 시점에 completed였던 항목만 남긴다.
+  // withUndo를 호출하는 모든 삭제 액션은 (기록할 게 없어도) 이 함수를 먼저 호출해 실행취소 스냅샷을 최신 상태로 유지해야 한다.
+  function logCompletedRemovals(removed: Todo[]) {
+    const entries: CompletionLogEntry[] = removed
+      .filter(t => t.completed)
+      .map(t => ({
+        id: t.id,
+        text: t.text,
+        category: t.category,
+        priority: t.priority,
+        completedAt: t.completedAt ?? t.createdAt,
+        subtasks: t.subtasks?.map(s => ({ text: s.text, completed: s.completed })),
+      }));
+    if (entries.length === 0) {
+      undoLogSnapshotRef.current = null;
+      return;
+    }
+    undoLogSnapshotRef.current = completionLog;
+    setCompletionLog(prev => [...entries, ...prev]);
+  }
+
   const performUndo = useCallback(() => {
     setUndoInfo(current => {
-      if (current && undoSnapshotRef.current) setTodos(undoSnapshotRef.current);
+      if (current) {
+        if (undoSnapshotRef.current) setTodos(undoSnapshotRef.current);
+        if (undoLogSnapshotRef.current !== null) {
+          setCompletionLog(undoLogSnapshotRef.current);
+          undoLogSnapshotRef.current = null;
+        }
+      }
       return null;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const dismissUndo = useCallback(() => {
     setUndoInfo(null);
   }, []);
+
+  function resetCompletionLog() {
+    setCompletionLog([]);
+  }
 
   function addTodo(
     text: string,
@@ -177,6 +230,7 @@ export function useTodos() {
             completed: newCompleted,
             subtasks: t.subtasks?.map(s => ({ ...s, completed: newCompleted })),
             recurrenceGenerated: newCompleted ? t.recurrenceGenerated : false,
+            completedAt: newCompleted ? new Date().toISOString() : undefined,
           };
           const child = tryCreateRecurrenceChild(updated, prev);
           if (child) {
@@ -193,6 +247,8 @@ export function useTodos() {
   }
 
   function deleteTodo(id: string) {
+    const target = todos.find(t => t.id === id);
+    logCompletedRemovals(target ? [target] : []);
     withUndo('할 일을 삭제했습니다.', prev => prev.filter(t => t.id !== id));
   }
 
@@ -203,9 +259,10 @@ export function useTodos() {
   }
 
   function clearCompleted() {
-    const count = todos.filter(t => t.completed).length;
-    if (count === 0) return;
-    withUndo(`완료된 항목 ${count}개를 삭제했습니다.`, prev => prev.filter(t => !t.completed));
+    const completed = todos.filter(t => t.completed);
+    if (completed.length === 0) return;
+    logCompletedRemovals(completed);
+    withUndo(`완료된 항목 ${completed.length}개를 삭제했습니다.`, prev => prev.filter(t => !t.completed));
   }
 
   function addSubtask(todoId: string, text: string) {
@@ -268,6 +325,7 @@ export function useTodos() {
             subtasks: newSubtasks,
             completed: allCompleted,
             recurrenceGenerated: allCompleted ? t.recurrenceGenerated : false,
+            completedAt: allCompleted ? new Date().toISOString() : undefined,
           };
           const child = tryCreateRecurrenceChild(updated, prev);
           if (child) {
@@ -284,11 +342,17 @@ export function useTodos() {
   }
 
   function deleteSubtask(todoId: string, subId: string) {
+    logCompletedRemovals([]);
     withUndo('하위 항목을 삭제했습니다.', prev => prev.map(t => {
       if (t.id === todoId) {
         const newSubtasks = (t.subtasks ?? []).filter(s => s.id !== subId);
         const allCompleted = newSubtasks.length > 0 ? newSubtasks.every(s => s.completed) : false;
-        return { ...t, subtasks: newSubtasks, completed: allCompleted };
+        return {
+          ...t,
+          subtasks: newSubtasks,
+          completed: allCompleted,
+          completedAt: allCompleted ? (t.completed ? t.completedAt : new Date().toISOString()) : undefined,
+        };
       }
       return t;
     }));
@@ -317,6 +381,13 @@ export function useTodos() {
   function resetTodos() { setTodos([]); }
 
   function exportData(): Todo[] { return todos; }
+
+  function exportCompletionLog(): CompletionLogEntry[] { return completionLog; }
+
+  function importCompletionLog(validEntries: CompletionLogEntry[]): boolean {
+    setCompletionLog(validEntries);
+    return true;
+  }
 
   function importData(validTodos: Todo[]): boolean {
     setTodos(validTodos);
@@ -411,6 +482,7 @@ export function useTodos() {
   function bulkDelete(ids: string[]) {
     if (ids.length === 0) return;
     const idSet = new Set(ids);
+    logCompletedRemovals(todos.filter(t => idSet.has(t.id)));
     withUndo(`선택한 항목 ${ids.length}개를 삭제했습니다.`, prev => prev.filter(t => !idSet.has(t.id)));
   }
 
@@ -444,6 +516,10 @@ export function useTodos() {
     setDueScope,
     recurrenceOnly,
     setRecurrenceOnly,
+    completionLog,
+    resetCompletionLog,
+    exportCompletionLog,
+    importCompletionLog,
     categories,
     activeCount,
     completedCount,

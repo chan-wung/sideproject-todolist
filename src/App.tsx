@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useTodos, validateTodos } from './hooks/useTodos';
+import { useTodos, validateTodos, validateCompletionLog } from './hooks/useTodos';
 import { useMemos, validateMemos } from './hooks/useMemos';
 import type { Memo } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
@@ -14,7 +14,8 @@ import AppToolbar from './components/AppToolbar';
 import SettingsModal from './components/SettingsModal';
 import QuickNav from './components/QuickNav';
 import BulkActionBar from './components/BulkActionBar';
-import type { Todo } from './types/todo';
+import CompletionLogModal from './components/CompletionLogModal';
+import type { Todo, CompletionLogEntry } from './types/todo';
 import { generateId } from './utils/id';
 import './styles/main.scss';
 
@@ -34,6 +35,10 @@ export default function App() {
     setDueScope,
     recurrenceOnly,
     setRecurrenceOnly,
+    completionLog,
+    resetCompletionLog,
+    exportCompletionLog,
+    importCompletionLog,
     categories,
     activeCount,
     completedCount,
@@ -109,7 +114,7 @@ export default function App() {
   }, [undoMessage, performUndo, showToast]);
 
   function getBackup() {
-    return { version: 1, todos: exportData(), memos };
+    return { version: 1, todos: exportData(), memos, completionLog: exportCompletionLog() };
   }
 
   function applyBackup(parsed: unknown): boolean {
@@ -127,7 +132,8 @@ export default function App() {
       let ok = false;
       let validTodos: Todo[] | null = null;
       let validMemos: Memo[] | null = null;
-      
+      let validLog: CompletionLogEntry[] | null = null;
+
       if (p.todos !== undefined) {
         validTodos = validateTodos(p.todos);
         if (!validTodos) return false;
@@ -138,10 +144,16 @@ export default function App() {
         if (!validMemos) return false;
         ok = true;
       }
+      if (p.completionLog !== undefined) {
+        validLog = validateCompletionLog(p.completionLog);
+        if (!validLog) return false;
+        ok = true;
+      }
 
       if (validTodos) importData(validTodos);
       if (validMemos) replaceMemos(validMemos);
-      
+      if (validLog) importCompletionLog(validLog);
+
       return ok;
     }
     return false;
@@ -217,6 +229,13 @@ export default function App() {
     showToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
   }
 
+  function handleResetCompletionLog() {
+    resetCompletionLog();
+    showToast({ message: '완료 이력을 초기화했습니다.', type: 'danger' });
+  }
+
+  const [isCompletionLogOpen, setIsCompletionLogOpen] = useState(false);
+
   const [isMemoOpen, setIsMemoOpen] = useState(false);
 
   function handleOpenMemo(memoId: string) {
@@ -249,7 +268,7 @@ export default function App() {
           onClose={() => { setToast(null); dismissUndo(); }}
         />
       )}
-      <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} />
+      <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} />
       <div className="todo-app">
       <header className="todo-app__header">
         <div className="todo-app__header-left">
@@ -359,8 +378,16 @@ export default function App() {
         onResetTodos={handleResetTodos}
         onResetMemos={handleResetMemos}
         onResetAll={handleResetAll}
+        onResetCompletionLog={handleResetCompletionLog}
         notifyEnabled={notifyEnabled}
         onToggleNotify={setNotifyEnabled}
+      />
+
+      <CompletionLogModal
+        isOpen={isCompletionLogOpen}
+        onClose={() => setIsCompletionLogOpen(false)}
+        entries={completionLog}
+        onReset={handleResetCompletionLog}
       />
 
       {showScrollTop && (

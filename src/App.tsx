@@ -32,6 +32,8 @@ export default function App() {
     setQuery,
     dueScope,
     setDueScope,
+    recurrenceOnly,
+    setRecurrenceOnly,
     categories,
     activeCount,
     completedCount,
@@ -290,6 +292,8 @@ export default function App() {
           setQuery={setQuery}
           dueScope={dueScope}
           setDueScope={setDueScope}
+          recurrenceOnly={recurrenceOnly}
+          setRecurrenceOnly={setRecurrenceOnly}
           categories={categories}
           activeCount={activeCount}
           completedCount={completedCount}

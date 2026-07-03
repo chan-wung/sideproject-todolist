@@ -838,18 +838,21 @@ dialog.confirm-modal {
 
   &__badge {
     padding: rem(3) rem(9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 100px;
     @include font(11, "Bold");
 
-    &--high   { color: var(--color-on-accent); background: var(--color-danger); }
-    &--medium { color: var(--txt-color-tit); background: var(--color-sub); }
-    &--low    { color: var(--color-on-accent); background: var(--color-success); }
+    &--high        { color: var(--color-on-accent); background: var(--color-danger); }
+    &--medium      { color: var(--txt-color-tit); background: var(--color-sub); }
+    &--low         { color: var(--color-on-accent); background: var(--color-success); }
+    &--recurrence  { color: var(--color-main); background: var(--color-main-10); }
   }
 
   &__category {
     padding: rem(3) rem(9);
     color: var(--color-on-accent);
     background: var(--color-main);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 100px;
     @include font(11, "Medium");
   }

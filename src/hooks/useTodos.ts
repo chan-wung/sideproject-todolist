@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { Todo, FilterStatus, SortKey, DueScope } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
-import { isToday, isThisWeek, isOverdue, calculateNextRecurrence } from '../utils/date';
+import { isToday, isThisWeek, isOverdue, calculateNextRecurrence, todayStr } from '../utils/date';
 import { generateId } from '../utils/id';
 
 const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, low: 2 };
@@ -79,6 +79,7 @@ export function useTodos() {
   const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default');
   const [query, setQuery] = usePersistentState<string>('todolist-pref-query', '');
   const [dueScope, setDueScope] = usePersistentState<DueScope>('todolist-pref-due', 'all');
+  const [recurrenceOnly, setRecurrenceOnly] = usePersistentState<boolean>('todolist-pref-recurrence-only', false);
   const [undoInfo, setUndoInfo] = useState<{ message: string } | null>(null);
   const undoSnapshotRef = useRef<Todo[] | null>(null);
 
@@ -130,14 +131,14 @@ export function useTodos() {
     setTodos(prev => [next, ...prev]);
   }
 
-  // 할 일이 완료 상태로 바뀔 때 반복 설정이 있으면 다음 회차를 생성한다.
-  // 체크박스 직접 완료(toggleTodo)와 하위 항목 전체 완료로 인한 자동 완료(toggleSubtask) 양쪽에서 공유.
-  function createNextRecurrence(t: Todo, newCompleted: boolean, prev: Todo[]): Todo | null {
-    if (!newCompleted || !t.recurrence || t.recurrence === 'none') return null;
+  // 완료된 반복 할 일의 다음 회차를, 실제로 그 날짜가 되었을 때만 생성한다.
+  // (완료 즉시 만들지 않음 — 매일이면 다음날, 매주면 다음주, 매달이면 다음달이 되어야 목록에 나타남)
+  // 체크박스 직접 완료(toggleTodo)·하위 항목 전체 완료(toggleSubtask)·앱 재실행 시 점검 3곳에서 공유.
+  function tryCreateRecurrenceChild(t: Todo, prev: Todo[]): Todo | null {
+    if (!t.completed || !t.recurrence || t.recurrence === 'none' || t.recurrenceGenerated) return null;
     const nextDueDate = calculateNextRecurrence(t.dueDate, t.recurrence);
-    const alreadyExists = prev.some(
-      pt => pt.sourceId === t.id && pt.dueDate === nextDueDate && !pt.completed
-    );
+    if (!nextDueDate || nextDueDate > todayStr()) return null; // 아직 다음 회차 날짜가 되지 않음
+    const alreadyExists = prev.some(pt => pt.sourceId === t.id);
     if (alreadyExists) return null;
     return {
       ...t,
@@ -146,9 +147,24 @@ export function useTodos() {
       dueDate: nextDueDate,
       createdAt: new Date().toISOString(),
       subtasks: t.subtasks?.map(s => ({ ...s, id: generateId(), completed: false })),
-      sourceId: t.id
+      sourceId: t.id,
+      recurrenceGenerated: false,
     };
   }
+
+  // 앱을 열어둔 사이가 아니라 며칠 뒤 다시 열었을 때도, 그 사이 지난 회차를 반영한다.
+  useEffect(() => {
+    setTodos(prev => {
+      const created: Todo[] = [];
+      const next = prev.map(t => {
+        const child = tryCreateRecurrenceChild(t, prev);
+        if (!child) return t;
+        created.push(child);
+        return { ...t, recurrenceGenerated: true };
+      });
+      return created.length > 0 ? [...created, ...next] : prev;
+    });
+  }, []); // 마운트 시 1회 — 앱을 다시 열 때마다 지난 회차를 점검
 
   function toggleTodo(id: string) {
     setTodos(prev => {
@@ -156,12 +172,18 @@ export function useTodos() {
       const nextList = prev.map(t => {
         if (t.id === id) {
           const newCompleted = !t.completed;
-          newlyCreated = createNextRecurrence(t, newCompleted, prev);
-          return {
+          const updated = {
             ...t,
             completed: newCompleted,
-            subtasks: t.subtasks?.map(s => ({ ...s, completed: newCompleted }))
+            subtasks: t.subtasks?.map(s => ({ ...s, completed: newCompleted })),
+            recurrenceGenerated: newCompleted ? t.recurrenceGenerated : false,
           };
+          const child = tryCreateRecurrenceChild(updated, prev);
+          if (child) {
+            newlyCreated = child;
+            updated.recurrenceGenerated = true;
+          }
+          return updated;
         }
         return t;
       });
@@ -241,8 +263,18 @@ export function useTodos() {
             s.id === subId ? { ...s, completed: !s.completed } : s
           );
           const allCompleted = newSubtasks.length > 0 && newSubtasks.every(s => s.completed);
-          newlyCreated = createNextRecurrence(t, allCompleted, prev);
-          return { ...t, subtasks: newSubtasks, completed: allCompleted };
+          const updated = {
+            ...t,
+            subtasks: newSubtasks,
+            completed: allCompleted,
+            recurrenceGenerated: allCompleted ? t.recurrenceGenerated : false,
+          };
+          const child = tryCreateRecurrenceChild(updated, prev);
+          if (child) {
+            newlyCreated = child;
+            updated.recurrenceGenerated = true;
+          }
+          return updated;
         }
         return t;
       });
@@ -317,8 +349,10 @@ export function useTodos() {
         (dueScope === 'today' && isToday(t.dueDate)) ||
         (dueScope === 'week' && isThisWeek(t.dueDate)) ||
         (dueScope === 'overdue' && !t.completed && isOverdue(t.dueDate));
-        
-      return statusMatch && categoryMatch && queryMatch && dueMatch;
+
+      const recurrenceMatch = !recurrenceOnly || (!!t.recurrence && t.recurrence !== 'none');
+
+      return statusMatch && categoryMatch && queryMatch && dueMatch && recurrenceMatch;
     })
     .sort((a, b) => {
       if (a.pinned && !b.pinned) return -1;
@@ -408,6 +442,8 @@ export function useTodos() {
     setQuery,
     dueScope,
     setDueScope,
+    recurrenceOnly,
+    setRecurrenceOnly,
     categories,
     activeCount,
     completedCount,

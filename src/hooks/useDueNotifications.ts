@@ -1,13 +1,8 @@
 import { useEffect } from 'react';
 import type { Todo } from '../types/todo';
-import { isToday, isOverdue } from '../utils/date';
+import { isToday, isOverdue, todayStr } from '../utils/date';
 
 const NOTIFY_LAST_KEY = 'todolist-notify-last';
-
-function todayStr(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
 
 async function showNotification(title: string, body: string) {
   try {

@@ -11,6 +11,8 @@ interface Props {
   setQuery: (v: string) => void;
   dueScope: DueScope;
   setDueScope: (v: DueScope) => void;
+  recurrenceOnly: boolean;
+  setRecurrenceOnly: (v: boolean) => void;
   categories: string[];
   activeCount: number;
   completedCount: number;
@@ -54,6 +56,8 @@ export default function FilterBar({
   setQuery,
   dueScope,
   setDueScope,
+  recurrenceOnly,
+  setRecurrenceOnly,
   categories,
   activeCount,
   completedCount,
@@ -99,6 +103,14 @@ export default function FilterBar({
               {btn.label}
             </button>
           ))}
+          <button
+            className={`filter-bar__sort-btn${recurrenceOnly ? ' filter-bar__sort-btn--active' : ''}`}
+            type="button"
+            onClick={() => setRecurrenceOnly(!recurrenceOnly)}
+            aria-pressed={recurrenceOnly}
+          >
+            🔁 반복만
+          </button>
         </div>
         <div className="filter-bar__sort">
           {SORT_BTNS.map(btn => (

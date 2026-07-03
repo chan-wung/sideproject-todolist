@@ -74,11 +74,11 @@ describe('useTodos', () => {
       expect(result.current.allTodos[0].completed).toBe(false);
     });
 
-    it('toggleTodo clones recurring tasks', () => {
+    it('toggleTodo defers next occurrence until its due date actually arrives', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-07-02T10:00:00'));
 
-      const { result } = renderHook(() => useTodos());
+      const { result, unmount } = renderHook(() => useTodos());
       act(() => {
         result.current.addTodo('recurring', 'medium', '', '');
       });
@@ -94,37 +94,40 @@ describe('useTodos', () => {
       act(() => {
         result.current.toggleTodo(oldId);
       });
+      // 완료 당일에는 다음 회차가 아직 생성되지 않아야 함 (매일이면 '다음날' 생성)
+      expect(result.current.allTodos.length).toBe(1);
+      expect(result.current.allTodos[0].completed).toBe(true);
 
-      expect(result.current.allTodos.length).toBe(2);
-      expect(result.current.allTodos[0].text).toBe('recurring');
-      expect(result.current.allTodos[0].completed).toBe(false);
-      expect(result.current.allTodos[0].dueDate).toBe('2026-07-03');
-      expect(result.current.allTodos[1].id).toBe(oldId);
-      expect(result.current.allTodos[1].completed).toBe(true);
+      // 당일 안에서 해제 → 재완료를 반복해도 여전히 생성되지 않음
+      act(() => { result.current.toggleTodo(oldId); });
+      act(() => { result.current.toggleTodo(oldId); });
+      expect(result.current.allTodos.length).toBe(1);
 
-      // 해제
-      act(() => {
-        result.current.toggleTodo(oldId);
-      });
-      expect(result.current.allTodos.length).toBe(2);
-      expect(result.current.allTodos[1].completed).toBe(false);
+      // 다음날, 앱을 다시 열면(리마운트) 그제서야 다음 회차가 생성됨
+      vi.setSystemTime(new Date('2026-07-03T09:00:00'));
+      unmount();
+      const { result: reopened } = renderHook(() => useTodos());
 
-      // 재완료
-      act(() => {
-        result.current.toggleTodo(oldId);
-      });
-      // 중복 생성 방지 확인 (파생 항목이 1개만 존재해야 함)
-      expect(result.current.allTodos.length).toBe(2);
-      expect(result.current.allTodos[1].completed).toBe(true);
+      expect(reopened.current.allTodos.length).toBe(2);
+      const created = reopened.current.allTodos.find(t => t.sourceId === oldId);
+      expect(created).toBeDefined();
+      expect(created!.completed).toBe(false);
+      expect(created!.dueDate).toBe('2026-07-03');
+      expect(reopened.current.allTodos.find(t => t.id === oldId)!.completed).toBe(true);
+
+      // 이미 생성된 뒤에는 원본을 다시 해제/재완료해도 중복 생성되지 않음
+      act(() => { reopened.current.toggleTodo(oldId); });
+      act(() => { reopened.current.toggleTodo(oldId); });
+      expect(reopened.current.allTodos.length).toBe(2);
 
       vi.useRealTimers();
     });
 
-    it('toggleSubtask completing all subtasks also clones recurring tasks', () => {
+    it('toggleSubtask completing all subtasks also defers next occurrence until due date', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-07-02T10:00:00'));
 
-      const { result } = renderHook(() => useTodos());
+      const { result, unmount } = renderHook(() => useTodos());
       act(() => {
         result.current.addTodo('recurring with subtasks', 'medium', '', '');
       });
@@ -140,11 +143,17 @@ describe('useTodos', () => {
       act(() => {
         result.current.toggleSubtask(id, subId);
       });
+      // 완료 당일에는 다음 회차가 아직 생성되지 않아야 함
+      expect(result.current.allTodos.length).toBe(1);
+      expect(result.current.allTodos[0].completed).toBe(true);
 
-      expect(result.current.allTodos.length).toBe(2);
-      const original = result.current.allTodos.find(t => t.id === id)!;
-      expect(original.completed).toBe(true);
-      const created = result.current.allTodos.find(t => t.sourceId === id);
+      // 다음날 앱을 다시 열면 그제서야 생성됨
+      vi.setSystemTime(new Date('2026-07-03T09:00:00'));
+      unmount();
+      const { result: reopened } = renderHook(() => useTodos());
+
+      expect(reopened.current.allTodos.length).toBe(2);
+      const created = reopened.current.allTodos.find(t => t.sourceId === id);
       expect(created).toBeDefined();
       expect(created!.completed).toBe(false);
       expect(created!.dueDate).toBe('2026-07-03');

@@ -31,6 +31,11 @@ export function formatDate(dateStr: string): string {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
+export function todayStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export function calculateNextRecurrence(dateStr?: string, rule?: 'none' | 'daily' | 'weekly' | 'monthly'): string | undefined {
   if (!rule || rule === 'none') return undefined;
   const baseDate = dateStr ? parseLocalDate(dateStr) : new Date();

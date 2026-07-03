@@ -68,6 +68,7 @@ export default function FilterBar({
   return (
     <div className="filter-bar">
       <input className="filter-bar__search" type="search" placeholder="검색 (제목·카테고리)"
+        aria-label="할일 검색"
         value={query} onChange={e => setQuery(e.target.value)} />
       
       <div className="filter-bar__tabs">
@@ -117,22 +118,13 @@ export default function FilterBar({
             className="filter-bar__category"
             value={filterCategory}
             onChange={e => setFilterCategory(e.target.value)}
+            aria-label="카테고리 필터"
           >
             <option value="all">전체 카테고리</option>
             {categories.filter(c => c !== 'all').map(c => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
-        )}
-
-        {filterStatus === 'completed' && completedCount > 0 && (
-          <button
-            className="filter-bar__clear-btn"
-            type="button"
-            onClick={onClearCompleted}
-          >
-            완료 항목 삭제 ({completedCount})
-          </button>
         )}
 
         <button
@@ -150,6 +142,16 @@ export default function FilterBar({
             onClick={allCollapsed ? onExpandAll : onCollapseAll}
           >
             {allCollapsed ? '전체 더보기' : '전체 접기'}
+          </button>
+        )}
+
+        {filterStatus === 'completed' && completedCount > 0 && (
+          <button
+            className="filter-bar__clear-btn"
+            type="button"
+            onClick={onClearCompleted}
+          >
+            완료 항목 삭제 ({completedCount})
           </button>
         )}
       </div>

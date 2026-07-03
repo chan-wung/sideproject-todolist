@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { Todo, FilterStatus, SortKey, DueScope } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
 import { isToday, isThisWeek, isOverdue, calculateNextRecurrence } from '../utils/date';
@@ -23,11 +23,53 @@ export function migrateTodo(raw: any): Todo {
 function loadFromStorage(): Todo[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return raw ? (JSON.parse(raw) as any[]).map(migrateTodo) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return validateTodos(parsed) || [];
   } catch {
     return [];
   }
+}
+
+export function validateTodos(incoming: unknown): Todo[] | null {
+  if (!Array.isArray(incoming)) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ok = incoming.every((o: any) => o && typeof o.id === 'string' && typeof o.text === 'string');
+  if (!ok) return null;
+  
+  return incoming.map(o => {
+    const migrated = migrateTodo(o);
+    const priority = ['low', 'medium', 'high'].includes(migrated.priority) ? migrated.priority : 'medium';
+    const completed = typeof migrated.completed === 'boolean' ? migrated.completed : false;
+    const category = typeof migrated.category === 'string' ? migrated.category : '기본';
+    const createdAt = typeof migrated.createdAt === 'string' ? migrated.createdAt : new Date().toISOString();
+    
+    let subtasks = migrated.subtasks;
+    if (Array.isArray(subtasks)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      subtasks = subtasks.filter((s: any) => s && typeof s.id === 'string' && typeof s.text === 'string');
+    } else {
+      subtasks = undefined;
+    }
+
+    let memoIds = migrated.memoIds;
+    if (Array.isArray(memoIds)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      memoIds = memoIds.filter((m: any) => typeof m === 'string');
+    } else {
+      memoIds = undefined;
+    }
+
+    return {
+      ...migrated,
+      priority,
+      completed,
+      category,
+      createdAt,
+      subtasks,
+      memoIds
+    } as Todo;
+  });
 }
 
 export function useTodos() {
@@ -37,21 +79,28 @@ export function useTodos() {
   const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default');
   const [query, setQuery] = usePersistentState<string>('todolist-pref-query', '');
   const [dueScope, setDueScope] = usePersistentState<DueScope>('todolist-pref-due', 'all');
-  const [undoInfo, setUndoInfo] = useState<{ message: string; snapshot: Todo[] } | null>(null);
+  const [undoInfo, setUndoInfo] = useState<{ message: string } | null>(null);
+  const undoSnapshotRef = useRef<Todo[] | null>(null);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+    } catch (e) {
+      console.warn('localStorage write failed:', e);
+    }
   }, [todos]);
 
   function withUndo(message: string, mutate: (prev: Todo[]) => Todo[]) {
-    const snapshot = todos;
-    setTodos(mutate(snapshot));
-    setUndoInfo({ message, snapshot });
+    setTodos(prev => {
+      undoSnapshotRef.current = prev;
+      return mutate(prev);
+    });
+    setUndoInfo({ message });
   }
 
   const performUndo = useCallback(() => {
     setUndoInfo(current => {
-      if (current) setTodos(current.snapshot);
+      if (current && undoSnapshotRef.current) setTodos(undoSnapshotRef.current);
       return null;
     });
   }, []);
@@ -88,14 +137,21 @@ export function useTodos() {
         if (t.id === id) {
           const newCompleted = !t.completed;
           if (newCompleted && t.recurrence && t.recurrence !== 'none') {
-             newlyCreated = {
-               ...t,
-               id: generateId(),
-               completed: false,
-               dueDate: calculateNextRecurrence(t.dueDate, t.recurrence),
-               createdAt: new Date().toISOString(),
-               subtasks: t.subtasks?.map(s => ({ ...s, id: generateId(), completed: false }))
-             };
+             const nextDueDate = calculateNextRecurrence(t.dueDate, t.recurrence);
+             const alreadyExists = prev.some(
+               pt => pt.sourceId === t.id && pt.dueDate === nextDueDate && !pt.completed
+             );
+             if (!alreadyExists) {
+               newlyCreated = {
+                 ...t,
+                 id: generateId(),
+                 completed: false,
+                 dueDate: nextDueDate,
+                 createdAt: new Date().toISOString(),
+                 subtasks: t.subtasks?.map(s => ({ ...s, id: generateId(), completed: false })),
+                 sourceId: t.id
+               };
+             }
           }
           return {
             ...t,
@@ -220,13 +276,8 @@ export function useTodos() {
 
   function exportData(): Todo[] { return todos; }
 
-  function importData(incoming: unknown): boolean {
-    if (!Array.isArray(incoming)) return false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ok = incoming.every((o: any) => o && typeof o.id === 'string' && typeof o.text === 'string');
-    if (!ok) return false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setTodos((incoming as any[]).map(migrateTodo));
+  function importData(validTodos: Todo[]): boolean {
+    setTodos(validTodos);
     return true;
   }
 

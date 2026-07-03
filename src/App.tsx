@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useTodos } from './hooks/useTodos';
-import { useMemos } from './hooks/useMemos';
+import { useState, useEffect, useCallback } from 'react';
+import { useTodos, validateTodos } from './hooks/useTodos';
+import { useMemos, validateMemos } from './hooks/useMemos';
+import type { Memo } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import TodoInput from './components/TodoInput';
@@ -14,6 +15,7 @@ import SettingsModal from './components/SettingsModal';
 import QuickNav from './components/QuickNav';
 import BulkActionBar from './components/BulkActionBar';
 import type { Todo } from './types/todo';
+import { generateId } from './utils/id';
 import './styles/main.scss';
 
 export default function App() {
@@ -71,6 +73,7 @@ export default function App() {
   const { memos, setMemos, activeId, setActiveId, resetMemos, replaceMemos } = useMemos();
 
   useEffect(() => {
+    if (memos.length === 0) return;
     pruneMemoLinks(memos.map(m => m.id));
   }, [memos, pruneMemoLinks]);
 
@@ -78,6 +81,7 @@ export default function App() {
   useDueNotifications(allTodos, notifyEnabled);
 
   interface ToastState {
+    id: string;
     message: string;
     actionLabel?: string;
     onAction?: () => void;
@@ -87,16 +91,20 @@ export default function App() {
 
   const [toast, setToast] = useState<ToastState | null>(null);
 
+  const showToast = useCallback((state: Omit<ToastState, 'id'>) => {
+    setToast({ ...state, id: generateId() });
+  }, []);
+
   useEffect(() => {
     if (!undoMessage) return;
-    setToast({
+    showToast({
       message: undoMessage,
       actionLabel: '실행취소',
       onAction: performUndo,
       duration: 5000,
       type: 'danger',
     });
-  }, [undoMessage, performUndo]);
+  }, [undoMessage, performUndo, showToast]);
 
   function getBackup() {
     return { version: 1, todos: exportData(), memos };
@@ -104,38 +112,49 @@ export default function App() {
 
   function applyBackup(parsed: unknown): boolean {
     if (Array.isArray(parsed)) {
-      return importData(parsed);
+      const validTodos = validateTodos(parsed);
+      if (validTodos) {
+        importData(validTodos);
+        return true;
+      }
+      return false;
     }
     if (parsed && typeof parsed === 'object') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const p = parsed as any;
       let ok = false;
-      let todosSuccess = true;
-      let memosSuccess = true;
+      let validTodos: Todo[] | null = null;
+      let validMemos: Memo[] | null = null;
       
       if (p.todos !== undefined) {
-        todosSuccess = importData(p.todos);
+        validTodos = validateTodos(p.todos);
+        if (!validTodos) return false;
         ok = true;
       }
       if (p.memos !== undefined) {
-        memosSuccess = replaceMemos(p.memos);
+        validMemos = validateMemos(p.memos);
+        if (!validMemos) return false;
         ok = true;
       }
-      return ok && todosSuccess && memosSuccess;
+
+      if (validTodos) importData(validTodos);
+      if (validMemos) replaceMemos(validMemos);
+      
+      return ok;
     }
     return false;
   }
 
   function handleImportResult(success: boolean) {
     if (success) {
-      setToast({ message: '데이터를 성공적으로 불러왔습니다.', type: 'primary' });
+      showToast({ message: '데이터를 성공적으로 불러왔습니다.', type: 'primary' });
     } else {
-      setToast({ message: '데이터 불러오기에 실패했습니다.', type: 'danger' });
+      showToast({ message: '데이터 불러오기에 실패했습니다.', type: 'danger' });
     }
   }
 
   function handleExportResult() {
-    setToast({ message: '데이터를 내보냈습니다.', type: 'success' });
+    showToast({ message: '데이터를 내보냈습니다.', type: 'success' });
   }
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -167,12 +186,12 @@ export default function App() {
 
   function handleBulkCategory(category: string) {
     bulkUpdateCategory(Array.from(selectedIds), category);
-    setToast({ message: '선택한 항목의 카테고리를 변경했습니다.' });
+    showToast({ message: '선택한 항목의 카테고리를 변경했습니다.' });
   }
 
   function handleBulkPriority(priority: Todo['priority']) {
     bulkUpdatePriority(Array.from(selectedIds), priority);
-    setToast({ message: '선택한 항목의 우선순위를 변경했습니다.' });
+    showToast({ message: '선택한 항목의 우선순위를 변경했습니다.' });
   }
 
   function handleBulkDelete() {
@@ -182,18 +201,18 @@ export default function App() {
 
   function handleResetTodos() {
     resetTodos();
-    setToast({ message: '할일을 초기화했습니다.', type: 'danger' });
+    showToast({ message: '할일을 초기화했습니다.', type: 'danger' });
   }
 
   function handleResetMemos() {
     resetMemos();
-    setToast({ message: '메모를 초기화했습니다.', type: 'danger' });
+    showToast({ message: '메모를 초기화했습니다.', type: 'danger' });
   }
 
   function handleResetAll() {
     resetTodos();
     resetMemos();
-    setToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
+    showToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
   }
 
   const [isMemoOpen, setIsMemoOpen] = useState(false);
@@ -219,6 +238,7 @@ export default function App() {
     <>
       {toast && (
         <Toast
+          key={toast.id}
           message={toast.message}
           duration={toast.duration}
           actionLabel={toast.actionLabel}
@@ -247,7 +267,7 @@ export default function App() {
       </header>
 
       <main className="todo-app__body">
-        <div style={{ position: 'sticky', top: '24px', width: 0, height: 0, overflow: 'visible', zIndex: 10 }}>
+        <div className="todo-app__quick-nav-wrap">
           <QuickNav filteredTodos={filteredTodos} />
         </div>
 

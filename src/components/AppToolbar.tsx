@@ -70,7 +70,7 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onE
         </button>
         <label className="app-toolbar__btn app-toolbar__btn--import">
           가져오기
-          <input type="file" accept="application/json" onChange={handleImport} style={{ display: 'none' }} />
+          <input type="file" accept="application/json" onChange={handleImport} className="screen-out" />
         </label>
       </div>
       <button type="button" className="app-toolbar__btn app-toolbar__btn--settings" onClick={onSettingsOpen} aria-label="설정">

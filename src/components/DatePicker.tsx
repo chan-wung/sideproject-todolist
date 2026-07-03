@@ -5,11 +5,12 @@ interface Props {
   onChange: (val: string) => void;
   placeholder?: string;
   className?: string;
+  'aria-labelledby'?: string;
 }
 
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
-export default function DatePicker({ value, onChange, placeholder = '마감일 선택', className = '' }: Props) {
+export default function DatePicker({ value, onChange, placeholder = '마감일 선택', className = '', 'aria-labelledby': ariaLabelledby }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -88,27 +89,33 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
 
   return (
     <div className={`date-picker ${className}`} ref={containerRef}>
-      <div 
-        className={`date-picker__input ${isOpen ? 'date-picker__input--active' : ''}`} 
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className="date-picker__value">{value || <span className="date-picker__placeholder">{placeholder}</span>}</span>
+      <div className="date-picker__trigger-wrap">
+        <button 
+          type="button"
+          className={`date-picker__input ${isOpen ? 'date-picker__input--active' : ''}`} 
+          onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-haspopup="dialog"
+          aria-labelledby={ariaLabelledby}
+        >
+          <span className="date-picker__value">{value || <span className="date-picker__placeholder">{placeholder}</span>}</span>
+        </button>
         <div className="date-picker__actions">
           {value && (
             <button type="button" className="date-picker__clear" onClick={handleClear} aria-label="초기화">
               <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
           )}
-          <span className="date-picker__icon">📅</span>
+          <span className="date-picker__icon" aria-hidden="true">📅</span>
         </div>
       </div>
 
       {isOpen && (
         <div className="date-picker__dropdown">
           <div className="date-picker__header">
-            <button type="button" className="date-picker__nav" onClick={handlePrevMonth}>&lt;</button>
+            <button type="button" className="date-picker__nav" onClick={handlePrevMonth} aria-label="이전 달">&lt;</button>
             <span className="date-picker__month">{year}년 {month + 1}월</span>
-            <button type="button" className="date-picker__nav" onClick={handleNextMonth}>&gt;</button>
+            <button type="button" className="date-picker__nav" onClick={handleNextMonth} aria-label="다음 달">&gt;</button>
           </div>
           
           <div className="date-picker__grid">

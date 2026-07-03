@@ -18,13 +18,15 @@ export default function QuickNav({ filteredTodos }: Props) {
       <ul className="quick-nav__list">
         {filteredTodos.length > 0 ? (
           filteredTodos.map(t => (
-            <li key={t.id} className="quick-nav__item" onClick={() => scrollToTodo(t.id)}>
-              <span className="quick-nav__item-text">
-                {t.pinned && <span className="quick-nav__pin" aria-label="고정됨">📌</span>}
-                <span style={{ textDecoration: t.completed ? 'line-through' : 'none', opacity: t.completed ? 0.6 : 1 }}>
-                  {t.text.length > 15 ? t.text.slice(0, 15) + '…' : t.text}
+            <li key={t.id} className="quick-nav__item">
+              <button type="button" className="quick-nav__btn" onClick={() => scrollToTodo(t.id)}>
+                <span className="quick-nav__item-text">
+                  {t.pinned && <span className="quick-nav__pin" aria-label="고정됨">📌</span>}
+                  <span className={`quick-nav__item-label${t.completed ? ' quick-nav__item-label--completed' : ''}`}>
+                    {t.text.length > 15 ? t.text.slice(0, 15) + '…' : t.text}
+                  </span>
                 </span>
-              </span>
+              </button>
             </li>
           ))
         ) : (

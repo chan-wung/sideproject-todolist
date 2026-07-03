@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useTodos, migrateTodo } from './useTodos';
+import { useTodos, migrateTodo, validateTodos } from './useTodos';
 
 describe('useTodos', () => {
   beforeEach(() => {
@@ -102,6 +102,21 @@ describe('useTodos', () => {
       expect(result.current.allTodos[1].id).toBe(oldId);
       expect(result.current.allTodos[1].completed).toBe(true);
 
+      // 해제
+      act(() => {
+        result.current.toggleTodo(oldId);
+      });
+      expect(result.current.allTodos.length).toBe(2);
+      expect(result.current.allTodos[1].completed).toBe(false);
+
+      // 재완료
+      act(() => {
+        result.current.toggleTodo(oldId);
+      });
+      // 중복 생성 방지 확인 (파생 항목이 1개만 존재해야 함)
+      expect(result.current.allTodos.length).toBe(2);
+      expect(result.current.allTodos[1].completed).toBe(true);
+
       vi.useRealTimers();
     });
 
@@ -184,25 +199,18 @@ describe('useTodos', () => {
       expect(result.current.allTodos[0].memoIds).toBeUndefined();
     });
 
-    it('importData migrates data and prevents invalid formats', () => {
-      const { result } = renderHook(() => useTodos());
-      let success = false;
-      act(() => {
-        success = result.current.importData([
-          { id: '1', text: 't1', memoId: 'memo-1' }
-        ]);
-      });
-      
-      expect(success).toBe(true);
-      expect(result.current.allTodos[0].memoIds).toEqual(['memo-1']);
+    it('validateTodos migrates data and prevents invalid formats', () => {
+      const valid = validateTodos([
+        { id: '1', text: 't1', memoId: 'memo-1' }
+      ]);
+      expect(valid).not.toBeNull();
+      expect(valid![0].memoIds).toEqual(['memo-1']);
+      expect(valid![0].priority).toBe('medium');
 
-      let fail = true;
-      act(() => {
-        fail = result.current.importData([
-          { noId: 'invalid' }
-        ]);
-      });
-      expect(fail).toBe(false);
+      const fail = validateTodos([
+        { noId: 'invalid' }
+      ]);
+      expect(fail).toBeNull();
     });
 
     it('toggleSubtasksCollapsed / collapseAllSubtasks / expandAllSubtasks', () => {

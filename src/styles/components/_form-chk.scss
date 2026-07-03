@@ -15,18 +15,18 @@
   &__text {
     display: flex;
     align-items: center;
-    position: relative;
     @include font(14);
+    position: relative;
     @include transition(color, 0.2s);
 
     &::before {
       content: '';
-      display: inline-block;
       flex-shrink: 0;
       margin-right: 8px;
-      background-size: contain;
+      display: inline-block;
       background-repeat: no-repeat;
       background-position: center;
+      background-size: contain;
     }
   }
 

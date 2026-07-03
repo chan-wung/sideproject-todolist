@@ -129,7 +129,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           <div className="todo-item__edit-main">
             <textarea
               ref={inputRef}
-              className="todo-item__edit-field todo-input__field--textarea"
+              className="todo-item__edit-field todo-item__edit-field--textarea"
               value={editText}
               onChange={e => setEditText(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -138,8 +138,9 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           </div>
           <div className="todo-item__edit-row">
             <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label">우선순위</label>
+              <label className="todo-item__edit-label" htmlFor={`todo-edit-priority-${todo.id}`}>우선순위</label>
               <select
+                id={`todo-edit-priority-${todo.id}`}
                 className={`todo-item__edit-select todo-item__edit-select--${editPriority}`}
                 value={editPriority}
                 onChange={e => setEditPriority(e.target.value as Todo['priority'])}
@@ -150,12 +151,13 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               </select>
             </div>
             <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label">마감일</label>
-              <DatePicker value={editDueDate} onChange={setEditDueDate} className="todo-item__edit-date-picker" />
+              <label className="todo-item__edit-label" id={`todo-edit-dueDate-label-${todo.id}`}>마감일</label>
+              <DatePicker value={editDueDate} onChange={setEditDueDate} className="todo-item__edit-date-picker" aria-labelledby={`todo-edit-dueDate-label-${todo.id}`} />
             </div>
             <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label">카테고리</label>
+              <label className="todo-item__edit-label" htmlFor={`todo-edit-category-${todo.id}`}>카테고리</label>
               <input
+                id={`todo-edit-category-${todo.id}`}
                 className="todo-item__edit-field todo-item__edit-field--sm"
                 type="text"
                 value={editCategory}
@@ -168,8 +170,9 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               </datalist>
             </div>
             <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label">반복 주기</label>
+              <label className="todo-item__edit-label" htmlFor={`todo-edit-recurrence-${todo.id}`}>반복 주기</label>
               <select
+                id={`todo-edit-recurrence-${todo.id}`}
                 className="todo-item__edit-select"
                 value={editRecurrence}
                 onChange={e => setEditRecurrence(e.target.value as Todo['recurrence'])}
@@ -371,17 +374,18 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               key={sub.id}
               className={['todo-item__subtask', dragOverIndex === index ? 'todo-item__subtask--drag-over' : ''].filter(Boolean).join(' ')}
               draggable={editingSubId !== sub.id}
-              onDragStart={() => { dragFromRef.current = index; }}
-              onDragOver={(e) => { e.preventDefault(); if (dragOverIndex !== index) setDragOverIndex(index); }}
+              onDragStart={(e) => { e.stopPropagation(); dragFromRef.current = index; }}
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); if (dragOverIndex !== index) setDragOverIndex(index); }}
               onDragLeave={() => setDragOverIndex(null)}
-              onDrop={() => {
+              onDrop={(e) => {
+                e.stopPropagation();
                 if (dragFromRef.current !== null && dragFromRef.current !== index) {
                   onReorderSubtasks(todo.id, dragFromRef.current, index);
                 }
                 setDragOverIndex(null);
                 dragFromRef.current = null;
               }}
-              onDragEnd={() => { setDragOverIndex(null); dragFromRef.current = null; }}
+              onDragEnd={(e) => { e.stopPropagation(); setDragOverIndex(null); dragFromRef.current = null; }}
             >
               {editingSubId === sub.id ? (
                 <div className="todo-item__sub-edit">
@@ -416,6 +420,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                   </span>
                   <label className="form-chk form-chk--checkbox">
                     <input
+                      className="todo-item__sub-chk"
                       type="checkbox"
                       checked={sub.completed}
                       onChange={() => onToggleSubtask(todo.id, sub.id)}
@@ -449,7 +454,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
         </div>
         <div className="todo-item__sub-add">
           <input
-            className="todo-input__field"
+            className="todo-item__sub-add-field"
             type="text"
             placeholder="하위 항목 추가"
             value={subText}

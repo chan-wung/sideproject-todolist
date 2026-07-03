@@ -108,6 +108,7 @@ $tbl_border: 1px solid $border_color;
 
   /* Base Colors */
   --color-white: #{$white};
+  --color-on-accent: #{$white}; /* 컬러(main/danger/success 등) 배경 위 텍스트 — 다크모드에서도 흰색 고정 */
   --color-bg: #F2F4F6;
   --color-black: #{$black};
   --color-border: #{$border_color};

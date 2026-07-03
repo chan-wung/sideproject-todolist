@@ -15,10 +15,8 @@ export default function ConfirmModal({ message, onConfirm, onCancel }: Props) {
     dialog.showModal();
     document.body.style.overflow = 'hidden';
 
-    // Escape 키로 닫힐 때 상태 동기화
-    dialog.addEventListener('cancel', onCancel);
+    // Escape 키로 닫힐 때 상태 동기화 (onCancel prop으로 위임)
     return () => {
-      dialog.removeEventListener('cancel', onCancel);
       document.body.style.overflow = '';
       if (!dialog.open) return;
       dialog.close();
@@ -30,7 +28,7 @@ export default function ConfirmModal({ message, onConfirm, onCancel }: Props) {
   }
 
   return (
-    <dialog ref={dialogRef} className="confirm-modal" onClick={handleBackdropClick}>
+    <dialog ref={dialogRef} className="confirm-modal" onClick={handleBackdropClick} onCancel={onCancel}>
       <div className="confirm-modal__container">
         <p className="confirm-modal__msg">{message}</p>
         <div className="confirm-modal__actions">

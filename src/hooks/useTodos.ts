@@ -130,29 +130,33 @@ export function useTodos() {
     setTodos(prev => [next, ...prev]);
   }
 
+  // 할 일이 완료 상태로 바뀔 때 반복 설정이 있으면 다음 회차를 생성한다.
+  // 체크박스 직접 완료(toggleTodo)와 하위 항목 전체 완료로 인한 자동 완료(toggleSubtask) 양쪽에서 공유.
+  function createNextRecurrence(t: Todo, newCompleted: boolean, prev: Todo[]): Todo | null {
+    if (!newCompleted || !t.recurrence || t.recurrence === 'none') return null;
+    const nextDueDate = calculateNextRecurrence(t.dueDate, t.recurrence);
+    const alreadyExists = prev.some(
+      pt => pt.sourceId === t.id && pt.dueDate === nextDueDate && !pt.completed
+    );
+    if (alreadyExists) return null;
+    return {
+      ...t,
+      id: generateId(),
+      completed: false,
+      dueDate: nextDueDate,
+      createdAt: new Date().toISOString(),
+      subtasks: t.subtasks?.map(s => ({ ...s, id: generateId(), completed: false })),
+      sourceId: t.id
+    };
+  }
+
   function toggleTodo(id: string) {
     setTodos(prev => {
       let newlyCreated: Todo | null = null;
       const nextList = prev.map(t => {
         if (t.id === id) {
           const newCompleted = !t.completed;
-          if (newCompleted && t.recurrence && t.recurrence !== 'none') {
-             const nextDueDate = calculateNextRecurrence(t.dueDate, t.recurrence);
-             const alreadyExists = prev.some(
-               pt => pt.sourceId === t.id && pt.dueDate === nextDueDate && !pt.completed
-             );
-             if (!alreadyExists) {
-               newlyCreated = {
-                 ...t,
-                 id: generateId(),
-                 completed: false,
-                 dueDate: nextDueDate,
-                 createdAt: new Date().toISOString(),
-                 subtasks: t.subtasks?.map(s => ({ ...s, id: generateId(), completed: false })),
-                 sourceId: t.id
-               };
-             }
-          }
+          newlyCreated = createNextRecurrence(t, newCompleted, prev);
           return {
             ...t,
             completed: newCompleted,
@@ -229,16 +233,22 @@ export function useTodos() {
 
 
   function toggleSubtask(todoId: string, subId: string) {
-    setTodos(prev => prev.map(t => {
-      if (t.id === todoId) {
-        const newSubtasks = (t.subtasks ?? []).map(s =>
-          s.id === subId ? { ...s, completed: !s.completed } : s
-        );
-        const allCompleted = newSubtasks.length > 0 && newSubtasks.every(s => s.completed);
-        return { ...t, subtasks: newSubtasks, completed: allCompleted };
-      }
-      return t;
-    }));
+    setTodos(prev => {
+      let newlyCreated: Todo | null = null;
+      const nextList = prev.map(t => {
+        if (t.id === todoId) {
+          const newSubtasks = (t.subtasks ?? []).map(s =>
+            s.id === subId ? { ...s, completed: !s.completed } : s
+          );
+          const allCompleted = newSubtasks.length > 0 && newSubtasks.every(s => s.completed);
+          newlyCreated = createNextRecurrence(t, allCompleted, prev);
+          return { ...t, subtasks: newSubtasks, completed: allCompleted };
+        }
+        return t;
+      });
+      if (newlyCreated) return [newlyCreated, ...nextList];
+      return nextList;
+    });
   }
 
   function deleteSubtask(todoId: string, subId: string) {

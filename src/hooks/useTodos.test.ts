@@ -120,6 +120,38 @@ describe('useTodos', () => {
       vi.useRealTimers();
     });
 
+    it('toggleSubtask completing all subtasks also clones recurring tasks', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-07-02T10:00:00'));
+
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('recurring with subtasks', 'medium', '', '');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.updateTodo(id, { recurrence: 'daily', dueDate: '2026-07-02' });
+      });
+      act(() => {
+        result.current.addSubtask(id, 'sub1');
+      });
+      const subId = result.current.allTodos[0].subtasks![0].id;
+
+      act(() => {
+        result.current.toggleSubtask(id, subId);
+      });
+
+      expect(result.current.allTodos.length).toBe(2);
+      const original = result.current.allTodos.find(t => t.id === id)!;
+      expect(original.completed).toBe(true);
+      const created = result.current.allTodos.find(t => t.sourceId === id);
+      expect(created).toBeDefined();
+      expect(created!.completed).toBe(false);
+      expect(created!.dueDate).toBe('2026-07-03');
+
+      vi.useRealTimers();
+    });
+
     it('deleteTodo and performUndo', () => {
       const { result } = renderHook(() => useTodos());
       act(() => {

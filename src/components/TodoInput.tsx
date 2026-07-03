@@ -15,12 +15,14 @@ export default function TodoInput({ onAdd, categories }: Props) {
   const [category, setCategory] = useState('');
   const [recurrence, setRecurrence] = useState<Todo['recurrence']>('none');
   const [toast, setToast] = useState('');
+  const [toastKey, setToastKey] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!text.trim()) {
       setToast('할 일 내용을 입력해 주세요.');
+      setToastKey(k => k + 1);
       setText('');
       return;
     }
@@ -45,7 +47,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
 
   return (
     <form className="todo-input" onSubmit={handleSubmit}>
-      {toast && <Toast message={toast} onClose={() => setToast('')} />}
+      {toast && <Toast key={toastKey} message={toast} onClose={() => setToast('')} />}
 
       <div className="todo-input__main-row">
         <textarea

@@ -13,6 +13,11 @@
   }
 }
 
+@keyframes toast-progress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
 .toast {
   padding: rem(12) rem(18);
   display: flex;
@@ -75,6 +80,26 @@
       outline: 2px dashed var(--color-main);
       outline-offset: 2px;
     }
+  }
+
+  &__progress-track {
+    height: 3px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--toast-color) 20%, transparent);
+    border-radius: 0 0 10px 10px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: var(--toast-color);
+    transform-origin: right;
+    animation-name: toast-progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
   }
 }
 

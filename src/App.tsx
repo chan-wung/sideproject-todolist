@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTodos, validateTodos } from './hooks/useTodos';
 import { useMemos, validateMemos } from './hooks/useMemos';
 import type { Memo } from './hooks/useMemos';
@@ -15,6 +15,7 @@ import SettingsModal from './components/SettingsModal';
 import QuickNav from './components/QuickNav';
 import BulkActionBar from './components/BulkActionBar';
 import type { Todo } from './types/todo';
+import { generateId } from './utils/id';
 import './styles/main.scss';
 
 export default function App() {
@@ -80,6 +81,7 @@ export default function App() {
   useDueNotifications(allTodos, notifyEnabled);
 
   interface ToastState {
+    id: string;
     message: string;
     actionLabel?: string;
     onAction?: () => void;
@@ -89,16 +91,20 @@ export default function App() {
 
   const [toast, setToast] = useState<ToastState | null>(null);
 
+  const showToast = useCallback((state: Omit<ToastState, 'id'>) => {
+    setToast({ ...state, id: generateId() });
+  }, []);
+
   useEffect(() => {
     if (!undoMessage) return;
-    setToast({
+    showToast({
       message: undoMessage,
       actionLabel: '실행취소',
       onAction: performUndo,
       duration: 5000,
       type: 'danger',
     });
-  }, [undoMessage, performUndo]);
+  }, [undoMessage, performUndo, showToast]);
 
   function getBackup() {
     return { version: 1, todos: exportData(), memos };
@@ -141,14 +147,14 @@ export default function App() {
 
   function handleImportResult(success: boolean) {
     if (success) {
-      setToast({ message: '데이터를 성공적으로 불러왔습니다.', type: 'primary' });
+      showToast({ message: '데이터를 성공적으로 불러왔습니다.', type: 'primary' });
     } else {
-      setToast({ message: '데이터 불러오기에 실패했습니다.', type: 'danger' });
+      showToast({ message: '데이터 불러오기에 실패했습니다.', type: 'danger' });
     }
   }
 
   function handleExportResult() {
-    setToast({ message: '데이터를 내보냈습니다.', type: 'success' });
+    showToast({ message: '데이터를 내보냈습니다.', type: 'success' });
   }
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -180,12 +186,12 @@ export default function App() {
 
   function handleBulkCategory(category: string) {
     bulkUpdateCategory(Array.from(selectedIds), category);
-    setToast({ message: '선택한 항목의 카테고리를 변경했습니다.' });
+    showToast({ message: '선택한 항목의 카테고리를 변경했습니다.' });
   }
 
   function handleBulkPriority(priority: Todo['priority']) {
     bulkUpdatePriority(Array.from(selectedIds), priority);
-    setToast({ message: '선택한 항목의 우선순위를 변경했습니다.' });
+    showToast({ message: '선택한 항목의 우선순위를 변경했습니다.' });
   }
 
   function handleBulkDelete() {
@@ -195,18 +201,18 @@ export default function App() {
 
   function handleResetTodos() {
     resetTodos();
-    setToast({ message: '할일을 초기화했습니다.', type: 'danger' });
+    showToast({ message: '할일을 초기화했습니다.', type: 'danger' });
   }
 
   function handleResetMemos() {
     resetMemos();
-    setToast({ message: '메모를 초기화했습니다.', type: 'danger' });
+    showToast({ message: '메모를 초기화했습니다.', type: 'danger' });
   }
 
   function handleResetAll() {
     resetTodos();
     resetMemos();
-    setToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
+    showToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
   }
 
   const [isMemoOpen, setIsMemoOpen] = useState(false);
@@ -232,6 +238,7 @@ export default function App() {
     <>
       {toast && (
         <Toast
+          key={toast.id}
           message={toast.message}
           duration={toast.duration}
           actionLabel={toast.actionLabel}

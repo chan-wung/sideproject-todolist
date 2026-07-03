@@ -34,6 +34,9 @@ export default function Toast({ message, onClose, duration = 2500, actionLabel, 
           {actionLabel}
         </button>
       )}
+      <div className="toast__progress-track" aria-hidden="true">
+        <div className="toast__progress-bar" style={{ animationDuration: `${duration}ms` }} />
+      </div>
     </div>
   );
 }

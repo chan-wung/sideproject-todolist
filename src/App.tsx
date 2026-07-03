@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useTodos } from './hooks/useTodos';
-import { useMemos } from './hooks/useMemos';
+import { useTodos, validateTodos } from './hooks/useTodos';
+import { useMemos, validateMemos } from './hooks/useMemos';
+import type { Memo } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import TodoInput from './components/TodoInput';
@@ -71,6 +72,7 @@ export default function App() {
   const { memos, setMemos, activeId, setActiveId, resetMemos, replaceMemos } = useMemos();
 
   useEffect(() => {
+    if (memos.length === 0) return;
     pruneMemoLinks(memos.map(m => m.id));
   }, [memos, pruneMemoLinks]);
 
@@ -104,24 +106,35 @@ export default function App() {
 
   function applyBackup(parsed: unknown): boolean {
     if (Array.isArray(parsed)) {
-      return importData(parsed);
+      const validTodos = validateTodos(parsed);
+      if (validTodos) {
+        importData(validTodos);
+        return true;
+      }
+      return false;
     }
     if (parsed && typeof parsed === 'object') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const p = parsed as any;
       let ok = false;
-      let todosSuccess = true;
-      let memosSuccess = true;
+      let validTodos: Todo[] | null = null;
+      let validMemos: Memo[] | null = null;
       
       if (p.todos !== undefined) {
-        todosSuccess = importData(p.todos);
+        validTodos = validateTodos(p.todos);
+        if (!validTodos) return false;
         ok = true;
       }
       if (p.memos !== undefined) {
-        memosSuccess = replaceMemos(p.memos);
+        validMemos = validateMemos(p.memos);
+        if (!validMemos) return false;
         ok = true;
       }
-      return ok && todosSuccess && memosSuccess;
+
+      if (validTodos) importData(validTodos);
+      if (validMemos) replaceMemos(validMemos);
+      
+      return ok;
     }
     return false;
   }

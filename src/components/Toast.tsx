@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface Props {
   message: string;
@@ -10,10 +10,15 @@ interface Props {
 }
 
 export default function Toast({ message, onClose, duration = 2500, actionLabel, onAction, type = 'primary' }: Props) {
+  const onCloseRef = useRef(onClose);
   useEffect(() => {
-    const timer = setTimeout(onClose, duration);
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => onCloseRef.current(), duration);
     return () => clearTimeout(timer);
-  }, [onClose, duration]);
+  }, [duration, message]);
 
   function handleAction() {
     onAction?.();

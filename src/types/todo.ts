@@ -13,6 +13,7 @@ export interface Todo {
   recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
   memoIds?: string[];
   subtasksCollapsed?: boolean; // 기본값 false (펼침). 하위 항목 없는 Todo는 의미 없음.
+  sourceId?: string;
 }
 
 export type FilterStatus = 'all' | 'active' | 'completed';

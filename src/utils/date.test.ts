@@ -33,6 +33,7 @@ describe('date utils', () => {
 
   it('formatDate', () => {
     expect(formatDate('2026-07-02')).toBe('2026.07.02');
+    expect(formatDate('2026-07-02T10:00:00.000Z')).toBe('2026.07.02');
   });
 
   it('calculateNextRecurrence', () => {

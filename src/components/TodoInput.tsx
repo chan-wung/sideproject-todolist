@@ -62,8 +62,9 @@ export default function TodoInput({ onAdd, categories }: Props) {
       <div className={`todo-input__options ${isExpanded ? 'todo-input__options--expanded' : ''}`}>
         <div className="todo-input__row todo-input__row--flex">
           <div>
-            <label className="todo-input__label">우선순위</label>
+            <label className="todo-input__label" htmlFor="todo-input-priority">우선순위</label>
             <select
+              id="todo-input-priority"
               className={`todo-input__select todo-input__select--${priority}`}
               value={priority}
               onChange={e => setPriority(e.target.value as Todo['priority'])}
@@ -75,13 +76,14 @@ export default function TodoInput({ onAdd, categories }: Props) {
           </div>
 
           <div>
-            <label className="todo-input__label">마감일</label>
-            <DatePicker value={dueDate} onChange={setDueDate} />
+            <label className="todo-input__label" id="todo-input-dueDate-label">마감일</label>
+            <DatePicker value={dueDate} onChange={setDueDate} aria-labelledby="todo-input-dueDate-label" />
           </div>
 
           <div>
-            <label className="todo-input__label">카테고리</label>
+            <label className="todo-input__label" htmlFor="todo-input-category">카테고리</label>
             <input
+              id="todo-input-category"
               className="todo-input__field"
               type="text"
               placeholder="예: 업무, 개인..."
@@ -95,8 +97,9 @@ export default function TodoInput({ onAdd, categories }: Props) {
           </div>
             
           <div>
-            <label className="todo-input__label">반복 주기</label>
+            <label className="todo-input__label" htmlFor="todo-input-recurrence">반복 주기</label>
             <select
+              id="todo-input-recurrence"
               className="todo-input__select"
               value={recurrence}
               onChange={e => setRecurrence(e.target.value as Todo['recurrence'])}

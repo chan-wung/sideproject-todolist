@@ -27,9 +27,20 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
 
   useEffect(() => {
     if (isOpen) {
-      dialogRef.current?.showModal();
+      if (!dialogRef.current?.open) dialogRef.current?.showModal();
       document.body.style.overflow = 'hidden';
-      
+    } else {
+      dialogRef.current?.close();
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
       if (memos.length === 0) {
         let oldContent = '';
         try {
@@ -44,14 +55,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
       } else if (!activeId || !memos.find(m => m.id === activeId)) {
         setActiveId(memos[0].id);
       }
-    } else {
-      dialogRef.current?.close();
-      document.body.style.overflow = '';
     }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [isOpen, memos, activeId, setMemos, setActiveId]);
 
 
@@ -158,8 +162,10 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
             <button type="button" className="quick-memo-modal__add" onClick={handleAdd}>+ 새 메모 추가</button>
             <div className="quick-memo-modal__search">
               <input 
+                className="quick-memo-modal__search-input"
                 type="text" 
                 placeholder="메모 검색..." 
+                aria-label="메모 검색"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
@@ -182,31 +188,34 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                     m.id === draggingId ? 'quick-memo-modal__item--dragging' : '',
                     m.id === dragOverId ? 'quick-memo-modal__item--drag-over' : '',
                   ].filter(Boolean).join(' ')}
-                  onClick={() => setActiveId(m.id)}
                 >
-                  <span className="quick-memo-modal__drag-handle" aria-hidden="true">⠿</span>
-                  <span className="quick-memo-modal__item-tit">{m.title || '제목 없음'}</span>
-                  {linkedCount > 0 && (
-                    <span className="quick-memo-modal__item-count" aria-label={`연결된 할 일 ${linkedCount}개`}>
-                      {linkedCount}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    className={`quick-memo-modal__item-pin${m.pinned ? ' quick-memo-modal__item-pin--active' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); toggleMemoPin(m.id); }}
-                    aria-label={m.pinned ? '고정 해제' : '메모 고정'}
-                  >
-                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
-                    </svg>
+                  <button type="button" className="quick-memo-modal__item-btn" onClick={() => setActiveId(m.id)}>
+                    <span className="quick-memo-modal__drag-handle" aria-hidden="true">⠿</span>
+                    <span className="quick-memo-modal__item-tit">{m.title || '제목 없음'}</span>
+                    {linkedCount > 0 && (
+                      <span className="quick-memo-modal__item-count" aria-label={`연결된 할 일 ${linkedCount}개`}>
+                        {linkedCount}
+                      </span>
+                    )}
                   </button>
-                  <button
-                    type="button"
-                    className="quick-memo-modal__item-del"
-                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(m.id); }}
-                    aria-label="메모 삭제"
-                  ><span aria-hidden="true">&times;</span></button>
+                  <div className="quick-memo-modal__item-actions">
+                    <button
+                      type="button"
+                      className={`quick-memo-modal__item-pin${m.pinned ? ' quick-memo-modal__item-pin--active' : ''}`}
+                      onClick={() => toggleMemoPin(m.id)}
+                      aria-label={m.pinned ? '고정 해제' : '메모 고정'}
+                    >
+                      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      className="quick-memo-modal__item-del"
+                      onClick={() => setConfirmDeleteId(m.id)}
+                      aria-label="메모 삭제"
+                    ><span aria-hidden="true">&times;</span></button>
+                  </div>
                 </li>
                 );
               })}

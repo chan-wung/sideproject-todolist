@@ -1,17 +1,17 @@
 .quick-nav {
-  position: absolute;
-  left: rem(-260);
-  top: 0;
   width: rem(240);
+  max-height: calc(100vh - 120px);
+  padding: rem(16) rem(12);
   display: flex;
   flex-direction: column;
   gap: rem(16);
-  padding: rem(16) rem(12);
   background: var(--color-white);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-  max-height: calc(100vh - 120px);
+  position: absolute;
+  top: 0;
+  left: rem(-260);
   overflow-y: auto;
 
   // 창이 좁을 때 숨기기 처리 (본문 침범 방지)
@@ -20,47 +20,54 @@
   }
 
   &__tit {
-    @include font(14, "Bold");
-    color: var(--txt-color-tit);
-    padding-bottom: rem(12);
-    border-bottom: 1px solid var(--color-border);
     margin: 0;
+    padding-bottom: rem(12);
+    color: var(--txt-color-tit);
+    border-bottom: 1px solid var(--color-border);
+    @include font(14, "Bold");
   }
 
   &__list {
-    list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
     gap: rem(4);
+    list-style: none;
   }
 
   &__item {
-    @include font(13, "Medium");
-    color: var(--txt-color-base);
+    &--empty {
+      padding: rem(20) 0;
+      display: flex;
+      justify-content: center;
+      color: $gray9;
+      cursor: default;
+      &:hover {
+        color: $gray9;
+        background: transparent;
+      }
+    }
+  }
+
+  &__btn {
+    width: 100%;
     padding: rem(8) rem(12);
-    border-radius: 6px;
-    cursor: pointer;
     display: flex;
     align-items: center;
     gap: rem(6);
+    color: var(--txt-color-base);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    @include font(13, "Medium");
+    text-align: left;
+    cursor: pointer;
     @include transition();
 
     &:hover {
-      background: var(--color-main-5);
       color: var(--color-main);
-    }
-
-    &--empty {
-      color: $gray9;
-      cursor: default;
-      justify-content: center;
-      padding: rem(20) 0;
-      &:hover {
-        background: transparent;
-        color: $gray9;
-      }
+      background: var(--color-main-5);
     }
   }
 
@@ -72,5 +79,12 @@
 
   &__pin {
     font-size: rem(12);
+  }
+
+  &__item-label {
+    &--completed {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
   }
 }

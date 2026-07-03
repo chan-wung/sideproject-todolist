@@ -554,6 +554,30 @@ dialog.confirm-modal {
     }
   }
 
+  &__secondary {
+    flex: 1 0 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: rem(8);
+
+    @media (max-width: $break_tab) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__secondary-left {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(8);
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
+  }
+
   &__category {
     height: rem(34);
     padding: 0 rem(28) 0 rem(10);
@@ -638,7 +662,7 @@ dialog.confirm-modal {
     }
 
     @media (max-width: $break_tab) {
-      flex: 1;
+      height: rem(44);
       text-align: center;
     }
   }
@@ -679,7 +703,7 @@ dialog.confirm-modal {
     height: rem(34);
     padding: 0 rem(24) 0 rem(12);
     color: var(--txt-color-base);
-    background: svgIcoArrowDownMD($gray6) calc(100% - 8px) 50% / 12px no-repeat, var(--color-white);
+    background: svgIcoArrowDownMD($gray6, var(--color-white)) calc(100% - 8px) 50% / 12px no-repeat;
     border: 1px solid var(--color-border);
     border-radius: 8px;
     @include font(12, "Medium");
@@ -687,12 +711,18 @@ dialog.confirm-modal {
     cursor: pointer;
     @include transition();
 
-    &--active {
-      background: svgIcoArrowUpMD($gray6) calc(100% - 8px) 50% / 12px no-repeat, var(--color-white);
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
     }
 
-    &:hover {
-      background: rgba(0, 0, 0, 0.04);
+    &--active {
+      color: var(--color-on-accent);
+      background: svgIcoArrowUpMD(#fff, var(--color-main)) calc(100% - 8px) 50% / 12px no-repeat;
+      border-color: var(--color-main);
+
+      &:hover {
+        background-color: var(--color-main);
+      }
     }
 
     &:disabled {

@@ -124,38 +124,42 @@ export default function FilterBar({
             </button>
           ))}
         </div>
+      </div>
 
-        {categories.length > 1 && (
-          <select
-            className="filter-bar__category"
-            value={filterCategory}
-            onChange={e => setFilterCategory(e.target.value)}
-            aria-label="카테고리 필터"
-          >
-            <option value="all">전체 카테고리</option>
-            {categories.filter(c => c !== 'all').map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        )}
+      <div className="filter-bar__secondary">
+        <div className="filter-bar__secondary-left">
+          {categories.length > 1 && (
+            <select
+              className="filter-bar__category"
+              value={filterCategory}
+              onChange={e => setFilterCategory(e.target.value)}
+              aria-label="카테고리 필터"
+            >
+              <option value="all">전체 카테고리</option>
+              {categories.filter(c => c !== 'all').map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          )}
 
-        <button
-          className={`filter-bar__select-btn${selectionMode ? ' filter-bar__select-btn--active' : ''}`}
-          type="button"
-          onClick={onToggleSelectionMode}
-        >
-          {selectionMode ? '선택 취소' : '할일 선택'}
-        </button>
-
-        {hasSubtasks && (
           <button
-            className={`filter-bar__collapse-btn${allCollapsed ? '' : ' filter-bar__collapse-btn--active'}`}
+            className={`filter-bar__select-btn${selectionMode ? ' filter-bar__select-btn--active' : ''}`}
             type="button"
-            onClick={allCollapsed ? onExpandAll : onCollapseAll}
+            onClick={onToggleSelectionMode}
           >
-            {allCollapsed ? '전체 더보기' : '전체 접기'}
+            {selectionMode ? '선택 취소' : '할일 선택'}
           </button>
-        )}
+
+          {hasSubtasks && (
+            <button
+              className={`filter-bar__collapse-btn${allCollapsed ? '' : ' filter-bar__collapse-btn--active'}`}
+              type="button"
+              onClick={allCollapsed ? onExpandAll : onCollapseAll}
+            >
+              {allCollapsed ? '전체 더보기' : '전체 접기'}
+            </button>
+          )}
+        </div>
 
         {filterStatus === 'completed' && completedCount > 0 && (
           <button

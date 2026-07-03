@@ -4,10 +4,10 @@
 
 .app-toolbar {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
   padding: 0 rem(20);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   background: var(--color-white);
   border-bottom: 1px solid var(--color-border);
 
@@ -18,17 +18,17 @@
   }
 
   &__btn {
+    padding: rem(10) rem(12);
     display: inline-flex;
     align-items: center;
     gap: rem(5);
-    padding: rem(10) rem(12);
-    border-radius: rem(6);
-    border: none;
-    background: transparent;
     color: var(--txt-color-base);
+    background: transparent;
+    border: none;
+    border-radius: rem(6);
     @include font(13, "Medium");
-    cursor: pointer;
     white-space: nowrap;
+    cursor: pointer;
     @include transition();
 
     &:hover {
@@ -36,17 +36,17 @@
     }
 
     &--theme {
-      @include font(13, "SemiBold");
       color: var(--txt-color-tit);
+      @include font(13, "SemiBold");
     }
 
     &--export,
     &--import {
       &::before {
         content: '';
-        display: block;
-        @include size(15);
         flex-shrink: 0;
+        @include size(15);
+        display: block;
       }
     }
 

@@ -6,10 +6,10 @@
 input:not([type="checkbox"]):not([type="radio"]),
 select {
   height: 45px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-white);
-  border-radius: 8px;
   box-sizing: border-box;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
 
   &:disabled {
     background-color: var(--color-main-5);
@@ -23,11 +23,11 @@ input:not([type="checkbox"]):not([type="radio"]):read-only {
 }
 
 textarea {
-  border: 1px solid var(--color-border);
-  background-color: var(--color-white);
-  border-radius: 8px;
-  box-sizing: border-box;
   padding: 15px;
+  box-sizing: border-box;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
 
   &:disabled,
   &:read-only {
@@ -38,34 +38,34 @@ textarea {
 
 // ── 필수 입력표시 ──
 .star {
-  color: var(--color-danger);
-  font-size: 15px;
   margin-left: 4px;
+  color: var(--color-danger);
+  @include font(15);
 }
 
 // ── 입력 필드 (Form Item) ──
 .form-item {
-  display: block;
   width: 100%;
+  display: block;
 
   & + & { margin-top: 15px; }
 
   &__label {
-    display: block;
     margin-bottom: 8px;
-    @include font(14, "Bold");
+    display: block;
     color: $font_tit_color;
+    @include font(14, "Bold");
   }
 
   &__input,
   &__select,
   &__textarea {
     width: 100%;
-    border: 1px solid var(--color-border);
-    background-color: var(--color-white);
-    border-radius: 8px;
     box-sizing: border-box;
     color: var(--txt-color-base);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
     @include transition(border-color);
 
     &:focus {

@@ -156,7 +156,7 @@
     }
 
     &--selected {
-      color: #fff;
+      color: var(--color-on-accent);
       background: var(--color-main);
       @include font(13, "Bold");
     }

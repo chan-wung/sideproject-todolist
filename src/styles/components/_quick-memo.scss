@@ -209,12 +209,12 @@ dialog.quick-memo-modal {
     overflow: hidden;
 
     .quick-memo-modal__item--active:not(.quick-memo-modal__item--pinned) & {
-      color: #fff;
+      color: var(--color-on-accent);
       @include font(13, "Bold");
     }
 
     .quick-memo-modal__item--pinned & {
-      color: #fff;
+      color: var(--color-on-accent);
       @include font(13, "Medium");
     }
   }
@@ -234,7 +234,7 @@ dialog.quick-memo-modal {
 
     .quick-memo-modal__item--active &,
     .quick-memo-modal__item--pinned & {
-      color: #fff;
+      color: var(--color-on-accent);
       background: rgba(255, 255, 255, 0.25);
     }
   }
@@ -251,7 +251,7 @@ dialog.quick-memo-modal {
     .quick-memo-modal__item--active &,
     .quick-memo-modal__item--pinned & {
       color: rgba(255, 255, 255, 0.7);
-      &:hover { color: #fff; }
+      &:hover { color: var(--color-on-accent); }
     }
   }
 

@@ -3,17 +3,17 @@
 // =============================================
 
 dialog.settings-modal {
+  width: 100%;
   max-width: 100%;
+  height: 100%;
   max-height: 100%;
   margin: 0;
   padding: 0 rem(16);
-  border: none;
-  background: transparent;
-  width: 100%;
-  height: 100%;
   display: none;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  background: transparent;
+  border: none;
 
   &[open] { display: flex; }
   &::backdrop { background: rgba(0, 0, 0, 0.5); }
@@ -21,37 +21,37 @@ dialog.settings-modal {
 
 .settings-modal {
   &__container {
-    background: var(--color-white);
-    border-radius: 12px;
     width: 100%;
     max-width: rem(480);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
+    background: var(--color-white);
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
     overflow: hidden;
   }
 
   &__header {
+    padding: rem(20) rem(24);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: rem(20) rem(24);
     border-bottom: 1px solid var(--color-border);
   }
 
   &__tit {
-    @include font(18, "Bold");
-    color: var(--txt-color-tit);
     margin: 0;
+    color: var(--txt-color-tit);
+    @include font(18, "Bold");
   }
 
   &__close {
+    color: $gray9;
     background: transparent;
     border: none;
-    font-size: rem(24);
-    color: $gray9;
-    cursor: pointer;
+    @include font(24);
     line-height: 1;
+    cursor: pointer;
     &:hover { color: var(--color-danger); }
   }
 
@@ -62,40 +62,40 @@ dialog.settings-modal {
     margin-bottom: rem(10);
   }
   &__section-tit {
-    @include font(14, "SemiBold");
-    color: var(--txt-color-tit);
     margin-bottom: rem(8);
+    color: var(--txt-color-tit);
+    @include font(14, "SemiBold");
   }
 
   &__desc {
-    @include font(12);
-    color: $gray9;
     margin-bottom: rem(16);
+    color: $gray9;
+    @include font(12);
     line-height: 1.5;
   }
 
   &__list {
-    list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     gap: rem(8);
+    list-style: none;
   }
 
   &__item {
+    padding: rem(16) rem(20);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: rem(16) rem(20);
+    background: var(--color-white);
     border: 1px solid var(--color-border);
     border-radius: 8px;
-    background: var(--color-white);
 
     &--all {
       margin-top: rem(4);
-      border-color: color-mix(in srgb, var(--color-danger) 25%, transparent);
       background: color-mix(in srgb, var(--color-danger) 4%, transparent);
+      border-color: color-mix(in srgb, var(--color-danger) 25%, transparent);
     }
   }
 
@@ -106,39 +106,39 @@ dialog.settings-modal {
   }
 
   &__item-tit {
-    @include font(14, "SemiBold");
     color: var(--txt-color-tit);
+    @include font(14, "SemiBold");
   }
 
   &__item-desc {
-    @include font(12);
     color: $gray9;
+    @include font(12);
   }
 
   &__reset-btn {
+    flex-shrink: 0;
     padding: rem(8) rem(16);
     border-radius: rem(6);
     @include font(13, "Medium");
     cursor: pointer;
-    flex-shrink: 0;
     @include transition();
 
     &--danger {
-      border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
-      background: transparent;
       color: var(--color-danger);
+      background: transparent;
+      border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
 
       &:hover {
+        color: var(--color-on-accent);
         background: var(--color-danger);
         border-color: var(--color-danger);
-        color: #fff;
       }
     }
 
     &--all {
-      border: none;
+      color: var(--color-on-accent);
       background: var(--color-danger);
-      color: #fff;
+      border: none;
 
       &:hover {
         background: color-mix(in srgb, var(--color-danger) 80%, #000);

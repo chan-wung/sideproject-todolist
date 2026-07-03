@@ -78,7 +78,7 @@
   }
 
   &__pin {
-    font-size: rem(12);
+    @include font(12);
   }
 
   &__item-label {

@@ -1,7 +1,7 @@
 .due-summary {
+  margin-bottom: rem(16);
   display: flex;
   gap: rem(8);
-  margin-bottom: rem(16);
 
   @media (max-width: $break_tab) {
     flex-direction: column;
@@ -10,11 +10,11 @@
   &__item {
     flex: 1;
     padding: rem(12) rem(16);
-    border-radius: 8px;
     border: none;
+    border-radius: 8px;
     @include font(14, "Bold");
-    cursor: pointer;
     text-align: center;
+    cursor: pointer;
     @include transition(opacity);
 
     &:hover {
@@ -22,14 +22,14 @@
     }
 
     &--overdue {
-      background: color-mix(in srgb, var(--color-danger) 55%, white);
       color: var(--color-danger);
+      background: color-mix(in srgb, var(--color-danger) 55%, white);
       border: 1px solid color-mix(in srgb, var(--color-danger) 75%, white);
     }
 
     &--today {
-      background: var(--color-main-10);
       color: var(--color-main);
+      background: var(--color-main-10);
       border: 1px solid var(--color-main-20);
     }
   }

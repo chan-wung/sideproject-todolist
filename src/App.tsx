@@ -260,7 +260,7 @@ export default function App() {
       </header>
 
       <main className="todo-app__body">
-        <div style={{ position: 'sticky', top: '24px', width: 0, height: 0, overflow: 'visible', zIndex: 10 }}>
+        <div className="todo-app__quick-nav-wrap">
           <QuickNav filteredTodos={filteredTodos} />
         </div>
 

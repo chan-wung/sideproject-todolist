@@ -2,14 +2,14 @@
   min-width: 70px;
   min-height: 44px;
   padding: 0 14px;
-  position: relative;
-  border-radius: 8px;
   box-sizing: border-box;
-  word-break: keep-all;
-  cursor: pointer;
-  gap: 6px;
   @include flex-center;
+  gap: 6px;
+  border-radius: 8px;
   @include font(16);
+  word-break: keep-all;
+  position: relative;
+  cursor: pointer;
   @include transition();
 
   &:focus-visible {
@@ -20,8 +20,8 @@
   // --- Filled variants ---
   &--main      { @include btn-filled(var(--color-main)); }
   &--point     { 
-    @include btn-filled(var(--color-sub)); 
-    color: var(--txt-color-tit) !important;
+    color: var(--txt-color-tit); 
+    @include btn-filled(var(--color-sub));
   }
   &--gray      { @include btn-filled($gray5); }
   &--lightgray { @include btn-filled($grayC); }
@@ -32,15 +32,15 @@
 
   // --- Size variants ---
   &--sm {
-    @include font(14);
-    min-height: 34px;
     min-width: 60px;
+    min-height: 34px;
     padding: 0 10px;
+    @include font(14);
   }
 
   &--md {
-    min-height: 40px;
     min-width: 90px;
+    min-height: 40px;
   }
 
   // --- Etc ---
@@ -58,35 +58,35 @@
 }
 
 .btn-wrap {
+  padding-top: 20px;
+  box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 8px;
-  padding-top: 20px;
-  box-sizing: border-box;
 }
 
 .scroll-top-btn {
-  position: fixed;
-  bottom: rem(24);
-  right: max(24px, calc(50% - 480px + 24px));
   width: rem(48);
   height: rem(48);
-  border-radius: 50%;
-  background-color: var(--color-main);
-  color: #fff;
-  border: none;
   @include flex-center;
-  @include font(20, "Bold");
+  color: var(--color-on-accent);
+  background-color: var(--color-main);
+  border: none;
+  border-radius: 50%;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  cursor: pointer;
+  @include font(20, "Bold");
+  position: fixed;
+  right: max(24px, calc(50% - 480px + 24px));
+  bottom: rem(24);
   z-index: 50;
+  cursor: pointer;
   @include transition();
 
   &:hover {
-    transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
   }
   
   &:active {

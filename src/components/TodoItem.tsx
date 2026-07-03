@@ -129,7 +129,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           <div className="todo-item__edit-main">
             <textarea
               ref={inputRef}
-              className="todo-item__edit-field todo-input__field--textarea"
+              className="todo-item__edit-field todo-item__edit-field--textarea"
               value={editText}
               onChange={e => setEditText(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -420,6 +420,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                   </span>
                   <label className="form-chk form-chk--checkbox">
                     <input
+                      className="todo-item__sub-chk"
                       type="checkbox"
                       checked={sub.completed}
                       onChange={() => onToggleSubtask(todo.id, sub.id)}
@@ -453,7 +454,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
         </div>
         <div className="todo-item__sub-add">
           <input
-            className="todo-input__field"
+            className="todo-item__sub-add-field"
             type="text"
             placeholder="하위 항목 추가"
             value={subText}

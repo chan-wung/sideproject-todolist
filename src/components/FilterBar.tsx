@@ -127,16 +127,6 @@ export default function FilterBar({
           </select>
         )}
 
-        {filterStatus === 'completed' && completedCount > 0 && (
-          <button
-            className="filter-bar__clear-btn"
-            type="button"
-            onClick={onClearCompleted}
-          >
-            완료 항목 삭제 ({completedCount})
-          </button>
-        )}
-
         <button
           className={`filter-bar__select-btn${selectionMode ? ' filter-bar__select-btn--active' : ''}`}
           type="button"
@@ -152,6 +142,16 @@ export default function FilterBar({
             onClick={allCollapsed ? onExpandAll : onCollapseAll}
           >
             {allCollapsed ? '전체 더보기' : '전체 접기'}
+          </button>
+        )}
+
+        {filterStatus === 'completed' && completedCount > 0 && (
+          <button
+            className="filter-bar__clear-btn"
+            type="button"
+            onClick={onClearCompleted}
+          >
+            완료 항목 삭제 ({completedCount})
           </button>
         )}
       </div>

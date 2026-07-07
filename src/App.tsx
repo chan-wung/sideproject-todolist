@@ -319,6 +319,7 @@ export default function App() {
           onClearCompleted={clearCompleted}
           selectionMode={selectionMode}
           onToggleSelectionMode={handleToggleSelectionMode}
+          hasTodos={filteredTodos.length > 0}
           hasSubtasks={hasSubtasks}
           allCollapsed={allCollapsed}
           onCollapseAll={collapseAllSubtasks}

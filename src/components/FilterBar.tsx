@@ -19,6 +19,7 @@ interface Props {
   onClearCompleted: () => void;
   selectionMode: boolean;
   onToggleSelectionMode: () => void;
+  hasTodos: boolean;
   hasSubtasks: boolean;
   allCollapsed: boolean;
   onCollapseAll: () => void;
@@ -64,6 +65,7 @@ export default function FilterBar({
   onClearCompleted,
   selectionMode,
   onToggleSelectionMode,
+  hasTodos,
   hasSubtasks,
   allCollapsed,
   onCollapseAll,
@@ -142,15 +144,17 @@ export default function FilterBar({
             </select>
           )}
 
-          <button
-            className={`filter-bar__select-btn${selectionMode ? ' filter-bar__select-btn--active' : ''}`}
-            type="button"
-            onClick={onToggleSelectionMode}
-          >
-            {selectionMode ? '선택 취소' : '할일 선택'}
-          </button>
+          {(hasTodos || selectionMode) && (
+            <button
+              className={`filter-bar__select-btn${selectionMode ? ' filter-bar__select-btn--active' : ''}`}
+              type="button"
+              onClick={onToggleSelectionMode}
+            >
+              {selectionMode ? '선택 취소' : '할일 선택'}
+            </button>
+          )}
 
-          {hasSubtasks && (
+          {hasTodos && hasSubtasks && (
             <button
               className={`filter-bar__collapse-btn${allCollapsed ? '' : ' filter-bar__collapse-btn--active'}`}
               type="button"

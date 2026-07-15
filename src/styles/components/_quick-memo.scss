@@ -262,10 +262,27 @@ dialog.quick-memo-modal {
     opacity: 0.4;
     cursor: pointer;
     @include transition();
-    
+
     &--active {
       color: var(--color-sub);
       opacity: 1;
+    }
+  }
+
+  &__item-copy {
+    padding: 0 rem(4);
+    color: $gray9;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    @include transition();
+
+    &:hover { color: var(--color-main); }
+
+    .quick-memo-modal__item--active &,
+    .quick-memo-modal__item--pinned & {
+      color: rgba(255, 255, 255, 0.7);
+      &:hover { color: var(--color-on-accent); }
     }
   }
 
@@ -278,7 +295,20 @@ dialog.quick-memo-modal {
     background: var(--color-white);
   }
 
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+  }
+
+  &__content-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: rem(6);
+  }
+
   &__title-input {
+    flex: 1;
     width: 100%;
     padding: rem(12) rem(16);
     color: var(--txt-color-tit);

@@ -56,6 +56,51 @@ describe('useTodos', () => {
       expect(result.current.allTodos.length).toBe(0);
     });
 
+    it('duplicateTodo inserts an uncompleted copy right after the original', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('template', 'high', '2026-07-20', 'work');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.addSubtask(id, 'sub1');
+      });
+      const subId = result.current.allTodos[0].subtasks![0].id;
+      act(() => {
+        result.current.toggleSubtask(id, subId); // 하위 항목 전체 완료 → 본체도 완료 처리됨
+      });
+      expect(result.current.allTodos[0].completed).toBe(true);
+
+      act(() => {
+        result.current.duplicateTodo(id);
+      });
+
+      expect(result.current.allTodos.length).toBe(2);
+      const copy = result.current.allTodos[1];
+      expect(copy.text).toBe('template (복사)');
+      expect(copy.id).not.toBe(id);
+      expect(copy.completed).toBe(false);
+      expect(copy.completedAt).toBeUndefined();
+      expect(copy.priority).toBe('high');
+      expect(copy.dueDate).toBe('2026-07-20');
+      expect(copy.category).toBe('work');
+      expect(copy.subtasks).toHaveLength(1);
+      expect(copy.subtasks![0].text).toBe('sub1');
+      expect(copy.subtasks![0].completed).toBe(false);
+      expect(copy.subtasks![0].id).not.toBe(subId);
+    });
+
+    it('duplicateTodo ignores unknown id', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('task', 'medium', '', '');
+      });
+      act(() => {
+        result.current.duplicateTodo('no-such-id');
+      });
+      expect(result.current.allTodos.length).toBe(1);
+    });
+
     it('toggleTodo toggles completion', () => {
       const { result } = renderHook(() => useTodos());
       act(() => {

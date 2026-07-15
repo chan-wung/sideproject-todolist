@@ -258,6 +258,31 @@ export function useTodos() {
     );
   }
 
+  // 원본 바로 아래에 사본을 만든다. 템플릿처럼 다시 쓸 수 있도록 완료 상태는 초기화하고,
+  // 고정·반복 생성 이력 등 원본 고유 상태는 이어받지 않는다.
+  function duplicateTodo(id: string) {
+    setTodos(prev => {
+      const index = prev.findIndex(t => t.id === id);
+      if (index === -1) return prev;
+      const src = prev[index];
+      const copy: Todo = {
+        ...src,
+        id: generateId(),
+        text: `${src.text} (복사)`,
+        completed: false,
+        createdAt: new Date().toISOString(),
+        subtasks: src.subtasks?.map(s => ({ ...s, id: generateId(), completed: false })),
+        pinned: undefined,
+        sourceId: undefined,
+        recurrenceGenerated: undefined,
+        completedAt: undefined,
+      };
+      const next = [...prev];
+      next.splice(index + 1, 0, copy);
+      return next;
+    });
+  }
+
   function clearCompleted() {
     const completed = todos.filter(t => t.completed);
     if (completed.length === 0) return;
@@ -528,6 +553,7 @@ export function useTodos() {
     addTodo,
     toggleTodo,
     deleteTodo,
+    duplicateTodo,
     updateTodo,
     pinTodo,
     reorderTodos,

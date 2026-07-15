@@ -16,6 +16,10 @@ interface Props {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPin: (id: string) => void;
+  onCopy: (todo: Todo) => void;
+  onShare: (todo: Todo) => void;
+  onKakaoShare: (todo: Todo) => void;
+  onDuplicate: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoIds'>>) => void;
   onAddSubtask: (id: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
@@ -40,7 +44,7 @@ const RECURRENCE_LABEL: Record<string, string> = {
   monthly: '매월'
 };
 
-export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
+export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [editText, setEditText] = useState(todo.text);
@@ -53,12 +57,30 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
   const [editingSubId, setEditingSubId] = useState<string | null>(null);
   const [editSubText, setEditSubText] = useState('');
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const dragFromRef = useRef<number | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isEditing) inputRef.current?.focus();
   }, [isEditing]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handlePointerDown(e: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMenuOpen(false);
+    }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMenuOpen(false);
+    }
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [menuOpen]);
 
   function handleEditStart() {
     setEditText(todo.text);
@@ -293,6 +315,76 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                 <path d="M9 6V4h6v2" />
               </svg>
             </button>
+            <div className="todo-item__more" ref={moreRef}>
+              <button
+                type="button"
+                className={`todo-item__btn todo-item__btn--more${menuOpen ? ' todo-item__btn--more-active' : ''}`}
+                onClick={() => setMenuOpen(prev => !prev)}
+                aria-label="더보기"
+                aria-haspopup="true"
+                aria-expanded={menuOpen}
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="12" cy="5" r="1.8" />
+                  <circle cx="12" cy="12" r="1.8" />
+                  <circle cx="12" cy="19" r="1.8" />
+                </svg>
+              </button>
+              {menuOpen && (
+                <div className="todo-item__menu" role="menu">
+                  <button
+                    type="button"
+                    className="todo-item__menu-item"
+                    role="menuitem"
+                    onClick={() => { setMenuOpen(false); onCopy(todo); }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                    </svg>
+                    클립보드에 복사
+                  </button>
+                  <button
+                    type="button"
+                    className="todo-item__menu-item"
+                    role="menuitem"
+                    onClick={() => { setMenuOpen(false); onShare(todo); }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="18" cy="5" r="3" />
+                      <circle cx="6" cy="12" r="3" />
+                      <circle cx="18" cy="19" r="3" />
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                      <line x1="8.59" y1="10.49" x2="15.42" y2="6.51" />
+                    </svg>
+                    공유
+                  </button>
+                  <button
+                    type="button"
+                    className="todo-item__menu-item"
+                    role="menuitem"
+                    onClick={() => { setMenuOpen(false); onKakaoShare(todo); }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 3C6.48 3 2 6.58 2 11c0 2.8 1.86 5.26 4.66 6.68-.15.55-.55 2-.63 2.32-.1.4.15.4.31.29.13-.09 2.05-1.4 2.88-1.97.9.13 1.83.2 2.78.2 5.52 0 10-3.58 10-8s-4.48-8-10-8z" />
+                    </svg>
+                    카카오톡 공유
+                  </button>
+                  <button
+                    type="button"
+                    className="todo-item__menu-item"
+                    role="menuitem"
+                    onClick={() => { setMenuOpen(false); onDuplicate(todo.id); }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    할 일 복사
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="todo-item__meta">

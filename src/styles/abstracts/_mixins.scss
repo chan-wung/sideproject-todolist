@@ -157,3 +157,35 @@
   width: rem($w);
   height: rem($h);
 }
+
+// 아이콘 전용 버튼의 aria-label을 호버/포커스 시 툴팁으로 표시
+// (overflow가 있는 스크롤 컨테이너 안에서는 잘릴 수 있으므로 사용하지 말 것 — 그런 곳은 title 속성 사용)
+@mixin tooltip-label {
+  position: relative;
+
+  &::after {
+    content: attr(aria-label);
+    padding: rem(4) rem(8);
+    color: var(--color-white);
+    background: var(--txt-color-tit);
+    border-radius: 8px;
+    @include font(11, "Medium");
+    line-height: 1.4;
+    white-space: nowrap;
+    position: absolute;
+    bottom: calc(100% + #{rem(6)});
+    left: 50%;
+    z-index: 10;
+    transform: translateX(-50%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    @include transition(opacity, 0.15s);
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    opacity: 1;
+    visibility: visible;
+  }
+}

@@ -17,6 +17,8 @@ import BulkActionBar from './components/BulkActionBar';
 import CompletionLogModal from './components/CompletionLogModal';
 import type { Todo, CompletionLogEntry } from './types/todo';
 import { generateId } from './utils/id';
+import { todoToText, copyText, shareText } from './utils/share';
+import { preloadKakao, shareToKakao } from './utils/kakao';
 import './styles/main.scss';
 
 export default function App() {
@@ -47,6 +49,7 @@ export default function App() {
     addTodo,
     toggleTodo,
     deleteTodo,
+    duplicateTodo,
     updateTodo,
     pinTodo,
     reorderTodos,
@@ -86,6 +89,10 @@ export default function App() {
 
   const [notifyEnabled, setNotifyEnabled] = usePersistentState<boolean>('todolist-pref-notify', false);
   useDueNotifications(allTodos, notifyEnabled);
+
+  useEffect(() => {
+    preloadKakao();
+  }, []);
 
   interface ToastState {
     id: string;
@@ -211,6 +218,33 @@ export default function App() {
   function handleBulkDelete() {
     bulkDelete(Array.from(selectedIds));
     setSelectedIds(new Set());
+  }
+
+  async function handleCopyTodo(todo: Todo) {
+    const ok = await copyText(todoToText(todo));
+    showToast(ok
+      ? { message: '할 일을 클립보드에 복사했습니다.', type: 'success' }
+      : { message: '복사에 실패했습니다.', type: 'danger' });
+  }
+
+  async function handleShareTodo(todo: Todo) {
+    const result = await shareText('할 일 공유', todoToText(todo));
+    if (result === 'shared' || result === 'canceled') return;
+    showToast(result === 'copied'
+      ? { message: '공유를 지원하지 않는 환경이라 클립보드에 복사했습니다.', type: 'primary' }
+      : { message: '공유에 실패했습니다.', type: 'danger' });
+  }
+
+  async function handleKakaoShareTodo(todo: Todo) {
+    const ok = await shareToKakao(todoToText(todo));
+    if (!ok) {
+      showToast({ message: '카카오톡 공유를 열지 못했습니다. 네트워크 또는 도메인 등록을 확인하세요.', type: 'danger' });
+    }
+  }
+
+  function handleDuplicateTodo(id: string) {
+    duplicateTodo(id);
+    showToast({ message: '할 일을 복사해서 아래에 추가했습니다.', type: 'success' });
   }
 
   function handleResetTodos() {
@@ -348,6 +382,10 @@ export default function App() {
           onDelete={deleteTodo}
           onUpdate={updateTodo}
           onPin={pinTodo}
+          onCopy={handleCopyTodo}
+          onShare={handleShareTodo}
+          onKakaoShare={handleKakaoShareTodo}
+          onDuplicate={handleDuplicateTodo}
           onAddSubtask={addSubtask}
           onToggleSubtask={toggleSubtask}
           onDeleteSubtask={deleteSubtask}

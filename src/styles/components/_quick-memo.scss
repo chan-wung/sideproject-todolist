@@ -134,7 +134,8 @@ dialog.quick-memo-modal {
   &__item {
     display: flex;
     justify-content: space-between;
-    align-items: stretch;
+    align-items: center;
+    min-height: rem(44);
     background: var(--color-white);
     border-left: 3px solid transparent;
     border-radius: 8px;
@@ -174,7 +175,8 @@ dialog.quick-memo-modal {
   &__item-btn {
     flex: 1;
     min-width: 0;
-    padding: rem(10) rem(12);
+    height: 100%;
+    padding: rem(10) rem(6) rem(10) rem(12);
     display: flex;
     align-items: center;
     background: transparent;
@@ -185,10 +187,10 @@ dialog.quick-memo-modal {
 
   &__item-actions {
     flex-shrink: 0;
-    padding-right: rem(12);
+    padding-right: rem(6);
     display: flex;
     align-items: center;
-    gap: rem(4);
+    gap: rem(2);
   }
 
   &__drag-handle {
@@ -240,7 +242,10 @@ dialog.quick-memo-modal {
   }
 
   &__item-del {
-    padding: 0 rem(4);
+    @include size(28);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     color: $gray9;
     background: transparent;
     border: none;
@@ -256,7 +261,10 @@ dialog.quick-memo-modal {
   }
 
   &__item-pin {
-    padding: 0 rem(4);
+    @include size(28);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background: transparent;
     border: none;
     opacity: 0.4;
@@ -266,23 +274,6 @@ dialog.quick-memo-modal {
     &--active {
       color: var(--color-sub);
       opacity: 1;
-    }
-  }
-
-  &__item-copy {
-    padding: 0 rem(4);
-    color: $gray9;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    @include transition();
-
-    &:hover { color: var(--color-main); }
-
-    .quick-memo-modal__item--active &,
-    .quick-memo-modal__item--pinned & {
-      color: rgba(255, 255, 255, 0.7);
-      &:hover { color: var(--color-on-accent); }
     }
   }
 

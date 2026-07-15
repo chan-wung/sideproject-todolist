@@ -89,18 +89,6 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
     setMemos(memos.map(m => m.id === activeId ? { ...m, ...updates } : m));
   }
 
-  function handleDuplicate(id: string) {
-    const index = memos.findIndex(m => m.id === id);
-    if (index === -1) return;
-    const src = memos[index];
-    const newId = generateId();
-    const next = [...memos];
-    next.splice(index + 1, 0, { ...src, id: newId, title: `${src.title || '제목 없음'} (복사)`, pinned: undefined });
-    setMemos(next);
-    setActiveId(newId);
-    setFeedback({ id: generateId(), message: '메모를 복사해서 추가했습니다.', type: 'success' });
-  }
-
   async function handleCopyActive(memo: Memo) {
     const ok = await copyText(memoToText(memo));
     setFeedback(ok
@@ -239,18 +227,6 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                     )}
                   </button>
                   <div className="quick-memo-modal__item-actions">
-                    <button
-                      type="button"
-                      className="quick-memo-modal__item-copy"
-                      onClick={() => handleDuplicate(m.id)}
-                      aria-label="메모 복사"
-                      title="메모 복사 (같은 메모를 하나 더 만듭니다)"
-                    >
-                      <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                      </svg>
-                    </button>
                     <button
                       type="button"
                       className={`quick-memo-modal__item-pin${m.pinned ? ' quick-memo-modal__item-pin--active' : ''}`}

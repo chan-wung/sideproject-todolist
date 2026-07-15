@@ -1231,6 +1231,10 @@ dialog.confirm-modal {
       color: $gray9;
       border-style: dashed;
     }
+
+    &--add {
+      padding: rem(3) rem(7);
+    }
   }
 
   &__subtasks {
@@ -1469,6 +1473,7 @@ dialog.confirm-modal {
 // BULK ACTION BAR
 // =============================================
 .bulk-bar {
+  margin-bottom: rem(16);
   padding: rem(12) rem(16);
   display: flex;
   flex-wrap: wrap;

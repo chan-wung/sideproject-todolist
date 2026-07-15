@@ -399,27 +399,24 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               🔁 {RECURRENCE_LABEL[todo.recurrence]}
             </span>
           )}
-          {linkedMemos.length > 0 ? (
-            linkedMemos.map(m => (
-              <button
-                key={m.id}
-                type="button"
-                className="todo-item__memo-link"
-                onClick={() => onOpenMemo(m.id)}
-              >
-                📎 {m.title || '제목 없음'}
-              </button>
-            ))
-          ) : (
+          {linkedMemos.map(m => (
             <button
+              key={m.id}
               type="button"
-              className="todo-item__memo-link todo-item__memo-link--empty"
-              onClick={handleEditStart}
-              aria-label="메모 연결"
+              className="todo-item__memo-link"
+              onClick={() => onOpenMemo(m.id)}
             >
-              📎 메모 연결
+              📎 {m.title || '제목 없음'}
             </button>
-          )}
+          ))}
+          <button
+            type="button"
+            className={`todo-item__memo-link todo-item__memo-link--empty${linkedMemos.length > 0 ? ' todo-item__memo-link--add' : ''}`}
+            onClick={handleEditStart}
+            aria-label={linkedMemos.length > 0 ? '메모 추가 연결' : '메모 연결'}
+          >
+            {linkedMemos.length > 0 ? '+ 메모' : '📎 메모 연결'}
+          </button>
           {total > 0 && (
             <div className="todo-item__sub-meta">
               <span className="todo-item__sub-progress">진행도 {done}/{total}</span>

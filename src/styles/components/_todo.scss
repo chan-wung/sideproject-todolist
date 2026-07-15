@@ -268,6 +268,8 @@ dialog.confirm-modal {
   }
 
   &__options {
+    margin-bottom: rem(16);
+
     @media (max-width: $break_tab) {
       display: none;
       &--expanded {
@@ -281,7 +283,7 @@ dialog.confirm-modal {
     @media (max-width: $break_tab) {
       width: 100%;
       height: rem(36);
-      margin-top: rem(4);
+      margin-bottom: rem(8);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -321,13 +323,17 @@ dialog.confirm-modal {
   }
 
   &__main-row {
-    margin-bottom: rem(16);
     display: flex;
     gap: rem(8);
+  }
 
-    @media (max-width: $break_tab) {
-      flex-direction: column;
-    }
+  &__footer-row {
+    margin-top: rem(12);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: rem(12);
   }
 
   &__field {
@@ -458,10 +464,15 @@ dialog.confirm-modal {
     @include font(14, "Bold");
     cursor: pointer;
     @include btn-filled(var(--color-main));
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
   }
 
   &__hint {
-    margin-top: rem(12);
+    flex: 1;
+    min-width: rem(220);
     display: flex;
     align-items: center;
     gap: rem(4);

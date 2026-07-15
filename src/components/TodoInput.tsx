@@ -49,17 +49,13 @@ export default function TodoInput({ onAdd, categories }: Props) {
     <form className="todo-input" onSubmit={handleSubmit}>
       {toast && <Toast key={toastKey} message={toast} onClose={() => setToast('')} />}
 
-      <div className="todo-input__main-row">
-        <textarea
-          className="todo-input__field todo-input__field--textarea"
-          placeholder="크게 할 일을 입력하세요... (줄바꿈: Shift+Enter)"
-          value={text}
-          onChange={handleTextChange}
-          onKeyDown={handleKeyDown}
-          rows={2}
-        />
-        <button className="todo-input__btn" type="submit">추가</button>
-      </div>
+      <button
+        type="button"
+        className={`todo-input__toggle-btn ${isExpanded ? 'todo-input__toggle-btn--expanded' : ''}`}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {isExpanded ? '상세 옵션 접기' : '상세 옵션 열기'}
+      </button>
 
       <div className={`todo-input__options ${isExpanded ? 'todo-input__options--expanded' : ''}`}>
         <div className="todo-input__row todo-input__row--flex">
@@ -97,7 +93,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
               {categories.map(c => <option key={c} value={c} />)}
             </datalist>
           </div>
-            
+
           <div>
             <label className="todo-input__label" htmlFor="todo-input-recurrence">반복 주기</label>
             <select
@@ -113,17 +109,23 @@ export default function TodoInput({ onAdd, categories }: Props) {
             </select>
           </div>
         </div>
-
-        <p className="todo-input__hint">📎 메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>
       </div>
 
-      <button 
-        type="button" 
-        className={`todo-input__toggle-btn ${isExpanded ? 'todo-input__toggle-btn--expanded' : ''}`}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        {isExpanded ? '상세 옵션 접기' : '상세 옵션 열기'}
-      </button>
+      <div className="todo-input__main-row">
+        <textarea
+          className="todo-input__field todo-input__field--textarea"
+          placeholder="크게 할 일을 입력하세요... (줄바꿈: Shift+Enter)"
+          value={text}
+          onChange={handleTextChange}
+          onKeyDown={handleKeyDown}
+          rows={2}
+        />
+      </div>
+
+      <div className="todo-input__footer-row">
+        <p className="todo-input__hint">📎 메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>
+        <button className="todo-input__btn" type="submit">추가</button>
+      </div>
     </form>
   );
 }

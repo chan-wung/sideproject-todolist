@@ -1,6 +1,6 @@
 // 카카오톡 공유 (JS SDK sendDefault 텍스트 템플릿 — 콘솔 메시지 템플릿 등록 불필요)
 // JavaScript 키는 공개되어도 콘솔에 등록된 도메인에서만 동작한다.
-const KAKAO_JS_KEY = '671dedfbb70e7d11657aaf733b137763';
+const KAKAO_JS_KEY = 'c536500e6b32afe56a70f163793a3c68';
 const SDK_URL = 'https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js';
 
 // 공유 메시지 하단 버튼이 여는 링크. 카카오 콘솔 [플랫폼 > Web]에 등록된 도메인과 일치해야 한다.

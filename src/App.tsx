@@ -17,7 +17,7 @@ import BulkActionBar from './components/BulkActionBar';
 import CompletionLogModal from './components/CompletionLogModal';
 import type { Todo, CompletionLogEntry } from './types/todo';
 import { generateId } from './utils/id';
-import { todoToText, copyText, shareText } from './utils/share';
+import { todoToText, copyText, shareText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
 import { preloadKakao, shareToKakao } from './utils/kakao';
 import './styles/main.scss';
 
@@ -268,6 +268,43 @@ export default function App() {
     showToast({ message: '완료 이력을 초기화했습니다.', type: 'danger' });
   }
 
+  async function handleCopyLogEntry(entry: CompletionLogEntry) {
+    const ok = await copyText(completionLogEntryToText(entry));
+    showToast(ok
+      ? { message: '완료 이력을 클립보드에 복사했습니다.', type: 'success' }
+      : { message: '복사에 실패했습니다.', type: 'danger' });
+  }
+
+  async function handleShareLogEntry(entry: CompletionLogEntry) {
+    const result = await shareText('완료 이력 공유', completionLogEntryToText(entry));
+    if (result === 'shared' || result === 'canceled') return;
+    showToast(result === 'copied'
+      ? { message: '공유를 지원하지 않는 환경이라 클립보드에 복사했습니다.', type: 'primary' }
+      : { message: '공유에 실패했습니다.', type: 'danger' });
+  }
+
+  async function handleCopyAllLog(entries: CompletionLogEntry[]) {
+    const ok = await copyText(completionLogEntriesToText(entries));
+    showToast(ok
+      ? { message: '완료 이력을 클립보드에 복사했습니다.', type: 'success' }
+      : { message: '복사에 실패했습니다.', type: 'danger' });
+  }
+
+  async function handleShareAllLog(entries: CompletionLogEntry[]) {
+    const result = await shareText('완료 이력 공유', completionLogEntriesToText(entries));
+    if (result === 'shared' || result === 'canceled') return;
+    showToast(result === 'copied'
+      ? { message: '공유를 지원하지 않는 환경이라 클립보드에 복사했습니다.', type: 'primary' }
+      : { message: '공유에 실패했습니다.', type: 'danger' });
+  }
+
+  async function handleKakaoShareAllLog(entries: CompletionLogEntry[]) {
+    const ok = await shareToKakao(completionLogEntriesToText(entries));
+    if (!ok) {
+      showToast({ message: '카카오톡 공유를 열지 못했습니다. 네트워크 또는 도메인 등록을 확인하세요.', type: 'danger' });
+    }
+  }
+
   const [isCompletionLogOpen, setIsCompletionLogOpen] = useState(false);
 
   const [isMemoOpen, setIsMemoOpen] = useState(false);
@@ -427,6 +464,11 @@ export default function App() {
         onClose={() => setIsCompletionLogOpen(false)}
         entries={completionLog}
         onReset={handleResetCompletionLog}
+        onCopyEntry={handleCopyLogEntry}
+        onShareEntry={handleShareLogEntry}
+        onCopyAll={handleCopyAllLog}
+        onShareAll={handleShareAllLog}
+        onKakaoShareAll={handleKakaoShareAllLog}
       />
 
       {showScrollTop && (

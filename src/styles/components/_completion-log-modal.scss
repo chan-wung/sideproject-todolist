@@ -42,9 +42,41 @@ dialog.completion-log-modal {
     border-bottom: 1px solid var(--color-border);
   }
 
+  &__filter {
+    flex-shrink: 0;
+    padding: rem(12) rem(24) 0;
+    display: flex;
+    gap: rem(8);
+
+    @media (max-width: $break_tab) {
+      flex-direction: column;
+    }
+  }
+
+  &__category {
+    height: rem(40);
+    padding: 0 rem(28) 0 rem(12);
+    color: var(--txt-color-base);
+    background: svgIcoArrowDown($gray5, var(--color-white)) calc(100% - 10px) 50% / 10px no-repeat;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(13);
+    cursor: pointer;
+    @include transition(border-color);
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-main);
+    }
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
+  }
+
   &__search {
     flex-shrink: 0;
-    padding: rem(12) rem(24);
+    padding: rem(8) rem(24) rem(12);
     display: flex;
     gap: rem(8);
     border-bottom: 1px solid var(--color-border);
@@ -86,6 +118,32 @@ dialog.completion-log-modal {
     .date-picker__input {
       height: rem(40);
       @include font(13);
+    }
+  }
+
+  &__actions {
+    flex-shrink: 0;
+    padding: rem(10) rem(24);
+    display: flex;
+    justify-content: flex-end;
+    gap: rem(8);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  &__action-btn {
+    padding: rem(6) rem(12);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: rem(6);
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+      border-color: var(--color-main);
     }
   }
 
@@ -217,6 +275,35 @@ dialog.completion-log-modal {
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 100px;
     @include font(11, "Medium");
+  }
+
+  &__item-btns {
+    margin-left: auto;
+    display: flex;
+    flex-shrink: 0;
+    gap: rem(2);
+  }
+
+  &__item-btn {
+    flex-shrink: 0;
+    @include size(24);
+    @include flex-center;
+    color: $gray9;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    @include transition();
+
+    svg {
+      width: rem(13);
+      height: rem(13);
+    }
+
+    &:hover {
+      color: var(--color-main);
+      background: var(--color-main-5);
+    }
   }
 
   &__footer {

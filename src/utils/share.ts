@@ -1,4 +1,4 @@
-import type { Todo } from '../types/todo';
+import type { Todo, CompletionLogEntry } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 
 export type ShareResult = 'shared' | 'copied' | 'failed' | 'canceled';
@@ -18,6 +18,18 @@ export function memoToText(memo: Memo): string {
   if (!title) return content;
   if (!content) return title;
   return `${title}\n\n${content}`;
+}
+
+export function completionLogEntryToText(entry: CompletionLogEntry): string {
+  const lines: string[] = [entry.text];
+  for (const sub of entry.subtasks ?? []) {
+    lines.push(`- ${sub.text}${sub.completed ? ' ✔' : ''}`);
+  }
+  return lines.join('\n');
+}
+
+export function completionLogEntriesToText(entries: CompletionLogEntry[]): string {
+  return entries.map(completionLogEntryToText).join('\n\n');
 }
 
 export async function copyText(text: string): Promise<boolean> {

@@ -294,8 +294,61 @@ dialog.quick-memo-modal {
 
   &__content-actions {
     flex-shrink: 0;
+    position: relative;
+  }
+
+  &__more-btn {
+    @include size(32);
     display: flex;
-    gap: rem(6);
+    justify-content: center;
+    align-items: center;
+    color: $gray9;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    @include transition(background-color, color);
+
+    &:hover,
+    &--active {
+      color: var(--color-main);
+      background: var(--color-main-5);
+    }
+  }
+
+  &__more-menu {
+    min-width: rem(140);
+    padding: rem(6);
+    display: flex;
+    flex-direction: column;
+    gap: rem(2);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    position: absolute;
+    top: calc(100% + #{rem(4)});
+    right: 0;
+    z-index: 20;
+  }
+
+  &__more-item {
+    width: 100%;
+    padding: rem(8) rem(10);
+    color: var(--txt-color-base);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    @include font(13, "Medium");
+    white-space: nowrap;
+    text-align: left;
+    cursor: pointer;
+    @include transition(background-color);
+
+    &:hover {
+      color: var(--color-main);
+      background: var(--color-main-5);
+    }
   }
 
   &__title-input {
@@ -346,7 +399,7 @@ dialog.quick-memo-modal {
   }
 
   &__linked {
-    padding: rem(12) rem(14);
+    padding: rem(10) rem(14);
     display: flex;
     flex-direction: column;
     gap: rem(8);
@@ -355,9 +408,32 @@ dialog.quick-memo-modal {
     border-radius: 8px;
   }
 
+  &__linked-toggle {
+    width: 100%;
+    padding: rem(2) 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
   &__linked-tit {
     color: $gray9;
     @include font(12, "Bold");
+  }
+
+  &__linked-toggle-icon {
+    flex-shrink: 0;
+    width: rem(16);
+    height: rem(16);
+    color: $gray9;
+    @include transition(transform);
+
+    &--collapsed {
+      transform: rotate(-90deg);
+    }
   }
 
   &__linked-checklist {

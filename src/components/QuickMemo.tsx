@@ -29,7 +29,27 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [linkedCollapsed, setLinkedCollapsed] = useState(true);
+
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    function handlePointerDown(e: MouseEvent) {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
+    }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMoreOpen(false);
+    }
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [moreOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -263,39 +283,79 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                     onChange={(e) => updateActiveMemo({ title: e.target.value })}
                     placeholder="메모 제목 (예: 배워봄, 현대자동차)"
                   />
-                  <div className="quick-memo-modal__content-actions">
-                    <button type="button" className="btn btn--outline-gray btn--sm" onClick={() => handleCopyActive(activeMemo)} title="메모 내용을 클립보드에 복사">클립보드 복사</button>
-                    <button type="button" className="btn btn--outline-gray btn--sm" onClick={() => handleShareActive(activeMemo)} title="다른 앱으로 공유">공유</button>
-                    <button type="button" className="btn btn--outline-gray btn--sm" onClick={() => handleKakaoShareActive(activeMemo)} title="카카오톡으로 공유">카카오톡</button>
+                  <div className="quick-memo-modal__content-actions" ref={moreRef}>
+                    <button
+                      type="button"
+                      className={`quick-memo-modal__more-btn${moreOpen ? ' quick-memo-modal__more-btn--active' : ''}`}
+                      onClick={() => setMoreOpen(prev => !prev)}
+                      aria-label="더보기"
+                      aria-haspopup="true"
+                      aria-expanded={moreOpen}
+                    >
+                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                        <circle cx="12" cy="5" r="1.8" />
+                        <circle cx="12" cy="12" r="1.8" />
+                        <circle cx="12" cy="19" r="1.8" />
+                      </svg>
+                    </button>
+                    {moreOpen && (
+                      <div className="quick-memo-modal__more-menu" role="menu">
+                        <button type="button" className="quick-memo-modal__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleCopyActive(activeMemo); }}>클립보드 복사</button>
+                        <button type="button" className="quick-memo-modal__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleShareActive(activeMemo); }}>공유</button>
+                        <button type="button" className="quick-memo-modal__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleKakaoShareActive(activeMemo); }}>카카오톡 공유</button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="quick-memo-modal__linked">
-                  <span className="quick-memo-modal__linked-tit">📎 연결된 할 일</span>
-                  {todos.length > 0 ? (
-                    <div className="quick-memo-modal__linked-checklist">
-                      {todos.map(t => {
-                        const isLinked = activeId != null && (t.memoIds ?? []).includes(activeId);
-                        return (
-                          <label key={t.id} className="form-chk form-chk--checkbox">
-                            <input
-                              type="checkbox"
-                              checked={isLinked}
-                              onChange={() => {
-                                if (!activeId) return;
-                                if (isLinked) {
-                                  onUnlinkMemo(t.id, activeId);
-                                } else {
-                                  onLinkMemo(t.id, activeId);
-                                }
-                              }}
-                            />
-                            <span className="form-chk__text">{t.text}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="quick-memo-modal__linked-empty">할 일이 없습니다.</div>
+                  <button
+                    type="button"
+                    className="quick-memo-modal__linked-toggle"
+                    onClick={() => setLinkedCollapsed(prev => !prev)}
+                    aria-expanded={!linkedCollapsed}
+                    aria-controls="quick-memo-linked-checklist"
+                  >
+                    <span className="quick-memo-modal__linked-tit">📎 연결된 할 일</span>
+                    <svg
+                      className={`quick-memo-modal__linked-toggle-icon${linkedCollapsed ? ' quick-memo-modal__linked-toggle-icon--collapsed' : ''}`}
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {!linkedCollapsed && (
+                    todos.length > 0 ? (
+                      <div className="quick-memo-modal__linked-checklist" id="quick-memo-linked-checklist">
+                        {todos.map(t => {
+                          const isLinked = activeId != null && (t.memoIds ?? []).includes(activeId);
+                          return (
+                            <label key={t.id} className="form-chk form-chk--checkbox">
+                              <input
+                                type="checkbox"
+                                checked={isLinked}
+                                onChange={() => {
+                                  if (!activeId) return;
+                                  if (isLinked) {
+                                    onUnlinkMemo(t.id, activeId);
+                                  } else {
+                                    onLinkMemo(t.id, activeId);
+                                  }
+                                }}
+                              />
+                              <span className="form-chk__text">{t.text}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="quick-memo-modal__linked-empty">할 일이 없습니다.</div>
+                    )
                   )}
                 </div>
                 <textarea

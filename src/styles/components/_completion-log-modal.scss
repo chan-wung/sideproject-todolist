@@ -109,13 +109,13 @@ dialog.completion-log-modal {
   }
 
   &__search-date {
-    width: rem(180);
+    width: rem(230);
 
     @media (max-width: $break_tab) {
       width: 100%;
     }
 
-    .date-picker__input {
+    .date-range-picker__input {
       height: rem(40);
       @include font(13);
     }

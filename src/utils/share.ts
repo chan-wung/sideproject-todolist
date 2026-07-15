@@ -20,10 +20,11 @@ export function memoToText(memo: Memo): string {
   return `${title}\n\n${content}`;
 }
 
+// 완료 이력에 남는 항목은 로그에 기록되는 시점에 하위 항목이 항상 전부 완료 상태이므로 ✔ 표시는 생략한다.
 export function completionLogEntryToText(entry: CompletionLogEntry): string {
   const lines: string[] = [entry.text];
   for (const sub of entry.subtasks ?? []) {
-    lines.push(`- ${sub.text}${sub.completed ? ' ✔' : ''}`);
+    lines.push(`- ${sub.text}`);
   }
   return lines.join('\n');
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CompletionLogEntry } from '../types/todo';
 import { formatDate, formatTime } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
-import DatePicker from './DatePicker';
+import DateRangePicker from './DateRangePicker';
 
 interface Props {
   isOpen: boolean;
@@ -37,7 +37,8 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchDate, setSearchDate] = useState('');
+  const [searchDateStart, setSearchDateStart] = useState('');
+  const [searchDateEnd, setSearchDateEnd] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
 
   useEffect(() => {
@@ -63,7 +64,8 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
   const filteredEntries = entries.filter(e => {
     const textMatch = !q || e.text.toLowerCase().includes(q);
     const categoryMatch = filterCategory === 'all' || e.category === filterCategory;
-    const dateMatch = !searchDate || e.completedAt.slice(0, 10) === searchDate;
+    const dateKey = e.completedAt.slice(0, 10);
+    const dateMatch = (!searchDateStart || dateKey >= searchDateStart) && (!searchDateEnd || dateKey <= searchDateEnd);
     return textMatch && categoryMatch && dateMatch;
   });
   const groups = groupByDate(filteredEntries);
@@ -92,7 +94,13 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-              <DatePicker value={searchDate} onChange={setSearchDate} placeholder="날짜 선택" className="completion-log-modal__search-date" />
+              <DateRangePicker
+                startValue={searchDateStart}
+                endValue={searchDateEnd}
+                onChange={(start, end) => { setSearchDateStart(start); setSearchDateEnd(end); }}
+                placeholder="기간 선택"
+                className="completion-log-modal__search-date"
+              />
             </div>
             <div className="completion-log-modal__search">
               <input

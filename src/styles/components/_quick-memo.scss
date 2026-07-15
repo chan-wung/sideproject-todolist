@@ -23,7 +23,7 @@ dialog.quick-memo-modal {
 .quick-memo-modal {
   &__container {
     width: 100%;
-    max-width: rem(800);
+    max-width: rem(1000);
     height: 80vh;
     max-height: rem(700);
     display: flex;
@@ -69,22 +69,85 @@ dialog.quick-memo-modal {
   }
 
   &__sidebar {
-    width: rem(200);
+    width: rem(250);
     display: flex;
     flex-direction: column;
     background: var(--color-bg);
     border-right: 1px solid var(--color-border);
-    overflow-y: auto;
+    overflow: hidden;
 
     @media (max-width: $break_tab) {
       width: 100%;
-      height: rem(150);
+      height: auto;
       border-right: none;
       border-bottom: 1px solid var(--color-border);
+
+      &--expanded {
+        flex: 1;
+        min-height: 0;
+      }
     }
   }
 
+  &__controls-toggle {
+    display: none;
+
+    @media (max-width: $break_tab) {
+      flex-shrink: 0;
+      width: 100%;
+      height: rem(36);
+      padding: 0 rem(12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--txt-color-base);
+      background: var(--color-white);
+      border: none;
+      border-bottom: 1px solid var(--color-border);
+      @include font(12, "Medium");
+      cursor: pointer;
+
+      &::after {
+        content: '';
+        width: 12px;
+        height: 12px;
+        display: inline-block;
+        background: svgIcoArrowDownMD($gray6) center / contain no-repeat;
+      }
+
+      &--expanded::after {
+        background: svgIcoArrowUpMD($gray6) center / contain no-repeat;
+      }
+    }
+  }
+
+  &__panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    @media (max-width: $break_tab) {
+      flex: none;
+      display: none;
+
+      &--expanded {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+      }
+    }
+  }
+
+  &__controls {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
   &__add {
+    flex-shrink: 0;
     width: 100%;
     padding: rem(14) rem(16);
     color: var(--color-main);
@@ -102,6 +165,7 @@ dialog.quick-memo-modal {
   }
 
   &__search {
+    flex-shrink: 0;
     padding: rem(10) rem(12);
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
@@ -123,12 +187,15 @@ dialog.quick-memo-modal {
   }
 
   &__list {
+    flex: 1;
+    min-height: 0;
     margin: rem(6) rem(8);
     padding: 0;
     display: flex;
     flex-direction: column;
     gap: rem(4);
     list-style: none;
+    overflow-y: auto;
   }
 
   &__item {
@@ -284,6 +351,12 @@ dialog.quick-memo-modal {
     flex-direction: column;
     gap: rem(16);
     background: var(--color-white);
+
+    &--hidden-mobile {
+      @media (max-width: $break_tab) {
+        display: none;
+      }
+    }
   }
 
   &__title-row {

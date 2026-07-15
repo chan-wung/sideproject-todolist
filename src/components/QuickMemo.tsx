@@ -31,6 +31,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
 
   const [moreOpen, setMoreOpen] = useState(false);
   const [linkedCollapsed, setLinkedCollapsed] = useState(true);
+  const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -206,20 +207,30 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
         
         <div className="quick-memo-modal__body">
           {/* 왼쪽: 탭(목록) 영역 */}
-          <div className="quick-memo-modal__sidebar">
-            <button type="button" className="quick-memo-modal__add" onClick={handleAdd}>+ 새 메모 추가</button>
-            <div className="quick-memo-modal__search">
-              <input 
-                className="quick-memo-modal__search-input"
-                type="text" 
-                placeholder="메모 검색..." 
-                aria-label="메모 검색"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <ul className="quick-memo-modal__list">
-              {filteredMemos.map(m => {
+          <div className={`quick-memo-modal__sidebar${mobileControlsOpen ? ' quick-memo-modal__sidebar--expanded' : ''}`}>
+            <button
+              type="button"
+              className={`quick-memo-modal__controls-toggle${mobileControlsOpen ? ' quick-memo-modal__controls-toggle--expanded' : ''}`}
+              onClick={() => setMobileControlsOpen(prev => !prev)}
+            >
+              {mobileControlsOpen ? '메모 목록 접기' : `📝 메모 목록 (${memos.length})`}
+            </button>
+            <div className={`quick-memo-modal__panel${mobileControlsOpen ? ' quick-memo-modal__panel--expanded' : ''}`}>
+              <div className="quick-memo-modal__controls">
+                <button type="button" className="quick-memo-modal__add" onClick={handleAdd}>+ 새 메모 추가</button>
+                <div className="quick-memo-modal__search">
+                  <input
+                    className="quick-memo-modal__search-input"
+                    type="text"
+                    placeholder="메모 검색..."
+                    aria-label="메모 검색"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+              <ul className="quick-memo-modal__list">
+                {filteredMemos.map(m => {
                 const linkedCount = todos.filter(t => (t.memoIds ?? []).includes(m.id)).length;
                 return (
                 <li 
@@ -237,7 +248,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                     m.id === dragOverId ? 'quick-memo-modal__item--drag-over' : '',
                   ].filter(Boolean).join(' ')}
                 >
-                  <button type="button" className="quick-memo-modal__item-btn" onClick={() => setActiveId(m.id)}>
+                  <button type="button" className="quick-memo-modal__item-btn" onClick={() => { setActiveId(m.id); setMobileControlsOpen(false); }}>
                     <span className="quick-memo-modal__drag-handle" aria-hidden="true">⠿</span>
                     <span className="quick-memo-modal__item-tit">{m.title || '제목 없음'}</span>
                     {linkedCount > 0 && (
@@ -269,11 +280,12 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                 </li>
                 );
               })}
-            </ul>
+              </ul>
+            </div>
           </div>
-          
+
           {/* 오른쪽: 내용 영역 */}
-          <div className="quick-memo-modal__content">
+          <div className={`quick-memo-modal__content${mobileControlsOpen ? ' quick-memo-modal__content--hidden-mobile' : ''}`}>
             {activeMemo ? (
               <>
                 <div className="quick-memo-modal__title-row">

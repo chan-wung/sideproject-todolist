@@ -4,8 +4,7 @@ const KAKAO_JS_KEY = 'c536500e6b32afe56a70f163793a3c68';
 const SDK_URL = 'https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js';
 
 // 공유 메시지 하단 버튼이 여는 링크. 카카오 콘솔 [플랫폼 > Web]에 등록된 도메인과 일치해야 한다.
-// TODO: 배포 주소가 생기면 그 주소로 교체 (예: https://xxx.vercel.app)
-const SHARE_LINK_URL = 'http://localhost:5173';
+const SHARE_LINK_URL = 'https://todolist-two-smoky.vercel.app';
 
 // 텍스트형 템플릿의 본문 최대 길이 (카카오 정책 200자)
 const TEXT_LIMIT = 200;

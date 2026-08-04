@@ -1086,10 +1086,15 @@ dialog.confirm-modal {
 
   &__edit-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: rem(8);
 
-    > * { flex: 1; min-width: rem(100); }
+    @include tablet_pc {
+      flex-direction: row;
+      flex-wrap: wrap;
+
+      > * { flex: 1; min-width: rem(100); }
+    }
   }
 
   &__edit-group {
@@ -1150,6 +1155,63 @@ dialog.confirm-modal {
     display: flex;
     justify-content: flex-end;
     gap: rem(8);
+  }
+
+  &__category-suggest {
+    margin-top: rem(4);
+    display: none;
+    flex-wrap: wrap;
+    gap: rem(4);
+
+    @include tablet_pc {
+      display: flex;
+    }
+  }
+
+  &__category-suggest-btn {
+    padding: rem(3) rem(8);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    @include font(11, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      color: var(--color-main);
+      border-color: var(--color-main);
+    }
+
+    &--active {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+      border-color: var(--color-main);
+    }
+  }
+
+  &__category-picker-btn {
+    height: rem(36);
+    margin-top: rem(4);
+    padding: 0 rem(12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-main);
+    background: var(--color-white);
+    border: 1px dashed var(--color-main);
+    border-radius: 8px;
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-main) 8%, var(--color-white));
+    }
+
+    @include tablet_pc {
+      display: none;
+    }
   }
 
   // ── 서브태스크 ──────────────────────────────────

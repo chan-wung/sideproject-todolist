@@ -50,6 +50,7 @@ export default function BulkActionBar({
           value={categoryInput}
           onChange={e => setCategoryInput(e.target.value)}
           list="bulk-category-options"
+          autoComplete="off"
           disabled={selectedCount === 0}
         />
         <datalist id="bulk-category-options">

@@ -47,4 +47,24 @@
       color: var(--color-main);
     }
   }
+
+  // ── 라디오 버튼 ──
+  &--radio {
+    input[type="radio"] + .form-chk__text::before {
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid $grayC;
+      border-radius: 50%;
+    }
+
+    input[type="radio"]:checked + .form-chk__text::before {
+      background: var(--color-main);
+      border-color: var(--color-main);
+      box-shadow: inset 0 0 0 3px var(--color-white);
+    }
+
+    input[type="radio"]:checked + .form-chk__text {
+      color: var(--color-main);
+    }
+  }
 }

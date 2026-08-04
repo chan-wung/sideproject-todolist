@@ -88,6 +88,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
               value={category}
               onChange={e => setCategory(e.target.value)}
               list="category-options-input"
+              autoComplete="off"
             />
             <datalist id="category-options-input">
               {categories.map(c => <option key={c} value={c} />)}

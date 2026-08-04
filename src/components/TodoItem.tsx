@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import type { Todo } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import ConfirmModal from './ConfirmModal';
+import CategoryPickerModal from './CategoryPickerModal';
 import DatePicker from './DatePicker';
 import { isOverdue, formatDate } from '../utils/date';
 
@@ -47,6 +48,7 @@ const RECURRENCE_LABEL: Record<string, string> = {
 export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [editPriority, setEditPriority] = useState<Todo['priority']>(todo.priority);
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
@@ -185,11 +187,31 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                 value={editCategory}
                 onChange={e => setEditCategory(e.target.value)}
                 onKeyDown={handleKeyDown}
-                list={`category-options-${todo.id}`}
+                autoComplete="off"
               />
-              <datalist id={`category-options-${todo.id}`}>
-                {categories.map(c => <option key={c} value={c} />)}
-              </datalist>
+              {categories.length > 0 && (
+                <>
+                  <div className="todo-item__category-suggest">
+                    {categories.map(c => (
+                      <button
+                        key={c}
+                        type="button"
+                        className={`todo-item__category-suggest-btn${editCategory === c ? ' todo-item__category-suggest-btn--active' : ''}`}
+                        onClick={() => setEditCategory(c)}
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    className="todo-item__category-picker-btn"
+                    onClick={() => setCategoryPickerOpen(true)}
+                  >
+                    카테고리 선택
+                  </button>
+                </>
+              )}
             </div>
             <div className="todo-item__edit-group">
               <label className="todo-item__edit-label" htmlFor={`todo-edit-recurrence-${todo.id}`}>반복 주기</label>
@@ -226,10 +248,18 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
             )}
           </div>
           <div className="todo-item__edit-actions">
-            <button className="btn btn--main btn--sm" type="button" onClick={handleSave}>저장</button>
+            <button className="btn btn--main btn--sm" type="button" onClick={handleSave}>수정</button>
             <button className="btn btn--outline-gray btn--sm" type="button" onClick={handleCancel}>취소</button>
           </div>
         </div>
+        {categoryPickerOpen && (
+          <CategoryPickerModal
+            categories={categories}
+            value={editCategory}
+            onApply={setEditCategory}
+            onClose={() => setCategoryPickerOpen(false)}
+          />
+        )}
       </div>
     );
   }

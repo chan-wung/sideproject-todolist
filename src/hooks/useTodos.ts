@@ -1,12 +1,16 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import type { Todo, FilterStatus, SortKey, DueScope, CompletionLogEntry } from '../types/todo';
+import type { Todo, FilterStatus, SortKey, DueScope, CompletionLogEntry, RecurrenceSeries, RecurrenceFrequency } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
-import { isToday, isThisWeek, isOverdue, calculateNextRecurrence, todayStr } from '../utils/date';
+import { isToday, isThisWeek, isOverdue, todayStr } from '../utils/date';
+import { migrateLegacyRecurrence, materializeDueOccurrences, validateRecurrenceSeries } from '../utils/recurrence';
 import { generateId } from '../utils/id';
 
 const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, low: 2 };
 
 const STORAGE_KEY = 'todolist-items';
+const SERIES_STORAGE_KEY = 'todolist-recurrence-series';
+
+export { validateRecurrenceSeries };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function migrateTodo(raw: any): Todo {
@@ -91,8 +95,23 @@ export function validateCompletionLog(incoming: unknown): CompletionLogEntry[] |
   }));
 }
 
+function loadSeriesFromStorage(): RecurrenceSeries[] {
+  try {
+    const raw = localStorage.getItem(SERIES_STORAGE_KEY);
+    if (!raw) return [];
+    return validateRecurrenceSeries(JSON.parse(raw)) || [];
+  } catch {
+    return [];
+  }
+}
+
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>(loadFromStorage);
+  const [recurrenceSeries, setRecurrenceSeries] = useState<RecurrenceSeries[]>(loadSeriesFromStorage);
+  const todosRef = useRef(todos);
+  todosRef.current = todos;
+  const recurrenceSeriesRef = useRef(recurrenceSeries);
+  recurrenceSeriesRef.current = recurrenceSeries;
   const [filterStatus, setFilterStatus] = usePersistentState<FilterStatus>('todolist-pref-status', 'active');
   const [filterCategory, setFilterCategory] = usePersistentState<string>('todolist-pref-category', 'all');
   const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default');
@@ -111,6 +130,14 @@ export function useTodos() {
       console.warn('localStorage write failed:', e);
     }
   }, [todos]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SERIES_STORAGE_KEY, JSON.stringify(recurrenceSeries));
+    } catch (e) {
+      console.warn('localStorage write failed:', e);
+    }
+  }, [recurrenceSeries]);
 
   function withUndo(message: string, mutate: (prev: Todo[]) => Todo[]) {
     setTodos(prev => {
@@ -171,79 +198,88 @@ export function useTodos() {
     recurrence: Todo['recurrence'] = 'none'
   ) {
     if (!text.trim()) return;
+    const trimmed = text.trim();
+    const cat = category.trim() || '기본';
+
+    // 반복 주기를 고르면 개별 할 일이 아니라 '반복 시리즈'를 만들고, 도래한 회차를 즉시 생성한다.
+    if (recurrence && recurrence !== 'none') {
+      const anchorDate = dueDate || todayStr();
+      const series: RecurrenceSeries = {
+        id: generateId(),
+        text: trimmed,
+        category: cat,
+        priority,
+        frequency: recurrence,
+        anchorDate,
+        status: 'active',
+        createdAt: new Date().toISOString(),
+      };
+      const combined = [...recurrenceSeries, series];
+      const { newTodos, nextSeries } = materializeDueOccurrences(combined, todos, todayStr());
+      setRecurrenceSeries(nextSeries);
+      if (newTodos.length > 0) setTodos(prev => [...newTodos, ...prev]);
+      return;
+    }
+
     const next: Todo = {
       id: generateId(),
-      text: text.trim(),
+      text: trimmed,
       completed: false,
       priority,
       dueDate: dueDate || undefined,
-      category: category.trim() || '기본',
+      category: cat,
       createdAt: new Date().toISOString(),
-      recurrence: recurrence !== 'none' ? recurrence : undefined,
     };
     setTodos(prev => [next, ...prev]);
   }
 
-  // 완료된 반복 할 일의 다음 회차를, 실제로 그 날짜가 되었을 때만 생성한다.
-  // (완료 즉시 만들지 않음 — 매일이면 다음날, 매주면 다음주, 매달이면 다음달이 되어야 목록에 나타남)
-  // 체크박스 직접 완료(toggleTodo)·하위 항목 전체 완료(toggleSubtask)·앱 재실행 시 점검 3곳에서 공유.
-  function tryCreateRecurrenceChild(t: Todo, prev: Todo[]): Todo | null {
-    if (!t.completed || !t.recurrence || t.recurrence === 'none' || t.recurrenceGenerated) return null;
-    const nextDueDate = calculateNextRecurrence(t.dueDate, t.recurrence);
-    if (!nextDueDate || nextDueDate > todayStr()) return null; // 아직 다음 회차 날짜가 되지 않음
-    const alreadyExists = prev.some(pt => pt.sourceId === t.id);
-    if (alreadyExists) return null;
-    return {
-      ...t,
-      id: generateId(),
-      completed: false,
-      dueDate: nextDueDate,
-      createdAt: new Date().toISOString(),
-      subtasks: t.subtasks?.map(s => ({ ...s, id: generateId(), completed: false })),
-      sourceId: t.id,
-      recurrenceGenerated: false,
-    };
-  }
-
-  // 앱을 열어둔 사이가 아니라 며칠 뒤 다시 열었을 때도, 그 사이 지난 회차를 반영한다.
+  // 앱 실행 시 1회: 레거시 반복 데이터를 시리즈로 전환하고, 도래한 회차를 생성한다.
+  const didInitRecurrence = useRef(false);
   useEffect(() => {
-    setTodos(prev => {
-      const created: Todo[] = [];
-      const next = prev.map(t => {
-        const child = tryCreateRecurrenceChild(t, prev);
-        if (!child) return t;
-        created.push(child);
-        return { ...t, recurrenceGenerated: true };
-      });
-      return created.length > 0 ? [...created, ...next] : prev;
-    });
-  }, []); // 마운트 시 1회 — 앱을 다시 열 때마다 지난 회차를 점검
+    if (didInitRecurrence.current) return;
+    didInitRecurrence.current = true;
+    const today = todayStr();
+    const migrated = migrateLegacyRecurrence(todos, recurrenceSeries);
+    const { newTodos, nextSeries, changed } = materializeDueOccurrences(migrated.series, migrated.todos, today);
+    if (migrated.changed || newTodos.length > 0) {
+      setTodos(newTodos.length > 0 ? [...newTodos, ...migrated.todos] : migrated.todos);
+    }
+    if (migrated.changed || changed) {
+      setRecurrenceSeries(nextSeries);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 앱을 열어둔 채 날짜가 바뀌었을 때에도 회차가 생기도록, 창이 다시 활성화되면 점검한다.
+  useEffect(() => {
+    function check() {
+      const { newTodos, nextSeries, changed } = materializeDueOccurrences(
+        recurrenceSeriesRef.current,
+        todosRef.current,
+        todayStr()
+      );
+      if (newTodos.length > 0) setTodos(prev => [...newTodos, ...prev]);
+      if (changed) setRecurrenceSeries(nextSeries);
+    }
+    window.addEventListener('focus', check);
+    document.addEventListener('visibilitychange', check);
+    return () => {
+      window.removeEventListener('focus', check);
+      document.removeEventListener('visibilitychange', check);
+    };
+  }, []);
 
   function toggleTodo(id: string) {
-    setTodos(prev => {
-      let newlyCreated: Todo | null = null;
-      const nextList = prev.map(t => {
-        if (t.id === id) {
-          const newCompleted = !t.completed;
-          const updated = {
-            ...t,
-            completed: newCompleted,
-            subtasks: t.subtasks?.map(s => ({ ...s, completed: newCompleted })),
-            recurrenceGenerated: newCompleted ? t.recurrenceGenerated : false,
-            completedAt: newCompleted ? new Date().toISOString() : undefined,
-          };
-          const child = tryCreateRecurrenceChild(updated, prev);
-          if (child) {
-            newlyCreated = child;
-            updated.recurrenceGenerated = true;
-          }
-          return updated;
-        }
-        return t;
-      });
-      if (newlyCreated) return [newlyCreated, ...nextList];
-      return nextList;
-    });
+    setTodos(prev => prev.map(t => {
+      if (t.id !== id) return t;
+      const newCompleted = !t.completed;
+      return {
+        ...t,
+        completed: newCompleted,
+        subtasks: t.subtasks?.map(s => ({ ...s, completed: newCompleted })),
+        completedAt: newCompleted ? new Date().toISOString() : undefined,
+      };
+    }));
   }
 
   function deleteTodo(id: string) {
@@ -252,10 +288,42 @@ export function useTodos() {
     withUndo('할 일을 삭제했습니다.', prev => prev.filter(t => t.id !== id));
   }
 
+  // 시리즈에 아직 속하지 않은 할 일에 반복 주기를 새로 지정하면, 그 할 일을 첫 회차로 삼아 시리즈로 승격한다.
+  function promoteTodoToSeries(
+    id: string,
+    frequency: RecurrenceFrequency,
+    patch: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'memoIds'>>
+  ) {
+    const target = todos.find(t => t.id === id);
+    if (!target || target.seriesId) return;
+    const merged = { ...target, ...patch };
+    const anchorDate = (patch.dueDate ?? target.dueDate) || todayStr();
+    const memoIds = patch.memoIds ?? merged.memoIds;
+    const series: RecurrenceSeries = {
+      id: generateId(),
+      text: merged.text.trim() || merged.text,
+      category: merged.category || '기본',
+      priority: merged.priority,
+      frequency,
+      anchorDate,
+      subtasksTemplate: merged.subtasks && merged.subtasks.length > 0 ? merged.subtasks.map(s => s.text) : undefined,
+      memoIds: memoIds && memoIds.length > 0 ? [...memoIds] : undefined,
+      status: 'active',
+      lastMaterializedDate: anchorDate, // 이 할 일 자체가 첫 회차이므로 그 날짜까지는 채워진 것으로 본다
+      createdAt: new Date().toISOString(),
+    };
+    setTodos(prev => prev.map(t => t.id === id ? { ...t, seriesId: series.id } : t));
+    setRecurrenceSeries(prev => [...prev, series]);
+  }
+
   function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoIds'>>) {
+    const { recurrence, ...rest } = updates;
     setTodos(prev =>
-      prev.map(t => t.id === id ? { ...t, ...updates, dueDate: updates.dueDate || undefined } : t)
+      prev.map(t => t.id === id ? { ...t, ...rest, dueDate: rest.dueDate || undefined } : t)
     );
+    if (recurrence && recurrence !== 'none') {
+      promoteTodoToSeries(id, recurrence, rest);
+    }
   }
 
   // 원본 바로 아래에 사본을 만든다. 템플릿처럼 다시 쓸 수 있도록 완료 상태는 초기화하고,
@@ -275,6 +343,7 @@ export function useTodos() {
         pinned: undefined,
         sourceId: undefined,
         recurrenceGenerated: undefined,
+        seriesId: undefined, // 복사본은 독립된 일회성 할 일 (반복 시리즈에 묶지 않음)
         completedAt: undefined,
       };
       const next = [...prev];
@@ -337,33 +406,19 @@ export function useTodos() {
 
 
   function toggleSubtask(todoId: string, subId: string) {
-    setTodos(prev => {
-      let newlyCreated: Todo | null = null;
-      const nextList = prev.map(t => {
-        if (t.id === todoId) {
-          const newSubtasks = (t.subtasks ?? []).map(s =>
-            s.id === subId ? { ...s, completed: !s.completed } : s
-          );
-          const allCompleted = newSubtasks.length > 0 && newSubtasks.every(s => s.completed);
-          const updated = {
-            ...t,
-            subtasks: newSubtasks,
-            completed: allCompleted,
-            recurrenceGenerated: allCompleted ? t.recurrenceGenerated : false,
-            completedAt: allCompleted ? new Date().toISOString() : undefined,
-          };
-          const child = tryCreateRecurrenceChild(updated, prev);
-          if (child) {
-            newlyCreated = child;
-            updated.recurrenceGenerated = true;
-          }
-          return updated;
-        }
-        return t;
-      });
-      if (newlyCreated) return [newlyCreated, ...nextList];
-      return nextList;
-    });
+    setTodos(prev => prev.map(t => {
+      if (t.id !== todoId) return t;
+      const newSubtasks = (t.subtasks ?? []).map(s =>
+        s.id === subId ? { ...s, completed: !s.completed } : s
+      );
+      const allCompleted = newSubtasks.length > 0 && newSubtasks.every(s => s.completed);
+      return {
+        ...t,
+        subtasks: newSubtasks,
+        completed: allCompleted,
+        completedAt: allCompleted ? new Date().toISOString() : undefined,
+      };
+    }));
   }
 
   function deleteSubtask(todoId: string, subId: string) {
@@ -403,7 +458,92 @@ export function useTodos() {
     }));
   }
 
-  function resetTodos() { setTodos([]); }
+  function resetTodos() { setTodos([]); setRecurrenceSeries([]); }
+
+  // ── 반복 시리즈 CRUD ──────────────────────────────────────────────
+
+  function addRecurrenceSeries(input: {
+    text: string;
+    category: string;
+    priority: Todo['priority'];
+    frequency: RecurrenceFrequency;
+    anchorDate: string;
+    endDate?: string;
+  }) {
+    const text = input.text.trim();
+    if (!text || !input.anchorDate) return;
+    const series: RecurrenceSeries = {
+      id: generateId(),
+      text,
+      category: input.category.trim() || '기본',
+      priority: input.priority,
+      frequency: input.frequency,
+      anchorDate: input.anchorDate,
+      endDate: input.endDate || undefined,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+    };
+    const combined = [...recurrenceSeries, series];
+    const { newTodos, nextSeries } = materializeDueOccurrences(combined, todos, todayStr());
+    setRecurrenceSeries(nextSeries);
+    if (newTodos.length > 0) setTodos(prev => [...newTodos, ...prev]);
+  }
+
+  // 시리즈 규칙을 수정한다. 주기·기준일이 바뀌면 이후 회차 계산이 달라지도록 커서를 되감는다.
+  // 이미 목록에 생성된 회차(Todo)는 건드리지 않는다.
+  function updateRecurrenceSeries(
+    id: string,
+    updates: Partial<Pick<RecurrenceSeries, 'text' | 'category' | 'priority' | 'frequency' | 'anchorDate' | 'endDate'>>
+  ) {
+    setRecurrenceSeries(prev => prev.map(s => {
+      if (s.id !== id) return s;
+      const scheduleChanged =
+        (updates.frequency !== undefined && updates.frequency !== s.frequency) ||
+        (updates.anchorDate !== undefined && updates.anchorDate !== s.anchorDate);
+      const next: RecurrenceSeries = {
+        ...s,
+        ...updates,
+        endDate: 'endDate' in updates ? (updates.endDate || undefined) : s.endDate,
+      };
+      if (scheduleChanged) {
+        // 오늘까지는 이미 채워진 것으로 보고, 앞으로의 회차만 새 규칙으로 생성한다.
+        next.lastMaterializedDate = todayStr();
+        next.status = 'active';
+      }
+      return next;
+    }));
+  }
+
+  // 시리즈를 종료한다. 이후 회차 생성만 멈추고, 이미 만들어진 미완료 회차는 그대로 둔다.
+  function endRecurrenceSeries(id: string) {
+    setRecurrenceSeries(prev => prev.map(s =>
+      s.id === id ? { ...s, status: 'ended' } : s
+    ));
+  }
+
+  function resumeRecurrenceSeries(id: string) {
+    setRecurrenceSeries(prev => prev.map(s =>
+      s.id === id ? { ...s, status: 'active', lastMaterializedDate: todayStr() } : s
+    ));
+  }
+
+  // 시리즈 규칙을 삭제한다. 생성돼 있던 회차 Todo는 유지하되 시리즈 연결만 끊는다.
+  function deleteRecurrenceSeries(id: string) {
+    setRecurrenceSeries(prev => prev.filter(s => s.id !== id));
+    setTodos(prev => prev.map(t => {
+      if (t.seriesId !== id) return t;
+      const rest = { ...t };
+      delete rest.seriesId;
+      return rest;
+    }));
+  }
+
+  function exportRecurrenceSeries(): RecurrenceSeries[] { return recurrenceSeries; }
+
+  function importRecurrenceSeries(valid: RecurrenceSeries[]): boolean {
+    setRecurrenceSeries(valid);
+    return true;
+  }
 
   function exportData(): Todo[] { return todos; }
 
@@ -446,7 +586,7 @@ export function useTodos() {
         (dueScope === 'week' && isThisWeek(t.dueDate)) ||
         (dueScope === 'overdue' && !t.completed && isOverdue(t.dueDate));
 
-      const recurrenceMatch = !recurrenceOnly || (!!t.recurrence && t.recurrence !== 'none');
+      const recurrenceMatch = !recurrenceOnly || !!t.seriesId || (!!t.recurrence && t.recurrence !== 'none');
 
       return statusMatch && categoryMatch && queryMatch && dueMatch && recurrenceMatch;
     })
@@ -570,6 +710,14 @@ export function useTodos() {
     resetTodos,
     exportData,
     importData,
+    recurrenceSeries,
+    addRecurrenceSeries,
+    updateRecurrenceSeries,
+    endRecurrenceSeries,
+    resumeRecurrenceSeries,
+    deleteRecurrenceSeries,
+    exportRecurrenceSeries,
+    importRecurrenceSeries,
     undoMessage: undoInfo?.message ?? null,
     performUndo,
     dismissUndo,

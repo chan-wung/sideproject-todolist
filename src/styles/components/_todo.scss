@@ -1108,6 +1108,15 @@ dialog.confirm-modal {
     @include font(11, "Medium");
   }
 
+  &__edit-hint {
+    padding: rem(10);
+    color: var(--color-main);
+    background: var(--color-main-10);
+    border-radius: 8px;
+    @include font(12);
+    line-height: 1.5;
+  }
+
   &__edit-select,
   &__edit-date {
     width: 100%;

@@ -215,17 +215,23 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
             </div>
             <div className="todo-item__edit-group">
               <label className="todo-item__edit-label" htmlFor={`todo-edit-recurrence-${todo.id}`}>반복 주기</label>
-              <select
-                id={`todo-edit-recurrence-${todo.id}`}
-                className="todo-item__edit-select"
-                value={editRecurrence}
-                onChange={e => setEditRecurrence(e.target.value as Todo['recurrence'])}
-              >
-                <option value="none">없음</option>
-                <option value="daily">매일</option>
-                <option value="weekly">매주</option>
-                <option value="monthly">매월</option>
-              </select>
+              {todo.seriesId ? (
+                <p className="todo-item__edit-hint">
+                  🔁 반복 일정에 속한 회차입니다. 주기 변경·종료는 상단 “반복 일정” 메뉴에서 하세요.
+                </p>
+              ) : (
+                <select
+                  id={`todo-edit-recurrence-${todo.id}`}
+                  className="todo-item__edit-select"
+                  value={editRecurrence}
+                  onChange={e => setEditRecurrence(e.target.value as Todo['recurrence'])}
+                >
+                  <option value="none">없음</option>
+                  <option value="daily">매일</option>
+                  <option value="weekly">매주</option>
+                  <option value="monthly">매월</option>
+                </select>
+              )}
             </div>
           </div>
           <div className="todo-item__edit-group todo-item__edit-group--full">
@@ -427,6 +433,11 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           {todo.recurrence && todo.recurrence !== 'none' && (
             <span className="todo-item__badge todo-item__badge--recurrence">
               🔁 {RECURRENCE_LABEL[todo.recurrence]}
+            </span>
+          )}
+          {todo.seriesId && (
+            <span className="todo-item__badge todo-item__badge--recurrence">
+              🔁 반복
             </span>
           )}
           {linkedMemos.map(m => (

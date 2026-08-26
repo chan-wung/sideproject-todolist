@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useTodos, migrateTodo, validateTodos } from './useTodos';
 
@@ -119,89 +119,25 @@ describe('useTodos', () => {
       expect(result.current.allTodos[0].completed).toBe(false);
     });
 
-    it('toggleTodo defers next occurrence until its due date actually arrives', () => {
+    it('toggleTodo just toggles completion without spawning occurrences', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date('2026-07-02T10:00:00'));
 
-      const { result, unmount } = renderHook(() => useTodos());
+      const { result } = renderHook(() => useTodos());
       act(() => {
-        result.current.addTodo('recurring', 'medium', '', '');
+        result.current.addTodo('recurring', 'medium', '2026-07-02', '', 'daily');
       });
-      act(() => {
-        result.current.updateTodo(result.current.allTodos[0].id, {
-          recurrence: 'daily',
-          dueDate: '2026-07-02'
-        });
-      });
-
-      const oldId = result.current.allTodos[0].id;
-
-      act(() => {
-        result.current.toggleTodo(oldId);
-      });
-      // 완료 당일에는 다음 회차가 아직 생성되지 않아야 함 (매일이면 '다음날' 생성)
+      // 반복 주기를 지정하면 시리즈가 만들어지고 오늘 회차 1건이 생성됨
+      expect(result.current.recurrenceSeries.length).toBe(1);
       expect(result.current.allTodos.length).toBe(1);
+      const occId = result.current.allTodos[0].id;
+
+      act(() => { result.current.toggleTodo(occId); });
       expect(result.current.allTodos[0].completed).toBe(true);
-
-      // 당일 안에서 해제 → 재완료를 반복해도 여전히 생성되지 않음
-      act(() => { result.current.toggleTodo(oldId); });
-      act(() => { result.current.toggleTodo(oldId); });
+      // 완료해도, 해제/재완료를 반복해도 회차 수는 그대로 (생성은 예정일에 materializer가 담당)
+      act(() => { result.current.toggleTodo(occId); });
+      act(() => { result.current.toggleTodo(occId); });
       expect(result.current.allTodos.length).toBe(1);
-
-      // 다음날, 앱을 다시 열면(리마운트) 그제서야 다음 회차가 생성됨
-      vi.setSystemTime(new Date('2026-07-03T09:00:00'));
-      unmount();
-      const { result: reopened } = renderHook(() => useTodos());
-
-      expect(reopened.current.allTodos.length).toBe(2);
-      const created = reopened.current.allTodos.find(t => t.sourceId === oldId);
-      expect(created).toBeDefined();
-      expect(created!.completed).toBe(false);
-      expect(created!.dueDate).toBe('2026-07-03');
-      expect(reopened.current.allTodos.find(t => t.id === oldId)!.completed).toBe(true);
-
-      // 이미 생성된 뒤에는 원본을 다시 해제/재완료해도 중복 생성되지 않음
-      act(() => { reopened.current.toggleTodo(oldId); });
-      act(() => { reopened.current.toggleTodo(oldId); });
-      expect(reopened.current.allTodos.length).toBe(2);
-
-      vi.useRealTimers();
-    });
-
-    it('toggleSubtask completing all subtasks also defers next occurrence until due date', () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date('2026-07-02T10:00:00'));
-
-      const { result, unmount } = renderHook(() => useTodos());
-      act(() => {
-        result.current.addTodo('recurring with subtasks', 'medium', '', '');
-      });
-      const id = result.current.allTodos[0].id;
-      act(() => {
-        result.current.updateTodo(id, { recurrence: 'daily', dueDate: '2026-07-02' });
-      });
-      act(() => {
-        result.current.addSubtask(id, 'sub1');
-      });
-      const subId = result.current.allTodos[0].subtasks![0].id;
-
-      act(() => {
-        result.current.toggleSubtask(id, subId);
-      });
-      // 완료 당일에는 다음 회차가 아직 생성되지 않아야 함
-      expect(result.current.allTodos.length).toBe(1);
-      expect(result.current.allTodos[0].completed).toBe(true);
-
-      // 다음날 앱을 다시 열면 그제서야 생성됨
-      vi.setSystemTime(new Date('2026-07-03T09:00:00'));
-      unmount();
-      const { result: reopened } = renderHook(() => useTodos());
-
-      expect(reopened.current.allTodos.length).toBe(2);
-      const created = reopened.current.allTodos.find(t => t.sourceId === id);
-      expect(created).toBeDefined();
-      expect(created!.completed).toBe(false);
-      expect(created!.dueDate).toBe('2026-07-03');
 
       vi.useRealTimers();
     });
@@ -458,6 +394,149 @@ describe('useTodos', () => {
       localStorage.setItem('todolist-items', JSON.stringify([{ id: '1', text: 't', memoId: 'memo-a' }]));
       const { result } = renderHook(() => useTodos());
       expect(result.current.allTodos[0].memoIds).toEqual(['memo-a']);
+    });
+  });
+
+  describe('recurrence series', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('addTodo with a recurrence creates a series and materializes the due occurrence', () => {
+      vi.setSystemTime(new Date('2026-07-10T10:00:00'));
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('봄내소식지', 'medium', '2026-07-10', '홍보', 'monthly');
+      });
+
+      expect(result.current.recurrenceSeries).toHaveLength(1);
+      const s = result.current.recurrenceSeries[0];
+      expect(s.frequency).toBe('monthly');
+      expect(s.anchorDate).toBe('2026-07-10');
+
+      const occ = result.current.allTodos.filter(t => t.seriesId === s.id);
+      expect(occ).toHaveLength(1);
+      expect(occ[0].dueDate).toBe('2026-07-10');
+      expect(occ[0].category).toBe('홍보');
+      // 레거시 recurrence 필드는 회차에 남기지 않음
+      expect(occ[0].recurrence).toBeUndefined();
+    });
+
+    it("next month's occurrence appears on reopen even if the previous one was never completed", () => {
+      vi.setSystemTime(new Date('2026-07-10T10:00:00'));
+      const { result, unmount } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('봄내소식지', 'medium', '2026-07-10', '홍보', 'monthly');
+      });
+      const sid = result.current.recurrenceSeries[0].id;
+      // 완료하지 않고 그대로 둔다
+
+      vi.setSystemTime(new Date('2026-08-10T09:00:00'));
+      unmount();
+      const { result: reopened } = renderHook(() => useTodos());
+
+      const dates = reopened.current.allTodos
+        .filter(t => t.seriesId === sid)
+        .map(t => t.dueDate)
+        .sort();
+      expect(dates).toEqual(['2026-07-10', '2026-08-10']);
+    });
+
+    it('does not duplicate an occurrence that already exists for the same date', () => {
+      vi.setSystemTime(new Date('2026-07-10T10:00:00'));
+      const { result, unmount } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('daily thing', 'low', '2026-07-10', '', 'daily');
+      });
+      const sid = result.current.recurrenceSeries[0].id;
+      const countDay1 = result.current.allTodos.filter(t => t.seriesId === sid).length;
+      expect(countDay1).toBe(1);
+
+      // 같은 날 앱을 다시 열어도 중복 생성되지 않음
+      unmount();
+      const { result: reopened } = renderHook(() => useTodos());
+      expect(reopened.current.allTodos.filter(t => t.seriesId === sid).length).toBe(1);
+    });
+
+    it('daily catch-up is capped to the last 14 days', () => {
+      vi.setSystemTime(new Date('2026-07-01T10:00:00'));
+      const { result, unmount } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('daily', 'low', '2026-07-01', '', 'daily');
+      });
+      const sid = result.current.recurrenceSeries[0].id;
+
+      // 40일 뒤에야 다시 열어봄 → 최근 14일치만 생성
+      vi.setSystemTime(new Date('2026-08-10T09:00:00'));
+      unmount();
+      const { result: reopened } = renderHook(() => useTodos());
+      const dates = reopened.current.allTodos.filter(t => t.seriesId === sid).map(t => t.dueDate).sort();
+      expect(dates[0]).toBe('2026-07-01'); // 첫날 회차는 이미 있던 것
+      expect(dates).toContain('2026-08-10');
+      expect(dates).not.toContain('2026-07-15'); // 14일 캡 바깥은 건너뜀
+      expect(dates.length).toBeLessThanOrEqual(15);
+    });
+
+    it('endRecurrenceSeries stops new occurrences but keeps existing ones', () => {
+      vi.setSystemTime(new Date('2026-07-10T10:00:00'));
+      const { result, unmount } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('봄내소식지', 'medium', '2026-07-10', '홍보', 'monthly');
+      });
+      const sid = result.current.recurrenceSeries[0].id;
+      act(() => { result.current.endRecurrenceSeries(sid); });
+      expect(result.current.recurrenceSeries[0].status).toBe('ended');
+
+      vi.setSystemTime(new Date('2026-09-10T09:00:00'));
+      unmount();
+      const { result: reopened } = renderHook(() => useTodos());
+      const dates = reopened.current.allTodos.filter(t => t.seriesId === sid).map(t => t.dueDate);
+      expect(dates).toEqual(['2026-07-10']); // 종료 후 새 회차 없음, 기존 회차는 유지
+    });
+
+    it('deleteRecurrenceSeries removes the rule but detaches (keeps) generated todos', () => {
+      vi.setSystemTime(new Date('2026-07-10T10:00:00'));
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('봄내소식지', 'medium', '2026-07-10', '홍보', 'monthly');
+      });
+      const sid = result.current.recurrenceSeries[0].id;
+      act(() => { result.current.deleteRecurrenceSeries(sid); });
+
+      expect(result.current.recurrenceSeries).toHaveLength(0);
+      expect(result.current.allTodos).toHaveLength(1);
+      expect(result.current.allTodos[0].seriesId).toBeUndefined();
+    });
+
+    it('migrates a legacy recurrence chain into a series and fills the missed occurrence', () => {
+      vi.setSystemTime(new Date('2026-08-26T09:00:00'));
+      // 지난달 회차만 있고 이번달 회차가 누락된 레거시 데이터
+      localStorage.setItem('todolist-items', JSON.stringify([
+        {
+          id: 'legacy-1', text: '봄내소식지', completed: false, priority: 'medium',
+          category: '홍보', createdAt: '2026-07-24T00:00:00.000Z',
+          dueDate: '2026-07-24', recurrence: 'monthly',
+        },
+      ]));
+
+      const { result } = renderHook(() => useTodos());
+
+      expect(result.current.recurrenceSeries).toHaveLength(1);
+      const s = result.current.recurrenceSeries[0];
+      expect(s.frequency).toBe('monthly');
+      expect(s.anchorDate).toBe('2026-07-24');
+
+      // 기존 항목은 시리즈에 연결되고 레거시 필드는 제거됨
+      const legacy = result.current.allTodos.find(t => t.id === 'legacy-1')!;
+      expect(legacy.seriesId).toBe(s.id);
+      expect(legacy.recurrence).toBeUndefined();
+
+      // 누락됐던 이번달(8/24) 회차가 생성됨
+      const dates = result.current.allTodos.filter(t => t.seriesId === s.id).map(t => t.dueDate).sort();
+      expect(dates).toEqual(['2026-07-24', '2026-08-24']);
     });
   });
 });

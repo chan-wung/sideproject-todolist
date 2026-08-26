@@ -8,9 +8,10 @@ interface Props {
   onExport: () => void;
   onSettingsOpen: () => void;
   onCompletionLogOpen: () => void;
+  onRecurrenceOpen: () => void;
 }
 
-export default function AppToolbar({ getBackup, applyBackup, onImportResult, onExport, onSettingsOpen, onCompletionLogOpen }: Props) {
+export default function AppToolbar({ getBackup, applyBackup, onImportResult, onExport, onSettingsOpen, onCompletionLogOpen, onRecurrenceOpen }: Props) {
   const [theme, setTheme] = usePersistentState<'light' | 'dark'>('todolist-pref-theme', 'light');
 
   useEffect(() => {
@@ -74,6 +75,9 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onE
           <input type="file" accept="application/json" onChange={handleImport} className="screen-out" />
         </label>
       </div>
+      <button type="button" className="app-toolbar__btn app-toolbar__btn--recurrence" onClick={onRecurrenceOpen}>
+        🔁 반복 일정
+      </button>
       <button type="button" className="app-toolbar__btn app-toolbar__btn--log" onClick={onCompletionLogOpen}>
         📜 완료 이력
       </button>

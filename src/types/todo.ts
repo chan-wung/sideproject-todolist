@@ -1,5 +1,7 @@
 export interface Subtask { id: string; text: string; completed: boolean; }
 
+export type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly';
+
 export interface Todo {
   id: string;
   text: string;
@@ -10,12 +12,30 @@ export interface Todo {
   createdAt: string;
   subtasks?: Subtask[];
   pinned?: boolean;
-  recurrence?: 'none' | 'daily' | 'weekly' | 'monthly';
+  recurrence?: 'none' | 'daily' | 'weekly' | 'monthly'; // @deprecated 반복 시리즈(RecurrenceSeries)로 대체됨. 레거시 데이터 마이그레이션 용도로만 유지.
   memoIds?: string[];
   subtasksCollapsed?: boolean; // 기본값 false (펼침). 하위 항목 없는 Todo는 의미 없음.
-  sourceId?: string;
-  recurrenceGenerated?: boolean; // 이 완료 건에 대해 다음 회차를 이미 생성했는지 여부 (재완료 시 초기화됨)
+  sourceId?: string; // @deprecated 레거시 반복 체인 연결. 마이그레이션 후 seriesId로 대체됨.
+  recurrenceGenerated?: boolean; // @deprecated 레거시 반복 생성 이력 플래그.
+  seriesId?: string; // 이 할 일이 속한 반복 시리즈(RecurrenceSeries) id. 있으면 시리즈가 생성한 회차.
   completedAt?: string; // 실제로 완료 체크한 시각 (재완료 시 갱신, 해제 시 초기화됨)
+}
+
+// 반복 일정 그 자체를 나타내는 1급 데이터.
+// 개별 회차(Todo)는 예정일이 도래하면 이 규칙으로부터 자동 생성되며, seriesId로 여기에 연결된다.
+export interface RecurrenceSeries {
+  id: string;
+  text: string;
+  category: string;
+  priority: Todo['priority'];
+  frequency: RecurrenceFrequency;
+  anchorDate: string;            // YYYY-MM-DD. 첫 회차 마감일이자 주기 계산의 기준점.
+  subtasksTemplate?: string[];   // 회차마다 복제할 하위 항목 텍스트
+  memoIds?: string[];            // 회차마다 이어붙일 연결 메모
+  endDate?: string;             // YYYY-MM-DD. 이 날짜 이후로는 회차를 생성하지 않음 (없으면 무기한).
+  status: 'active' | 'ended';
+  lastMaterializedDate?: string; // 어느 날짜까지 회차 생성을 마쳤는지 커서 (YYYY-MM-DD)
+  createdAt: string;
 }
 
 export interface CompletionLogEntry {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useTodos, validateTodos, validateCompletionLog } from './hooks/useTodos';
+import { useTodos, validateTodos, validateCompletionLog, validateRecurrenceSeries } from './hooks/useTodos';
 import { useMemos, validateMemos } from './hooks/useMemos';
 import type { Memo } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
@@ -15,7 +15,8 @@ import SettingsModal from './components/SettingsModal';
 import QuickNav from './components/QuickNav';
 import BulkActionBar from './components/BulkActionBar';
 import CompletionLogModal from './components/CompletionLogModal';
-import type { Todo, CompletionLogEntry } from './types/todo';
+import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
+import type { Todo, CompletionLogEntry, RecurrenceSeries } from './types/todo';
 import { generateId } from './utils/id';
 import { todoToText, copyText, shareText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
 import { preloadKakao, shareToKakao } from './utils/kakao';
@@ -69,6 +70,14 @@ export default function App() {
     exportData,
     importData,
     resetTodos,
+    recurrenceSeries,
+    addRecurrenceSeries,
+    updateRecurrenceSeries,
+    endRecurrenceSeries,
+    resumeRecurrenceSeries,
+    deleteRecurrenceSeries,
+    exportRecurrenceSeries,
+    importRecurrenceSeries,
     undoMessage,
     performUndo,
     dismissUndo,
@@ -121,7 +130,7 @@ export default function App() {
   }, [undoMessage, performUndo, showToast]);
 
   function getBackup() {
-    return { version: 1, todos: exportData(), memos, completionLog: exportCompletionLog() };
+    return { version: 1, todos: exportData(), memos, completionLog: exportCompletionLog(), recurrenceSeries: exportRecurrenceSeries() };
   }
 
   function applyBackup(parsed: unknown): boolean {
@@ -140,6 +149,7 @@ export default function App() {
       let validTodos: Todo[] | null = null;
       let validMemos: Memo[] | null = null;
       let validLog: CompletionLogEntry[] | null = null;
+      let validSeries: RecurrenceSeries[] | null = null;
 
       if (p.todos !== undefined) {
         validTodos = validateTodos(p.todos);
@@ -156,10 +166,16 @@ export default function App() {
         if (!validLog) return false;
         ok = true;
       }
+      if (p.recurrenceSeries !== undefined) {
+        validSeries = validateRecurrenceSeries(p.recurrenceSeries);
+        if (!validSeries) return false;
+        ok = true;
+      }
 
       if (validTodos) importData(validTodos);
       if (validMemos) replaceMemos(validMemos);
       if (validLog) importCompletionLog(validLog);
+      if (validSeries) importRecurrenceSeries(validSeries);
 
       return ok;
     }
@@ -307,6 +323,8 @@ export default function App() {
 
   const [isCompletionLogOpen, setIsCompletionLogOpen] = useState(false);
 
+  const [isRecurrenceOpen, setIsRecurrenceOpen] = useState(false);
+
   const [isMemoOpen, setIsMemoOpen] = useState(false);
 
   function handleOpenMemo(memoId: string) {
@@ -339,7 +357,7 @@ export default function App() {
           onClose={() => { setToast(null); dismissUndo(); }}
         />
       )}
-      <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} />
+      <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
       <div className="todo-app">
       <header className="todo-app__header">
         <div className="todo-app__header-left">
@@ -457,6 +475,19 @@ export default function App() {
         onResetCompletionLog={handleResetCompletionLog}
         notifyEnabled={notifyEnabled}
         onToggleNotify={setNotifyEnabled}
+      />
+
+      <RecurrenceSeriesModal
+        isOpen={isRecurrenceOpen}
+        onClose={() => setIsRecurrenceOpen(false)}
+        seriesList={recurrenceSeries}
+        todos={allTodos}
+        categories={categories}
+        onAdd={addRecurrenceSeries}
+        onUpdate={updateRecurrenceSeries}
+        onEnd={endRecurrenceSeries}
+        onResume={resumeRecurrenceSeries}
+        onDelete={deleteRecurrenceSeries}
       />
 
       <CompletionLogModal

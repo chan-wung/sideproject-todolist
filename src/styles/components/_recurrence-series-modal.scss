@@ -99,7 +99,7 @@ dialog.recurrence-modal {
   &__input,
   &__select {
     width: 100%;
-    height: rem(40);
+    height: rem(45); // 전역 폼 규칙(_form.scss) 및 나머지 편집 필드와 높이 통일
     padding: 0 rem(12);
     color: var(--txt-color-tit);
     background: var(--color-white);

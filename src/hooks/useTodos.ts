@@ -190,6 +190,15 @@ export function useTodos() {
     setCompletionLog([]);
   }
 
+  // materializeDueOccurrences 결과를 상태에 반영하는 공통 처리.
+  // alwaysPersistSeries: 방금 새 시리즈를 추가해 목록 자체가 이미 바뀐 경우 true
+  //   (미래 기준일이라 이번엔 생성할 회차가 없어도 시리즈는 저장돼야 함).
+  const applyMaterialize = useCallback((seriesList: RecurrenceSeries[], alwaysPersistSeries = false) => {
+    const { newTodos, nextSeries, changed } = materializeDueOccurrences(seriesList, todosRef.current, todayStr());
+    if (changed || alwaysPersistSeries) setRecurrenceSeries(nextSeries);
+    if (newTodos.length > 0) setTodos(prev => [...newTodos, ...prev]);
+  }, []);
+
   function addTodo(
     text: string,
     priority: Todo['priority'],
@@ -201,23 +210,15 @@ export function useTodos() {
     const trimmed = text.trim();
     const cat = category.trim() || '기본';
 
-    // 반복 주기를 고르면 개별 할 일이 아니라 '반복 시리즈'를 만들고, 도래한 회차를 즉시 생성한다.
+    // 반복 주기를 고르면 개별 할 일이 아니라 '반복 시리즈'를 만든다.
     if (recurrence && recurrence !== 'none') {
-      const anchorDate = dueDate || todayStr();
-      const series: RecurrenceSeries = {
-        id: generateId(),
+      addRecurrenceSeries({
         text: trimmed,
         category: cat,
         priority,
         frequency: recurrence,
-        anchorDate,
-        status: 'active',
-        createdAt: new Date().toISOString(),
-      };
-      const combined = [...recurrenceSeries, series];
-      const { newTodos, nextSeries } = materializeDueOccurrences(combined, todos, todayStr());
-      setRecurrenceSeries(nextSeries);
-      if (newTodos.length > 0) setTodos(prev => [...newTodos, ...prev]);
+        anchorDate: dueDate || todayStr(),
+      });
       return;
     }
 
@@ -253,13 +254,8 @@ export function useTodos() {
   // 앱을 열어둔 채 날짜가 바뀌었을 때에도 회차가 생기도록, 창이 다시 활성화되면 점검한다.
   useEffect(() => {
     function check() {
-      const { newTodos, nextSeries, changed } = materializeDueOccurrences(
-        recurrenceSeriesRef.current,
-        todosRef.current,
-        todayStr()
-      );
-      if (newTodos.length > 0) setTodos(prev => [...newTodos, ...prev]);
-      if (changed) setRecurrenceSeries(nextSeries);
+      if (document.visibilityState !== 'visible') return; // 탭이 숨겨질 때 오는 visibilitychange는 무시
+      applyMaterialize(recurrenceSeriesRef.current);
     }
     window.addEventListener('focus', check);
     document.addEventListener('visibilitychange', check);
@@ -267,7 +263,7 @@ export function useTodos() {
       window.removeEventListener('focus', check);
       document.removeEventListener('visibilitychange', check);
     };
-  }, []);
+  }, [applyMaterialize]);
 
   function toggleTodo(id: string) {
     setTodos(prev => prev.map(t => {
@@ -483,10 +479,7 @@ export function useTodos() {
       status: 'active',
       createdAt: new Date().toISOString(),
     };
-    const combined = [...recurrenceSeries, series];
-    const { newTodos, nextSeries } = materializeDueOccurrences(combined, todos, todayStr());
-    setRecurrenceSeries(nextSeries);
-    if (newTodos.length > 0) setTodos(prev => [...newTodos, ...prev]);
+    applyMaterialize([...recurrenceSeries, series], true);
   }
 
   // 시리즈 규칙을 수정한다. 주기·기준일이 바뀌면 이후 회차 계산이 달라지도록 커서를 되감는다.

@@ -36,13 +36,13 @@ export function formatTime(dateStr: string): string {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-export function todayStr(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
 function formatYmd(y: number, m1: number, d: number): string {
   return `${y}-${String(m1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
+export function todayStr(): string {
+  const d = new Date();
+  return formatYmd(d.getFullYear(), d.getMonth() + 1, d.getDate());
 }
 
 // 해당 연·월(month0: 0=1월)의 마지막 날짜(28~31)

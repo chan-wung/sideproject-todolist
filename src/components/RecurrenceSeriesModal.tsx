@@ -38,6 +38,8 @@ const PRIORITY_LABEL: Record<Todo['priority'], string> = {
   low: '낮음',
 };
 
+const CAT_DATALIST_ID = 'recurrence-cat-options';
+
 const EMPTY_ADD: SeriesInput = {
   text: '',
   category: '',
@@ -45,6 +47,64 @@ const EMPTY_ADD: SeriesInput = {
   frequency: 'monthly',
   anchorDate: '',
 };
+
+// 반복 시리즈 추가 폼과 인라인 편집 폼이 공유하는 입력 필드 묶음 (주기/기준일/우선순위/카테고리, 선택적으로 종료일).
+function SeriesFields({ value, onChange, showEndDate }: {
+  value: SeriesInput;
+  onChange: (patch: Partial<SeriesInput>) => void;
+  showEndDate?: boolean;
+}) {
+  return (
+    <>
+      <label className="recurrence-modal__field">
+        <span className="recurrence-modal__field-label">주기</span>
+        <select
+          className="recurrence-modal__select"
+          value={value.frequency}
+          onChange={e => onChange({ frequency: e.target.value as RecurrenceFrequency })}
+        >
+          <option value="daily">매일</option>
+          <option value="weekly">매주</option>
+          <option value="monthly">매월</option>
+        </select>
+      </label>
+      <label className="recurrence-modal__field">
+        <span className="recurrence-modal__field-label">기준일</span>
+        <DatePicker value={value.anchorDate} onChange={v => onChange({ anchorDate: v })} />
+      </label>
+      <label className="recurrence-modal__field">
+        <span className="recurrence-modal__field-label">우선순위</span>
+        <select
+          className="recurrence-modal__select"
+          value={value.priority}
+          onChange={e => onChange({ priority: e.target.value as Todo['priority'] })}
+        >
+          <option value="high">높음</option>
+          <option value="medium">보통</option>
+          <option value="low">낮음</option>
+        </select>
+      </label>
+      <label className="recurrence-modal__field">
+        <span className="recurrence-modal__field-label">카테고리</span>
+        <input
+          type="text"
+          className="recurrence-modal__input"
+          placeholder="예: 업무"
+          value={value.category}
+          onChange={e => onChange({ category: e.target.value })}
+          list={CAT_DATALIST_ID}
+          autoComplete="off"
+        />
+      </label>
+      {showEndDate && (
+        <label className="recurrence-modal__field">
+          <span className="recurrence-modal__field-label">종료일 (선택)</span>
+          <DatePicker value={value.endDate ?? ''} onChange={v => onChange({ endDate: v })} />
+        </label>
+      )}
+    </>
+  );
+}
 
 export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, todos, categories, onAdd, onUpdate, onEnd, onResume, onDelete }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -121,6 +181,10 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
           </button>
         </div>
 
+        <datalist id={CAT_DATALIST_ID}>
+          {catOptions.map(c => <option key={c} value={c} />)}
+        </datalist>
+
         <form className="recurrence-modal__add" onSubmit={handleAddSubmit}>
           <div className="recurrence-modal__add-row">
             <input
@@ -133,49 +197,7 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
             />
           </div>
           <div className="recurrence-modal__add-row recurrence-modal__add-row--fields">
-            <label className="recurrence-modal__field">
-              <span className="recurrence-modal__field-label">주기</span>
-              <select
-                className="recurrence-modal__select"
-                value={addForm.frequency}
-                onChange={e => setAddForm(f => ({ ...f, frequency: e.target.value as RecurrenceFrequency }))}
-              >
-                <option value="daily">매일</option>
-                <option value="weekly">매주</option>
-                <option value="monthly">매월</option>
-              </select>
-            </label>
-            <label className="recurrence-modal__field">
-              <span className="recurrence-modal__field-label">기준일</span>
-              <DatePicker value={addForm.anchorDate} onChange={v => setAddForm(f => ({ ...f, anchorDate: v }))} />
-            </label>
-            <label className="recurrence-modal__field">
-              <span className="recurrence-modal__field-label">우선순위</span>
-              <select
-                className="recurrence-modal__select"
-                value={addForm.priority}
-                onChange={e => setAddForm(f => ({ ...f, priority: e.target.value as Todo['priority'] }))}
-              >
-                <option value="high">높음</option>
-                <option value="medium">보통</option>
-                <option value="low">낮음</option>
-              </select>
-            </label>
-            <label className="recurrence-modal__field">
-              <span className="recurrence-modal__field-label">카테고리</span>
-              <input
-                type="text"
-                className="recurrence-modal__input"
-                placeholder="예: 업무"
-                value={addForm.category}
-                onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}
-                list="recurrence-cat-options"
-                autoComplete="off"
-              />
-              <datalist id="recurrence-cat-options">
-                {catOptions.map(c => <option key={c} value={c} />)}
-              </datalist>
-            </label>
+            <SeriesFields value={addForm} onChange={patch => setAddForm(f => ({ ...f, ...patch }))} />
           </div>
           <div className="recurrence-modal__add-row recurrence-modal__add-row--submit">
             <button type="submit" className="recurrence-modal__add-btn">반복 일정 추가</button>
@@ -208,49 +230,7 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
                           aria-label="반복 일정 내용"
                         />
                         <div className="recurrence-modal__edit-fields">
-                          <label className="recurrence-modal__field">
-                            <span className="recurrence-modal__field-label">주기</span>
-                            <select
-                              className="recurrence-modal__select"
-                              value={editForm.frequency}
-                              onChange={e => setEditForm(f => ({ ...f, frequency: e.target.value as RecurrenceFrequency }))}
-                            >
-                              <option value="daily">매일</option>
-                              <option value="weekly">매주</option>
-                              <option value="monthly">매월</option>
-                            </select>
-                          </label>
-                          <label className="recurrence-modal__field">
-                            <span className="recurrence-modal__field-label">기준일</span>
-                            <DatePicker value={editForm.anchorDate} onChange={v => setEditForm(f => ({ ...f, anchorDate: v }))} />
-                          </label>
-                          <label className="recurrence-modal__field">
-                            <span className="recurrence-modal__field-label">우선순위</span>
-                            <select
-                              className="recurrence-modal__select"
-                              value={editForm.priority}
-                              onChange={e => setEditForm(f => ({ ...f, priority: e.target.value as Todo['priority'] }))}
-                            >
-                              <option value="high">높음</option>
-                              <option value="medium">보통</option>
-                              <option value="low">낮음</option>
-                            </select>
-                          </label>
-                          <label className="recurrence-modal__field">
-                            <span className="recurrence-modal__field-label">카테고리</span>
-                            <input
-                              type="text"
-                              className="recurrence-modal__input"
-                              value={editForm.category}
-                              onChange={e => setEditForm(f => ({ ...f, category: e.target.value }))}
-                              list="recurrence-cat-options"
-                              autoComplete="off"
-                            />
-                          </label>
-                          <label className="recurrence-modal__field">
-                            <span className="recurrence-modal__field-label">종료일 (선택)</span>
-                            <DatePicker value={editForm.endDate ?? ''} onChange={v => setEditForm(f => ({ ...f, endDate: v }))} />
-                          </label>
+                          <SeriesFields value={editForm} onChange={patch => setEditForm(f => ({ ...f, ...patch }))} showEndDate />
                         </div>
                         <div className="recurrence-modal__edit-actions">
                           <button type="button" className="recurrence-modal__btn recurrence-modal__btn--primary" onClick={saveEdit}>저장</button>

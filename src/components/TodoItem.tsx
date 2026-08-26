@@ -430,14 +430,9 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           {todo.category && (
             <span className="todo-item__category">{todo.category}</span>
           )}
-          {todo.recurrence && todo.recurrence !== 'none' && (
+          {(todo.seriesId || (todo.recurrence && todo.recurrence !== 'none')) && (
             <span className="todo-item__badge todo-item__badge--recurrence">
-              🔁 {RECURRENCE_LABEL[todo.recurrence]}
-            </span>
-          )}
-          {todo.seriesId && (
-            <span className="todo-item__badge todo-item__badge--recurrence">
-              🔁 반복
+              🔁 {todo.seriesId ? '반복' : RECURRENCE_LABEL[todo.recurrence!]}
             </span>
           )}
           {linkedMemos.map(m => (

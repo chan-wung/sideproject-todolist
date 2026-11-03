@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useModalDialog } from '../hooks/useModalDialog';
 import type { CompletionLogEntry } from '../types/todo';
 import { formatDate, formatTime } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
@@ -41,16 +42,7 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
   const [searchDateEnd, setSearchDateEnd] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
 
-  useEffect(() => {
-    if (isOpen) {
-      dialogRef.current?.showModal();
-      document.body.style.overflow = 'hidden';
-    } else {
-      dialogRef.current?.close();
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [isOpen]);
+  useModalDialog(dialogRef, isOpen);
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) onClose();

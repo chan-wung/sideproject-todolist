@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
+import { useDismiss } from '../hooks/useDismiss';
 
 interface Props {
   value: string;
@@ -23,19 +24,7 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
     return new Date();
   });
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
+  useDismiss(containerRef, isOpen, () => setIsOpen(false), { escape: false });
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();

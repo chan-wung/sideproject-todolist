@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { usePersistentState } from '../hooks/usePersistentState';
+import { useDayChange } from '../hooks/useDayChange';
 import { yearProgress } from '../utils/date';
 
 interface Props {
@@ -26,27 +27,7 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onE
   const [progress, setProgress] = useState(() => yearProgress());
 
   // 자정이 지나거나 PWA가 다시 포커스되면 D-day를 새로 계산
-  useEffect(() => {
-    let timer: number;
-    const refresh = () => setProgress(yearProgress());
-    const schedule = () => {
-      const now = new Date();
-      const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      timer = window.setTimeout(() => {
-        refresh();
-        schedule();
-      }, nextMidnight.getTime() - now.getTime() + 1000);
-    };
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') refresh();
-    };
-    schedule();
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      window.clearTimeout(timer);
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-  }, []);
+  useDayChange(() => setProgress(yearProgress()));
 
   const ddayLabel = progress.daysLeft === 0 ? 'D-DAY' : `D-${progress.daysLeft}`;
 

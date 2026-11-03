@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useModalDialog } from '../hooks/useModalDialog';
 import type { Todo, RecurrenceSeries, RecurrenceFrequency } from '../types/todo';
 import { formatDate, todayStr, upcomingOccurrences } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
@@ -113,17 +114,14 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
   const [editForm, setEditForm] = useState<SeriesInput>(EMPTY_ADD);
   const [confirm, setConfirm] = useState<{ type: 'end' | 'delete'; id: string } | null>(null);
 
+  useModalDialog(dialogRef, isOpen);
+
+  // 닫힐 때 입력 중이던 폼 상태를 초기화한다.
   useEffect(() => {
-    if (isOpen) {
-      dialogRef.current?.showModal();
-      document.body.style.overflow = 'hidden';
-    } else {
-      dialogRef.current?.close();
-      document.body.style.overflow = '';
+    if (!isOpen) {
       setEditingId(null);
       setAddForm(EMPTY_ADD);
     }
-    return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {

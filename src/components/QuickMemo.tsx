@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { useDismiss } from '../hooks/useDismiss';
+import { useModalDialog } from '../hooks/useModalDialog';
 import ConfirmModal from './ConfirmModal';
 import Toast from './Toast';
 import { generateId } from '../utils/id';
@@ -36,35 +38,8 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!moreOpen) return;
-    function handlePointerDown(e: MouseEvent) {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
-    }
-    function handleEscape(e: KeyboardEvent) {
-      if (e.key === 'Escape') setMoreOpen(false);
-    }
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [moreOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
-      if (!dialogRef.current?.open) dialogRef.current?.showModal();
-      document.body.style.overflow = 'hidden';
-    } else {
-      dialogRef.current?.close();
-      document.body.style.overflow = '';
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+  useDismiss(moreRef, moreOpen, () => setMoreOpen(false));
+  useModalDialog(dialogRef, isOpen);
 
   useEffect(() => {
     if (isOpen) {

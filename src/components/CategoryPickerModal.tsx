@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useModalDialog } from '../hooks/useModalDialog';
 
 interface Props {
   categories: string[];
@@ -15,18 +16,7 @@ export default function CategoryPickerModal({ categories, value, onApply, onClos
   const [selected, setSelected] = useState(isPreset ? value : CUSTOM);
   const [customText, setCustomText] = useState(isPreset ? '' : value);
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    dialog.showModal();
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.body.style.overflow = '';
-      if (!dialog.open) return;
-      dialog.close();
-    };
-  }, []);
+  useModalDialog(dialogRef, true);
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) onClose();

@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
+import { useDismiss } from '../hooks/useDismiss';
 
 interface Props {
   startValue: string;
@@ -31,21 +32,11 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
     return new Date();
   });
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-        setPendingStart(null);
-        setHoverDate(null);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
+  useDismiss(containerRef, isOpen, () => {
+    setIsOpen(false);
+    setPendingStart(null);
+    setHoverDate(null);
+  }, { escape: false });
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();

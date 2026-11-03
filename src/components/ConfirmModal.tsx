@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+import { useModalDialog } from '../hooks/useModalDialog';
 
 interface Props {
   message: string;
@@ -9,19 +10,8 @@ interface Props {
 export default function ConfirmModal({ message, onConfirm, onCancel }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    dialog.showModal();
-    document.body.style.overflow = 'hidden';
-
-    // Escape 키로 닫힐 때 상태 동기화 (onCancel prop으로 위임)
-    return () => {
-      document.body.style.overflow = '';
-      if (!dialog.open) return;
-      dialog.close();
-    };
-  }, [onCancel]);
+  // 마운트되면 바로 열린다. Escape로 닫힐 때의 상태 동기화는 <dialog onCancel>로 위임
+  useModalDialog(dialogRef, true);
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
     if (e.target === dialogRef.current) onCancel();

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useDismiss } from '../hooks/useDismiss';
 import type { Todo } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import ConfirmModal from './ConfirmModal';
@@ -68,21 +69,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
     if (isEditing) inputRef.current?.focus();
   }, [isEditing]);
 
-  useEffect(() => {
-    if (!menuOpen) return;
-    function handlePointerDown(e: MouseEvent) {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMenuOpen(false);
-    }
-    function handleEscape(e: KeyboardEvent) {
-      if (e.key === 'Escape') setMenuOpen(false);
-    }
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('keydown', handleEscape);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [menuOpen]);
+  useDismiss(moreRef, menuOpen, () => setMenuOpen(false));
 
   function handleEditStart() {
     setEditText(todo.text);

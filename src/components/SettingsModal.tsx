@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useModalDialog } from '../hooks/useModalDialog';
 import ConfirmModal from './ConfirmModal';
 
 interface Props {
@@ -25,16 +26,7 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      dialogRef.current?.showModal();
-      document.body.style.overflow = 'hidden';
-    } else {
-      dialogRef.current?.close();
-      document.body.style.overflow = '';
-    }
-    return () => { document.body.style.overflow = ''; };
-  }, [isOpen]);
+  useModalDialog(dialogRef, isOpen);
 
   function handleConfirm() {
     if (pendingAction === 'todos') onResetTodos();

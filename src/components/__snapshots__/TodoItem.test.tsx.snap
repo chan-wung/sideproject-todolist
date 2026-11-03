@@ -1,0 +1,2770 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TodoItem > 렌더 스냅샷 > 기본 보기 모드 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--medium"
+    id="todo-item-t1"
+  >
+    <div
+      class="todo-item__body"
+    >
+      <div
+        class="todo-item__title-wrap"
+      >
+        <label
+          class="todo-item__check form-chk form-chk--checkbox"
+        >
+          <input
+            type="checkbox"
+          />
+          <span
+            class="form-chk__text"
+          >
+            <span
+              class="screen-out"
+            >
+              완료 여부
+            </span>
+          </span>
+        </label>
+        <p
+          class="todo-item__txt"
+        >
+          보고서 작성
+        </p>
+        <div
+          class="todo-item__actions"
+        >
+          <button
+            aria-label="상단 고정"
+            class="todo-item__btn todo-item__btn--pin"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="수정"
+            class="todo-item__btn todo-item__btn--edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="삭제"
+            class="todo-item__btn todo-item__btn--delete"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="3 6 5 6 21 6"
+              />
+              <path
+                d="M19 6l-1 14H6L5 6"
+              />
+              <path
+                d="M10 11v6M14 11v6"
+              />
+              <path
+                d="M9 6V4h6v2"
+              />
+            </svg>
+          </button>
+          <div
+            class="todo-item__more"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-label="더보기"
+              class="todo-item__btn todo-item__btn--more"
+              type="button"
+            >
+              <svg
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="5"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="19"
+                  r="1.8"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="todo-item__meta"
+      >
+        <span
+          class="todo-item__badge todo-item__badge--medium"
+        >
+          보통
+        </span>
+        <span
+          class="todo-item__category"
+        >
+          업무
+        </span>
+        <button
+          aria-label="메모 연결"
+          class="todo-item__memo-link todo-item__memo-link--empty"
+          type="button"
+        >
+          📎 메모 연결
+        </button>
+      </div>
+      <div
+        class="todo-item__dates"
+      >
+        <span
+          class="todo-item__dates-text"
+        >
+          등록일: 
+          2026.07.01
+        </span>
+        <span
+          aria-hidden="true"
+          class="todo-item__dates-sep"
+        >
+          /
+        </span>
+        <span
+          class="todo-item__dates-text"
+        >
+          마감일: 
+          2099.01.01
+        </span>
+      </div>
+      <div
+        class="todo-item__subtasks"
+        id="todo-subtasks-t1"
+      />
+      <div
+        class="todo-item__sub-add"
+      >
+        <input
+          class="todo-item__sub-add-field"
+          placeholder="하위 항목 추가"
+          type="text"
+          value=""
+        />
+        <button
+          aria-label="하위 항목 추가"
+          class="todo-item__sub-add-btn"
+          type="button"
+        >
+          <span
+            class="screen-out"
+          >
+            추가
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TodoItem > 렌더 스냅샷 > 기한 초과 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--high todo-item--overdue"
+    id="todo-item-t1"
+  >
+    <div
+      class="todo-item__body"
+    >
+      <div
+        class="todo-item__title-wrap"
+      >
+        <label
+          class="todo-item__check form-chk form-chk--checkbox"
+        >
+          <input
+            type="checkbox"
+          />
+          <span
+            class="form-chk__text"
+          >
+            <span
+              class="screen-out"
+            >
+              완료 여부
+            </span>
+          </span>
+        </label>
+        <p
+          class="todo-item__txt"
+        >
+          보고서 작성
+        </p>
+        <div
+          class="todo-item__actions"
+        >
+          <button
+            aria-label="상단 고정"
+            class="todo-item__btn todo-item__btn--pin"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="수정"
+            class="todo-item__btn todo-item__btn--edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="삭제"
+            class="todo-item__btn todo-item__btn--delete"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="3 6 5 6 21 6"
+              />
+              <path
+                d="M19 6l-1 14H6L5 6"
+              />
+              <path
+                d="M10 11v6M14 11v6"
+              />
+              <path
+                d="M9 6V4h6v2"
+              />
+            </svg>
+          </button>
+          <div
+            class="todo-item__more"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-label="더보기"
+              class="todo-item__btn todo-item__btn--more"
+              type="button"
+            >
+              <svg
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="5"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="19"
+                  r="1.8"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="todo-item__meta"
+      >
+        <span
+          class="todo-item__badge todo-item__badge--high"
+        >
+          높음
+        </span>
+        <span
+          class="todo-item__category"
+        >
+          업무
+        </span>
+        <button
+          aria-label="메모 연결"
+          class="todo-item__memo-link todo-item__memo-link--empty"
+          type="button"
+        >
+          📎 메모 연결
+        </button>
+      </div>
+      <div
+        class="todo-item__dates"
+      >
+        <span
+          class="todo-item__dates-text"
+        >
+          등록일: 
+          2026.07.01
+        </span>
+        <span
+          aria-hidden="true"
+          class="todo-item__dates-sep"
+        >
+          /
+        </span>
+        <span
+          class="todo-item__dates-text todo-item__dates-text--overdue"
+        >
+          마감일: 
+          ⚠ 
+          2020.01.01
+        </span>
+      </div>
+      <div
+        class="todo-item__subtasks"
+        id="todo-subtasks-t1"
+      />
+      <div
+        class="todo-item__sub-add"
+      >
+        <input
+          class="todo-item__sub-add-field"
+          placeholder="하위 항목 추가"
+          type="text"
+          value=""
+        />
+        <button
+          aria-label="하위 항목 추가"
+          class="todo-item__sub-add-btn"
+          type="button"
+        >
+          <span
+            class="screen-out"
+          >
+            추가
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TodoItem > 렌더 스냅샷 > 더보기 메뉴 열림 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--medium"
+    id="todo-item-t1"
+  >
+    <div
+      class="todo-item__body"
+    >
+      <div
+        class="todo-item__title-wrap"
+      >
+        <label
+          class="todo-item__check form-chk form-chk--checkbox"
+        >
+          <input
+            type="checkbox"
+          />
+          <span
+            class="form-chk__text"
+          >
+            <span
+              class="screen-out"
+            >
+              완료 여부
+            </span>
+          </span>
+        </label>
+        <p
+          class="todo-item__txt"
+        >
+          보고서 작성
+        </p>
+        <div
+          class="todo-item__actions"
+        >
+          <button
+            aria-label="상단 고정"
+            class="todo-item__btn todo-item__btn--pin"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="수정"
+            class="todo-item__btn todo-item__btn--edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="삭제"
+            class="todo-item__btn todo-item__btn--delete"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="3 6 5 6 21 6"
+              />
+              <path
+                d="M19 6l-1 14H6L5 6"
+              />
+              <path
+                d="M10 11v6M14 11v6"
+              />
+              <path
+                d="M9 6V4h6v2"
+              />
+            </svg>
+          </button>
+          <div
+            class="todo-item__more"
+          >
+            <button
+              aria-expanded="true"
+              aria-haspopup="true"
+              aria-label="더보기"
+              class="todo-item__btn todo-item__btn--more todo-item__btn--more-active"
+              type="button"
+            >
+              <svg
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="5"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="19"
+                  r="1.8"
+                />
+              </svg>
+            </button>
+            <div
+              class="todo-item__menu"
+              role="menu"
+            >
+              <button
+                class="todo-item__menu-item"
+                role="menuitem"
+                type="button"
+              >
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+                  />
+                  <rect
+                    height="4"
+                    rx="1"
+                    ry="1"
+                    width="8"
+                    x="8"
+                    y="2"
+                  />
+                </svg>
+                클립보드에 복사
+              </button>
+              <button
+                class="todo-item__menu-item"
+                role="menuitem"
+                type="button"
+              >
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    cx="18"
+                    cy="5"
+                    r="3"
+                  />
+                  <circle
+                    cx="6"
+                    cy="12"
+                    r="3"
+                  />
+                  <circle
+                    cx="18"
+                    cy="19"
+                    r="3"
+                  />
+                  <line
+                    x1="8.59"
+                    x2="15.42"
+                    y1="13.51"
+                    y2="17.49"
+                  />
+                  <line
+                    x1="8.59"
+                    x2="15.42"
+                    y1="10.49"
+                    y2="6.51"
+                  />
+                </svg>
+                공유
+              </button>
+              <button
+                class="todo-item__menu-item"
+                role="menuitem"
+                type="button"
+              >
+                <svg
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 3C6.48 3 2 6.58 2 11c0 2.8 1.86 5.26 4.66 6.68-.15.55-.55 2-.63 2.32-.1.4.15.4.31.29.13-.09 2.05-1.4 2.88-1.97.9.13 1.83.2 2.78.2 5.52 0 10-3.58 10-8s-4.48-8-10-8z"
+                  />
+                </svg>
+                카카오톡 공유
+              </button>
+              <button
+                class="todo-item__menu-item"
+                role="menuitem"
+                type="button"
+              >
+                <svg
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <rect
+                    height="13"
+                    rx="2"
+                    ry="2"
+                    width="13"
+                    x="9"
+                    y="9"
+                  />
+                  <path
+                    d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                  />
+                </svg>
+                할 일 복사
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="todo-item__meta"
+      >
+        <span
+          class="todo-item__badge todo-item__badge--medium"
+        >
+          보통
+        </span>
+        <span
+          class="todo-item__category"
+        >
+          업무
+        </span>
+        <button
+          aria-label="메모 연결"
+          class="todo-item__memo-link todo-item__memo-link--empty"
+          type="button"
+        >
+          📎 메모 연결
+        </button>
+      </div>
+      <div
+        class="todo-item__dates"
+      >
+        <span
+          class="todo-item__dates-text"
+        >
+          등록일: 
+          2026.07.01
+        </span>
+        <span
+          aria-hidden="true"
+          class="todo-item__dates-sep"
+        >
+          /
+        </span>
+        <span
+          class="todo-item__dates-text"
+        >
+          마감일: 
+          2099.01.01
+        </span>
+      </div>
+      <div
+        class="todo-item__subtasks"
+        id="todo-subtasks-t1"
+      />
+      <div
+        class="todo-item__sub-add"
+      >
+        <input
+          class="todo-item__sub-add-field"
+          placeholder="하위 항목 추가"
+          type="text"
+          value=""
+        />
+        <button
+          aria-label="하위 항목 추가"
+          class="todo-item__sub-add-btn"
+          type="button"
+        >
+          <span
+            class="screen-out"
+          >
+            추가
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TodoItem > 렌더 스냅샷 > 선택 모드(선택됨) + 수동 정렬 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--medium"
+    id="todo-item-t1"
+  >
+    <label
+      class="todo-item__select form-chk form-chk--checkbox"
+    >
+      <input
+        checked=""
+        type="checkbox"
+      />
+      <span
+        class="form-chk__text"
+      >
+        <span
+          class="screen-out"
+        >
+          선택
+        </span>
+      </span>
+    </label>
+    <span
+      aria-hidden="true"
+      class="todo-item__drag-handle"
+    >
+      <svg
+        fill="currentColor"
+        height="16"
+        viewBox="0 0 10 16"
+        width="10"
+      >
+        <circle
+          cx="3"
+          cy="4"
+          r="1.5"
+        />
+        <circle
+          cx="7"
+          cy="4"
+          r="1.5"
+        />
+        <circle
+          cx="3"
+          cy="8"
+          r="1.5"
+        />
+        <circle
+          cx="7"
+          cy="8"
+          r="1.5"
+        />
+        <circle
+          cx="3"
+          cy="12"
+          r="1.5"
+        />
+        <circle
+          cx="7"
+          cy="12"
+          r="1.5"
+        />
+      </svg>
+    </span>
+    <div
+      class="todo-item__body"
+    >
+      <div
+        class="todo-item__title-wrap"
+      >
+        <label
+          class="todo-item__check form-chk form-chk--checkbox"
+        >
+          <input
+            type="checkbox"
+          />
+          <span
+            class="form-chk__text"
+          >
+            <span
+              class="screen-out"
+            >
+              완료 여부
+            </span>
+          </span>
+        </label>
+        <p
+          class="todo-item__txt"
+        >
+          보고서 작성
+        </p>
+        <div
+          class="todo-item__actions"
+        >
+          <button
+            aria-label="상단 고정"
+            class="todo-item__btn todo-item__btn--pin"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="수정"
+            class="todo-item__btn todo-item__btn--edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="삭제"
+            class="todo-item__btn todo-item__btn--delete"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="3 6 5 6 21 6"
+              />
+              <path
+                d="M19 6l-1 14H6L5 6"
+              />
+              <path
+                d="M10 11v6M14 11v6"
+              />
+              <path
+                d="M9 6V4h6v2"
+              />
+            </svg>
+          </button>
+          <div
+            class="todo-item__more"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-label="더보기"
+              class="todo-item__btn todo-item__btn--more"
+              type="button"
+            >
+              <svg
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="5"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="19"
+                  r="1.8"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="todo-item__meta"
+      >
+        <span
+          class="todo-item__badge todo-item__badge--medium"
+        >
+          보통
+        </span>
+        <span
+          class="todo-item__category"
+        >
+          업무
+        </span>
+        <button
+          aria-label="메모 연결"
+          class="todo-item__memo-link todo-item__memo-link--empty"
+          type="button"
+        >
+          📎 메모 연결
+        </button>
+      </div>
+      <div
+        class="todo-item__dates"
+      >
+        <span
+          class="todo-item__dates-text"
+        >
+          등록일: 
+          2026.07.01
+        </span>
+        <span
+          aria-hidden="true"
+          class="todo-item__dates-sep"
+        >
+          /
+        </span>
+        <span
+          class="todo-item__dates-text"
+        >
+          마감일: 
+          2099.01.01
+        </span>
+      </div>
+      <div
+        class="todo-item__subtasks"
+        id="todo-subtasks-t1"
+      />
+      <div
+        class="todo-item__sub-add"
+      >
+        <input
+          class="todo-item__sub-add-field"
+          placeholder="하위 항목 추가"
+          type="text"
+          value=""
+        />
+        <button
+          aria-label="하위 항목 추가"
+          class="todo-item__sub-add-btn"
+          type="button"
+        >
+          <span
+            class="screen-out"
+          >
+            추가
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TodoItem > 렌더 스냅샷 > 완료 + 고정 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--medium todo-item--completed todo-item--pinned"
+    id="todo-item-t1"
+  >
+    <div
+      class="todo-item__body"
+    >
+      <div
+        class="todo-item__title-wrap"
+      >
+        <label
+          class="todo-item__check form-chk form-chk--checkbox"
+        >
+          <input
+            checked=""
+            type="checkbox"
+          />
+          <span
+            class="form-chk__text"
+          >
+            <span
+              class="screen-out"
+            >
+              완료 여부
+            </span>
+          </span>
+        </label>
+        <p
+          class="todo-item__txt"
+        >
+          보고서 작성
+        </p>
+        <div
+          class="todo-item__actions"
+        >
+          <button
+            aria-label="고정 해제"
+            class="todo-item__btn todo-item__btn--pin todo-item__btn--pin-active"
+            type="button"
+          >
+            <svg
+              fill="currentColor"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="수정"
+            class="todo-item__btn todo-item__btn--edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="삭제"
+            class="todo-item__btn todo-item__btn--delete"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="3 6 5 6 21 6"
+              />
+              <path
+                d="M19 6l-1 14H6L5 6"
+              />
+              <path
+                d="M10 11v6M14 11v6"
+              />
+              <path
+                d="M9 6V4h6v2"
+              />
+            </svg>
+          </button>
+          <div
+            class="todo-item__more"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-label="더보기"
+              class="todo-item__btn todo-item__btn--more"
+              type="button"
+            >
+              <svg
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="5"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="19"
+                  r="1.8"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="todo-item__meta"
+      >
+        <span
+          class="todo-item__badge todo-item__badge--medium"
+        >
+          보통
+        </span>
+        <span
+          class="todo-item__category"
+        >
+          업무
+        </span>
+        <button
+          aria-label="메모 연결"
+          class="todo-item__memo-link todo-item__memo-link--empty"
+          type="button"
+        >
+          📎 메모 연결
+        </button>
+      </div>
+      <div
+        class="todo-item__dates"
+      >
+        <span
+          class="todo-item__dates-text"
+        >
+          등록일: 
+          2026.07.01
+        </span>
+        <span
+          aria-hidden="true"
+          class="todo-item__dates-sep"
+        >
+          /
+        </span>
+        <span
+          class="todo-item__dates-text"
+        >
+          마감일: 
+          2099.01.01
+        </span>
+      </div>
+      <div
+        class="todo-item__subtasks"
+        id="todo-subtasks-t1"
+      />
+      <div
+        class="todo-item__sub-add"
+      >
+        <input
+          class="todo-item__sub-add-field"
+          placeholder="하위 항목 추가"
+          type="text"
+          value=""
+        />
+        <button
+          aria-label="하위 항목 추가"
+          class="todo-item__sub-add-btn"
+          type="button"
+        >
+          <span
+            class="screen-out"
+          >
+            추가
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TodoItem > 렌더 스냅샷 > 편집 모드 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--medium todo-item--editing"
+    id="todo-item-t1"
+  >
+    <div
+      class="todo-item__edit-wrap"
+    >
+      <div
+        class="todo-item__edit-main"
+      >
+        <textarea
+          class="todo-item__edit-field todo-item__edit-field--textarea"
+          rows="3"
+        >
+          보고서 작성
+        </textarea>
+      </div>
+      <div
+        class="todo-item__edit-row"
+      >
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            for="todo-edit-priority-t1"
+          >
+            우선순위
+          </label>
+          <select
+            class="todo-item__edit-select todo-item__edit-select--medium"
+            id="todo-edit-priority-t1"
+          >
+            <option
+              value="high"
+            >
+              높음
+            </option>
+            <option
+              value="medium"
+            >
+              보통
+            </option>
+            <option
+              value="low"
+            >
+              낮음
+            </option>
+          </select>
+        </div>
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            id="todo-edit-dueDate-label-t1"
+          >
+            마감일
+          </label>
+          <div
+            class="date-picker todo-item__edit-date-picker"
+          >
+            <div
+              class="date-picker__trigger-wrap"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="dialog"
+                aria-labelledby="todo-edit-dueDate-label-t1"
+                class="date-picker__input "
+                type="button"
+              >
+                <span
+                  class="date-picker__value"
+                >
+                  2099-01-01
+                </span>
+              </button>
+              <div
+                class="date-picker__actions"
+              >
+                <button
+                  aria-label="초기화"
+                  class="date-picker__clear"
+                  type="button"
+                >
+                  <svg
+                    fill="none"
+                    height="16"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="16"
+                  >
+                    <path
+                      d="M18 6L6 18M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+                <span
+                  aria-hidden="true"
+                  class="date-picker__icon"
+                >
+                  📅
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            for="todo-edit-category-t1"
+          >
+            카테고리
+          </label>
+          <input
+            autocomplete="off"
+            class="todo-item__edit-field todo-item__edit-field--sm"
+            id="todo-edit-category-t1"
+            type="text"
+            value="업무"
+          />
+          <div
+            class="todo-item__category-suggest"
+          >
+            <button
+              class="todo-item__category-suggest-btn todo-item__category-suggest-btn--active"
+              type="button"
+            >
+              업무
+            </button>
+            <button
+              class="todo-item__category-suggest-btn"
+              type="button"
+            >
+              개인
+            </button>
+          </div>
+          <button
+            class="todo-item__category-picker-btn"
+            type="button"
+          >
+            카테고리 선택
+          </button>
+        </div>
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            for="todo-edit-recurrence-t1"
+          >
+            반복 주기
+          </label>
+          <select
+            class="todo-item__edit-select"
+            id="todo-edit-recurrence-t1"
+          >
+            <option
+              value="none"
+            >
+              없음
+            </option>
+            <option
+              value="daily"
+            >
+              매일
+            </option>
+            <option
+              value="weekly"
+            >
+              매주
+            </option>
+            <option
+              value="monthly"
+            >
+              매월
+            </option>
+          </select>
+        </div>
+      </div>
+      <div
+        class="todo-item__edit-group todo-item__edit-group--full"
+      >
+        <label
+          class="todo-item__edit-label"
+        >
+          연결 메모
+        </label>
+        <div
+          class="todo-item__memo-checklist"
+        >
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              checked=""
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              회의록
+            </span>
+          </label>
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              제목 없음
+            </span>
+          </label>
+        </div>
+      </div>
+      <div
+        class="todo-item__edit-actions"
+      >
+        <button
+          class="btn btn--main btn--sm"
+          type="button"
+        >
+          수정
+        </button>
+        <button
+          class="btn btn--outline-gray btn--sm"
+          type="button"
+        >
+          취소
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--medium todo-item--editing"
+    id="todo-item-t1"
+  >
+    <div
+      class="todo-item__edit-wrap"
+    >
+      <div
+        class="todo-item__edit-main"
+      >
+        <textarea
+          class="todo-item__edit-field todo-item__edit-field--textarea"
+          rows="3"
+        >
+          보고서 작성
+        </textarea>
+      </div>
+      <div
+        class="todo-item__edit-row"
+      >
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            for="todo-edit-priority-t1"
+          >
+            우선순위
+          </label>
+          <select
+            class="todo-item__edit-select todo-item__edit-select--medium"
+            id="todo-edit-priority-t1"
+          >
+            <option
+              value="high"
+            >
+              높음
+            </option>
+            <option
+              value="medium"
+            >
+              보통
+            </option>
+            <option
+              value="low"
+            >
+              낮음
+            </option>
+          </select>
+        </div>
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            id="todo-edit-dueDate-label-t1"
+          >
+            마감일
+          </label>
+          <div
+            class="date-picker todo-item__edit-date-picker"
+          >
+            <div
+              class="date-picker__trigger-wrap"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="dialog"
+                aria-labelledby="todo-edit-dueDate-label-t1"
+                class="date-picker__input "
+                type="button"
+              >
+                <span
+                  class="date-picker__value"
+                >
+                  2099-01-01
+                </span>
+              </button>
+              <div
+                class="date-picker__actions"
+              >
+                <button
+                  aria-label="초기화"
+                  class="date-picker__clear"
+                  type="button"
+                >
+                  <svg
+                    fill="none"
+                    height="16"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="16"
+                  >
+                    <path
+                      d="M18 6L6 18M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+                <span
+                  aria-hidden="true"
+                  class="date-picker__icon"
+                >
+                  📅
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            for="todo-edit-category-t1"
+          >
+            카테고리
+          </label>
+          <input
+            autocomplete="off"
+            class="todo-item__edit-field todo-item__edit-field--sm"
+            id="todo-edit-category-t1"
+            type="text"
+            value="업무"
+          />
+          <div
+            class="todo-item__category-suggest"
+          >
+            <button
+              class="todo-item__category-suggest-btn todo-item__category-suggest-btn--active"
+              type="button"
+            >
+              업무
+            </button>
+            <button
+              class="todo-item__category-suggest-btn"
+              type="button"
+            >
+              개인
+            </button>
+          </div>
+          <button
+            class="todo-item__category-picker-btn"
+            type="button"
+          >
+            카테고리 선택
+          </button>
+        </div>
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            for="todo-edit-recurrence-t1"
+          >
+            반복 주기
+          </label>
+          <p
+            class="todo-item__edit-hint"
+          >
+            🔁 반복 일정에 속한 회차입니다. 주기 변경·종료는 상단 “반복 일정” 메뉴에서 하세요.
+          </p>
+        </div>
+      </div>
+      <div
+        class="todo-item__edit-group todo-item__edit-group--full"
+      >
+        <label
+          class="todo-item__edit-label"
+        >
+          연결 메모
+        </label>
+        <div
+          class="todo-item__memo-checklist"
+        >
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              회의록
+            </span>
+          </label>
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              제목 없음
+            </span>
+          </label>
+        </div>
+      </div>
+      <div
+        class="todo-item__edit-actions"
+      >
+        <button
+          class="btn btn--main btn--sm"
+          type="button"
+        >
+          수정
+        </button>
+        <button
+          class="btn btn--outline-gray btn--sm"
+          type="button"
+        >
+          취소
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TodoItem > 렌더 스냅샷 > 하위 항목 + 연결 메모 + 반복 시리즈 소속 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--medium"
+    id="todo-item-t1"
+  >
+    <div
+      class="todo-item__body"
+    >
+      <div
+        class="todo-item__title-wrap"
+      >
+        <label
+          class="todo-item__check form-chk form-chk--checkbox"
+        >
+          <input
+            type="checkbox"
+          />
+          <span
+            class="form-chk__text"
+          >
+            <span
+              class="screen-out"
+            >
+              완료 여부
+            </span>
+          </span>
+        </label>
+        <p
+          class="todo-item__txt"
+        >
+          보고서 작성
+        </p>
+        <div
+          class="todo-item__actions"
+        >
+          <button
+            aria-label="상단 고정"
+            class="todo-item__btn todo-item__btn--pin"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="수정"
+            class="todo-item__btn todo-item__btn--edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="삭제"
+            class="todo-item__btn todo-item__btn--delete"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="3 6 5 6 21 6"
+              />
+              <path
+                d="M19 6l-1 14H6L5 6"
+              />
+              <path
+                d="M10 11v6M14 11v6"
+              />
+              <path
+                d="M9 6V4h6v2"
+              />
+            </svg>
+          </button>
+          <div
+            class="todo-item__more"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-label="더보기"
+              class="todo-item__btn todo-item__btn--more"
+              type="button"
+            >
+              <svg
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="5"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="19"
+                  r="1.8"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="todo-item__meta"
+      >
+        <span
+          class="todo-item__badge todo-item__badge--medium"
+        >
+          보통
+        </span>
+        <span
+          class="todo-item__category"
+        >
+          업무
+        </span>
+        <span
+          class="todo-item__badge todo-item__badge--recurrence"
+        >
+          🔁 
+          반복
+        </span>
+        <button
+          class="todo-item__memo-link"
+          type="button"
+        >
+          📎 
+          회의록
+        </button>
+        <button
+          class="todo-item__memo-link"
+          type="button"
+        >
+          📎 
+          제목 없음
+        </button>
+        <button
+          aria-label="메모 추가 연결"
+          class="todo-item__memo-link todo-item__memo-link--empty todo-item__memo-link--add"
+          type="button"
+        >
+          + 메모
+        </button>
+        <div
+          class="todo-item__sub-meta"
+        >
+          <span
+            class="todo-item__sub-progress"
+          >
+            진행도 
+            1
+            /
+            3
+          </span>
+          <button
+            aria-controls="todo-subtasks-t1"
+            aria-expanded="true"
+            class="todo-item__sub-toggle"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="todo-item__sub-toggle-icon"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+            접기
+          </button>
+        </div>
+      </div>
+      <div
+        class="todo-item__dates"
+      >
+        <span
+          class="todo-item__dates-text"
+        >
+          등록일: 
+          2026.07.01
+        </span>
+        <span
+          aria-hidden="true"
+          class="todo-item__dates-sep"
+        >
+          /
+        </span>
+        <span
+          class="todo-item__dates-text"
+        >
+          마감일: 
+          2099.01.01
+        </span>
+      </div>
+      <div
+        class="todo-item__subtasks"
+        id="todo-subtasks-t1"
+      >
+        <div
+          class="todo-item__subtask"
+          draggable="true"
+        >
+          <span
+            aria-hidden="true"
+            class="todo-item__sub-drag"
+          >
+            <svg
+              fill="currentColor"
+              height="16"
+              viewBox="0 0 10 16"
+              width="10"
+            >
+              <circle
+                cx="3"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="12"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="12"
+                r="1.5"
+              />
+            </svg>
+          </span>
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              checked=""
+              class="todo-item__sub-chk"
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              자료 수집
+            </span>
+          </label>
+          <button
+            aria-label="하위 항목 수정"
+            class="todo-item__btn-sub-edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            <span
+              class="screen-out"
+            >
+              수정
+            </span>
+          </button>
+          <button
+            aria-label="서브태스크 삭제"
+            class="todo-item__btn-sub-del"
+            type="button"
+          >
+            <span
+              class="screen-out"
+            >
+              삭제
+            </span>
+          </button>
+        </div>
+        <div
+          class="todo-item__subtask"
+          draggable="true"
+        >
+          <span
+            aria-hidden="true"
+            class="todo-item__sub-drag"
+          >
+            <svg
+              fill="currentColor"
+              height="16"
+              viewBox="0 0 10 16"
+              width="10"
+            >
+              <circle
+                cx="3"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="12"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="12"
+                r="1.5"
+              />
+            </svg>
+          </span>
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              class="todo-item__sub-chk"
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              초안 작성
+            </span>
+          </label>
+          <button
+            aria-label="하위 항목 수정"
+            class="todo-item__btn-sub-edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            <span
+              class="screen-out"
+            >
+              수정
+            </span>
+          </button>
+          <button
+            aria-label="서브태스크 삭제"
+            class="todo-item__btn-sub-del"
+            type="button"
+          >
+            <span
+              class="screen-out"
+            >
+              삭제
+            </span>
+          </button>
+        </div>
+        <div
+          class="todo-item__subtask"
+          draggable="true"
+        >
+          <span
+            aria-hidden="true"
+            class="todo-item__sub-drag"
+          >
+            <svg
+              fill="currentColor"
+              height="16"
+              viewBox="0 0 10 16"
+              width="10"
+            >
+              <circle
+                cx="3"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="12"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="12"
+                r="1.5"
+              />
+            </svg>
+          </span>
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              class="todo-item__sub-chk"
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              검토 요청
+            </span>
+          </label>
+          <button
+            aria-label="하위 항목 수정"
+            class="todo-item__btn-sub-edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            <span
+              class="screen-out"
+            >
+              수정
+            </span>
+          </button>
+          <button
+            aria-label="서브태스크 삭제"
+            class="todo-item__btn-sub-del"
+            type="button"
+          >
+            <span
+              class="screen-out"
+            >
+              삭제
+            </span>
+          </button>
+        </div>
+      </div>
+      <div
+        class="todo-item__sub-add"
+      >
+        <input
+          class="todo-item__sub-add-field"
+          placeholder="하위 항목 추가"
+          type="text"
+          value=""
+        />
+        <button
+          aria-label="하위 항목 추가"
+          class="todo-item__sub-add-btn"
+          type="button"
+        >
+          <span
+            class="screen-out"
+          >
+            추가
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`TodoItem > 렌더 스냅샷 > 하위 항목 접힘 + 레거시 반복 배지 1`] = `
+<div>
+  <div
+    class="todo-item todo-item--low"
+    id="todo-item-t1"
+  >
+    <div
+      class="todo-item__body"
+    >
+      <div
+        class="todo-item__title-wrap"
+      >
+        <label
+          class="todo-item__check form-chk form-chk--checkbox"
+        >
+          <input
+            type="checkbox"
+          />
+          <span
+            class="form-chk__text"
+          >
+            <span
+              class="screen-out"
+            >
+              완료 여부
+            </span>
+          </span>
+        </label>
+        <p
+          class="todo-item__txt"
+        >
+          보고서 작성
+        </p>
+        <div
+          class="todo-item__actions"
+        >
+          <button
+            aria-label="상단 고정"
+            class="todo-item__btn todo-item__btn--pin"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="수정"
+            class="todo-item__btn todo-item__btn--edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="삭제"
+            class="todo-item__btn todo-item__btn--delete"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="3 6 5 6 21 6"
+              />
+              <path
+                d="M19 6l-1 14H6L5 6"
+              />
+              <path
+                d="M10 11v6M14 11v6"
+              />
+              <path
+                d="M9 6V4h6v2"
+              />
+            </svg>
+          </button>
+          <div
+            class="todo-item__more"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="true"
+              aria-label="더보기"
+              class="todo-item__btn todo-item__btn--more"
+              type="button"
+            >
+              <svg
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="5"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="1.8"
+                />
+                <circle
+                  cx="12"
+                  cy="19"
+                  r="1.8"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        class="todo-item__meta"
+      >
+        <span
+          class="todo-item__badge todo-item__badge--low"
+        >
+          낮음
+        </span>
+        <span
+          class="todo-item__category"
+        >
+          업무
+        </span>
+        <span
+          class="todo-item__badge todo-item__badge--recurrence"
+        >
+          🔁 
+          매주
+        </span>
+        <button
+          aria-label="메모 연결"
+          class="todo-item__memo-link todo-item__memo-link--empty"
+          type="button"
+        >
+          📎 메모 연결
+        </button>
+        <div
+          class="todo-item__sub-meta"
+        >
+          <span
+            class="todo-item__sub-progress"
+          >
+            진행도 
+            1
+            /
+            3
+          </span>
+          <button
+            aria-controls="todo-subtasks-t1"
+            aria-expanded="false"
+            class="todo-item__sub-toggle"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="todo-item__sub-toggle-icon todo-item__sub-toggle-icon--collapsed"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+            더보기
+          </button>
+        </div>
+      </div>
+      <div
+        class="todo-item__dates"
+      >
+        <span
+          class="todo-item__dates-text"
+        >
+          등록일: 
+          2026.07.01
+        </span>
+        <span
+          aria-hidden="true"
+          class="todo-item__dates-sep"
+        >
+          /
+        </span>
+        <span
+          class="todo-item__dates-text"
+        >
+          마감일: 
+          2099.01.01
+        </span>
+      </div>
+      <div
+        class="todo-item__subtasks todo-item__subtasks--collapsed"
+        id="todo-subtasks-t1"
+      >
+        <div
+          class="todo-item__subtask"
+          draggable="true"
+        >
+          <span
+            aria-hidden="true"
+            class="todo-item__sub-drag"
+          >
+            <svg
+              fill="currentColor"
+              height="16"
+              viewBox="0 0 10 16"
+              width="10"
+            >
+              <circle
+                cx="3"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="12"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="12"
+                r="1.5"
+              />
+            </svg>
+          </span>
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              checked=""
+              class="todo-item__sub-chk"
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              자료 수집
+            </span>
+          </label>
+          <button
+            aria-label="하위 항목 수정"
+            class="todo-item__btn-sub-edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            <span
+              class="screen-out"
+            >
+              수정
+            </span>
+          </button>
+          <button
+            aria-label="서브태스크 삭제"
+            class="todo-item__btn-sub-del"
+            type="button"
+          >
+            <span
+              class="screen-out"
+            >
+              삭제
+            </span>
+          </button>
+        </div>
+        <div
+          class="todo-item__subtask"
+          draggable="true"
+        >
+          <span
+            aria-hidden="true"
+            class="todo-item__sub-drag"
+          >
+            <svg
+              fill="currentColor"
+              height="16"
+              viewBox="0 0 10 16"
+              width="10"
+            >
+              <circle
+                cx="3"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="12"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="12"
+                r="1.5"
+              />
+            </svg>
+          </span>
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              class="todo-item__sub-chk"
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              초안 작성
+            </span>
+          </label>
+          <button
+            aria-label="하위 항목 수정"
+            class="todo-item__btn-sub-edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            <span
+              class="screen-out"
+            >
+              수정
+            </span>
+          </button>
+          <button
+            aria-label="서브태스크 삭제"
+            class="todo-item__btn-sub-del"
+            type="button"
+          >
+            <span
+              class="screen-out"
+            >
+              삭제
+            </span>
+          </button>
+        </div>
+        <div
+          class="todo-item__subtask"
+          draggable="true"
+        >
+          <span
+            aria-hidden="true"
+            class="todo-item__sub-drag"
+          >
+            <svg
+              fill="currentColor"
+              height="16"
+              viewBox="0 0 10 16"
+              width="10"
+            >
+              <circle
+                cx="3"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="4"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="8"
+                r="1.5"
+              />
+              <circle
+                cx="3"
+                cy="12"
+                r="1.5"
+              />
+              <circle
+                cx="7"
+                cy="12"
+                r="1.5"
+              />
+            </svg>
+          </span>
+          <label
+            class="form-chk form-chk--checkbox"
+          >
+            <input
+              class="todo-item__sub-chk"
+              type="checkbox"
+            />
+            <span
+              class="form-chk__text"
+            >
+              검토 요청
+            </span>
+          </label>
+          <button
+            aria-label="하위 항목 수정"
+            class="todo-item__btn-sub-edit"
+            type="button"
+          >
+            <svg
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              />
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              />
+            </svg>
+            <span
+              class="screen-out"
+            >
+              수정
+            </span>
+          </button>
+          <button
+            aria-label="서브태스크 삭제"
+            class="todo-item__btn-sub-del"
+            type="button"
+          >
+            <span
+              class="screen-out"
+            >
+              삭제
+            </span>
+          </button>
+        </div>
+      </div>
+      <div
+        class="todo-item__sub-add"
+      >
+        <input
+          class="todo-item__sub-add-field"
+          placeholder="하위 항목 추가"
+          type="text"
+          value=""
+        />
+        <button
+          aria-label="하위 항목 추가"
+          class="todo-item__sub-add-btn"
+          type="button"
+        >
+          <span
+            class="screen-out"
+          >
+            추가
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+`;

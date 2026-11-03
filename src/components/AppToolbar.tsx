@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePersistentState } from '../hooks/usePersistentState';
+import { yearProgress } from '../utils/date';
 
 interface Props {
   getBackup: () => unknown;
@@ -21,6 +22,33 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onE
       delete document.body.dataset.theme;
     }
   }, [theme]);
+
+  const [progress, setProgress] = useState(() => yearProgress());
+
+  // 자정이 지나거나 PWA가 다시 포커스되면 D-day를 새로 계산
+  useEffect(() => {
+    let timer: number;
+    const refresh = () => setProgress(yearProgress());
+    const schedule = () => {
+      const now = new Date();
+      const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      timer = window.setTimeout(() => {
+        refresh();
+        schedule();
+      }, nextMidnight.getTime() - now.getTime() + 1000);
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') refresh();
+    };
+    schedule();
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
+
+  const ddayLabel = progress.daysLeft === 0 ? 'D-DAY' : `D-${progress.daysLeft}`;
 
   function handleExport() {
     const data = getBackup();
@@ -59,7 +87,12 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onE
 
   return (
     <div className="app-toolbar">
-      <button 
+      <p className="app-toolbar__dday" title={`${progress.year}년이 ${progress.daysLeft}일 남았어요 (${progress.percent}% 지남)`}>
+        <span className="screen-out">{progress.year}년 남은 날</span>
+        <span className="app-toolbar__dday-num">{ddayLabel}</span>
+        <span className="app-toolbar__dday-rate">{progress.percent}%</span>
+      </p>
+      <button
         type="button" 
         className="app-toolbar__btn app-toolbar__btn--theme"
         onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}

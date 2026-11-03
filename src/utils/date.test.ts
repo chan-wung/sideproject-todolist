@@ -2,7 +2,34 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   isToday, isOverdue, isThisWeek, formatDate, calculateNextRecurrence,
   addMonthsClamped, addDaysStr, nthOccurrence, occurrencesInRange, upcomingOccurrences,
+  yearProgress,
 } from './date';
+
+describe('yearProgress', () => {
+  it('평년 1/1은 364일 남음', () => {
+    const r = yearProgress(new Date(2026, 0, 1));
+    expect(r.daysLeft).toBe(364);
+    expect(r.totalDays).toBe(365);
+  });
+
+  it('윤년 1/1은 365일 남음', () => {
+    const r = yearProgress(new Date(2028, 0, 1));
+    expect(r.daysLeft).toBe(365);
+    expect(r.totalDays).toBe(366);
+  });
+
+  it('12/31은 0일 남고 100%', () => {
+    const r = yearProgress(new Date(2026, 11, 31, 23, 59));
+    expect(r.daysLeft).toBe(0);
+    expect(r.percent).toBe(100);
+  });
+
+  it('2026-11-03은 58일 남고 84%', () => {
+    const r = yearProgress(new Date(2026, 10, 3, 15, 0));
+    expect(r.daysLeft).toBe(58);
+    expect(r.percent).toBe(84);
+  });
+});
 
 describe('date utils', () => {
   beforeEach(() => {

@@ -133,6 +133,24 @@ export function upcomingOccurrences(
   return result;
 }
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+// 올해 남은 날(오늘 제외, 12/31이면 0)과 경과율(0~100, 정수 내림)
+export function yearProgress(now: Date = new Date()): { year: number; daysLeft: number; percent: number; totalDays: number } {
+  const year = now.getFullYear();
+  const today = new Date(year, now.getMonth(), now.getDate());
+  const start = new Date(year, 0, 1);
+  const nextStart = new Date(year + 1, 0, 1);
+  const totalDays = Math.round((nextStart.getTime() - start.getTime()) / MS_PER_DAY);
+  const passed = Math.round((today.getTime() - start.getTime()) / MS_PER_DAY) + 1;
+  return {
+    year,
+    daysLeft: totalDays - passed,
+    percent: Math.floor((passed / totalDays) * 100),
+    totalDays,
+  };
+}
+
 export function calculateNextRecurrence(dateStr?: string, rule?: 'none' | 'daily' | 'weekly' | 'monthly'): string | undefined {
   if (!rule || rule === 'none') return undefined;
   const base = dateStr ? parseLocalDate(dateStr) : new Date();

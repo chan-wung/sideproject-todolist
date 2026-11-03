@@ -15,6 +15,7 @@ Vite + React + TypeScript 기반의 사이드 프로젝트입니다.
 - **SCSS** (BEM 네이밍, CSS 변수 다크모드, rem 단위)
 - **localStorage** 데이터 영속성 (서버 및 DB 없음)
 - **PWA** (vite-plugin-pwa) — 홈 화면 설치, 오프라인 실행 지원
+- **Vitest** + **Testing Library** 테스트, **ESLint** 린트
 - 폰트: Pretendard, GmarketSans
 
 ## 주요 기능
@@ -88,7 +89,7 @@ Vite + React + TypeScript 기반의 사이드 프로젝트입니다.
   - 실행취소(Undo) 시 기록도 함께 원상복구
 
 - **백업 · 설정**
-  - 할 일 + 메모 + 완료 이력 데이터를 JSON 파일로 내보내기 / 가져오기 (결과를 색상으로 구분한 토스트 알림: 가져오기 파랑 / 내보내기 초록 / 실패 빨강)
+  - 할 일 + 메모 + 완료 이력 + 반복 시리즈 데이터를 JSON 파일로 내보내기 / 가져오기 (결과를 색상으로 구분한 토스트 알림: 가져오기 파랑 / 내보내기 초록 / 실패 빨강)
   - 설정 모달에서 할 일 / 메모 / 완료 이력 / 전체 데이터 초기화
 
 - **디자인 시스템**
@@ -112,6 +113,36 @@ npm install
 # 로컬 개발 서버 실행
 npm run dev
 
+# 테스트 실행 (한 번) / 변경 감지 모드
+npm run test
+npm run test:watch
+
+# 린트
+npm run lint
+
 # 프로덕션 빌드 (TypeScript 컴파일 포함)
 npm run build
 ```
+
+커밋 전에는 `npm run lint`, `npm run test`, `npm run build`가 모두 통과해야 합니다.
+
+## 프로젝트 구조
+
+```text
+src/
+├─ App.tsx              화면 조립, 백업 가져오기/내보내기, 토스트
+├─ components/          UI 컴포넌트
+│  ├─ TodoItem.tsx      할 일 카드 (편집 폼·하위 항목·더보기 메뉴는 TodoItem*.tsx로 분리)
+│  ├─ *Modal.tsx        <dialog> 기반 모달들
+│  └─ icons.tsx         인라인 SVG 아이콘
+├─ hooks/               상태·동작 훅
+│  ├─ useTodos.ts       할 일 상태, 필터·정렬, 실행취소, 완료 이력
+│  ├─ useRecurrenceSeries.ts  반복 시리즈 상태와 회차 자동 생성
+│  └─ useModalDialog / useDismiss / useDayChange / useSelection ...
+├─ constants/labels.ts  우선순위·반복 주기 라벨과 옵션
+├─ utils/               날짜·반복·공유·목록 이동·저장 유틸
+├─ types/todo.ts        데이터 타입
+└─ styles/              SCSS (abstracts → base → components, 컴포넌트마다 한 파일)
+```
+
+개발 시 지켜야 할 규칙과 작업 전 알아둘 상황은 [`CLAUDE.md`](./CLAUDE.md)에 정리돼 있습니다.

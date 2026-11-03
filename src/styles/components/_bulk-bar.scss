@@ -1,0 +1,149 @@
+// =============================================
+// BULK ACTION BAR
+// =============================================
+.bulk-bar {
+  margin-bottom: rem(16);
+  padding: rem(12) rem(16);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: rem(12);
+  background: color-mix(in srgb, var(--color-main) 6%, var(--color-white));
+  border: 1px solid color-mix(in srgb, var(--color-main) 25%, transparent);
+  border-radius: 10px;
+
+  &__count {
+    color: var(--color-main);
+    @include font(13, "Bold");
+    white-space: nowrap;
+  }
+
+  &__group {
+    display: flex;
+    gap: rem(6);
+  }
+
+  &__link-btn {
+    padding: rem(6) rem(10);
+    color: var(--txt-color-base);
+    background: none;
+    border: none;
+    border-radius: 6px;
+    @include font(12, "Medium");
+    text-decoration: underline;
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      color: var(--color-main);
+    }
+  }
+
+  &__category-form {
+    display: flex;
+    align-items: center;
+    gap: rem(6);
+  }
+
+  &__category-input {
+    width: rem(140);
+    height: rem(32);
+    padding: 0 rem(10);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    @include font(12);
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+
+  &__apply-btn {
+    height: rem(32);
+    padding: 0 rem(12);
+    color: var(--color-on-accent);
+    background: var(--color-main);
+    border: none;
+    border-radius: 6px;
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled):hover {
+      background: color-mix(in srgb, var(--color-main) 85%, black);
+    }
+  }
+
+  &__priority-group {
+    display: flex;
+    gap: rem(6);
+  }
+
+  &__priority-btn {
+    height: rem(32);
+    padding: 0 rem(12);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--high:not(:disabled):hover    { color: var(--color-on-accent); background: var(--color-danger); border-color: var(--color-danger); }
+    &--medium:not(:disabled):hover  { color: var(--txt-color-tit); background: var(--color-sub); border-color: var(--color-sub); }
+    &--low:not(:disabled):hover     { color: var(--color-on-accent); background: var(--color-success); border-color: var(--color-success); }
+  }
+
+  &__delete-btn {
+    height: rem(32);
+    padding: 0 rem(12);
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-danger) 30%, transparent);
+    border-radius: 6px;
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled):hover {
+      color: var(--color-on-accent);
+      background: var(--color-danger);
+    }
+  }
+
+  &__close-btn {
+    @include size(28);
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--txt-color-base);
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+  }
+}

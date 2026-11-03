@@ -1,0 +1,236 @@
+// =============================================
+// TODO INPUT
+// =============================================
+
+.todo-input {
+  margin-bottom: rem(20);
+  padding: rem(20);
+  background: var(--color-white);
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: rem(16);
+  z-index: 100;
+
+  &__row {
+    & + & {
+      margin-top: rem(12);
+    }
+  }
+
+  &__options {
+    margin-bottom: rem(16);
+
+    @media (max-width: $break_tab) {
+      display: none;
+      &--expanded {
+        display: block;
+      }
+    }
+  }
+
+  &__toggle-btn {
+    display: none;
+    @media (max-width: $break_tab) {
+      width: 100%;
+      height: rem(36);
+      margin-bottom: rem(8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--txt-color-base);
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      @include font(13, "Medium");
+      cursor: pointer;
+
+      &::after {
+        content: '';
+        width: 12px;
+        height: 12px;
+        margin-left: rem(4);
+        display: inline-block;
+        background: svgIcoArrowDownMD($gray6) center / contain no-repeat;
+      }
+      
+      &--expanded::after {
+        background: svgIcoArrowUpMD($gray6) center / contain no-repeat;
+      }
+    }
+  }
+
+  &__row--flex {
+    display: flex;
+    align-items: flex-end;
+    gap: rem(8);
+
+    > * { flex: 1; }
+
+    @media (max-width: $break_tab) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__main-row {
+    display: flex;
+    gap: rem(8);
+  }
+
+  &__footer-row {
+    margin-top: rem(12);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: rem(12);
+  }
+
+  &__field {
+    flex: 1;
+    width: 100%;
+    height: rem(45);
+    padding: 0 rem(15);
+    display: block;
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(14);
+    @include transition(border-color);
+
+    &:focus {
+      border-color: var(--color-main);
+      outline: none;
+    }
+
+    &--error {
+      border-color: var(--color-danger);
+      &:focus { border-color: var(--color-danger); }
+    }
+
+    &--textarea {
+      height: auto;
+      min-height: rem(60);
+      padding: rem(12) rem(15);
+      line-height: 1.4;
+      resize: vertical;
+    }
+  }
+
+  &__select {
+    &--high {
+      color: var(--color-on-accent); 
+      background: svgIcoArrowDown(#fff, var(--color-danger)) calc(100% - 10px) 50% / 10px no-repeat; 
+      border-color: var(--color-danger);
+    }
+    &--medium { 
+      color: var(--txt-color-tit); 
+      background-color: var(--color-sub); 
+      border-color: var(--color-sub);
+    }
+    &--low {
+      color: var(--color-on-accent); 
+      background: svgIcoArrowDown(#fff, var(--color-success)) calc(100% - 10px) 50% / 10px no-repeat; 
+      border-color: var(--color-success);
+    }
+  }
+
+  &__error {
+    margin-top: rem(6);
+    padding-left: rem(2);
+    display: flex;
+    align-items: center;
+    gap: rem(4);
+    color: var(--color-danger);
+    @include font(12, "Medium");
+
+    &::before {
+      content: '!';
+      flex-shrink: 0;
+      width: rem(14);
+      height: rem(14);
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--color-on-accent);
+      background: var(--color-danger);
+      border-radius: 50%;
+      @include font(10, 700);
+    }
+  }
+
+  &__select {
+    width: 100%;
+    height: rem(45);
+    padding: 0 rem(30) 0 rem(12);
+    color: var(--txt-color-base);
+    background: svgIcoArrowDown($gray5) calc(100% - 10px) 50% / 10px no-repeat;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(13);
+    cursor: pointer;
+    @include transition(border-color);
+
+    &:focus {
+      border-color: var(--color-main);
+      outline: none;
+    }
+  }
+
+  &__date {
+    width: 100%;
+    height: rem(45);
+    padding: 0 rem(12);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(13);
+    @include transition(border-color);
+
+    &:focus {
+      border-color: var(--color-main);
+      outline: none;
+    }
+  }
+
+  &__label {
+    margin-bottom: rem(6);
+    display: block;
+    color: $gray6;
+    @include font(12, "Medium");
+  }
+
+  &__btn {
+    flex-shrink: 0;
+    min-width: rem(80);
+    height: rem(45);
+    padding: 0 rem(16);
+    @include flex-center;
+    border: none;
+    border-radius: 8px;
+    @include font(14, "Bold");
+    cursor: pointer;
+    @include btn-filled(var(--color-main));
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
+  }
+
+  &__hint {
+    flex: 1;
+    min-width: rem(220);
+    display: flex;
+    align-items: center;
+    gap: rem(4);
+    color: $gray9;
+    @include font(12);
+  }
+}
+

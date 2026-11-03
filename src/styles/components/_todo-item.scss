@@ -1,0 +1,711 @@
+// =============================================
+// TODO ITEM
+// =============================================
+
+.todo-item {
+  padding: rem(16) rem(20);
+  display: flex;
+  align-items: flex-start;
+  gap: rem(12);
+  background: var(--color-white);
+  border-left: 3px solid transparent;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
+  @include transition(box-shadow, transform);
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+  }
+
+  // 우선순위 좌측 border 색상
+  &--high   { border-left-color: var(--color-danger); }
+  &--medium { border-left-color: var(--color-sub); }
+  &--low    { border-left-color: var(--color-success); }
+
+  &--overdue {
+    background-color: color-mix(in srgb, var(--color-danger) 54%, white);
+    border-left-color: var(--color-danger);
+  }
+
+  &--pinned {
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--color-main) 12%, transparent), 0 4px 16px color-mix(in srgb, var(--color-main) 16%, transparent);
+  }
+
+  &--completed {
+    opacity: 0.65;
+
+    .todo-item__txt {
+      color: $gray9;
+      text-decoration: line-through;
+    }
+  }
+
+  &__select {
+    flex-shrink: 0;
+    padding-top: rem(2);
+  }
+
+  &__drag-handle {
+    flex-shrink: 0;
+    padding-top: rem(4);
+    display: flex;
+    align-items: flex-start;
+    color: $grayC;
+    cursor: grab;
+
+    &:active { cursor: grabbing; }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title-wrap {
+    margin-bottom: rem(4);
+    display: flex;
+    align-items: flex-start;
+    gap: rem(8);
+
+    .form-chk__text::before{
+      margin-right: 0;
+    }
+  }
+
+  &__check {
+    flex-shrink: 0;
+  }
+
+  &__txt {
+    flex: 1;
+    color: var(--txt-color-tit);
+    @include font(18, "Bold");
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  &__meta {
+    margin-top: rem(6);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(6);
+  }
+
+  &__badge {
+    padding: rem(3) rem(9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 100px;
+    @include font(11, "Bold");
+
+    &--high        { color: var(--color-on-accent); background: var(--color-danger); }
+    &--medium      { color: var(--txt-color-tit); background: var(--color-sub); }
+    &--low         { color: var(--color-on-accent); background: var(--color-success); }
+    &--recurrence  { color: var(--color-main); background: var(--color-main-10); }
+  }
+
+  &__category {
+    padding: rem(3) rem(9);
+    color: var(--color-on-accent);
+    background: var(--color-main);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 100px;
+    @include font(11, "Medium");
+  }
+
+  &__sub-meta {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+  }
+
+  &__dates {
+    margin-top: rem(6);
+    display: flex;
+    align-items: center;
+    gap: rem(6);
+    color: $gray9;
+    @include font(11, "Medium");
+  }
+
+  &__dates-text {
+    &--overdue {
+      color: var(--color-danger);
+      @include font(11, 600);
+    }
+  }
+
+  &__dates-sep {
+    color: var(--color-border);
+  }
+
+  &__actions {
+    margin-left: rem(10);
+    display: flex;
+    align-items: flex-start;
+    gap: rem(4);
+  }
+
+  &__btn {
+    flex-shrink: 0;
+    @include size(30);
+    @include flex-center;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    @include transition();
+    @include tooltip-label;
+
+    svg {
+      width: rem(15);
+      height: rem(15);
+    }
+
+    &--edit {
+      color: var(--txt-color-form);
+      &:hover {
+        color: var(--color-main);
+        background: var(--color-main-5);
+      }
+    }
+
+    &--delete {
+      color: var(--txt-color-form);
+      &:hover {
+        color: var(--color-danger);
+        background: color-mix(in srgb, var(--color-danger) 60%, white);
+      }
+    }
+
+    &--pin {
+      color: var(--txt-color-form);
+      &:hover {
+        background: var(--color-main-5);
+      }
+    }
+
+    &--pin-active {
+      color: var(--color-sub);
+    }
+
+    &--more {
+      color: var(--txt-color-form);
+      &:hover {
+        color: var(--color-main);
+        background: var(--color-main-5);
+      }
+    }
+
+    &--more-active {
+      color: var(--color-main);
+      background: var(--color-main-5);
+    }
+  }
+
+  &__more {
+    position: relative;
+  }
+
+  &__menu {
+    min-width: rem(150);
+    padding: rem(6);
+    display: flex;
+    flex-direction: column;
+    gap: rem(2);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    position: absolute;
+    top: calc(100% + #{rem(4)});
+    right: 0;
+    z-index: 20;
+  }
+
+  &__menu-item {
+    width: 100%;
+    padding: rem(8) rem(10);
+    display: flex;
+    align-items: center;
+    gap: rem(8);
+    color: var(--txt-color-base);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    @include font(13, "Medium");
+    white-space: nowrap;
+    text-align: left;
+    cursor: pointer;
+    @include transition(background-color);
+
+    &:hover {
+      color: var(--color-main);
+      background: var(--color-main-5);
+    }
+
+    svg {
+      flex-shrink: 0;
+      width: rem(14);
+      height: rem(14);
+    }
+  }
+
+  // ── 편집 모드 ──────────────────────────────────
+  &--editing {
+    padding: rem(16);
+    display: block;
+  }
+
+  &__edit-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: rem(10);
+  }
+
+  &__edit-main {
+    width: 100%;
+  }
+
+  &__edit-field {
+    width: 100%;
+    min-height: rem(40);
+    padding: rem(10) rem(12);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(14);
+    resize: vertical;
+    @include transition(border-color);
+
+    &:focus {
+      border-color: color-mix(in srgb, var(--color-main) 90%, black);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-main) 10%, transparent);
+      outline: none;
+    }
+
+    &--sm {
+      height: rem(36);
+      @include font(13);
+    }
+
+    &--textarea {
+      height: auto;
+      min-height: rem(60);
+      padding: rem(12) rem(15);
+      line-height: 1.4;
+    }
+  }
+
+  &__edit-row {
+    display: flex;
+    flex-direction: column;
+    gap: rem(8);
+
+    @include tablet_pc {
+      flex-direction: row;
+      flex-wrap: wrap;
+
+      > * { flex: 1; min-width: rem(100); }
+    }
+  }
+
+  &__edit-group {
+    display: flex;
+    flex-direction: column;
+    gap: rem(4);
+  }
+
+  &__edit-label {
+    color: $gray6;
+    @include font(11, "Medium");
+  }
+
+  &__edit-hint {
+    padding: rem(10);
+    color: var(--color-main);
+    background: var(--color-main-10);
+    border-radius: 8px;
+    @include font(12);
+    line-height: 1.5;
+  }
+
+  &__edit-select,
+  &__edit-date {
+    width: 100%;
+    height: rem(45);
+    padding: 0 rem(28) 0 rem(10);
+    color: var(--txt-color-base);
+    background: svgIcoArrowDown($gray5) calc(100% - 8px) 50% / 10px no-repeat;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(13);
+    cursor: pointer;
+    @include transition(border-color);
+
+    &:focus {
+      border-color: var(--color-main);
+      outline: none;
+    }
+  }
+
+  &__edit-select {
+    &--high {
+      color: var(--color-on-accent); 
+      background: svgIcoArrowDown(#fff, var(--color-danger)) calc(100% - 8px) 50% / 10px no-repeat; 
+      border-color: var(--color-danger);
+    }
+    &--medium { 
+      color: var(--txt-color-tit); 
+      background-color: var(--color-sub); 
+      border-color: var(--color-sub);
+    }
+    &--low {
+      color: var(--color-on-accent); 
+      background: svgIcoArrowDown(#fff, var(--color-success)) calc(100% - 8px) 50% / 10px no-repeat; 
+      border-color: var(--color-success);
+    }
+  }
+
+  &__edit-date {
+    padding: 0 rem(10);
+    background: var(--color-white);
+  }
+
+  &__edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: rem(8);
+  }
+
+  &__category-suggest {
+    margin-top: rem(4);
+    display: none;
+    flex-wrap: wrap;
+    gap: rem(4);
+
+    @include tablet_pc {
+      display: flex;
+    }
+  }
+
+  &__category-suggest-btn {
+    padding: rem(3) rem(8);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    @include font(11, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      color: var(--color-main);
+      border-color: var(--color-main);
+    }
+
+    &--active {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+      border-color: var(--color-main);
+    }
+  }
+
+  &__category-picker-btn {
+    height: rem(36);
+    margin-top: rem(4);
+    padding: 0 rem(12);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-main);
+    background: var(--color-white);
+    border: 1px dashed var(--color-main);
+    border-radius: 8px;
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      background: color-mix(in srgb, var(--color-main) 8%, var(--color-white));
+    }
+
+    @include tablet_pc {
+      display: none;
+    }
+  }
+
+  // ── 서브태스크 ──────────────────────────────────
+  &__sub-progress {
+    flex-shrink: 0;
+    padding: rem(2) rem(8);
+    color: var(--color-main);
+    background: transparent;
+    border: 1px solid var(--color-main);
+    border-radius: 12px;
+    @include font(11, "Bold");
+  }
+
+  &__sub-toggle {
+    flex-shrink: 0;
+    padding: rem(2) rem(8);
+    display: inline-flex;
+    align-items: center;
+    gap: rem(4);
+    color: var(--color-main);
+    background: transparent;
+    border: 1px solid var(--color-main);
+    border-radius: 12px;
+    @include font(12, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  &__sub-toggle-icon {
+    width: rem(12);
+    height: rem(12);
+    @include transition(transform);
+
+    &--collapsed {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__memo-checklist {
+    max-height: rem(140);
+    padding: rem(8);
+    display: flex;
+    flex-wrap: wrap;
+    gap: rem(8) rem(16);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow-y: auto;
+  }
+
+  &__memo-empty {
+    color: $gray9;
+    @include font(12);
+  }
+
+  &__memo-link {
+    padding: rem(3) rem(9);
+    display: inline-flex;
+    align-items: center;
+    gap: rem(2);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    @include font(11, "Medium");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      color: var(--color-main);
+      border-color: var(--color-main);
+    }
+
+    &--empty {
+      color: $gray9;
+      border-style: dashed;
+    }
+
+    &--add {
+      padding: rem(3) rem(7);
+    }
+  }
+
+  &__subtasks {
+    margin-top: rem(12);
+    padding-top: rem(12);
+    display: flex;
+    flex-direction: column;
+    gap: rem(6);
+    border-top: 1px dashed var(--color-border);
+
+    &--collapsed {
+      display: none;
+    }
+  }
+
+  &__subtask {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: rem(8);
+    border-radius: rem(6);
+    @include transition(background-color, outline);
+
+    &--drag-over {
+      background: color-mix(in srgb, var(--color-main) 8%, transparent);
+      outline: 2px dashed color-mix(in srgb, var(--color-main) 35%, transparent);
+      outline-offset: rem(2);
+    }
+
+    .form-chk {
+      flex: 1;
+      margin-top: 0;
+    }
+
+    .form-chk__text {
+      padding-top: rem(2);
+      color: var(--txt-color-base);
+      @include font(14);
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+
+      &::before{
+        margin-right: 8px;
+      }
+    }
+
+    .todo-item__sub-chk:checked + .form-chk__text {
+      color: $gray9;
+      text-decoration: line-through;
+    }
+  }
+
+  &__sub-drag {
+    flex-shrink: 0;
+    padding-top: rem(4);
+    display: flex;
+    align-items: flex-start;
+    color: $grayC;
+    cursor: grab;
+
+    &:active { cursor: grabbing; }
+  }
+
+  &__sub-edit {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: rem(4);
+  }
+
+  &__btn-sub-edit {
+    flex-shrink: 0;
+    @include size(24);
+    @include flex-center;
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    @include transition(background-color);
+
+    svg {
+      width: rem(12);
+      height: rem(12);
+      color: var(--txt-color-form);
+    }
+
+    &:hover {
+      background: var(--color-main-5);
+
+      svg { color: var(--color-main); }
+    }
+  }
+
+  &__btn-sub-action {
+    flex-shrink: 0;
+    @include size(26);
+    @include flex-center;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    @include transition();
+
+    svg {
+      width: rem(13);
+      height: rem(13);
+    }
+
+    &--save {
+      color: var(--color-success);
+      background: color-mix(in srgb, var(--color-success) 12%, transparent);
+
+      &:hover {
+        color: var(--color-on-accent);
+        background: var(--color-success);
+      }
+    }
+
+    &--cancel {
+      color: var(--color-danger);
+      background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+
+      &:hover {
+        color: var(--color-on-accent);
+        background: var(--color-danger);
+      }
+    }
+  }
+
+  &__btn-sub-del {
+    flex-shrink: 0;
+    @include size(24);
+    background: svgIcoCloseCircle($font_form_color) no-repeat center / 16px 16px;
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    @include transition(background-color, transform);
+
+    &:hover {
+      background: svgIcoCloseCircle($red) no-repeat center / 16px 16px;
+      background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
+      transform: scale(1.1);
+    }
+  }
+
+  &__sub-add {
+    margin-top: rem(10);
+    display: flex;
+    gap: rem(6);
+  }
+
+  &__sub-add-field {
+    flex: 1;
+    width: 100%;
+    height: rem(45);
+    padding: 0 rem(15);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(14);
+    @include transition(border-color);
+
+    &:focus {
+      border-color: var(--color-main);
+      outline: none;
+    }
+  }
+
+  &__sub-add-btn {
+    flex-shrink: 0;
+    @include size(45);
+    background: svgIcoAddPlus(#fff, var(--color-main)) no-repeat center / 20px 20px;
+    border: 1px solid var(--color-main);
+    border-radius: 8px;
+    cursor: pointer;
+    @include transition(background-color, transform);
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--color-main) 85%, black);
+    }
+  }
+}
+

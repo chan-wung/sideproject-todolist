@@ -1,0 +1,267 @@
+// =============================================
+// FILTER BAR
+// =============================================
+
+.filter-bar {
+  margin-bottom: rem(16);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: rem(8);
+
+  @media (max-width: $break_tab) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  &__tabs {
+    margin-left: auto;
+    padding: rem(3);
+    display: flex;
+    gap: rem(2);
+    background: var(--color-tab-bg);
+    border-radius: 10px;
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+      margin-left: 0;
+    }
+  }
+
+  &__tab {
+    padding: rem(6) rem(14);
+    color: $gray6;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    @include font(13, "Medium");
+    cursor: pointer;
+    @include transition(background-color, box-shadow, color);
+
+    &--active {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+
+      .filter-bar__count {
+        color: var(--color-main);
+        background: var(--color-on-accent);
+      }
+    }
+
+    &:not(&--active):hover {
+      color: var(--txt-color-tit);
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  &__count {
+    margin-left: rem(4);
+    padding: rem(2) rem(8);
+    color: var(--color-on-accent);
+    background: var(--color-main);
+    border-radius: 20px;
+    @include font(12, "Medium");
+  }
+
+  &__right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(8);
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
+  }
+
+  &__secondary {
+    flex: 1 0 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: rem(8);
+
+    @media (max-width: $break_tab) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  &__secondary-left {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(8);
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
+  }
+
+  &__category {
+    height: rem(34);
+    padding: 0 rem(28) 0 rem(10);
+    color: var(--txt-color-base);
+    background: svgIcoArrowDown($gray5) calc(100% - 8px) 50% / 10px no-repeat;
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(13);
+    cursor: pointer;
+    @include transition(border-color);
+
+    &:focus {
+      border-color: var(--color-main);
+      outline: none;
+    }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      text-align: left;
+    }
+  }
+
+  &__sort {
+    padding: rem(3);
+    display: flex;
+    gap: rem(2);
+    background: var(--color-tab-bg);
+    border-radius: 10px;
+
+    @media (max-width: $break_tab) {
+      width: 100%;
+    }
+  }
+
+  &__sort-btn {
+    padding: rem(4) rem(10);
+    color: $gray6;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    @include font(12, "Medium");
+    white-space: nowrap;
+    cursor: pointer;
+    @include transition(background-color, box-shadow, color);
+
+    &--active {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+
+    &:not(&--active):hover {
+      color: var(--txt-color-tit);
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+    }
+  }
+
+  &__clear-btn {
+    height: rem(34);
+    padding: 0 rem(12);
+    color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-danger) 20%, transparent);
+    border-radius: 8px;
+    @include font(12, "Medium");
+    white-space: nowrap;
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      color: var(--color-on-accent);
+      background: var(--color-danger);
+      border-color: var(--color-danger);
+    }
+
+    @media (max-width: $break_tab) {
+      height: rem(44);
+      text-align: center;
+    }
+  }
+
+  &__select-btn {
+    height: rem(34);
+    padding: 0 rem(12);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(12, "Medium");
+    white-space: nowrap;
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    &--active {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+      border-color: var(--color-main);
+
+      &:hover {
+        background: var(--color-main);
+      }
+    }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      text-align: center;
+    }
+  }
+
+  &__collapse-btn {
+    height: rem(34);
+    padding: 0 rem(24) 0 rem(12);
+    color: var(--txt-color-base);
+    background: svgIcoArrowDownMD($gray6, var(--color-white)) calc(100% - 8px) 50% / 12px no-repeat;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(12, "Medium");
+    white-space: nowrap;
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &--active {
+      color: var(--color-on-accent);
+      background: svgIcoArrowUpMD(#fff, var(--color-main)) calc(100% - 8px) 50% / 12px no-repeat;
+      border-color: var(--color-main);
+
+      &:hover {
+        background-color: var(--color-main);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: $break_tab) {
+      flex: 1;
+      text-align: center;
+    }
+  }
+}
+

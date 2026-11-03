@@ -1,0 +1,33 @@
+// =============================================
+// TODO LIST
+// =============================================
+
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: rem(10);
+
+  &__empty {
+    padding: rem(48) rem(20);
+    color: $gray9;
+    @include font(14);
+    text-align: center;
+
+    &-icon {
+      margin-bottom: rem(12);
+      display: block;
+      @include font(36);
+    }
+  }
+
+  &__item {
+    border-radius: 16px;
+    @include transition(outline);
+
+    &--drag-over {
+      outline: 2px dashed color-mix(in srgb, var(--color-main) 40%, transparent);
+      outline-offset: rem(3);
+    }
+  }
+}
+

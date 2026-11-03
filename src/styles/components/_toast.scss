@@ -1,0 +1,106 @@
+// =============================================
+// TOAST
+// =============================================
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes toast-progress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+.toast {
+  padding: rem(12) rem(18);
+  display: flex;
+  align-items: center;
+  gap: rem(8);
+  background: var(--color-white);
+  border: 1px solid color-mix(in srgb, var(--toast-color) 75%, white);
+  border-left: 4px solid var(--toast-color);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+
+  position: fixed;
+  bottom: rem(24);
+  left: 50%;
+  z-index: 9999;
+  transform: translateX(-50%);
+  animation: toast-in 0.22s ease;
+  --toast-color: var(--color-main);
+
+  &--success { --toast-color: var(--color-success); }
+  &--danger  { --toast-color: var(--color-danger); }
+
+  &__icon {
+    flex-shrink: 0;
+    @include size(18);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-on-accent);
+    background: var(--toast-color);
+    border-radius: 50%;
+    @include font(11, "Bold");
+  }
+
+  &__msg {
+    color: color-mix(in srgb, var(--toast-color) 90%, black);
+    @include font(14, "Medium");
+  }
+
+  &__action {
+    flex-shrink: 0;
+    padding: 0 0 0 rem(4);
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-main);
+    background: none;
+    border: none;
+    @include font(14, "Bold");
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    @include transition(opacity);
+
+    &:hover {
+      opacity: 0.7;
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 2px;
+    }
+  }
+
+  &__progress-track {
+    height: 3px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--toast-color) 20%, transparent);
+    border-radius: 0 0 10px 10px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  &__progress-bar {
+    height: 100%;
+    background: var(--toast-color);
+    transform-origin: right;
+    animation-name: toast-progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+}
+
+

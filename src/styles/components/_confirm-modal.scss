@@ -1,0 +1,63 @@
+// =============================================
+// CONFIRM MODAL
+// =============================================
+
+dialog.confirm-modal {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  padding: 0 rem(16);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border: none;
+
+  &[open] {
+    display: flex;
+  }
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.confirm-modal {
+  &__container {
+    width: 100%;
+    max-width: rem(320);
+    padding: rem(28) rem(24);
+    display: flex;
+    flex-direction: column;
+    gap: rem(20);
+    background: var(--color-white);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  }
+
+  &__msg {
+    color: var(--txt-color-tit);
+    @include font(15, "Medium");
+    line-height: 1.6;
+    text-align: center;
+    word-break: break-all;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: rem(8);
+
+    .btn {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__delete-btn {
+    @include btn-filled(var(--color-danger));
+  }
+}
+

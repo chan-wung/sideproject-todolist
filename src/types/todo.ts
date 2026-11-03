@@ -21,6 +21,9 @@ export interface Todo {
   completedAt?: string; // 실제로 완료 체크한 시각 (재완료 시 갱신, 해제 시 초기화됨)
 }
 
+// 카드 편집 폼이 한 번에 수정할 수 있는 필드
+export type TodoUpdates = Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoIds'>>;
+
 // 반복 일정 그 자체를 나타내는 1급 데이터.
 // 개별 회차(Todo)는 예정일이 도래하면 이 규칙으로부터 자동 생성되며, seriesId로 여기에 연결된다.
 export interface RecurrenceSeries {

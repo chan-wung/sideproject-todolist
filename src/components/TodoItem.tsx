@@ -1,11 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import { useDismiss } from '../hooks/useDismiss';
-import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS } from '../constants/labels';
-import type { Todo, RecurrenceFrequency } from '../types/todo';
+import { useState } from 'react';
+import { PRIORITY_LABEL, FREQUENCY_LABEL } from '../constants/labels';
+import type { Todo, TodoUpdates, RecurrenceFrequency } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import ConfirmModal from './ConfirmModal';
-import CategoryPickerModal from './CategoryPickerModal';
-import DatePicker from './DatePicker';
+import TodoItemEditForm from './TodoItemEditForm';
+import TodoItemMenu from './TodoItemMenu';
+import TodoItemSubtasks from './TodoItemSubtasks';
+import { ChevronIcon, DeleteIcon, DragHandleIcon, EditIcon, PinIcon } from './icons';
 import { isOverdue, formatDate } from '../utils/date';
 
 interface Props {
@@ -14,7 +15,6 @@ interface Props {
   selectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
-  // New prop for collapsing subtasks
   onToggleSubtasksCollapsed: (id: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
@@ -23,7 +23,7 @@ interface Props {
   onShare: (todo: Todo) => void;
   onKakaoShare: (todo: Todo) => void;
   onDuplicate: (id: string) => void;
-  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoIds'>>) => void;
+  onUpdate: (id: string, updates: TodoUpdates) => void;
   onAddSubtask: (id: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
@@ -37,82 +37,6 @@ interface Props {
 export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
-  const [editText, setEditText] = useState(todo.text);
-  const [editPriority, setEditPriority] = useState<Todo['priority']>(todo.priority);
-  const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
-  const [editCategory, setEditCategory] = useState(todo.category);
-  const [editRecurrence, setEditRecurrence] = useState<Todo['recurrence']>(todo.recurrence || 'none');
-  const [editMemoIds, setEditMemoIds] = useState<string[]>(todo.memoIds ?? []);
-  const [subText, setSubText] = useState('');
-  const [editingSubId, setEditingSubId] = useState<string | null>(null);
-  const [editSubText, setEditSubText] = useState('');
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const dragFromRef = useRef<number | null>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const moreRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isEditing) inputRef.current?.focus();
-  }, [isEditing]);
-
-  useDismiss(moreRef, menuOpen, () => setMenuOpen(false));
-
-  function handleEditStart() {
-    setEditText(todo.text);
-    setEditPriority(todo.priority);
-    setEditDueDate(todo.dueDate ?? '');
-    setEditCategory(todo.category);
-    setEditRecurrence(todo.recurrence || 'none');
-    setEditMemoIds(todo.memoIds ?? []);
-    setIsEditing(true);
-  }
-
-  function toggleEditMemo(id: string) {
-    setEditMemoIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  }
-
-  function handleSave() {
-    if (!editText.trim()) return;
-    onUpdate(todo.id, {
-      text: editText.trim(),
-      priority: editPriority,
-      dueDate: editDueDate || undefined,
-      category: editCategory.trim() || '기본',
-      recurrence: editRecurrence !== 'none' ? editRecurrence : undefined,
-      memoIds: editMemoIds.length > 0 ? editMemoIds : undefined,
-    });
-    setIsEditing(false);
-  }
-
-  function handleCancel() {
-    setIsEditing(false);
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSave();
-    }
-    if (e.key === 'Escape') handleCancel();
-  }
-
-  function handleAddSubtask() {
-    if (!subText.trim()) return;
-    onAddSubtask(todo.id, subText);
-    setSubText('');
-  }
-
-  function handleSubtaskKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter') handleAddSubtask();
-  }
-
-  function handleSaveSubEdit(subId: string) {
-    if (!editSubText.trim()) return;
-    onUpdateSubtask(todo.id, subId, editSubText);
-    setEditingSubId(null);
-  }
 
   const overdue = !todo.completed && isOverdue(todo.dueDate);
   const done = (todo.subtasks ?? []).filter(s => s.completed).length;
@@ -123,121 +47,13 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
 
   if (isEditing) {
     return (
-      <div id={`todo-item-${todo.id}`} className={`todo-item todo-item--${todo.priority} todo-item--editing`}>
-        <div className="todo-item__edit-wrap">
-          <div className="todo-item__edit-main">
-            <textarea
-              ref={inputRef}
-              className="todo-item__edit-field todo-item__edit-field--textarea"
-              value={editText}
-              onChange={e => setEditText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              rows={3}
-            />
-          </div>
-          <div className="todo-item__edit-row">
-            <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label" htmlFor={`todo-edit-priority-${todo.id}`}>우선순위</label>
-              <select
-                id={`todo-edit-priority-${todo.id}`}
-                className={`todo-item__edit-select todo-item__edit-select--${editPriority}`}
-                value={editPriority}
-                onChange={e => setEditPriority(e.target.value as Todo['priority'])}
-              >
-                {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
-              </select>
-            </div>
-            <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label" id={`todo-edit-dueDate-label-${todo.id}`}>마감일</label>
-              <DatePicker value={editDueDate} onChange={setEditDueDate} className="todo-item__edit-date-picker" aria-labelledby={`todo-edit-dueDate-label-${todo.id}`} />
-            </div>
-            <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label" htmlFor={`todo-edit-category-${todo.id}`}>카테고리</label>
-              <input
-                id={`todo-edit-category-${todo.id}`}
-                className="todo-item__edit-field todo-item__edit-field--sm"
-                type="text"
-                value={editCategory}
-                onChange={e => setEditCategory(e.target.value)}
-                onKeyDown={handleKeyDown}
-                autoComplete="off"
-              />
-              {categories.length > 0 && (
-                <>
-                  <div className="todo-item__category-suggest">
-                    {categories.map(c => (
-                      <button
-                        key={c}
-                        type="button"
-                        className={`todo-item__category-suggest-btn${editCategory === c ? ' todo-item__category-suggest-btn--active' : ''}`}
-                        onClick={() => setEditCategory(c)}
-                      >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    className="todo-item__category-picker-btn"
-                    onClick={() => setCategoryPickerOpen(true)}
-                  >
-                    카테고리 선택
-                  </button>
-                </>
-              )}
-            </div>
-            <div className="todo-item__edit-group">
-              <label className="todo-item__edit-label" htmlFor={`todo-edit-recurrence-${todo.id}`}>반복 주기</label>
-              {todo.seriesId ? (
-                <p className="todo-item__edit-hint">
-                  🔁 반복 일정에 속한 회차입니다. 주기 변경·종료는 상단 “반복 일정” 메뉴에서 하세요.
-                </p>
-              ) : (
-                <select
-                  id={`todo-edit-recurrence-${todo.id}`}
-                  className="todo-item__edit-select"
-                  value={editRecurrence}
-                  onChange={e => setEditRecurrence(e.target.value as Todo['recurrence'])}
-                >
-                  <option value="none">없음</option>
-                  {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}
-                </select>
-              )}
-            </div>
-          </div>
-          <div className="todo-item__edit-group todo-item__edit-group--full">
-            <label className="todo-item__edit-label">연결 메모</label>
-            {memos.length > 0 ? (
-              <div className="todo-item__memo-checklist">
-                {memos.map(m => (
-                  <label key={m.id} className="form-chk form-chk--checkbox">
-                    <input
-                      type="checkbox"
-                      checked={editMemoIds.includes(m.id)}
-                      onChange={() => toggleEditMemo(m.id)}
-                    />
-                    <span className="form-chk__text">{m.title || '제목 없음'}</span>
-                  </label>
-                ))}
-              </div>
-            ) : (
-              <p className="todo-item__memo-empty">메모 없음</p>
-            )}
-          </div>
-          <div className="todo-item__edit-actions">
-            <button className="btn btn--main btn--sm" type="button" onClick={handleSave}>수정</button>
-            <button className="btn btn--outline-gray btn--sm" type="button" onClick={handleCancel}>취소</button>
-          </div>
-        </div>
-        {categoryPickerOpen && (
-          <CategoryPickerModal
-            categories={categories}
-            value={editCategory}
-            onApply={setEditCategory}
-            onClose={() => setCategoryPickerOpen(false)}
-          />
-        )}
-      </div>
+      <TodoItemEditForm
+        todo={todo}
+        categories={categories}
+        memos={memos}
+        onSave={updates => { onUpdate(todo.id, updates); setIsEditing(false); }}
+        onCancel={() => setIsEditing(false)}
+      />
     );
   }
 
@@ -266,11 +82,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
       )}
       {manualSort && (
         <span className="todo-item__drag-handle" aria-hidden="true">
-          <svg viewBox="0 0 10 16" fill="currentColor" width="10" height="16">
-            <circle cx="3" cy="4" r="1.5"/><circle cx="7" cy="4" r="1.5"/>
-            <circle cx="3" cy="8" r="1.5"/><circle cx="7" cy="8" r="1.5"/>
-            <circle cx="3" cy="12" r="1.5"/><circle cx="7" cy="12" r="1.5"/>
-          </svg>
+          <DragHandleIcon />
         </span>
       )}
       <div className="todo-item__body">
@@ -294,20 +106,15 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               onClick={() => onPin(todo.id)}
               aria-label={todo.pinned ? '고정 해제' : '상단 고정'}
             >
-              <svg viewBox="0 0 24 24" fill={todo.pinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
+              <PinIcon filled={!!todo.pinned} />
             </button>
             <button
               className="todo-item__btn todo-item__btn--edit"
               type="button"
-              onClick={handleEditStart}
+              onClick={() => setIsEditing(true)}
               aria-label="수정"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
+              <EditIcon />
             </button>
             <button
               className="todo-item__btn todo-item__btn--delete"
@@ -315,83 +122,15 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               onClick={() => setShowConfirm(true)}
               aria-label="삭제"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6l-1 14H6L5 6" />
-                <path d="M10 11v6M14 11v6" />
-                <path d="M9 6V4h6v2" />
-              </svg>
+              <DeleteIcon />
             </button>
-            <div className="todo-item__more" ref={moreRef}>
-              <button
-                type="button"
-                className={`todo-item__btn todo-item__btn--more${menuOpen ? ' todo-item__btn--more-active' : ''}`}
-                onClick={() => setMenuOpen(prev => !prev)}
-                aria-label="더보기"
-                aria-haspopup="true"
-                aria-expanded={menuOpen}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <circle cx="12" cy="5" r="1.8" />
-                  <circle cx="12" cy="12" r="1.8" />
-                  <circle cx="12" cy="19" r="1.8" />
-                </svg>
-              </button>
-              {menuOpen && (
-                <div className="todo-item__menu" role="menu">
-                  <button
-                    type="button"
-                    className="todo-item__menu-item"
-                    role="menuitem"
-                    onClick={() => { setMenuOpen(false); onCopy(todo); }}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-                    </svg>
-                    클립보드에 복사
-                  </button>
-                  <button
-                    type="button"
-                    className="todo-item__menu-item"
-                    role="menuitem"
-                    onClick={() => { setMenuOpen(false); onShare(todo); }}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="18" cy="5" r="3" />
-                      <circle cx="6" cy="12" r="3" />
-                      <circle cx="18" cy="19" r="3" />
-                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                      <line x1="8.59" y1="10.49" x2="15.42" y2="6.51" />
-                    </svg>
-                    공유
-                  </button>
-                  <button
-                    type="button"
-                    className="todo-item__menu-item"
-                    role="menuitem"
-                    onClick={() => { setMenuOpen(false); onKakaoShare(todo); }}
-                  >
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 3C6.48 3 2 6.58 2 11c0 2.8 1.86 5.26 4.66 6.68-.15.55-.55 2-.63 2.32-.1.4.15.4.31.29.13-.09 2.05-1.4 2.88-1.97.9.13 1.83.2 2.78.2 5.52 0 10-3.58 10-8s-4.48-8-10-8z" />
-                    </svg>
-                    카카오톡 공유
-                  </button>
-                  <button
-                    type="button"
-                    className="todo-item__menu-item"
-                    role="menuitem"
-                    onClick={() => { setMenuOpen(false); onDuplicate(todo.id); }}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    할 일 복사
-                  </button>
-                </div>
-              )}
-            </div>
+            <TodoItemMenu
+              todo={todo}
+              onCopy={onCopy}
+              onShare={onShare}
+              onKakaoShare={onKakaoShare}
+              onDuplicate={onDuplicate}
+            />
           </div>
         </div>
         <div className="todo-item__meta">
@@ -419,7 +158,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           <button
             type="button"
             className={`todo-item__memo-link todo-item__memo-link--empty${linkedMemos.length > 0 ? ' todo-item__memo-link--add' : ''}`}
-            onClick={handleEditStart}
+            onClick={() => setIsEditing(true)}
             aria-label={linkedMemos.length > 0 ? '메모 추가 연결' : '메모 연결'}
           >
             {linkedMemos.length > 0 ? '+ 메모' : '📎 메모 연결'}
@@ -434,18 +173,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                 aria-expanded={!todo.subtasksCollapsed}
                 aria-controls={`todo-subtasks-${todo.id}`}
               >
-                <svg
-                  className={`todo-item__sub-toggle-icon${todo.subtasksCollapsed ? ' todo-item__sub-toggle-icon--collapsed' : ''}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
+                <ChevronIcon className={`todo-item__sub-toggle-icon${todo.subtasksCollapsed ? ' todo-item__sub-toggle-icon--collapsed' : ''}`} />
                 {todo.subtasksCollapsed ? '더보기' : '접기'}
               </button>
             </div>
@@ -464,103 +192,14 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           )}
         </div>
 
-        <div className={`todo-item__subtasks${todo.subtasksCollapsed ? ' todo-item__subtasks--collapsed' : ''}`} id={`todo-subtasks-${todo.id}`}>
-          {(todo.subtasks ?? []).map((sub, index) => (
-            <div
-              key={sub.id}
-              className={['todo-item__subtask', dragOverIndex === index ? 'todo-item__subtask--drag-over' : ''].filter(Boolean).join(' ')}
-              draggable={editingSubId !== sub.id}
-              onDragStart={(e) => { e.stopPropagation(); dragFromRef.current = index; }}
-              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); if (dragOverIndex !== index) setDragOverIndex(index); }}
-              onDragLeave={() => setDragOverIndex(null)}
-              onDrop={(e) => {
-                e.stopPropagation();
-                if (dragFromRef.current !== null && dragFromRef.current !== index) {
-                  onReorderSubtasks(todo.id, dragFromRef.current, index);
-                }
-                setDragOverIndex(null);
-                dragFromRef.current = null;
-              }}
-              onDragEnd={(e) => { e.stopPropagation(); setDragOverIndex(null); dragFromRef.current = null; }}
-            >
-              {editingSubId === sub.id ? (
-                <div className="todo-item__sub-edit">
-                  <input
-                    className="todo-item__edit-field todo-item__edit-field--sm"
-                    type="text"
-                    value={editSubText}
-                    onChange={e => setEditSubText(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') handleSaveSubEdit(sub.id);
-                      if (e.key === 'Escape') setEditingSubId(null);
-                    }}
-                    autoFocus
-                  />
-                  <button type="button" className="todo-item__btn-sub-action todo-item__btn-sub-action--save" onClick={() => handleSaveSubEdit(sub.id)} aria-label="저장">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                    <span className="screen-out">저장</span>
-                  </button>
-                  <button type="button" className="todo-item__btn-sub-action todo-item__btn-sub-action--cancel" onClick={() => setEditingSubId(null)} aria-label="취소">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    <span className="screen-out">취소</span>
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span className="todo-item__sub-drag" aria-hidden="true">
-                    <svg viewBox="0 0 10 16" fill="currentColor" width="10" height="16">
-                      <circle cx="3" cy="4" r="1.5"/><circle cx="7" cy="4" r="1.5"/>
-                      <circle cx="3" cy="8" r="1.5"/><circle cx="7" cy="8" r="1.5"/>
-                      <circle cx="3" cy="12" r="1.5"/><circle cx="7" cy="12" r="1.5"/>
-                    </svg>
-                  </span>
-                  <label className="form-chk form-chk--checkbox">
-                    <input
-                      className="todo-item__sub-chk"
-                      type="checkbox"
-                      checked={sub.completed}
-                      onChange={() => onToggleSubtask(todo.id, sub.id)}
-                    />
-                    <span className="form-chk__text">{sub.text}</span>
-                  </label>
-                  <button
-                    type="button"
-                    className="todo-item__btn-sub-edit"
-                    onClick={() => { setEditingSubId(sub.id); setEditSubText(sub.text); }}
-                    aria-label="하위 항목 수정"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                    </svg>
-                    <span className="screen-out">수정</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="todo-item__btn-sub-del"
-                    onClick={() => onDeleteSubtask(todo.id, sub.id)}
-                    aria-label="서브태스크 삭제"
-                  >
-                    <span className="screen-out">삭제</span>
-                  </button>
-                </>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="todo-item__sub-add">
-          <input
-            className="todo-item__sub-add-field"
-            type="text"
-            placeholder="하위 항목 추가"
-            value={subText}
-            onChange={e => setSubText(e.target.value)}
-            onKeyDown={handleSubtaskKeyDown}
-          />
-          <button className="todo-item__sub-add-btn" type="button" onClick={handleAddSubtask} aria-label="하위 항목 추가">
-            <span className="screen-out">추가</span>
-          </button>
-        </div>
+        <TodoItemSubtasks
+          todo={todo}
+          onAddSubtask={onAddSubtask}
+          onToggleSubtask={onToggleSubtask}
+          onDeleteSubtask={onDeleteSubtask}
+          onUpdateSubtask={onUpdateSubtask}
+          onReorderSubtasks={onReorderSubtasks}
+        />
       </div>
 
       {showConfirm && (

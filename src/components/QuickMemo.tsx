@@ -4,6 +4,7 @@ import { useModalDialog } from '../hooks/useModalDialog';
 import ConfirmModal from './ConfirmModal';
 import Toast from './Toast';
 import { generateId } from '../utils/id';
+import { moveItem } from '../utils/list';
 import { memoToText, copyText, shareText, copyFeedback, shareFeedback, kakaoFeedback } from '../utils/share';
 import type { Feedback } from '../utils/share';
 import { shareToKakao } from '../utils/kakao';
@@ -141,10 +142,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
     const from = memos.findIndex(m => m.id === draggingId);
     const to = memos.findIndex(m => m.id === targetId);
     if (from === -1 || to === -1) return;
-    const next = [...memos];
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-    setMemos(next);
+    setMemos(moveItem(memos, from, to));
     setDraggingId(null);
     setDragOverId(null);
   }

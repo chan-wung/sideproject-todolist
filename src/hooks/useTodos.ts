@@ -4,6 +4,7 @@ import { usePersistentState } from './usePersistentState';
 import { isToday, isThisWeek, isOverdue, todayStr } from '../utils/date';
 import { migrateLegacyRecurrence, materializeDueOccurrences, validateRecurrenceSeries } from '../utils/recurrence';
 import { generateId } from '../utils/id';
+import { moveItem } from '../utils/list';
 
 const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, low: 2 };
 
@@ -437,13 +438,9 @@ export function useTodos() {
   }
 
   function reorderSubtasks(todoId: string, fromIndex: number, toIndex: number) {
-    setTodos(prev => prev.map(t => {
-      if (t.id !== todoId) return t;
-      const subtasks = [...(t.subtasks ?? [])];
-      const [removed] = subtasks.splice(fromIndex, 1);
-      subtasks.splice(toIndex, 0, removed);
-      return { ...t, subtasks };
-    }));
+    setTodos(prev => prev.map(t =>
+      t.id !== todoId ? t : { ...t, subtasks: moveItem(t.subtasks ?? [], fromIndex, toIndex) }
+    ));
   }
 
   function resetTodos() { setTodos([]); setRecurrenceSeries([]); }
@@ -608,15 +605,11 @@ export function useTodos() {
 
   function reorderTodos(draggedId: string, targetId: string) {
     if (draggedId === targetId) return;
-    setTodos(prev => {
-      const fromIndex = prev.findIndex(t => t.id === draggedId);
-      const toIndex = prev.findIndex(t => t.id === targetId);
-      if (fromIndex === -1 || toIndex === -1) return prev;
-      const next = [...prev];
-      const [moved] = next.splice(fromIndex, 1);
-      next.splice(toIndex, 0, moved);
-      return next;
-    });
+    setTodos(prev => moveItem(
+      prev,
+      prev.findIndex(t => t.id === draggedId),
+      prev.findIndex(t => t.id === targetId),
+    ));
   }
 
   function bulkUpdateCategory(ids: string[], category: string) {

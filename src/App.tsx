@@ -4,6 +4,7 @@ import { useMemos, validateMemos } from './hooks/useMemos';
 import type { Memo } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
+import { useSelection } from './hooks/useSelection';
 import TodoInput from './components/TodoInput';
 import FilterBar from './components/FilterBar';
 import TodoList from './components/TodoList';
@@ -200,29 +201,17 @@ export default function App() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const [selectionMode, setSelectionMode] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-
-  function handleToggleSelectionMode() {
-    setSelectionMode(prev => !prev);
-    setSelectedIds(new Set());
-  }
-
-  function handleToggleSelect(id: string) {
-    setSelectedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
+  const {
+    selectionMode,
+    selectedIds,
+    toggleMode: handleToggleSelectionMode,
+    toggle: handleToggleSelect,
+    selectAll,
+    clear: handleClearSelection,
+  } = useSelection();
 
   function handleSelectAll() {
-    setSelectedIds(new Set(filteredTodos.map(t => t.id)));
-  }
-
-  function handleClearSelection() {
-    setSelectedIds(new Set());
+    selectAll(filteredTodos.map(t => t.id));
   }
 
   function handleBulkCategory(category: string) {
@@ -237,7 +226,7 @@ export default function App() {
 
   function handleBulkDelete() {
     bulkDelete(Array.from(selectedIds));
-    setSelectedIds(new Set());
+    handleClearSelection();
   }
 
   // 복사·공유·카카오 공유를 실행하고 결과에 맞는 토스트를 띄운다.

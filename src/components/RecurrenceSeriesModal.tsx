@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
+import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS } from '../constants/labels';
 import type { Todo, RecurrenceSeries, RecurrenceFrequency } from '../types/todo';
 import { formatDate, todayStr, upcomingOccurrences } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
@@ -27,18 +28,6 @@ interface Props {
   onDelete: (id: string) => void;
 }
 
-const FREQUENCY_LABEL: Record<RecurrenceFrequency, string> = {
-  daily: '매일',
-  weekly: '매주',
-  monthly: '매월',
-};
-
-const PRIORITY_LABEL: Record<Todo['priority'], string> = {
-  high: '높음',
-  medium: '보통',
-  low: '낮음',
-};
-
 const CAT_DATALIST_ID = 'recurrence-cat-options';
 
 const EMPTY_ADD: SeriesInput = {
@@ -64,9 +53,7 @@ function SeriesFields({ value, onChange, showEndDate }: {
           value={value.frequency}
           onChange={e => onChange({ frequency: e.target.value as RecurrenceFrequency })}
         >
-          <option value="daily">매일</option>
-          <option value="weekly">매주</option>
-          <option value="monthly">매월</option>
+          {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}
         </select>
       </label>
       <label className="recurrence-modal__field">
@@ -80,9 +67,7 @@ function SeriesFields({ value, onChange, showEndDate }: {
           value={value.priority}
           onChange={e => onChange({ priority: e.target.value as Todo['priority'] })}
         >
-          <option value="high">높음</option>
-          <option value="medium">보통</option>
-          <option value="low">낮음</option>
+          {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
         </select>
       </label>
       <label className="recurrence-modal__field">
@@ -131,7 +116,6 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
   if (!isOpen) return null;
 
   const today = todayStr();
-  const catOptions = categories.filter(c => c !== 'all');
 
   function handleAddSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -180,7 +164,7 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
         </div>
 
         <datalist id={CAT_DATALIST_ID}>
-          {catOptions.map(c => <option key={c} value={c} />)}
+          {categories.map(c => <option key={c} value={c} />)}
         </datalist>
 
         <form className="recurrence-modal__add" onSubmit={handleAddSubmit}>

@@ -4,7 +4,8 @@ import { useModalDialog } from '../hooks/useModalDialog';
 import ConfirmModal from './ConfirmModal';
 import Toast from './Toast';
 import { generateId } from '../utils/id';
-import { memoToText, copyText, shareText } from '../utils/share';
+import { memoToText, copyText, shareText, copyFeedback, shareFeedback, kakaoFeedback } from '../utils/share';
+import type { Feedback } from '../utils/share';
 import { shareToKakao } from '../utils/kakao';
 import type { Memo } from '../hooks/useMemos';
 import type { Todo } from '../types/todo';
@@ -26,7 +27,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // 모달이 top layer에 떠 있는 동안에는 앱 레벨 토스트가 backdrop에 가려지므로 자체 토스트를 사용한다.
-  const [feedback, setFeedback] = useState<{ id: string; message: string; type: 'primary' | 'success' | 'danger' } | null>(null);
+  const [feedback, setFeedback] = useState<(Feedback & { id: string }) | null>(null);
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -85,26 +86,20 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
     setMemos(memos.map(m => m.id === activeId ? { ...m, ...updates } : m));
   }
 
+  function showFeedback(next: Feedback | null) {
+    if (next) setFeedback({ id: generateId(), ...next });
+  }
+
   async function handleCopyActive(memo: Memo) {
-    const ok = await copyText(memoToText(memo));
-    setFeedback(ok
-      ? { id: generateId(), message: '메모를 클립보드에 복사했습니다.', type: 'success' }
-      : { id: generateId(), message: '복사에 실패했습니다.', type: 'danger' });
+    showFeedback(copyFeedback(await copyText(memoToText(memo)), '메모를 클립보드에 복사했습니다.'));
   }
 
   async function handleKakaoShareActive(memo: Memo) {
-    const ok = await shareToKakao(memoToText(memo));
-    if (!ok) {
-      setFeedback({ id: generateId(), message: '카카오톡 공유를 열지 못했습니다. 네트워크 또는 도메인 등록을 확인하세요.', type: 'danger' });
-    }
+    showFeedback(kakaoFeedback(await shareToKakao(memoToText(memo))));
   }
 
   async function handleShareActive(memo: Memo) {
-    const result = await shareText(memo.title || '메모 공유', memoToText(memo));
-    if (result === 'shared' || result === 'canceled') return;
-    setFeedback(result === 'copied'
-      ? { id: generateId(), message: '공유를 지원하지 않는 환경이라 클립보드에 복사했습니다.', type: 'primary' }
-      : { id: generateId(), message: '공유에 실패했습니다.', type: 'danger' });
+    showFeedback(shareFeedback(await shareText(memo.title || '메모 공유', memoToText(memo))));
   }
 
   function toggleMemoPin(id: string) {

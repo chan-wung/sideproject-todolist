@@ -18,9 +18,21 @@ import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
 import type { Todo, CompletionLogEntry, RecurrenceSeries } from './types/todo';
 import { generateId } from './utils/id';
-import { todoToText, copyText, shareText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
+import {
+  todoToText, copyText, shareText, completionLogEntryToText, completionLogEntriesToText,
+  copyFeedback, shareFeedback, kakaoFeedback,
+} from './utils/share';
 import { preloadKakao, shareToKakao } from './utils/kakao';
 import './styles/main.scss';
+
+interface ToastState {
+  id: string;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
+  duration?: number;
+  type?: 'primary' | 'success' | 'danger';
+}
 
 export default function App() {
   const {
@@ -43,6 +55,7 @@ export default function App() {
     exportCompletionLog,
     importCompletionLog,
     categories,
+    categoryOptions,
     activeCount,
     completedCount,
     dueTodayCount,
@@ -102,15 +115,6 @@ export default function App() {
   useEffect(() => {
     preloadKakao();
   }, []);
-
-  interface ToastState {
-    id: string;
-    message: string;
-    actionLabel?: string;
-    onAction?: () => void;
-    duration?: number;
-    type?: 'primary' | 'success' | 'danger';
-  }
 
   const [toast, setToast] = useState<ToastState | null>(null);
 
@@ -236,27 +240,24 @@ export default function App() {
     setSelectedIds(new Set());
   }
 
-  async function handleCopyTodo(todo: Todo) {
-    const ok = await copyText(todoToText(todo));
-    showToast(ok
-      ? { message: '할 일을 클립보드에 복사했습니다.', type: 'success' }
-      : { message: '복사에 실패했습니다.', type: 'danger' });
+  // 복사·공유·카카오 공유를 실행하고 결과에 맞는 토스트를 띄운다.
+  async function runCopy(text: string, successMessage: string) {
+    showToast(copyFeedback(await copyText(text), successMessage));
   }
 
-  async function handleShareTodo(todo: Todo) {
-    const result = await shareText('할 일 공유', todoToText(todo));
-    if (result === 'shared' || result === 'canceled') return;
-    showToast(result === 'copied'
-      ? { message: '공유를 지원하지 않는 환경이라 클립보드에 복사했습니다.', type: 'primary' }
-      : { message: '공유에 실패했습니다.', type: 'danger' });
+  async function runShare(title: string, text: string) {
+    const feedback = shareFeedback(await shareText(title, text));
+    if (feedback) showToast(feedback);
   }
 
-  async function handleKakaoShareTodo(todo: Todo) {
-    const ok = await shareToKakao(todoToText(todo));
-    if (!ok) {
-      showToast({ message: '카카오톡 공유를 열지 못했습니다. 네트워크 또는 도메인 등록을 확인하세요.', type: 'danger' });
-    }
+  async function runKakaoShare(text: string) {
+    const feedback = kakaoFeedback(await shareToKakao(text));
+    if (feedback) showToast(feedback);
   }
+
+  const handleCopyTodo = (todo: Todo) => runCopy(todoToText(todo), '할 일을 클립보드에 복사했습니다.');
+  const handleShareTodo = (todo: Todo) => runShare('할 일 공유', todoToText(todo));
+  const handleKakaoShareTodo = (todo: Todo) => runKakaoShare(todoToText(todo));
 
   function handleDuplicateTodo(id: string) {
     duplicateTodo(id);
@@ -284,42 +285,12 @@ export default function App() {
     showToast({ message: '완료 이력을 초기화했습니다.', type: 'danger' });
   }
 
-  async function handleCopyLogEntry(entry: CompletionLogEntry) {
-    const ok = await copyText(completionLogEntryToText(entry));
-    showToast(ok
-      ? { message: '완료 이력을 클립보드에 복사했습니다.', type: 'success' }
-      : { message: '복사에 실패했습니다.', type: 'danger' });
-  }
-
-  async function handleShareLogEntry(entry: CompletionLogEntry) {
-    const result = await shareText('완료 이력 공유', completionLogEntryToText(entry));
-    if (result === 'shared' || result === 'canceled') return;
-    showToast(result === 'copied'
-      ? { message: '공유를 지원하지 않는 환경이라 클립보드에 복사했습니다.', type: 'primary' }
-      : { message: '공유에 실패했습니다.', type: 'danger' });
-  }
-
-  async function handleCopyAllLog(entries: CompletionLogEntry[]) {
-    const ok = await copyText(completionLogEntriesToText(entries));
-    showToast(ok
-      ? { message: '완료 이력을 클립보드에 복사했습니다.', type: 'success' }
-      : { message: '복사에 실패했습니다.', type: 'danger' });
-  }
-
-  async function handleShareAllLog(entries: CompletionLogEntry[]) {
-    const result = await shareText('완료 이력 공유', completionLogEntriesToText(entries));
-    if (result === 'shared' || result === 'canceled') return;
-    showToast(result === 'copied'
-      ? { message: '공유를 지원하지 않는 환경이라 클립보드에 복사했습니다.', type: 'primary' }
-      : { message: '공유에 실패했습니다.', type: 'danger' });
-  }
-
-  async function handleKakaoShareAllLog(entries: CompletionLogEntry[]) {
-    const ok = await shareToKakao(completionLogEntriesToText(entries));
-    if (!ok) {
-      showToast({ message: '카카오톡 공유를 열지 못했습니다. 네트워크 또는 도메인 등록을 확인하세요.', type: 'danger' });
-    }
-  }
+  const LOG_COPIED_MESSAGE = '완료 이력을 클립보드에 복사했습니다.';
+  const handleCopyLogEntry = (entry: CompletionLogEntry) => runCopy(completionLogEntryToText(entry), LOG_COPIED_MESSAGE);
+  const handleShareLogEntry = (entry: CompletionLogEntry) => runShare('완료 이력 공유', completionLogEntryToText(entry));
+  const handleCopyAllLog = (entries: CompletionLogEntry[]) => runCopy(completionLogEntriesToText(entries), LOG_COPIED_MESSAGE);
+  const handleShareAllLog = (entries: CompletionLogEntry[]) => runShare('완료 이력 공유', completionLogEntriesToText(entries));
+  const handleKakaoShareAllLog = (entries: CompletionLogEntry[]) => runKakaoShare(completionLogEntriesToText(entries));
 
   const [isCompletionLogOpen, setIsCompletionLogOpen] = useState(false);
 
@@ -381,7 +352,7 @@ export default function App() {
           <QuickNav filteredTodos={filteredTodos} />
         </div>
 
-        <TodoInput onAdd={addTodo} categories={categories.filter(c => c !== 'all')} />
+        <TodoInput onAdd={addTodo} categories={categoryOptions} />
           
         <DueSummary 
           dueTodayCount={dueTodayCount} 
@@ -417,7 +388,7 @@ export default function App() {
         {selectionMode && (
           <BulkActionBar
             selectedCount={selectedIds.size}
-            categories={categories.filter(c => c !== 'all')}
+            categories={categoryOptions}
             onSelectAll={handleSelectAll}
             onClearSelection={handleClearSelection}
             onApplyCategory={handleBulkCategory}
@@ -430,7 +401,7 @@ export default function App() {
           todos={filteredTodos}
           filterStatus={filterStatus}
           sortKey={sortKey}
-          categories={categories.filter(c => c !== 'all')}
+          categories={categoryOptions}
           memos={memos}
           onOpenMemo={handleOpenMemo}
           onToggle={toggleTodo}
@@ -482,7 +453,7 @@ export default function App() {
         onClose={() => setIsRecurrenceOpen(false)}
         seriesList={recurrenceSeries}
         todos={allTodos}
-        categories={categories}
+        categories={categoryOptions}
         onAdd={addRecurrenceSeries}
         onUpdate={updateRecurrenceSeries}
         onEnd={endRecurrenceSeries}

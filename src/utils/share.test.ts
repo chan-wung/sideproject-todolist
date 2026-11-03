@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { todoToText, memoToText } from './share';
+import { todoToText, memoToText, copyFeedback, shareFeedback, kakaoFeedback } from './share';
 import type { Todo } from '../types/todo';
 
 function makeTodo(overrides: Partial<Todo> = {}): Todo {
@@ -47,5 +47,27 @@ describe('memoToText', () => {
 
   it('returns only title when content is empty', () => {
     expect(memoToText({ id: 'm', title: '제목', content: '' })).toBe('제목');
+  });
+});
+
+describe('feedback messages', () => {
+  it('copyFeedback: 성공이면 전달한 문구, 실패면 공통 실패 문구', () => {
+    expect(copyFeedback(true, '복사했습니다.')).toEqual({ message: '복사했습니다.', type: 'success' });
+    expect(copyFeedback(false, '복사했습니다.')).toEqual({ message: '복사에 실패했습니다.', type: 'danger' });
+  });
+
+  it('shareFeedback: 공유 완료·취소는 안내 없음', () => {
+    expect(shareFeedback('shared')).toBeNull();
+    expect(shareFeedback('canceled')).toBeNull();
+  });
+
+  it('shareFeedback: 클립보드 폴백은 primary, 실패는 danger', () => {
+    expect(shareFeedback('copied')?.type).toBe('primary');
+    expect(shareFeedback('failed')).toEqual({ message: '공유에 실패했습니다.', type: 'danger' });
+  });
+
+  it('kakaoFeedback: 성공이면 null, 실패면 danger', () => {
+    expect(kakaoFeedback(true)).toBeNull();
+    expect(kakaoFeedback(false)?.type).toBe('danger');
   });
 });

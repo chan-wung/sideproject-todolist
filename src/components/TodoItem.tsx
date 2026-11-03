@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
-import type { Todo } from '../types/todo';
+import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS } from '../constants/labels';
+import type { Todo, RecurrenceFrequency } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import ConfirmModal from './ConfirmModal';
 import CategoryPickerModal from './CategoryPickerModal';
@@ -32,19 +33,6 @@ interface Props {
   memos: Memo[];
   onOpenMemo: (memoId: string) => void;
 }
-
-const PRIORITY_LABEL: Record<Todo['priority'], string> = {
-  high: '높음',
-  medium: '보통',
-  low: '낮음',
-};
-
-const RECURRENCE_LABEL: Record<string, string> = {
-  none: '',
-  daily: '매일',
-  weekly: '매주',
-  monthly: '매월'
-};
 
 export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
@@ -156,9 +144,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                 value={editPriority}
                 onChange={e => setEditPriority(e.target.value as Todo['priority'])}
               >
-                <option value="high">높음</option>
-                <option value="medium">보통</option>
-                <option value="low">낮음</option>
+                {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
               </select>
             </div>
             <div className="todo-item__edit-group">
@@ -214,9 +200,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
                   onChange={e => setEditRecurrence(e.target.value as Todo['recurrence'])}
                 >
                   <option value="none">없음</option>
-                  <option value="daily">매일</option>
-                  <option value="weekly">매주</option>
-                  <option value="monthly">매월</option>
+                  {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}
                 </select>
               )}
             </div>
@@ -419,7 +403,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           )}
           {(todo.seriesId || (todo.recurrence && todo.recurrence !== 'none')) && (
             <span className="todo-item__badge todo-item__badge--recurrence">
-              🔁 {todo.seriesId ? '반복' : RECURRENCE_LABEL[todo.recurrence!]}
+              🔁 {todo.seriesId ? '반복' : FREQUENCY_LABEL[todo.recurrence as RecurrenceFrequency]}
             </span>
           )}
           {linkedMemos.map(m => (

@@ -12,6 +12,18 @@ const SERIES_STORAGE_KEY = 'todolist-recurrence-series';
 
 export { validateRecurrenceSeries };
 
+function normalizePriority(value: unknown): Todo['priority'] {
+  return value === 'low' || value === 'medium' || value === 'high' ? value : 'medium';
+}
+
+function writeStorage(key: string, value: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn('localStorage write failed:', e);
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function migrateTodo(raw: any): Todo {
   const { memoId, ...rest } = raw;
@@ -43,7 +55,7 @@ export function validateTodos(incoming: unknown): Todo[] | null {
   
   return incoming.map(o => {
     const migrated = migrateTodo(o);
-    const priority = ['low', 'medium', 'high'].includes(migrated.priority) ? migrated.priority : 'medium';
+    const priority = normalizePriority(migrated.priority);
     const completed = typeof migrated.completed === 'boolean' ? migrated.completed : false;
     const category = typeof migrated.category === 'string' ? migrated.category : '기본';
     const createdAt = typeof migrated.createdAt === 'string' ? migrated.createdAt : new Date().toISOString();
@@ -86,7 +98,7 @@ export function validateCompletionLog(incoming: unknown): CompletionLogEntry[] |
     id: o.id,
     text: o.text,
     category: typeof o.category === 'string' ? o.category : '기본',
-    priority: ['low', 'medium', 'high'].includes(o.priority) ? o.priority : 'medium',
+    priority: normalizePriority(o.priority),
     completedAt: o.completedAt,
     subtasks: Array.isArray(o.subtasks)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,21 +135,8 @@ export function useTodos() {
   const undoSnapshotRef = useRef<Todo[] | null>(null);
   const undoLogSnapshotRef = useRef<CompletionLogEntry[] | null>(null);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-    } catch (e) {
-      console.warn('localStorage write failed:', e);
-    }
-  }, [todos]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(SERIES_STORAGE_KEY, JSON.stringify(recurrenceSeries));
-    } catch (e) {
-      console.warn('localStorage write failed:', e);
-    }
-  }, [recurrenceSeries]);
+  useEffect(() => writeStorage(STORAGE_KEY, todos), [todos]);
+  useEffect(() => writeStorage(SERIES_STORAGE_KEY, recurrenceSeries), [recurrenceSeries]);
 
   function withUndo(message: string, mutate: (prev: Todo[]) => Todo[]) {
     setTodos(prev => {
@@ -378,28 +377,21 @@ export function useTodos() {
     }));
   }
 
-  // Toggle collapsed state for a specific Todo's subtasks
+  // 특정 할 일의 하위 항목 접힘 상태를 토글
   function toggleSubtasksCollapsed(todoId: string) {
     setTodos(prev => prev.map(t =>
       t.id === todoId ? { ...t, subtasksCollapsed: !t.subtasksCollapsed } : t
     ));
   }
 
-  // Collapse all subtasks for todos that have subtasks
-  function collapseAllSubtasks() {
+  // 하위 항목이 있는 모든 할 일의 접힘 상태를 한 번에 설정
+  function setAllSubtasksCollapsed(collapsed: boolean) {
     setTodos(prev => prev.map(t =>
-      (t.subtasks && t.subtasks.length > 0) ? { ...t, subtasksCollapsed: true } : t
+      (t.subtasks && t.subtasks.length > 0) ? { ...t, subtasksCollapsed: collapsed } : t
     ));
   }
-
-  // Expand all subtasks for todos that have subtasks
-  function expandAllSubtasks() {
-    setTodos(prev => prev.map(t =>
-      (t.subtasks && t.subtasks.length > 0) ? { ...t, subtasksCollapsed: false } : t
-    ));
-  }
-
-
+  const collapseAllSubtasks = () => setAllSubtasksCollapsed(true);
+  const expandAllSubtasks = () => setAllSubtasksCollapsed(false);
 
   function toggleSubtask(todoId: string, subId: string) {
     setTodos(prev => prev.map(t => {
@@ -556,6 +548,9 @@ export function useTodos() {
     return ['all', ...Array.from(new Set(todos.map(t => t.category)))];
   }, [todos]);
 
+  // 'all' 없이 실제 카테고리만 (입력창 자동완성·일괄 변경 등에서 사용)
+  const categoryOptions = useMemo(() => categories.slice(1), [categories]);
+
   useEffect(() => {
     if (filterCategory !== 'all' && !categories.includes(filterCategory)) {
       setFilterCategory('all');
@@ -679,6 +674,7 @@ export function useTodos() {
     exportCompletionLog,
     importCompletionLog,
     categories,
+    categoryOptions,
     activeCount,
     completedCount,
     dueTodayCount,
@@ -716,11 +712,8 @@ export function useTodos() {
     dismissUndo,
     linkMemoToTodo,
     unlinkMemoFromTodo,
-    // New collapsible subtask handlers
     toggleSubtasksCollapsed,
     collapseAllSubtasks,
     expandAllSubtasks,
   };
-
-
 }

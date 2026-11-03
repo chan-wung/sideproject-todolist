@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Todo } from '../types/todo';
+import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS } from '../constants/labels';
 import Toast from './Toast';
 import DatePicker from './DatePicker';
 
@@ -67,9 +68,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
               value={priority}
               onChange={e => setPriority(e.target.value as Todo['priority'])}
             >
-              <option value="high">높음</option>
-              <option value="medium">보통</option>
-              <option value="low">낮음</option>
+              {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
             </select>
           </div>
 
@@ -104,9 +103,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
               onChange={e => setRecurrence(e.target.value as Todo['recurrence'])}
             >
               <option value="none">반복 안 함</option>
-              <option value="daily">매일</option>
-              <option value="weekly">매주</option>
-              <option value="monthly">매월</option>
+              {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}
             </select>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Todo } from '../types/todo';
+import { PRIORITY_LABEL, PRIORITY_OPTIONS } from '../constants/labels';
 import ConfirmModal from './ConfirmModal';
 
 interface Props {
@@ -62,9 +63,17 @@ export default function BulkActionBar({
       </form>
 
       <div className="bulk-bar__priority-group">
-        <button type="button" className="bulk-bar__priority-btn bulk-bar__priority-btn--high" disabled={selectedCount === 0} onClick={() => onApplyPriority('high')}>높음</button>
-        <button type="button" className="bulk-bar__priority-btn bulk-bar__priority-btn--medium" disabled={selectedCount === 0} onClick={() => onApplyPriority('medium')}>보통</button>
-        <button type="button" className="bulk-bar__priority-btn bulk-bar__priority-btn--low" disabled={selectedCount === 0} onClick={() => onApplyPriority('low')}>낮음</button>
+        {PRIORITY_OPTIONS.map(p => (
+          <button
+            key={p}
+            type="button"
+            className={`bulk-bar__priority-btn bulk-bar__priority-btn--${p}`}
+            disabled={selectedCount === 0}
+            onClick={() => onApplyPriority(p)}
+          >
+            {PRIORITY_LABEL[p]}
+          </button>
+        ))}
       </div>
 
       <button

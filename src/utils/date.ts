@@ -1,3 +1,5 @@
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 function parseLocalDate(dateStr: string): Date {
   if (dateStr.includes('T')) {
     return new Date(dateStr);
@@ -24,7 +26,7 @@ export function isThisWeek(dueDate?: string): boolean {
   if (!dueDate) return false;
   const d = new Date(parseLocalDate(dueDate).toDateString()).getTime();
   const today = new Date(new Date().toDateString()).getTime();
-  return d >= today && d <= today + 7 * 24 * 60 * 60 * 1000;
+  return d >= today && d <= today + 7 * MS_PER_DAY;
 }
 export function formatDate(dateStr: string): string {
   const d = parseLocalDate(dateStr);
@@ -83,7 +85,7 @@ function estimateStartIndex(anchorDate: string, frequency: 'daily' | 'weekly' | 
   if (fromDate <= anchorDate) return 0;
   const a = parseLocalDate(anchorDate);
   const f = parseLocalDate(fromDate);
-  const dayDiff = Math.floor((f.getTime() - a.getTime()) / (24 * 60 * 60 * 1000));
+  const dayDiff = Math.floor((f.getTime() - a.getTime()) / MS_PER_DAY);
   if (frequency === 'daily') return Math.max(0, dayDiff - 1);
   if (frequency === 'weekly') return Math.max(0, Math.floor(dayDiff / 7) - 1);
   const monthDiff = (f.getFullYear() - a.getFullYear()) * 12 + (f.getMonth() - a.getMonth());
@@ -133,10 +135,15 @@ export function upcomingOccurrences(
   return result;
 }
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
+export interface YearProgress {
+  year: number;
+  daysLeft: number;
+  percent: number;
+  totalDays: number;
+}
 
 // 올해 남은 날(오늘 제외, 12/31이면 0)과 경과율(0~100, 정수 내림)
-export function yearProgress(now: Date = new Date()): { year: number; daysLeft: number; percent: number; totalDays: number } {
+export function yearProgress(now: Date = new Date()): YearProgress {
   const year = now.getFullYear();
   const today = new Date(year, now.getMonth(), now.getDate());
   const start = new Date(year, 0, 1);

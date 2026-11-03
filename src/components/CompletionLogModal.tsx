@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
+import { PRIORITY_LABEL } from '../constants/labels';
 import type { CompletionLogEntry } from '../types/todo';
 import { formatDate, formatTime } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
@@ -16,12 +17,6 @@ interface Props {
   onShareAll: (entries: CompletionLogEntry[]) => void;
   onKakaoShareAll: (entries: CompletionLogEntry[]) => void;
 }
-
-const PRIORITY_LABEL: Record<CompletionLogEntry['priority'], string> = {
-  high: '높음',
-  medium: '보통',
-  low: '낮음',
-};
 
 function groupByDate(entries: CompletionLogEntry[]): [string, CompletionLogEntry[]][] {
   const groups = new Map<string, CompletionLogEntry[]>();

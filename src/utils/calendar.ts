@@ -167,67 +167,83 @@ export interface MonthLayout {
   hidden: Record<string, number>;
 }
 
-// 한 달의 항목들을 주 단위 띠로 나누고, 같은 주 안에서 겹치지 않게 줄을 배정한다.
-// 시작이 빠른 것, 같으면 긴 것, 같으면 날짜 안 순서(연차 → 정기 → 일반 …) 순으로 위 줄부터 놓는다.
-export function layoutMonth(items: CalendarItem[], year: number, month0: number, maxLanes = 3): MonthLayout {
-  const dayCount = daysInMonth(year, month0);
-  const { from, to } = monthRange(year, month0);
-  const blank = new Date(year, month0, 1).getDay(); // 1일 앞의 빈칸 수 (일요일 시작)
-  const weekCount = Math.ceil((blank + dayCount) / 7);
-  const dayOf = (date: string) => Number(date.slice(8, 10));
+export interface WeekLayout {
+  bars: WeekBar[];
+  /** 날짜별 전체 항목 수 */
+  total: Record<string, number>;
+  /** 날짜별로 줄이 모자라 가려진 항목 수 ('+N') */
+  hidden: Record<string, number>;
+}
 
-  const weeks: MonthWeek[] = Array.from({ length: weekCount }, (_, w) => ({
-    dates: Array.from({ length: 7 }, (_, c) => {
-      const day = w * 7 + c - blank + 1;
-      return day >= 1 && day <= dayCount ? dateStr(year, month0, day) : null;
-    }),
-    bars: [],
-  }));
-  const segments: WeekBar[][] = weeks.map(() => []);
+// 한 주(7칸)의 항목들을 띠로 나누고 겹치지 않게 줄을 배정한다. dates의 null 칸(그 달이 아닌 칸)은 건너뛴다.
+// 시작이 빠른 것, 같으면 긴 것, 같으면 날짜 안 순서(연차 → 정기 → 일반 …) 순으로 위 줄부터 놓는다.
+// maxLanes를 넘는 줄의 띠는 그리지 않고 날짜별 hidden 수에만 센다.
+export function layoutWeek(items: CalendarItem[], dates: (string | null)[], maxLanes = 3): WeekLayout {
+  const segs: WeekBar[] = [];
   const total: Record<string, number> = {};
   const hidden: Record<string, number> = {};
 
   for (const item of items) {
-    if (item.end < from || item.start > to) continue;
-    const s = item.start < from ? from : item.start;
-    const e = item.end > to ? to : item.end;
-    const sIdx = blank + dayOf(s) - 1;
-    const eIdx = blank + dayOf(e) - 1;
-    for (let w = Math.floor(sIdx / 7); w <= Math.floor(eIdx / 7); w++) {
-      const c0 = Math.max(sIdx, w * 7) - w * 7;
-      const c1 = Math.min(eIdx, w * 7 + 6) - w * 7;
-      segments[w].push({
-        item,
-        col: c0 + 1,
-        span: c1 - c0 + 1,
-        lane: 0,
-        continuesBefore: item.start < (weeks[w].dates[c0] as string),
-        continuesAfter: item.end > (weeks[w].dates[c1] as string),
-      });
-      for (let c = c0; c <= c1; c++) {
-        const date = weeks[w].dates[c] as string;
-        total[date] = (total[date] ?? 0) + 1;
+    let c0 = -1;
+    let c1 = -1;
+    dates.forEach((date, c) => {
+      if (date && item.start <= date && date <= item.end) {
+        if (c0 === -1) c0 = c;
+        c1 = c;
       }
+    });
+    if (c0 === -1) continue;
+    segs.push({
+      item,
+      col: c0 + 1,
+      span: c1 - c0 + 1,
+      lane: 0,
+      continuesBefore: item.start < (dates[c0] as string),
+      continuesAfter: item.end > (dates[c1] as string),
+    });
+    for (let c = c0; c <= c1; c++) {
+      const date = dates[c] as string;
+      total[date] = (total[date] ?? 0) + 1;
     }
   }
 
-  segments.forEach((segs, w) => {
-    segs.sort((a, b) => a.col - b.col || b.span - a.span || compareItems(a.item, b.item));
-    const laneEnds: number[] = []; // 줄마다 마지막으로 쓰인 칸
-    for (const seg of segs) {
-      let lane = laneEnds.findIndex(end => end < seg.col);
-      if (lane === -1) lane = laneEnds.length;
-      laneEnds[lane] = seg.col + seg.span - 1;
-      seg.lane = lane;
-      if (lane < maxLanes) {
-        weeks[w].bars.push(seg);
-      } else {
-        for (let c = seg.col - 1; c < seg.col - 1 + seg.span; c++) {
-          const date = weeks[w].dates[c] as string;
-          hidden[date] = (hidden[date] ?? 0) + 1;
-        }
+  segs.sort((a, b) => a.col - b.col || b.span - a.span || compareItems(a.item, b.item));
+  const bars: WeekBar[] = [];
+  const laneEnds: number[] = []; // 줄마다 마지막으로 쓰인 칸
+  for (const seg of segs) {
+    let lane = laneEnds.findIndex(end => end < seg.col);
+    if (lane === -1) lane = laneEnds.length;
+    laneEnds[lane] = seg.col + seg.span - 1;
+    seg.lane = lane;
+    if (lane < maxLanes) {
+      bars.push(seg);
+    } else {
+      for (let c = seg.col - 1; c < seg.col - 1 + seg.span; c++) {
+        const date = dates[c] as string;
+        hidden[date] = (hidden[date] ?? 0) + 1;
       }
     }
+  }
+  return { bars, total, hidden };
+}
+
+// 한 달의 항목들을 주 단위로 나눠 layoutWeek로 띠를 배치한다.
+export function layoutMonth(items: CalendarItem[], year: number, month0: number, maxLanes = 3): MonthLayout {
+  const dayCount = daysInMonth(year, month0);
+  const blank = new Date(year, month0, 1).getDay(); // 1일 앞의 빈칸 수 (일요일 시작)
+  const weekCount = Math.ceil((blank + dayCount) / 7);
+  const total: Record<string, number> = {};
+  const hidden: Record<string, number> = {};
+
+  const weeks: MonthWeek[] = Array.from({ length: weekCount }, (_, w) => {
+    const dates = Array.from({ length: 7 }, (_, c) => {
+      const day = w * 7 + c - blank + 1;
+      return day >= 1 && day <= dayCount ? dateStr(year, month0, day) : null;
+    });
+    const week = layoutWeek(items, dates, maxLanes);
+    Object.assign(total, week.total);
+    Object.assign(hidden, week.hidden);
+    return { dates, bars: week.bars };
   });
 
   return { weeks, total, hidden };

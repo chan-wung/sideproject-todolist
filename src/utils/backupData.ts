@@ -1,6 +1,6 @@
 import type { Todo, CompletionLogEntry, RecurrenceSeries } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
-import { validateTodos, validateCompletionLog } from '../hooks/useTodos';
+import { validateTodos, validateCompletionLog } from './todoData';
 import { validateMemos } from '../hooks/useMemos';
 import { validateRecurrenceSeries } from './recurrence';
 

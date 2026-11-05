@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useTodos, migrateTodo, validateTodos, validateCompletionLog } from './useTodos';
+import { useTodos } from './useTodos';
+import { migrateTodo, validateTodos, validateCompletionLog } from '../utils/todoData';
 import { validateRecurrenceSeries } from '../utils/recurrence';
 
 describe('useTodos', () => {

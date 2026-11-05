@@ -66,30 +66,3 @@
   align-items: center;
   gap: 8px;
 }
-
-.scroll-top-btn {
-  width: rem(48);
-  height: rem(48);
-  @include flex-center;
-  color: var(--color-on-accent);
-  background-color: var(--color-main);
-  border: none;
-  border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  @include font(20, "Bold");
-  position: fixed;
-  right: max(24px, calc(50% - 480px + 24px));
-  bottom: rem(24);
-  z-index: 50;
-  cursor: pointer;
-  @include transition();
-
-  &:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    transform: translateY(-2px);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-}

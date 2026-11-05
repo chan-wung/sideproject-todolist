@@ -1,6 +1,8 @@
 // =============================================
 // FOOTER
 // =============================================
+// 맨 위로 버튼. (예전에 _button.scss에도 같은 선택자가 있었고, 그쪽의 hover 그림자·active 동작과
+// 실제로 적용되던 전환 값 all 0.3s ease를 여기로 합쳤다.)
 .scroll-top-btn {
   @include size(44);
   display: flex;
@@ -17,11 +19,16 @@
   bottom: rem(24);
   z-index: 200;
   cursor: pointer;
-  @include transition(background-color, transform, opacity);
+  @include transition();
 
   &:hover {
     background: color-mix(in srgb, var(--color-main) 92%, black);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
     transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 

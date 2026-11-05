@@ -26,9 +26,10 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 
 ## 코드 구조 (2026-11 리팩터링 이후)
 - `src/App.tsx`: 셸 조립(툴바·사이드바·본문), 화면 선택, 백업 가져오기/내보내기, 토스트. **상태(`useTodos`·`useMemos`)는 여기서 들고** 화면에는 props로 내려 줌
-- `src/pages/`: 화면 단위. `TodoPage`(할 일, 조립만), `WeeklyReportPage`(주간보고). 화면 이름·메뉴는 `constants/labels.ts`의 `VIEW_*`, 주소 해시(`#/todos`·`#/report`)로 구분
+- `src/pages/`: 화면 단위. `TodoPage`(할 일, 조립만), `CalendarPage`(캘린더), `WeeklyReportPage`(주간보고). 화면 이름·메뉴는 `constants/labels.ts`의 `VIEW_*`, 주소 해시(`#/todos`·`#/report`)로 구분
 - `src/components/`
   - `AppNav.tsx`: 화면 전환 메뉴. 폭 1024px 이상은 왼쪽 카드형 사이드바(접기·펴기), 미만은 상단 가로 메뉴. 같은 마크업을 CSS로 두 모양으로 바꿈
+  - `PeriodNav.tsx`: 기간(주·달) 이동 막대. 주간보고·캘린더 공용
   - `AppToolbar.tsx`: 상단 툴바. 1024px 이상에서는 화면 위에 고정(높이 64px)
   - `TodoItem.tsx`: 할 일 카드(조립만 담당). 편집 폼 `TodoItemEditForm`, 하위 항목 `TodoItemSubtasks`, 더보기 메뉴 `TodoItemMenu`로 분리됨
   - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트
@@ -37,9 +38,10 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `useTodos`: 할 일 상태와 필터·정렬·실행취소·완료 이력. 시리즈와 할 일을 **함께** 바꾸는 작업(승격·삭제·초기화·시작 시 마이그레이션)도 여기 있음
   - `useRecurrenceSeries`: 반복 시리즈 상태·저장·회차 생성·CRUD. `useTodos`가 내부에서 호출함
   - `useView`: 주소 해시 ↔ 현재 화면(`useSyncExternalStore`)
+  - `useCalendarMonth`: 달력에 보이는 달·월 이동·앞 빈칸·일수 (`DatePicker`·`DateRangePicker`·`CalendarPage`가 같이 씀)
   - `useSelection`(선택 모드), `useModalDialog`, `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
-- `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `share`(복사·공유·엑셀 칸 복사와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
+- `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(날짜별 캘린더 항목), `share`(복사·공유·엑셀 칸 복사와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
 - `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일. 레이아웃 폭 기준은 `$break_shell`(1024px)과 `@include shell`
 
 ## 데이터 모델 메모
@@ -64,6 +66,9 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | 화면 이름·메뉴 목록 | `labels.ts`의 `VIEW_LABEL`/`VIEW_OPTIONS`, 현재 화면은 `useView` |
 | 주 시작(월요일)·로컬 날짜·`2026.11.2` 표기 | `date.ts`의 `startOfWeek`/`toLocalDateStr`/`formatReportDate` |
 | 여러 줄 글을 엑셀 한 칸으로 복사 | `share.ts`의 `toExcelCell` |
+| 달력 칸(월 이동·빈칸·일수), 칸의 날짜 문자열 | `useCalendarMonth`, `date.ts`의 `dateStr` |
+| 주·달 이동 막대 | `PeriodNav` |
+| `transition` 여러 속성 | `@include transition(color background-color)` (공백으로 이은 한 인자, 쉼표 나열 금지) |
 | 특정 폭(1024px) 이상에서만 적용하는 스타일 | `@include shell` (폭 값을 직접 쓰지 않음) |
 | 화면에서만 숨기고 스크린리더에는 남기기 | `.screen-out` 클래스, SCSS에서는 `@include visually-hidden` |
 
@@ -90,7 +95,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - **작은 동작 차이**: 화면을 옮기면 `TodoPage`가 언마운트되어 할 일 입력창에 쓰다 만 글자가 지워집니다. 거슬리면 입력 상태를 `App`으로 올립니다.
 - **작은 동작 차이**: 반복 회차 카드에서 종류를 바꾸면 그 회차만 바뀌고 시리즈 종류는 그대로입니다. 이전 완료 이력의 연차는 `dueDate`가 없어 주간보고에 들어가지 않습니다.
 - **`QuickNav` 숨김 폭**: 사이드바와 겹치지 않도록 1756px 미만에서 숨깁니다(접힘 상태와 무관하게 고정).
-- **남은 계획**: 캘린더(연차·일정 보기) → 대시보드 → 백업 강화 순서. 아직 시작하지 않았습니다.
+- **남은 계획**: 캘린더에서 날짜를 눌러 바로 연차 등록 → 대시보드 → 백업 강화 순서. 캘린더 화면(보기)까지는 만들었습니다.
 - **보류한 작업**: `@import → @use` 전환, `_icons_new.scss`(약 2,700줄) 분리. 두 가지 모두 급하지 않음.
 
 ## 작업 흐름

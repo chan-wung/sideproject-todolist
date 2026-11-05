@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { VIEW_LABEL, VIEW_OPTIONS, type View } from '../constants/labels';
 import { viewHref } from '../hooks/useView';
-import { ChecklistIcon, ReportIcon, ChevronLeftIcon } from './icons';
+import { ChecklistIcon, CalendarIcon, ReportIcon, ChevronLeftIcon } from './icons';
 
 interface Props {
   current: View;
@@ -12,6 +12,7 @@ interface Props {
 
 const VIEW_ICON: Record<View, ReactNode> = {
   todos: <ChecklistIcon />,
+  calendar: <CalendarIcon />,
   report: <ReportIcon />,
 };
 

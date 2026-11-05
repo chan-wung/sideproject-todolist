@@ -28,5 +28,6 @@ export function useCalendarMonth(anchor: string) {
     dayCount: daysInMonth(year, month),
     goPrev: () => setCurrent(new Date(year, month - 1, 1)),
     goNext: () => setCurrent(new Date(year, month + 1, 1)),
+    goTo: (date: string) => setCurrent(initialMonth(date)), // 'YYYY-MM-DD'가 속한 달로
   };
 }

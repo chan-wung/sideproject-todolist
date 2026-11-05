@@ -13,6 +13,7 @@ describe('parseView', () => {
   it('알려진 화면 이름을 돌려준다', () => {
     expect(parseView('#/todos')).toBe('todos');
     expect(parseView('#/report')).toBe('report');
+    expect(parseView('#/calendar')).toBe('calendar');
     expect(parseView('#report')).toBe('report');
   });
 

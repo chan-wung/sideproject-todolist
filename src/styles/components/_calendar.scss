@@ -1,0 +1,225 @@
+// =============================================
+// CALENDAR (캘린더 화면)
+// =============================================
+
+.calendar {
+  position: relative;
+
+  &__box {
+    padding: rem(24) rem(20);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+  }
+
+  &__wrap {
+    display: flex;
+    flex-direction: column;
+    gap: rem(16);
+  }
+
+  &__tit {
+    color: var(--txt-color-tit);
+    @include font(20, "Bold");
+  }
+
+  // ── 달력 칸 ──
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: rem(4);
+  }
+
+  &__head {
+    padding: rem(4) 0;
+    color: var(--txt-color-base);
+    text-align: center;
+    @include font(12, "Medium");
+  }
+
+  &__day {
+    min-height: rem(56);
+    padding: rem(4);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: rem(2);
+    color: var(--txt-color-base);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    @include transition(background-color border-color);
+
+    @include tablet_pc {
+      min-height: rem(92);
+      padding: rem(6);
+    }
+
+    &:hover {
+      background: var(--color-main-5);
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 1px;
+    }
+
+    &--selected {
+      background: var(--color-main-5);
+      border-color: var(--color-main);
+    }
+  }
+
+  &__num {
+    color: var(--txt-color-tit);
+    @include font(13, "Medium");
+
+    .calendar__day--today & {
+      @include size(22);
+      @include flex-center;
+      color: var(--color-on-accent);
+      background: var(--color-main);
+      border-radius: 50%;
+      @include font(12, "Bold");
+    }
+  }
+
+  // 항목 글자: 넓은 화면에서만. 좁으면 개수만 보인다.
+  &__chip {
+    padding: rem(1) rem(5);
+    display: none;
+    overflow: hidden;
+    color: var(--txt-color-tit);
+    background: var(--color-tab-bg);
+    border-radius: 8px;
+    @include font(11, "Medium");
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @include tablet_pc {
+      display: block;
+    }
+
+    &--routine {
+      color: var(--color-main);
+      background: var(--color-main-10);
+    }
+
+    &--task {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+    }
+
+    &--upcoming {
+      color: var(--txt-color-base);
+      background: transparent;
+      border: 1px dashed var(--color-border);
+    }
+
+    &--done {
+      opacity: 0.55;
+      text-decoration: line-through;
+    }
+  }
+
+  &__more {
+    display: none;
+    color: var(--txt-color-base);
+    @include font(11, "Medium");
+
+    @include tablet_pc {
+      display: block;
+    }
+  }
+
+  &__count {
+    align-self: flex-start;
+    padding: 0 rem(6);
+    color: var(--color-main);
+    background: var(--color-main-10);
+    border-radius: 100px;
+    @include font(11, "Bold");
+
+    @include tablet_pc {
+      display: none;
+    }
+  }
+
+  // ── 고른 날의 목록 ──
+  &__detail {
+    padding: rem(16);
+    background: var(--color-bg);
+    border-radius: 8px;
+  }
+
+  &__detail-tit {
+    margin-bottom: rem(10);
+    color: var(--txt-color-tit);
+    @include font(15, "Bold");
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: rem(8);
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(6);
+  }
+
+  &__badge {
+    padding: rem(2) rem(8);
+    color: var(--txt-color-tit);
+    background: var(--color-tab-bg);
+    border-radius: 100px;
+    @include font(11, "Bold");
+
+    &--routine {
+      color: var(--color-main);
+      background: var(--color-main-10);
+    }
+
+    &--task {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+    }
+
+    &--plan {
+      color: var(--txt-color-base);
+      background: transparent;
+      border: 1px dashed var(--color-border);
+    }
+  }
+
+  &__cat {
+    color: var(--txt-color-base);
+    @include font(12, "Medium");
+  }
+
+  &__item-txt {
+    flex: 1;
+    min-width: 0;
+    color: var(--txt-color-tit);
+    @include font(14, "Medium");
+    word-break: break-word;
+
+    &--done {
+      opacity: 0.55;
+      text-decoration: line-through;
+    }
+  }
+
+  &__empty {
+    color: var(--txt-color-base);
+    @include font(13);
+  }
+}

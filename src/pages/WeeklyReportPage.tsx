@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Todo, CompletionLogEntry } from '../types/todo';
 import { useDayChange } from '../hooks/useDayChange';
+import PeriodNav from '../components/PeriodNav';
 import { formatReportDate, startOfWeek, todayStr } from '../utils/date';
 import { toExcelCell } from '../utils/share';
 import { buildWeeklyReport, shiftWeek } from '../utils/weeklyReport';
@@ -50,26 +51,17 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
         <div className="weekly-report__wrap">
           <h2 className="weekly-report__tit">주간보고</h2>
 
-          <div className="weekly-report__head">
-            <button type="button" className="weekly-report__nav-btn" onClick={() => moveWeek(-1)} aria-label="지난주">
-              <span aria-hidden="true">&lsaquo;</span>
-            </button>
-            <p className="weekly-report__week" aria-live="polite">
-              <span className="weekly-report__week-tit">{year}년 {report.label}</span>
-              <span className="weekly-report__week-range">{monthDay(report.weekStart)} ~ {monthDay(report.weekEnd)}</span>
-            </p>
-            <button type="button" className="weekly-report__nav-btn" onClick={() => moveWeek(1)} aria-label="다음주">
-              <span aria-hidden="true">&rsaquo;</span>
-            </button>
-            <button
-              type="button"
-              className="weekly-report__today-btn"
-              onClick={goThisWeek}
-              disabled={weekStart === currentWeekStart}
-            >
-              이번 주
-            </button>
-          </div>
+          <PeriodNav
+            title={`${year}년 ${report.label}`}
+            sub={`${monthDay(report.weekStart)} ~ ${monthDay(report.weekEnd)}`}
+            prevLabel="지난주"
+            nextLabel="다음주"
+            todayLabel="이번 주"
+            onPrev={() => moveWeek(-1)}
+            onNext={() => moveWeek(1)}
+            onToday={goThisWeek}
+            todayDisabled={weekStart === currentWeekStart}
+          />
 
           {report.isEmpty && edited === null && (
             <p className="weekly-report__empty">

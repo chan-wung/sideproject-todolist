@@ -28,12 +28,13 @@ export const KIND_LABEL: Record<TodoKind, string> = {
 export const KIND_OPTIONS: TodoKind[] = ['task', 'routine', 'leave'];
 
 // 상단 메뉴(화면 전환). 주소의 해시(#/todos)와 1:1로 대응한다.
-export type View = 'todos' | 'report';
+export type View = 'todos' | 'calendar' | 'report';
 
 export const VIEW_LABEL: Record<View, string> = {
   todos: '할 일',
+  calendar: '캘린더',
   report: '주간보고',
 };
 
-export const VIEW_OPTIONS: View[] = ['todos', 'report'];
+export const VIEW_OPTIONS: View[] = ['todos', 'calendar', 'report'];
 export const DEFAULT_VIEW: View = 'todos';

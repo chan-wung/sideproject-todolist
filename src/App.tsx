@@ -8,6 +8,7 @@ import { useSelection } from './hooks/useSelection';
 import { useView } from './hooks/useView';
 import TodoPage from './pages/TodoPage';
 import WeeklyReportPage from './pages/WeeklyReportPage';
+import CalendarPage from './pages/CalendarPage';
 import AppNav from './components/AppNav';
 import Toast from './components/Toast';
 import QuickMemo from './components/QuickMemo';
@@ -412,6 +413,8 @@ export default function App() {
             onToggleSelect: handleToggleSelect,
           }}
         />
+      ) : view === 'calendar' ? (
+        <CalendarPage todos={allTodos} series={recurrenceSeries} />
       ) : (
         <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} />
       )}

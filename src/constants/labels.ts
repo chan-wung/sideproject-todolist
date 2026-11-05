@@ -18,3 +18,14 @@ export const FREQUENCY_LABEL: Record<RecurrenceFrequency, string> = {
 };
 
 export const FREQUENCY_OPTIONS: RecurrenceFrequency[] = ['daily', 'weekly', 'monthly'];
+
+// 상단 메뉴(화면 전환). 주소의 해시(#/todos)와 1:1로 대응한다.
+export type View = 'todos' | 'report';
+
+export const VIEW_LABEL: Record<View, string> = {
+  todos: '할 일',
+  report: '주간보고',
+};
+
+export const VIEW_OPTIONS: View[] = ['todos', 'report'];
+export const DEFAULT_VIEW: View = 'todos';

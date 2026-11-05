@@ -5,7 +5,10 @@ import type { Memo } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import { useSelection } from './hooks/useSelection';
+import { useView } from './hooks/useView';
 import TodoPage from './pages/TodoPage';
+import WeeklyReportPage from './pages/WeeklyReportPage';
+import AppNav from './components/AppNav';
 import Toast from './components/Toast';
 import QuickMemo from './components/QuickMemo';
 import AppToolbar from './components/AppToolbar';
@@ -111,6 +114,8 @@ export default function App() {
   useEffect(() => {
     preloadKakao();
   }, []);
+
+  const view = useView();
 
   const [toast, setToast] = useState<ToastState | null>(null);
 
@@ -313,6 +318,7 @@ export default function App() {
         />
       )}
       <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
+      <AppNav current={view} />
       <div className="todo-app">
       <header className="todo-app__header">
         <div className="todo-app__header-left">
@@ -331,71 +337,75 @@ export default function App() {
         </div>
       </header>
 
-      <TodoPage
-        inputProps={{ onAdd: addTodo, categories: categoryOptions }}
-        dueSummaryProps={{ dueTodayCount, overdueCount, onJump: (scope) => setDueScope(scope) }}
-        filterBarProps={{
-          filterStatus,
-          setFilterStatus,
-          filterCategory,
-          setFilterCategory,
-          sortKey,
-          setSortKey,
-          query,
-          setQuery,
-          dueScope,
-          setDueScope,
-          recurrenceOnly,
-          setRecurrenceOnly,
-          categories,
-          activeCount,
-          completedCount,
-          onClearCompleted: clearCompleted,
-          selectionMode,
-          onToggleSelectionMode: handleToggleSelectionMode,
-          hasTodos: filteredTodos.length > 0,
-          hasSubtasks,
-          allCollapsed,
-          onCollapseAll: collapseAllSubtasks,
-          onExpandAll: expandAllSubtasks,
-        }}
-        bulkBarProps={selectionMode ? {
-          selectedCount: selectedIds.size,
-          categories: categoryOptions,
-          onSelectAll: handleSelectAll,
-          onClearSelection: handleClearSelection,
-          onApplyCategory: handleBulkCategory,
-          onApplyPriority: handleBulkPriority,
-          onDelete: handleBulkDelete,
-          onClose: handleToggleSelectionMode,
-        } : null}
-        listProps={{
-          todos: filteredTodos,
-          filterStatus,
-          sortKey,
-          categories: categoryOptions,
-          memos,
-          onOpenMemo: handleOpenMemo,
-          onToggle: toggleTodo,
-          onDelete: deleteTodo,
-          onUpdate: updateTodo,
-          onPin: pinTodo,
-          onCopy: handleCopyTodo,
-          onShare: handleShareTodo,
-          onKakaoShare: handleKakaoShareTodo,
-          onDuplicate: handleDuplicateTodo,
-          onAddSubtask: addSubtask,
-          onToggleSubtask: toggleSubtask,
-          onDeleteSubtask: deleteSubtask,
-          onUpdateSubtask: updateSubtask,
-          onReorderSubtasks: reorderSubtasks,
-          onReorderTodos: reorderTodos,
-          onToggleSubtasksCollapsed: toggleSubtasksCollapsed,
-          selectionMode,
-          selectedIds,
-          onToggleSelect: handleToggleSelect,
-        }}
-      />
+      {view === 'todos' ? (
+        <TodoPage
+          inputProps={{ onAdd: addTodo, categories: categoryOptions }}
+          dueSummaryProps={{ dueTodayCount, overdueCount, onJump: (scope) => setDueScope(scope) }}
+          filterBarProps={{
+            filterStatus,
+            setFilterStatus,
+            filterCategory,
+            setFilterCategory,
+            sortKey,
+            setSortKey,
+            query,
+            setQuery,
+            dueScope,
+            setDueScope,
+            recurrenceOnly,
+            setRecurrenceOnly,
+            categories,
+            activeCount,
+            completedCount,
+            onClearCompleted: clearCompleted,
+            selectionMode,
+            onToggleSelectionMode: handleToggleSelectionMode,
+            hasTodos: filteredTodos.length > 0,
+            hasSubtasks,
+            allCollapsed,
+            onCollapseAll: collapseAllSubtasks,
+            onExpandAll: expandAllSubtasks,
+          }}
+          bulkBarProps={selectionMode ? {
+            selectedCount: selectedIds.size,
+            categories: categoryOptions,
+            onSelectAll: handleSelectAll,
+            onClearSelection: handleClearSelection,
+            onApplyCategory: handleBulkCategory,
+            onApplyPriority: handleBulkPriority,
+            onDelete: handleBulkDelete,
+            onClose: handleToggleSelectionMode,
+          } : null}
+          listProps={{
+            todos: filteredTodos,
+            filterStatus,
+            sortKey,
+            categories: categoryOptions,
+            memos,
+            onOpenMemo: handleOpenMemo,
+            onToggle: toggleTodo,
+            onDelete: deleteTodo,
+            onUpdate: updateTodo,
+            onPin: pinTodo,
+            onCopy: handleCopyTodo,
+            onShare: handleShareTodo,
+            onKakaoShare: handleKakaoShareTodo,
+            onDuplicate: handleDuplicateTodo,
+            onAddSubtask: addSubtask,
+            onToggleSubtask: toggleSubtask,
+            onDeleteSubtask: deleteSubtask,
+            onUpdateSubtask: updateSubtask,
+            onReorderSubtasks: reorderSubtasks,
+            onReorderTodos: reorderTodos,
+            onToggleSubtasksCollapsed: toggleSubtasksCollapsed,
+            selectionMode,
+            selectedIds,
+            onToggleSelect: handleToggleSelect,
+          }}
+        />
+      ) : (
+        <WeeklyReportPage />
+      )}
       
       <QuickMemo
         isOpen={isMemoOpen}

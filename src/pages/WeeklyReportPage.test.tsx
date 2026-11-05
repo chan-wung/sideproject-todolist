@@ -111,3 +111,58 @@ describe('WeeklyReportPage', () => {
     expect((getByRole('button', { name: '텍스트 복사' }) as HTMLButtonElement).disabled).toBe(true);
   });
 });
+
+describe('WeeklyReportPage — 하위 항목 포함', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-04T10:00:00'));
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  const WITH_SUBS: Todo[] = [
+    {
+      id: 'a', text: '유지보수', completed: true, priority: 'medium', category: '가나시청',
+      createdAt: '2026-10-30T09:00:00', completedAt: '2026-11-03T10:00:00',
+      subtasks: [{ id: 's1', text: '메인 배너 교체', completed: true }, { id: 's2', text: '게시판 오류 수정', completed: true }],
+    },
+  ];
+  const WITH_SUBS_TEXT = ['[가나시청] 유지보수', '- 메인 배너 교체', '- 게시판 오류 수정'].join('\n');
+
+  it('처음엔 하위 항목이 제목 아래에 함께 나오고, 끄면 제목만 나온다', () => {
+    const { textarea, getByLabelText } = setup(WITH_SUBS, []);
+    const box = getByLabelText('하위 항목 포함') as HTMLInputElement;
+    expect(box.checked).toBe(true);
+    expect(textarea().value).toBe(WITH_SUBS_TEXT);
+
+    fireEvent.click(box);
+    expect(textarea().value).toBe('[가나시청] 유지보수');
+    fireEvent.click(box);
+    expect(textarea().value).toBe(WITH_SUBS_TEXT);
+  });
+
+  it('고른 설정은 다음에 열어도 유지된다', () => {
+    const first = setup(WITH_SUBS, []);
+    fireEvent.click(first.getByLabelText('하위 항목 포함'));
+    cleanup();
+    const again = setup(WITH_SUBS, []);
+    expect((again.getByLabelText('하위 항목 포함') as HTMLInputElement).checked).toBe(false);
+    expect(again.textarea().value).toBe('[가나시청] 유지보수');
+  });
+
+  it('직접 고친 내용이 있으면 체크박스를 잠가 고친 내용이 사라지지 않게 한다', () => {
+    const { textarea, getByLabelText, getByText } = setup(WITH_SUBS, []);
+    fireEvent.change(textarea(), { target: { value: '내가 고친 글' } });
+    expect((getByLabelText('하위 항목 포함') as HTMLInputElement).disabled).toBe(true);
+    expect(getByText(/직접 고친 내용이 있어 바꿀 수 없습니다/)).toBeTruthy();
+
+    fireEvent.click(getByText('자동으로 만든 내용으로 되돌리기'));
+    expect((getByLabelText('하위 항목 포함') as HTMLInputElement).disabled).toBe(false);
+    expect(textarea().value).toBe(WITH_SUBS_TEXT);
+  });
+});
+

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { Todo, CompletionLogEntry } from '../types/todo';
 import { useDayChange } from '../hooks/useDayChange';
+import { usePersistentState } from '../hooks/usePersistentState';
 import PeriodNav from '../components/PeriodNav';
 import PageHead from '../components/PageHead';
 import { formatReportDate, startOfWeek, todayStr } from '../utils/date';
@@ -21,13 +22,15 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
   const [weekStart, setWeekStart] = useState(() => startOfWeek(todayStr()));
   // 복사 전에 손으로 고친 내용. null이면 자동으로 만든 글을 그대로 쓴다. 저장하지 않고, 주를 옮기면 버린다.
   const [edited, setEdited] = useState<string | null>(null);
+  // 하위 항목(제목 아래 '- 내용')을 보고서에 함께 넣을지. 고른 값은 기억한다.
+  const [includeSubtasks, setIncludeSubtasks] = usePersistentState<boolean>('todolist-pref-report-subtasks', true);
 
   // 자정이 지나거나 탭으로 돌아오면 '이번 주' 판단을 새로 한다.
   useDayChange(() => setToday(todayStr()));
 
   const report = useMemo(
-    () => buildWeeklyReport({ weekStart, todos, completionLog }),
-    [weekStart, todos, completionLog],
+    () => buildWeeklyReport({ weekStart, todos, completionLog, includeSubtasks }),
+    [weekStart, todos, completionLog, includeSubtasks],
   );
 
   const currentWeekStart = startOfWeek(today);
@@ -68,6 +71,21 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
               이 주에 완료한 일이 없습니다. 할 일을 완료하거나, 매주 하는 일은 종류를 “정기 업무”로, 연차는 “연차·휴가”로 등록해 보세요.
             </p>
           )}
+
+          <div className="weekly-report__tools">
+            <label className="form-chk form-chk--checkbox">
+              <input
+                type="checkbox"
+                checked={includeSubtasks}
+                onChange={e => setIncludeSubtasks(e.target.checked)}
+                disabled={edited !== null}
+              />
+              <span className="form-chk__text">하위 항목 포함</span>
+            </label>
+            {edited !== null && (
+              <span className="weekly-report__tools-hint">직접 고친 내용이 있어 바꿀 수 없습니다. 먼저 되돌려 주세요.</span>
+            )}
+          </div>
 
           <div className="weekly-report__field">
             <label className="screen-out" htmlFor="weekly-report-text">주간보고 내용</label>

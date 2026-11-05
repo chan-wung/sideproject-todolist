@@ -63,6 +63,18 @@
     }
   }
 
+  &__tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(12);
+  }
+
+  &__tools-hint {
+    color: var(--txt-color-base);
+    @include font(12);
+  }
+
   &__actions {
     display: flex;
     flex-wrap: wrap;

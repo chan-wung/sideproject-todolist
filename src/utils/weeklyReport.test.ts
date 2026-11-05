@@ -167,6 +167,63 @@ describe('buildWeeklyReport — 주 경계와 출처', () => {
   });
 });
 
+describe('buildWeeklyReport — 하위 항목', () => {
+  const sub = (text: string, completed = true) => ({ id: Math.random().toString(36).slice(2), text, completed });
+
+  it('하위 항목은 제목 아래에 "- 내용" 줄로 이어 붙인다 (일반 업무·정기 업무 모두)', () => {
+    const report = build([
+      done({ id: 'r', text: '바이러스 검사', kind: 'routine', completedAt: '2026-11-02T09:00:00', subtasks: [sub('사무실 PC'), sub('서버실')] }),
+      done({ id: 'a', text: '유지보수', category: '가나시청', subtasks: [sub('메인 배너 교체'), sub('게시판 오류 수정')] }),
+    ]);
+    expect(report.text).toBe([
+      '2026.11.2 바이러스 검사 완료',
+      '- 사무실 PC',
+      '- 서버실',
+      '',
+      '[가나시청] 유지보수',
+      '- 메인 배너 교체',
+      '- 게시판 오류 수정',
+    ].join('\n'));
+  });
+
+  it('하위 항목이 없는 일은 지금처럼 한 줄이다', () => {
+    expect(build([done({ text: '작업', category: '가나시청' })]).text).toBe('[가나시청] 작업');
+  });
+
+  it('완료 이력의 하위 항목도 가져온다', () => {
+    const report = build([], [logEntry({ text: '정리된 일', category: '가나시청', subtasks: [{ text: '첫째', completed: true }] })]);
+    expect(report.projectLines).toEqual(['[가나시청] 정리된 일\n- 첫째']);
+  });
+
+  it('같은 일이 여러 번이면 한 덩어리로 합치고 하위 항목은 겹치지 않게 모은다', () => {
+    const report = build([
+      done({ id: 'a', text: '유지보수', category: '가나시청', completedAt: '2026-11-03T10:00:00', subtasks: [sub('배너'), sub('게시판')] }),
+      done({ id: 'b', text: '유지보수', category: '가나시청', completedAt: '2026-11-04T10:00:00', subtasks: [sub('게시판'), sub('팝업')] }),
+    ]);
+    expect(report.projectLines).toEqual(['[가나시청] 유지보수\n- 배너\n- 게시판\n- 팝업']);
+  });
+
+  it('하위 항목의 줄바꿈과 빈 항목은 정리한다', () => {
+    const report = build([done({ text: '작업', subtasks: [sub('둘로\n나뉨'), sub('   ')] })]);
+    expect(report.projectLines).toEqual(['작업\n- 둘로 나뉨']);
+  });
+
+  it('includeSubtasks를 끄면 제목 줄만 만든다 (같은 일은 여전히 한 줄로 합침)', () => {
+    const todos = [
+      done({ id: 'a', text: '유지보수', category: '가나시청', subtasks: [sub('배너')] }),
+      done({ id: 'b', text: '유지보수', category: '가나시청', completedAt: '2026-11-04T10:00:00', subtasks: [sub('팝업')] }),
+    ];
+    const report = buildWeeklyReport({ weekStart: WEEK, todos, completionLog: [], includeSubtasks: false });
+    expect(report.projectLines).toEqual(['[가나시청] 유지보수']);
+    expect(report.text).toBe('[가나시청] 유지보수');
+  });
+
+  it('연차 줄에는 하위 항목을 붙이지 않는다', () => {
+    const report = build([done({ text: '연차', kind: 'leave', completed: false, completedAt: undefined, dueDate: '2026-11-04', subtasks: [sub('메모')] })]);
+    expect(report.dateLines).toEqual(['2026.11.4 연차']);
+  });
+});
+
 describe('shiftWeek', () => {
   it('주 단위로 이동한다', () => {
     expect(shiftWeek('2026-11-02', 1)).toBe('2026-11-09');

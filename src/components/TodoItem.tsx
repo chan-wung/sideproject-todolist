@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PRIORITY_LABEL, FREQUENCY_LABEL } from '../constants/labels';
+import { PRIORITY_LABEL, FREQUENCY_LABEL, KIND_LABEL } from '../constants/labels';
 import type { Todo, TodoUpdates, RecurrenceFrequency } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import ConfirmModal from './ConfirmModal';
@@ -8,6 +8,7 @@ import TodoItemMenu from './TodoItemMenu';
 import TodoItemSubtasks from './TodoItemSubtasks';
 import { ChevronIcon, DeleteIcon, DragHandleIcon, EditIcon, PinIcon } from './icons';
 import { isOverdue, formatDate } from '../utils/date';
+import { normalizeKind } from '../utils/kind';
 
 interface Props {
   todo: Todo;
@@ -38,6 +39,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const kind = normalizeKind(todo.kind);
   const overdue = !todo.completed && isOverdue(todo.dueDate);
   const done = (todo.subtasks ?? []).filter(s => s.completed).length;
   const total = (todo.subtasks ?? []).length;
@@ -144,6 +146,9 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
             <span className="todo-item__badge todo-item__badge--recurrence">
               🔁 {todo.seriesId ? '반복' : FREQUENCY_LABEL[todo.recurrence as RecurrenceFrequency]}
             </span>
+          )}
+          {kind !== 'task' && (
+            <span className={`todo-item__badge todo-item__badge--kind-${kind}`}>{KIND_LABEL[kind]}</span>
           )}
           {linkedMemos.map(m => (
             <button

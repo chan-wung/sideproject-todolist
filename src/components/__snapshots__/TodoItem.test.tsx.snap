@@ -1235,6 +1235,36 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 1`] = `
         >
           <label
             class="todo-item__edit-label"
+            for="todo-edit-kind-t1"
+          >
+            종류
+          </label>
+          <select
+            class="todo-item__edit-select"
+            id="todo-edit-kind-t1"
+          >
+            <option
+              value="task"
+            >
+              일반 업무
+            </option>
+            <option
+              value="routine"
+            >
+              정기 업무
+            </option>
+            <option
+              value="leave"
+            >
+              연차·휴가
+            </option>
+          </select>
+        </div>
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
             for="todo-edit-priority-t1"
           >
             우선순위
@@ -1475,6 +1505,36 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차
       <div
         class="todo-item__edit-row"
       >
+        <div
+          class="todo-item__edit-group"
+        >
+          <label
+            class="todo-item__edit-label"
+            for="todo-edit-kind-t1"
+          >
+            종류
+          </label>
+          <select
+            class="todo-item__edit-select"
+            id="todo-edit-kind-t1"
+          >
+            <option
+              value="task"
+            >
+              일반 업무
+            </option>
+            <option
+              value="routine"
+            >
+              정기 업무
+            </option>
+            <option
+              value="leave"
+            >
+              연차·휴가
+            </option>
+          </select>
+        </div>
         <div
           class="todo-item__edit-group"
         >

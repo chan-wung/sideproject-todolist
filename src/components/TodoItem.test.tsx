@@ -282,6 +282,7 @@ describe('TodoItem', () => {
         category: '개인',
         recurrence: 'weekly',
         memoIds: undefined,
+        kind: 'task',
       });
       expect(q(container, '.todo-item__edit-field--textarea')).toBeNull();
     });

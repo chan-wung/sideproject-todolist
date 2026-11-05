@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { Todo, FilterStatus, SortKey } from '../types/todo';
+import type { Todo, FilterStatus, SortKey, TodoUpdates } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import TodoItem from './TodoItem';
 
@@ -17,7 +17,7 @@ interface Props {
   onShare: (todo: Todo) => void;
   onKakaoShare: (todo: Todo) => void;
   onDuplicate: (id: string) => void;
-  onUpdate: (id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'memoIds'>>) => void;
+  onUpdate: (id: string, updates: TodoUpdates) => void;
   onAddSubtask: (todoId: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;

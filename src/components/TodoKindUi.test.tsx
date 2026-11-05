@@ -1,0 +1,117 @@
+// 업무 종류(kind) 선택 화면의 동작: 입력창, 카드 편집 폼, 카드 배지
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, fireEvent, cleanup, within } from '@testing-library/react';
+import TodoInput from './TodoInput';
+import TodoItem from './TodoItem';
+import type { Todo } from '../types/todo';
+
+function makeTodo(overrides: Partial<Todo> = {}): Todo {
+  return {
+    id: 't1',
+    text: '보고서 작성',
+    completed: false,
+    priority: 'medium',
+    category: '업무',
+    createdAt: '2026-07-01T09:00:00',
+    ...overrides,
+  };
+}
+
+function renderItem(todo: Todo) {
+  const onUpdate = vi.fn();
+  const noop = vi.fn();
+  const utils = render(
+    <TodoItem
+      todo={todo}
+      categories={['업무']}
+      memos={[]}
+      onToggle={noop} onDelete={noop} onPin={noop} onCopy={noop} onShare={noop} onKakaoShare={noop}
+      onDuplicate={noop} onUpdate={onUpdate} onAddSubtask={noop} onToggleSubtask={noop}
+      onDeleteSubtask={noop} onUpdateSubtask={noop} onReorderSubtasks={noop}
+      onToggleSubtasksCollapsed={noop} onOpenMemo={noop}
+    />,
+  );
+  return { ...utils, onUpdate };
+}
+
+describe('TodoInput 종류 선택', () => {
+  afterEach(() => cleanup());
+
+  function renderInput() {
+    const onAdd = vi.fn();
+    const utils = render(<TodoInput onAdd={onAdd} categories={[]} />);
+    return { ...utils, onAdd };
+  }
+
+  function typeAndSubmit(utils: ReturnType<typeof renderInput>, text: string) {
+    fireEvent.change(utils.getByPlaceholderText(/크게 할 일을 입력하세요/), { target: { value: text } });
+    fireEvent.click(utils.getByRole('button', { name: '추가' }));
+  }
+
+  it('종류를 안 고르면 일반 업무로 추가한다', () => {
+    const utils = renderInput();
+    typeAndSubmit(utils, '일반 업무');
+    expect(utils.onAdd).toHaveBeenCalledWith('일반 업무', 'medium', '', '', 'none', 'task');
+  });
+
+  it('정기 업무를 고르면 그 종류로 추가한다', () => {
+    const utils = renderInput();
+    fireEvent.change(utils.getByLabelText('종류'), { target: { value: 'routine' } });
+    typeAndSubmit(utils, '바이러스 검사');
+    expect(utils.onAdd).toHaveBeenCalledWith('바이러스 검사', 'medium', '', '', 'none', 'routine');
+  });
+
+  it('연차·휴가는 날짜가 없으면 추가하지 않고 안내한다', () => {
+    const utils = renderInput();
+    fireEvent.change(utils.getByLabelText('종류'), { target: { value: 'leave' } });
+    typeAndSubmit(utils, '연차');
+    expect(utils.onAdd).not.toHaveBeenCalled();
+    expect(utils.getByText('연차·휴가는 날짜를 선택해 주세요.')).toBeTruthy();
+  });
+
+  it('연차·휴가를 고르면 반복 주기를 못 고른다', () => {
+    const utils = renderInput();
+    fireEvent.change(utils.getByLabelText('종류'), { target: { value: 'leave' } });
+    expect((utils.getByLabelText('반복 주기') as HTMLSelectElement).disabled).toBe(true);
+  });
+});
+
+describe('TodoItem 종류 배지와 편집', () => {
+  afterEach(() => cleanup());
+
+  it('일반 업무에는 종류 배지가 없고, 정기 업무·연차에는 있다', () => {
+    const task = renderItem(makeTodo());
+    expect(task.container.querySelector('[class*="todo-item__badge--kind"]')).toBeNull();
+    cleanup();
+
+    const routine = renderItem(makeTodo({ kind: 'routine' }));
+    expect(within(routine.container).getByText('정기 업무')).toBeTruthy();
+    cleanup();
+
+    const leave = renderItem(makeTodo({ kind: 'leave', dueDate: '2026-11-04' }));
+    expect(within(leave.container).getByText('연차·휴가')).toBeTruthy();
+  });
+
+  function enterEdit(container: HTMLElement) {
+    fireEvent.click(container.querySelector('.todo-item__btn--edit') as HTMLElement);
+  }
+
+  it('편집 폼에서 종류를 바꿔 저장하면 onUpdate에 kind가 담긴다', () => {
+    const { container, getByLabelText, onUpdate } = renderItem(makeTodo({ dueDate: '2099-01-01' }));
+    enterEdit(container);
+    fireEvent.change(getByLabelText('종류'), { target: { value: 'routine' } });
+    fireEvent.click(container.querySelector('.todo-item__edit-actions .btn--main') as HTMLElement);
+    expect(onUpdate).toHaveBeenCalledWith('t1', expect.objectContaining({ kind: 'routine' }));
+  });
+
+  it('연차·휴가는 날짜가 없으면 저장 버튼이 막힌다', () => {
+    const { container, getByLabelText, getByRole, onUpdate } = renderItem(makeTodo());
+    enterEdit(container);
+    fireEvent.change(getByLabelText('종류'), { target: { value: 'leave' } });
+    const save = container.querySelector('.todo-item__edit-actions .btn--main') as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    expect(getByRole('alert').textContent).toContain('날짜');
+    fireEvent.click(save);
+    expect(onUpdate).not.toHaveBeenCalled();
+  });
+});

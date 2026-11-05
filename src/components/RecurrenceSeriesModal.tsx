@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
-import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS } from '../constants/labels';
-import type { Todo, RecurrenceSeries, RecurrenceFrequency } from '../types/todo';
+import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
+import type { Todo, RecurrenceSeries, RecurrenceFrequency, TodoKind } from '../types/todo';
+import { normalizeKind } from '../utils/kind';
 import { formatDate, todayStr, upcomingOccurrences } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
 import DatePicker from './DatePicker';
@@ -13,6 +14,7 @@ interface SeriesInput {
   frequency: RecurrenceFrequency;
   anchorDate: string;
   endDate?: string;
+  kind: TodoKind;
 }
 
 interface Props {
@@ -22,7 +24,7 @@ interface Props {
   todos: Todo[];
   categories: string[];
   onAdd: (input: SeriesInput) => void;
-  onUpdate: (id: string, updates: Partial<Pick<RecurrenceSeries, 'text' | 'category' | 'priority' | 'frequency' | 'anchorDate' | 'endDate'>>) => void;
+  onUpdate: (id: string, updates: Partial<Pick<RecurrenceSeries, 'text' | 'category' | 'priority' | 'frequency' | 'anchorDate' | 'endDate' | 'kind'>>) => void;
   onEnd: (id: string) => void;
   onResume: (id: string) => void;
   onDelete: (id: string) => void;
@@ -36,6 +38,7 @@ const EMPTY_ADD: SeriesInput = {
   priority: 'medium',
   frequency: 'monthly',
   anchorDate: '',
+  kind: 'task',
 };
 
 // 반복 시리즈 추가 폼과 인라인 편집 폼이 공유하는 입력 필드 묶음 (주기/기준일/우선순위/카테고리, 선택적으로 종료일).
@@ -44,8 +47,21 @@ function SeriesFields({ value, onChange, showEndDate }: {
   onChange: (patch: Partial<SeriesInput>) => void;
   showEndDate?: boolean;
 }) {
+  // 연차·휴가는 반복할 수 없으므로 고르지 못하게 한다 (이미 연차로 저장된 옛 시리즈만 예외로 보여 준다).
+  const kindOptions = KIND_OPTIONS.filter(k => k !== 'leave' || value.kind === 'leave');
+
   return (
     <>
+      <label className="recurrence-modal__field">
+        <span className="recurrence-modal__field-label">종류</span>
+        <select
+          className="recurrence-modal__select"
+          value={value.kind}
+          onChange={e => onChange({ kind: e.target.value as TodoKind })}
+        >
+          {kindOptions.map(k => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}
+        </select>
+      </label>
       <label className="recurrence-modal__field">
         <span className="recurrence-modal__field-label">주기</span>
         <select
@@ -133,6 +149,7 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
       frequency: s.frequency,
       anchorDate: s.anchorDate,
       endDate: s.endDate ?? '',
+      kind: normalizeKind(s.kind),
     });
   }
 
@@ -145,6 +162,7 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
       frequency: editForm.frequency,
       anchorDate: editForm.anchorDate,
       endDate: editForm.endDate || undefined,
+      kind: editForm.kind,
     });
     setEditingId(null);
   }
@@ -224,6 +242,9 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
                         <div className="recurrence-modal__item-main">
                           <p className="recurrence-modal__item-text">{s.text}</p>
                           <div className="recurrence-modal__item-meta">
+                            {normalizeKind(s.kind) !== 'task' && (
+                              <span className="recurrence-modal__badge">{KIND_LABEL[normalizeKind(s.kind)]}</span>
+                            )}
                             <span className="recurrence-modal__badge recurrence-modal__badge--freq">🔁 {FREQUENCY_LABEL[s.frequency]}</span>
                             <span className={`recurrence-modal__badge recurrence-modal__badge--${s.priority}`}>{PRIORITY_LABEL[s.priority]}</span>
                             <span className="recurrence-modal__badge recurrence-modal__badge--cat">{s.category}</span>

@@ -104,6 +104,8 @@
     &--medium      { color: var(--txt-color-tit); background: var(--color-sub); }
     &--low         { color: var(--color-on-accent); background: var(--color-success); }
     &--recurrence  { color: var(--color-main); background: var(--color-main-10); }
+    &--kind-routine { color: var(--color-main); background: var(--color-main-5); }
+    &--kind-leave   { color: var(--txt-color-tit); background: var(--color-tab-bg); }
   }
 
   &__category {

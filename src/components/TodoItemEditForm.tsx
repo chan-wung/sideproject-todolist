@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS } from '../constants/labels';
-import type { Todo, TodoUpdates } from '../types/todo';
+import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
+import type { Todo, TodoKind, TodoUpdates } from '../types/todo';
+import { normalizeKind } from '../utils/kind';
 import type { Memo } from '../hooks/useMemos';
 import CategoryPickerModal from './CategoryPickerModal';
 import DatePicker from './DatePicker';
@@ -22,6 +23,7 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
   const [editCategory, setEditCategory] = useState(todo.category);
   const [editRecurrence, setEditRecurrence] = useState<Todo['recurrence']>(todo.recurrence || 'none');
   const [editMemoIds, setEditMemoIds] = useState<string[]>(todo.memoIds ?? []);
+  const [editKind, setEditKind] = useState<TodoKind>(normalizeKind(todo.kind));
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -32,15 +34,19 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
     setEditMemoIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   }
 
+  // 연차·휴가는 보고서에 날짜가 찍히므로 날짜가 꼭 필요하다.
+  const leaveNeedsDate = editKind === 'leave' && !editDueDate;
+
   function handleSave() {
-    if (!editText.trim()) return;
+    if (!editText.trim() || leaveNeedsDate) return;
     onSave({
       text: editText.trim(),
       priority: editPriority,
       dueDate: editDueDate || undefined,
       category: editCategory.trim() || '기본',
-      recurrence: editRecurrence !== 'none' ? editRecurrence : undefined,
+      recurrence: editKind !== 'leave' && editRecurrence !== 'none' ? editRecurrence : undefined,
       memoIds: editMemoIds.length > 0 ? editMemoIds : undefined,
+      kind: editKind,
     });
   }
 
@@ -67,6 +73,17 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
         </div>
         <div className="todo-item__edit-row">
           <div className="todo-item__edit-group">
+            <label className="todo-item__edit-label" htmlFor={`todo-edit-kind-${todo.id}`}>종류</label>
+            <select
+              id={`todo-edit-kind-${todo.id}`}
+              className="todo-item__edit-select"
+              value={editKind}
+              onChange={e => setEditKind(e.target.value as TodoKind)}
+            >
+              {KIND_OPTIONS.map(k => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}
+            </select>
+          </div>
+          <div className="todo-item__edit-group">
             <label className="todo-item__edit-label" htmlFor={`todo-edit-priority-${todo.id}`}>우선순위</label>
             <select
               id={`todo-edit-priority-${todo.id}`}
@@ -78,7 +95,7 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
             </select>
           </div>
           <div className="todo-item__edit-group">
-            <label className="todo-item__edit-label" id={`todo-edit-dueDate-label-${todo.id}`}>마감일</label>
+            <label className="todo-item__edit-label" id={`todo-edit-dueDate-label-${todo.id}`}>{editKind === 'leave' ? '날짜' : '마감일'}</label>
             <DatePicker value={editDueDate} onChange={setEditDueDate} className="todo-item__edit-date-picker" aria-labelledby={`todo-edit-dueDate-label-${todo.id}`} />
           </div>
           <div className="todo-item__edit-group">
@@ -126,8 +143,9 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
               <select
                 id={`todo-edit-recurrence-${todo.id}`}
                 className="todo-item__edit-select"
-                value={editRecurrence}
+                value={editKind === 'leave' ? 'none' : editRecurrence}
                 onChange={e => setEditRecurrence(e.target.value as Todo['recurrence'])}
+                disabled={editKind === 'leave'}
               >
                 <option value="none">없음</option>
                 {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}
@@ -154,8 +172,11 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
             <p className="todo-item__memo-empty">메모 없음</p>
           )}
         </div>
+        {leaveNeedsDate && (
+          <p className="todo-item__edit-hint" role="alert">연차·휴가는 날짜를 선택해야 저장할 수 있습니다.</p>
+        )}
         <div className="todo-item__edit-actions">
-          <button className="btn btn--main btn--sm" type="button" onClick={handleSave}>수정</button>
+          <button className="btn btn--main btn--sm" type="button" onClick={handleSave} disabled={leaveNeedsDate}>수정</button>
           <button className="btn btn--outline-gray btn--sm" type="button" onClick={onCancel}>취소</button>
         </div>
       </div>

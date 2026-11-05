@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import type { Todo } from '../types/todo';
-import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS } from '../constants/labels';
+import type { Todo, TodoKind } from '../types/todo';
+import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
 import Toast from './Toast';
 import DatePicker from './DatePicker';
 
 interface Props {
-  onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string, recurrence?: Todo['recurrence']) => void;
+  onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string, recurrence?: Todo['recurrence'], kind?: TodoKind) => void;
   categories: string[];
 }
 
@@ -15,6 +15,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
   const [dueDate, setDueDate] = useState('');
   const [category, setCategory] = useState('');
   const [recurrence, setRecurrence] = useState<Todo['recurrence']>('none');
+  const [kind, setKind] = useState<TodoKind>('task');
   const [toast, setToast] = useState('');
   const [toastKey, setToastKey] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -27,12 +28,19 @@ export default function TodoInput({ onAdd, categories }: Props) {
       setText('');
       return;
     }
-    onAdd(text, priority, dueDate, category, recurrence);
+    // 연차·휴가는 보고서에 날짜가 찍히므로 날짜가 꼭 필요하고, 반복하지 않는다.
+    if (kind === 'leave' && !dueDate) {
+      setToast('연차·휴가는 날짜를 선택해 주세요.');
+      setToastKey(k => k + 1);
+      return;
+    }
+    onAdd(text, priority, dueDate, category, kind === 'leave' ? 'none' : recurrence, kind);
     setText('');
     setDueDate('');
     setCategory('');
     setPriority('medium');
     setRecurrence('none');
+    setKind('task');
   }
 
   function handleTextChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -61,6 +69,18 @@ export default function TodoInput({ onAdd, categories }: Props) {
       <div className={`todo-input__options ${isExpanded ? 'todo-input__options--expanded' : ''}`}>
         <div className="todo-input__row todo-input__row--flex">
           <div>
+            <label className="todo-input__label" htmlFor="todo-input-kind">종류</label>
+            <select
+              id="todo-input-kind"
+              className="todo-input__select"
+              value={kind}
+              onChange={e => setKind(e.target.value as TodoKind)}
+            >
+              {KIND_OPTIONS.map(k => <option key={k} value={k}>{KIND_LABEL[k]}</option>)}
+            </select>
+          </div>
+
+          <div>
             <label className="todo-input__label" htmlFor="todo-input-priority">우선순위</label>
             <select
               id="todo-input-priority"
@@ -73,7 +93,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
           </div>
 
           <div>
-            <label className="todo-input__label" id="todo-input-dueDate-label">마감일</label>
+            <label className="todo-input__label" id="todo-input-dueDate-label">{kind === 'leave' ? '날짜' : '마감일'}</label>
             <DatePicker value={dueDate} onChange={setDueDate} aria-labelledby="todo-input-dueDate-label" />
           </div>
 
@@ -99,8 +119,9 @@ export default function TodoInput({ onAdd, categories }: Props) {
             <select
               id="todo-input-recurrence"
               className="todo-input__select"
-              value={recurrence}
+              value={kind === 'leave' ? 'none' : recurrence}
               onChange={e => setRecurrence(e.target.value as Todo['recurrence'])}
+              disabled={kind === 'leave'}
             >
               <option value="none">반복 안 함</option>
               {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}

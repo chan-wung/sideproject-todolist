@@ -37,16 +37,19 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `TodoInput.tsx`: 할 일 입력창. 종류를 `연차·휴가`로 고르면 글 입력칸 대신 `LeaveFields`(연차 종류·시각·사유 칸)가 나온다. 스크롤로 화면 위에 붙을 때 뒤가 비치지 않도록 `::before`와 배경색 그림자를 깔아 둔다
   - `TodoDateField.tsx`: 등록·편집 폼이 같이 쓰는 날짜 칸(연차는 날짜 하나 `DatePicker`, 그 밖은 시작일~마감일 `DateRangePicker`)
   - `LeaveFields.tsx`: 연차 입력칸 묶음(화면만 그리고 값·등록은 `TodoInput`이 가짐)
-  - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트(툴바·메뉴 아이콘 포함, 이모지 대신 쓴다)
+  - `DatePickerParts.tsx`: `DatePicker`·`DateRangePicker`가 같이 쓰는 입력 칸·월 이동 헤더·요일/날짜 격자(`block` 접두사로 클래스 이름은 각 선택기 그대로). 두 선택기의 공통 스타일은 `abstracts/_date-picker-base.scss`의 `date-picker-base` 믹스인
+  - `ScrollTopButton.tsx`: 스크롤이 내려가 있을 때만 나오는 `맨 위로` 버튼(스크롤 감지 포함)
+  - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트(툴바·메뉴 아이콘 포함, 이모지 대신 쓴다). 일부는 `size`·`className`·`decorative`를 받는다(`size="1em"`이면 글자 크기를 따름). **글자 옆에 붙일 때는 `className="ico-text"`**: 전역 reset이 `svg`를 `display: block`으로 두기 때문에 이 클래스 없이는 줄이 바뀐다
   - `*Modal.tsx`: 모달 계열. 모두 `<dialog>` + `useModalDialog`
 - `src/hooks/`
   - `useTodos`: 할 일 상태와 필터·정렬·실행취소·완료 이력. 시리즈와 할 일을 **함께** 바꾸는 작업(승격·삭제·초기화·시작 시 마이그레이션)도 여기 있음
   - `useRecurrenceSeries`: 반복 시리즈 상태·저장·회차 생성·CRUD. `useTodos`가 내부에서 호출함
   - `useView`: 주소 경로 ↔ 현재 화면(`useSyncExternalStore`, `popstate`+자체 이벤트). `navigate(view)`로 이동, `migrateLegacyHash()`가 옛 `/#/report` 북마크를 `/report`로 바꿈(`main.tsx`에서 호출). 모르는 경로는 기본 화면(할 일)
   - `useCalendarMonth`: 달력에 보이는 달·월 이동·앞 빈칸·일수 (`DatePicker`·`DateRangePicker`·`CalendarPage`가 같이 씀)
-  - `useSelection`(선택 모드), `useModalDialog`, `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
+  - `useSelection`(선택 모드), `useModalDialog`(열기/닫기·스크롤 잠금 + 바깥 클릭 닫기 핸들러를 돌려줌), `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
+  - `useToast`(토스트 상태), `useShareActions`(복사·공유·카카오 공유 실행 + 결과 토스트)
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
-- `src/utils/`: `date`(주 계산·기간 저장 모양 `normalizeRange` 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(캘린더 기간 항목 `buildCalendarItems`·띠 배치 `layoutMonth`), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기·등록 가능 여부 `leaveStatus`), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
+- `src/utils/`: `date`(주 계산·기간 저장 모양 `normalizeRange` 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(캘린더 기간 항목 `buildCalendarItems`·띠 배치 `layoutMonth`), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기·등록 가능 여부 `leaveStatus`), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`readStorage`·`writeStorage`), `todoData`(할 일·완료 이력 검증과 옛 형식 마이그레이션 `validateTodos`·`validateCompletionLog`, `toCompletionLogEntry`), `todoFilter`(`filterTodos`·`sortTodos`), `classNames`(`cx`), `text`(`truncate`)
 - **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 공용 `PageHead`(`h1`)로 그린다(앱 공통 헤더는 없음). 제목은 카드 밖(회색 배경 위)에 두고 카드 안에는 넣지 않는다. 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 메뉴 상자에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
 - **좁은 화면(1024px 미만)**: 메뉴는 아래 탭 바(`$tabbar_height` 56px, `position: fixed`)라서 본문 아래에 같은 높이의 여백(`.app-shell`의 `padding-bottom`)을 두고, `맨 위로` 버튼과 토스트는 그 위로 띄운다. 이 폭에 쓰는 스타일은 `@include below_shell`
 - **글자 크기**: 글자는 전부 `@include font(N)` 믹스인을 거치고, PC(1024px 이상)에서는 믹스인이 `$font_scale_pc`(1.125)를 곱한다(본문 16px → 18px). 비율을 바꾸려면 `_variables.scss`의 이 값만 고친다. `font-size`를 직접 쓰지 않는다(배율이 빠짐). 간격·상자 크기(`rem()`)는 배율을 받지 않는다
@@ -68,13 +71,20 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 
 | 하려는 일 | 쓸 것 |
 |---|---|
-| 모달 열기/닫기 + 스크롤 잠금 | `useModalDialog(ref, isOpen)` |
+| 모달 열기/닫기 + 스크롤 잠금 + 바깥 클릭 닫기 | `useModalDialog(ref, isOpen, onClose)`가 돌려주는 핸들러를 `<dialog onClick>`에 |
 | 메뉴·팝오버 바깥 클릭/Esc 닫기 | `useDismiss(ref, open, onClose, { escape })` |
 | 자정·탭 복귀 때 갱신 | `useDayChange(callback)` |
 | 우선순위·반복 주기 라벨, `<option>` 목록 | `constants/labels.ts` |
 | 복사·공유 결과 토스트 문구 | `share.ts`의 `copyFeedback`/`shareFeedback`/`kakaoFeedback` |
 | 배열 항목 순서 이동 | `moveItem` |
-| localStorage 쓰기 | `writeStorage` |
+| localStorage 쓰기 / 검증해서 읽기 | `writeStorage` / `readStorage(key, parse, fallback)` |
+| 할 일·완료 이력 검증·마이그레이션 | `utils/todoData.ts`(`validateTodos` 등). `hooks`에서 가져오지 않는다 |
+| 할 일 목록 필터·정렬 | `utils/todoFilter.ts`의 `filterTodos`/`sortTodos` |
+| 토스트 띄우기, 복사·공유 실행 | `useToast`, `useShareActions(showToast)` |
+| 조건부 클래스 이름 잇기 | `utils/classNames.ts`의 `cx(...)` (`[...].filter(Boolean).join(' ')`를 쓰지 않는다) |
+| 글이 길면 줄여서(`…`) 보이기 | `utils/text.ts`의 `truncate(text, max)` |
+| 날짜 선택기의 입력 칸·헤더·격자 / 공통 스타일 | `DatePickerParts` / `@include date-picker-base` |
+| 글자 바로 옆 작은 아이콘 | `icons.tsx` 아이콘 + `className="ico-text"` |
 | `'all'` 없는 프로젝트(`category`) 목록 | `useTodos`의 `categoryOptions` |
 | 업무 종류 이름·`<option>` 목록, 값 정규화 | `KIND_LABEL`/`KIND_OPTIONS`, `normalizeKind` |
 | 화면 이름·메뉴 목록 | `labels.ts`의 `VIEW_LABEL`/`VIEW_OPTIONS`, 현재 화면은 `useView` |
@@ -92,12 +102,13 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | `transition` 여러 속성 | `@include transition(color background-color)` (공백으로 이은 한 인자, 쉼표 나열 금지) |
 | 특정 폭(1024px) 이상에서만 적용하는 스타일 | `@include shell` (폭 값을 직접 쓰지 않음) |
 | 1024px 미만(태블릿·모바일)에서만 적용하는 스타일 | `@include below_shell` |
+| 768px 이하에서만 적용하는 스타일 | `@include below_tab` (`@media (max-width: $break_tab)`를 직접 쓰지 않음) |
 | 글자 크기 | `@include font(N)` (PC 배율 `$font_scale_pc`가 자동 적용됨) |
 | 화면에서만 숨기고 스크린리더에는 남기기 | `.screen-out` 클래스, SCSS에서는 `@include visually-hidden` |
 
 ## 테스트와 안전장치
 - **`TodoItem.test.tsx`는 스냅샷 기반 동작 고정 테스트**입니다(`__snapshots__/`). 마크업을 일부러 바꾼 경우에만 diff를 검토한 뒤 `npx vitest run -u`로 갱신합니다. 의도하지 않았는데 깨졌다면 리팩터링 실수이니 코드를 고칩니다.
-- SCSS 파일을 나누거나 옮길 때는 전후 CSS를 비교합니다: `npx sass --quiet --no-source-map src/styles/main.scss > 파일.css` 후 `cmp`. 같아야 합니다. `main.scss`의 `@import` 순서가 곧 캐스케이드 순서입니다. (`scss.md`는 `@use`를 언급하지만 이 프로젝트는 아직 `@import`를 씁니다.)
+- SCSS 파일을 나누거나 옮길 때는 전후 CSS를 비교합니다: `npx sass --quiet --no-source-map src/styles/main.scss > 파일.css` 후 `cmp`. 같아야 합니다. 믹스인으로 묶어 규칙 **순서만** 바뀌는 경우에는 `cmp` 대신 규칙 집합(선택자·`@media`·선언)이 같은지 비교합니다. `main.scss`의 `@import` 순서가 곧 캐스케이드 순서입니다. (`scss.md`는 `@use`를 언급하지만 이 프로젝트는 아직 `@import`를 씁니다.)
 - 날짜에 의존하는 테스트는 `vi.useFakeTimers()` + `vi.setSystemTime(...)`으로 날짜를 고정하고, 끝나면 `vi.useRealTimers()`로 되돌립니다. 테스트 데이터의 회사·업체 이름은 가짜 이름을 씁니다(`참고자료` 규칙).
 - 저장 데이터와의 호환을 깨지 않습니다. 키: `todolist-items`, `todolist-recurrence-series`, `todolist-memos-array`, `todolist-completion-log` 등(백업 알림용 `todolist-last-backup`, `todolist-backup-snooze`는 백업 파일에 들어가지 않는 설정값). 불러올 때는 `validate*`·`migrateTodo`를 거칩니다.
 
@@ -113,7 +124,6 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 
 ## 알려진 상태
 - **실기기 미확인**: 모바일 PWA와 카카오톡 공유는 직접 눌러 확인하지 못했습니다.
-- **전용 테스트 없음**: `useRecurrenceSeries`는 `useTodos.test.ts`가 간접적으로만 검증합니다.
 - **작은 동작 차이**: 하위 항목 입력창에 보내지 않은 글자가 있을 때 카드 편집 모드로 들어갔다 돌아오면 글자가 지워집니다(`TodoItemSubtasks`가 편집 중 언마운트되기 때문). 의도한 변경이 아니므로, 거슬리면 입력 상태를 `TodoItem`으로 올립니다.
 - **엑셀 붙여넣기**: 주간보고는 `텍스트 복사` 하나뿐이다. 따옴표로 감싸 한 칸에 넣는 `엑셀 칸에 복사` 방식은 실제로 써 보니 맞지 않아 빼고 `toExcelCell`도 지웠다. 엑셀 칸을 더블클릭한 편집 상태에서 붙여넣어 한 칸에 들어가는지는 아직 확인하지 못했다.
 - **화면 확인 범위**: 다크모드와 좁은 화면(폭 390px·700px·820px·1042px 프레임)에서 할 일·캘린더·주간보고·대시보드·메모장과 아래 탭 바·툴바를 눈으로 확인했다. 실제 휴대폰·태블릿 기기, 주소창이 접히는 모바일 브라우저(탭 바 위치)는 확인하지 못했다.

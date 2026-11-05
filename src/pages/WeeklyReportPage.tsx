@@ -1,10 +1,122 @@
-// 주간보고 화면. 3단계(보고서 생성·복사)에서 채운다.
-export default function WeeklyReportPage() {
+import { useMemo, useState } from 'react';
+import type { Todo, CompletionLogEntry } from '../types/todo';
+import { useDayChange } from '../hooks/useDayChange';
+import { formatReportDate, startOfWeek, todayStr } from '../utils/date';
+import { toExcelCell } from '../utils/share';
+import { buildWeeklyReport, shiftWeek } from '../utils/weeklyReport';
+
+interface Props {
+  todos: Todo[];
+  completionLog: CompletionLogEntry[];
+  onCopy: (text: string, successMessage: string) => void;
+}
+
+// '2026.11.2' → '11.2'
+const monthDay = (dateStr: string) => formatReportDate(dateStr).slice(5);
+
+// 한 주(월~일)에 완료한 일을 주간보고 양식으로 모아 보여 주고, 엑셀 한 칸에 붙여넣을 수 있게 복사한다.
+export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props) {
+  const [today, setToday] = useState(todayStr);
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(todayStr()));
+  // 복사 전에 손으로 고친 내용. null이면 자동으로 만든 글을 그대로 쓴다. 저장하지 않고, 주를 옮기면 버린다.
+  const [edited, setEdited] = useState<string | null>(null);
+
+  // 자정이 지나거나 탭으로 돌아오면 '이번 주' 판단을 새로 한다.
+  useDayChange(() => setToday(todayStr()));
+
+  const report = useMemo(
+    () => buildWeeklyReport({ weekStart, todos, completionLog }),
+    [weekStart, todos, completionLog],
+  );
+
+  const currentWeekStart = startOfWeek(today);
+  const text = edited ?? report.text;
+  const isBlank = text.trim() === '';
+  const year = weekStart.slice(0, 4);
+
+  function moveWeek(weeks: number) {
+    setWeekStart(prev => shiftWeek(prev, weeks));
+    setEdited(null);
+  }
+
+  function goThisWeek() {
+    setWeekStart(currentWeekStart);
+    setEdited(null);
+  }
+
   return (
     <main className="weekly-report">
       <div className="weekly-report__box">
-        <h2 className="weekly-report__tit">주간보고</h2>
-        <p className="weekly-report__desc">준비 중입니다. 완료한 일을 주간보고 양식으로 모아서 복사할 수 있게 만들 예정입니다.</p>
+        <div className="weekly-report__wrap">
+          <h2 className="weekly-report__tit">주간보고</h2>
+
+          <div className="weekly-report__head">
+            <button type="button" className="weekly-report__nav-btn" onClick={() => moveWeek(-1)} aria-label="지난주">
+              <span aria-hidden="true">&lsaquo;</span>
+            </button>
+            <p className="weekly-report__week" aria-live="polite">
+              <span className="weekly-report__week-tit">{year}년 {report.label}</span>
+              <span className="weekly-report__week-range">{monthDay(report.weekStart)} ~ {monthDay(report.weekEnd)}</span>
+            </p>
+            <button type="button" className="weekly-report__nav-btn" onClick={() => moveWeek(1)} aria-label="다음주">
+              <span aria-hidden="true">&rsaquo;</span>
+            </button>
+            <button
+              type="button"
+              className="weekly-report__today-btn"
+              onClick={goThisWeek}
+              disabled={weekStart === currentWeekStart}
+            >
+              이번 주
+            </button>
+          </div>
+
+          {report.isEmpty && edited === null && (
+            <p className="weekly-report__empty">
+              이 주에 완료한 일이 없습니다. 할 일을 완료하거나, 매주 하는 일은 종류를 “정기 업무”로, 연차는 “연차·휴가”로 등록해 보세요.
+            </p>
+          )}
+
+          <div className="weekly-report__field">
+            <label className="screen-out" htmlFor="weekly-report-text">주간보고 내용</label>
+            <textarea
+              id="weekly-report-text"
+              className="weekly-report__textarea"
+              value={text}
+              onChange={e => setEdited(e.target.value)}
+              rows={12}
+              spellCheck={false}
+            />
+          </div>
+
+          <div className="weekly-report__actions">
+            <button
+              type="button"
+              className="btn btn--main"
+              onClick={() => onCopy(toExcelCell(text), '엑셀용으로 복사했습니다. 엑셀에서 칸을 선택하고 붙여넣으세요.')}
+              disabled={isBlank}
+            >
+              엑셀 칸에 복사
+            </button>
+            <button
+              type="button"
+              className="btn btn--outline-gray"
+              onClick={() => onCopy(text, '주간보고를 클립보드에 복사했습니다.')}
+              disabled={isBlank}
+            >
+              텍스트 복사
+            </button>
+            {edited !== null && (
+              <button type="button" className="weekly-report__reset-btn" onClick={() => setEdited(null)}>
+                자동으로 만든 내용으로 되돌리기
+              </button>
+            )}
+          </div>
+
+          <p className="weekly-report__hint">
+            엑셀에서는 칸 하나를 선택한 채로 붙여넣으세요. 칸 안을 더블클릭해 편집 중이면 따옴표가 그대로 보이거나 줄마다 나뉠 수 있습니다.
+          </p>
+        </div>
       </div>
     </main>
   );

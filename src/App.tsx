@@ -407,7 +407,7 @@ export default function App() {
           }}
         />
       ) : (
-        <WeeklyReportPage />
+        <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} />
       )}
       
       <QuickMemo

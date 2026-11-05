@@ -12,14 +12,151 @@
     border-radius: 16px;
   }
 
+  &__wrap {
+    display: flex;
+    flex-direction: column;
+    gap: rem(16);
+  }
+
   &__tit {
     color: var(--txt-color-tit);
     @include font(20, "Bold");
   }
 
-  &__desc {
-    margin-top: rem(8);
+  // ── 주 이동 ──
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(8);
+  }
+
+  &__nav-btn {
+    @include size(36);
+    @include flex-center;
+    color: var(--txt-color-tit);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(20, "Bold");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      color: var(--color-main);
+      border-color: var(--color-main);
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 2px;
+    }
+  }
+
+  &__week {
+    min-width: rem(150);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__week-tit {
+    color: var(--txt-color-tit);
+    @include font(16, "Bold");
+  }
+
+  &__week-range {
     color: var(--txt-color-base);
+    @include font(13);
+  }
+
+  &__today-btn {
+    height: rem(36);
+    margin-left: rem(4);
+    padding: 0 rem(12);
+    color: var(--color-main);
+    background: var(--color-main-5);
+    border: 0;
+    border-radius: 8px;
+    @include font(13, "SemiBold");
+    cursor: pointer;
+    @include transition();
+
+    &:hover {
+      background: var(--color-main-10);
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+      pointer-events: none;
+    }
+  }
+
+  // ── 안내 · 입력 ──
+  &__empty {
+    padding: rem(12) rem(14);
+    color: var(--txt-color-base);
+    background: var(--color-main-5);
+    border-radius: 8px;
+    @include font(13);
+    line-height: 1.6;
+  }
+
+  &__textarea {
+    width: 100%;
+    min-height: rem(240);
+    padding: rem(14);
+    display: block;
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
     @include font(14);
+    line-height: 1.7;
+    white-space: pre-wrap;
+    resize: vertical;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-main);
+      outline-offset: 0;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(8);
+  }
+
+  &__reset-btn {
+    padding: rem(6) rem(8);
+    color: var(--txt-color-base);
+    background: transparent;
+    border: 0;
+    @include font(13, "Medium");
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--color-main);
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 2px;
+    }
+  }
+
+  &__hint {
+    color: var(--txt-color-base);
+    @include font(12);
+    line-height: 1.6;
   }
 }

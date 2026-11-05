@@ -33,6 +33,7 @@ export default function AppToolbar({ navCollapsed, getBackup, applyBackup, onImp
   // 자정이 지나거나 PWA가 다시 포커스되면 D-day를 새로 계산
   useDayChange(() => setProgress(yearProgress()));
 
+  const themeLabel = theme === 'light' ? '다크모드' : '라이트모드';
   const ddayLabel = progress.daysLeft === 0 ? 'D-DAY' : `D-${progress.daysLeft}`;
 
   function handleExport() {
@@ -70,28 +71,29 @@ export default function AppToolbar({ navCollapsed, getBackup, applyBackup, onImp
         type="button" 
         className="app-toolbar__btn app-toolbar__btn--theme"
         onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
+        title={themeLabel}
       >
         <span className="app-toolbar__ico">{theme === 'light' ? <MoonIcon /> : <SunIcon />}</span>
-        {theme === 'light' ? '다크모드' : '라이트모드'}
+        <span className="app-toolbar__txt">{themeLabel}</span>
       </button>
       <div className="app-toolbar__backup">
-        <button type="button" className="app-toolbar__btn app-toolbar__btn--export" onClick={handleExport}>
-          내보내기
+        <button type="button" className="app-toolbar__btn app-toolbar__btn--export" onClick={handleExport} title="내보내기">
+          <span className="app-toolbar__txt">내보내기</span>
         </button>
-        <label className="app-toolbar__btn app-toolbar__btn--import">
-          가져오기
+        <label className="app-toolbar__btn app-toolbar__btn--import" title="가져오기">
+          <span className="app-toolbar__txt">가져오기</span>
           <input type="file" accept="application/json" onChange={handleImport} className="screen-out" />
         </label>
       </div>
-      <button type="button" className="app-toolbar__btn app-toolbar__btn--recurrence" onClick={onRecurrenceOpen}>
+      <button type="button" className="app-toolbar__btn app-toolbar__btn--recurrence" onClick={onRecurrenceOpen} title="반복 일정">
         <span className="app-toolbar__ico"><RepeatIcon /></span>
-        반복 일정
+        <span className="app-toolbar__txt">반복 일정</span>
       </button>
-      <button type="button" className="app-toolbar__btn app-toolbar__btn--log" onClick={onCompletionLogOpen}>
+      <button type="button" className="app-toolbar__btn app-toolbar__btn--log" onClick={onCompletionLogOpen} title="완료 이력">
         <span className="app-toolbar__ico"><HistoryIcon /></span>
-        완료 이력
+        <span className="app-toolbar__txt">완료 이력</span>
       </button>
-      <button type="button" className="app-toolbar__btn app-toolbar__btn--settings" onClick={onSettingsOpen} aria-label="설정">
+      <button type="button" className="app-toolbar__btn app-toolbar__btn--settings" onClick={onSettingsOpen} aria-label="설정" title="설정">
         <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.58 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
         </svg>

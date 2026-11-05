@@ -34,6 +34,11 @@
   bottom: rem(24);
   left: 50%;
   z-index: 9999;
+
+  // 1024px 미만: 아래 탭 바 위로 띄운다
+  @include below_shell {
+    bottom: calc(#{rem($tabbar_height + 16)} + env(safe-area-inset-bottom, 0px));
+  }
   transform: translateX(-50%);
   animation: toast-in 0.22s ease;
   --toast-color: var(--color-main);

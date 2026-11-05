@@ -1,12 +1,24 @@
 // =============================================
 // APP NAV (화면 전환 메뉴)
-// 기본: 상단 가로 메뉴 / 1024px 이상: 왼쪽 사이드바(떠 있는 카드)
+// 1024px 미만(태블릿·모바일): 화면 아래 탭 바 / 1024px 이상: 왼쪽 사이드바(떠 있는 카드)
 // =============================================
 
 .app-nav {
   width: 100%;
   background: var(--color-white);
   border-bottom: 1px solid var(--color-border);
+
+  // 1024px 미만: 화면 아래에 고정되는 탭 바 (엄지로 누르기 쉽고 위쪽 세로 공간을 안 쓴다)
+  @include below_shell {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 0;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 150;
+  }
 
   @include shell {
     width: rem($nav_width);
@@ -102,10 +114,22 @@
     list-style: none;
     overflow-x: auto;
 
+    @include below_shell {
+      gap: 0;
+      overflow-x: visible;
+    }
+
     @include shell {
       flex-direction: column;
       gap: rem(12);
       overflow-x: visible;
+    }
+  }
+
+  &__item {
+    @include below_shell {
+      min-width: 0;
+      flex: 1;
     }
   }
 
@@ -135,6 +159,21 @@
       border-bottom-color: var(--color-main);
     }
 
+    @include below_shell {
+      width: 100%;
+      min-height: rem($tabbar_height - 1);
+      padding: rem(6) rem(2);
+      flex-direction: column;
+      justify-content: center;
+      gap: rem(2);
+      border-bottom: 0;
+      @include font(11, "Medium");
+
+      &[aria-current="page"] {
+        border-bottom-color: transparent;
+      }
+    }
+
     @include shell {
       height: rem(44);
       padding: 0 rem(16);
@@ -158,12 +197,16 @@
     }
   }
 
-  // 아이콘은 사이드바에서만 보인다
+  // 아이콘은 사이드바와 아래 탭 바에서 보인다
   &__ico {
     display: none;
 
     svg {
       @include size(20);
+      display: block;
+    }
+
+    @include below_shell {
       display: block;
     }
 

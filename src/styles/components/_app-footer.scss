@@ -18,6 +18,12 @@
   right: rem(24);
   bottom: rem(24);
   z-index: 200;
+
+  // 1024px 미만: 아래 탭 바 위로 띄운다
+  @include below_shell {
+    right: rem(16);
+    bottom: calc(#{rem($tabbar_height + 16)} + env(safe-area-inset-bottom, 0px));
+  }
   cursor: pointer;
   @include transition();
 

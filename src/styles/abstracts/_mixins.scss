@@ -11,6 +11,13 @@
   }
 }
 
+// 사이드바 레이아웃이 꺼지는 폭(1024px 미만: 태블릿·모바일)
+@mixin below_shell {
+  @media (max-width: #{$break_shell - 1px}) {
+    @content;
+  }
+}
+
 // 화면에서만 숨기고 스크린리더에는 읽히게 한다 (.screen-out과 같은 규칙, 특정 폭에서만 쓸 때)
 @mixin visually-hidden {
   width: 1px;

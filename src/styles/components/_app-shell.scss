@@ -8,6 +8,11 @@
   display: flex;
   flex-direction: column;
 
+  // 1024px 미만: 화면 아래 탭 바가 본문(푸터)을 가리지 않게 그 높이만큼 비워 둔다
+  @include below_shell {
+    padding-bottom: calc(#{rem($tabbar_height)} + env(safe-area-inset-bottom, 0px));
+  }
+
   @include shell {
     // margin이 아니라 padding: margin은 body 밖으로 겹쳐 올라가 body(height:100%)를 헤더 높이만큼 아래로 밀어
     // 내용이 짧아도 항상 64px만큼 더 스크롤되었다

@@ -6,6 +6,7 @@ import { useDayChange } from '../hooks/useDayChange';
 import { buildCalendarItems, formatPeriod, itemsOnDate, layoutMonth, monthRange, type CalendarItem } from '../utils/calendar';
 import { formatMonthDayWeekday, todayStr } from '../utils/date';
 import { viewHref } from '../hooks/useView';
+import { usePersistentState } from '../hooks/usePersistentState';
 import PeriodNav from '../components/PeriodNav';
 import PageHead from '../components/PageHead';
 
@@ -38,10 +39,13 @@ export default function CalendarPage({ todos, series, completionLog }: Props) {
   useDayChange(() => setToday(todayStr()));
 
   const { from, to } = monthRange(year, month);
-  const items = useMemo(
+  const [hideDone, setHideDone] = usePersistentState<boolean>('todolist-pref-calendar-hide-done', false);
+  const allItems = useMemo(
     () => buildCalendarItems({ todos, series, completionLog, from, to, today }),
     [todos, series, completionLog, from, to, today],
   );
+  // '완료한 항목 숨기기'를 켜면 완료한 할 일과 완료 정리된 이력을 띠·개수·목록에서 모두 뺀다
+  const items = useMemo(() => (hideDone ? allItems.filter(i => !i.completed) : allItems), [allItems, hideDone]);
   const layout = useMemo(() => layoutMonth(items, year, month, MAX_LANES), [items, year, month]);
 
   const isCurrentMonth = from === `${today.slice(0, 7)}-01`;
@@ -73,6 +77,13 @@ export default function CalendarPage({ todos, series, completionLog }: Props) {
             onToday={goThisMonth}
             todayDisabled={isCurrentMonth && selected === today}
           />
+
+          <div className="calendar__tools">
+            <label className="form-chk form-chk--checkbox">
+              <input type="checkbox" checked={hideDone} onChange={e => setHideDone(e.target.checked)} />
+              <span className="form-chk__text">완료한 항목 숨기기</span>
+            </label>
+          </div>
 
           <div className="calendar__grid">
             <div className="calendar__heads">

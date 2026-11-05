@@ -35,6 +35,7 @@ function setup(todos: Todo[] = [], series: RecurrenceSeries[] = [], completionLo
 
 describe('CalendarPage', () => {
   beforeEach(() => {
+    localStorage.clear();
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-11-04T10:00:00'));
   });
@@ -191,8 +192,66 @@ describe('CalendarPage', () => {
   });
 });
 
+describe('CalendarPage — 완료한 항목 숨기기', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-04T10:00:00'));
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  const DATA = () => [
+    todo({ text: '할 일 진행', dueDate: '2026-11-10' }),
+    todo({ text: '할 일 완료', completed: true, dueDate: '2026-11-10' }),
+  ];
+  const LOG: CompletionLogEntry[] = [
+    { id: 'old', text: '정리된 일', category: '기본', priority: 'medium', completedAt: '2026-11-03T15:00:00', dueDate: '2026-11-10' },
+  ];
+
+  it('처음엔 완료한 항목도 보이고, 체크하면 완료한 할 일과 완료 이력이 띠·개수·목록에서 빠진다', () => {
+    const { getByLabelText, barTexts, day, detail } = setup(DATA(), [], LOG);
+    const box = getByLabelText('완료한 항목 숨기기') as HTMLInputElement;
+    expect(box.checked).toBe(false);
+    expect(barTexts().sort()).toEqual(['정리된 일', '할 일 완료', '할 일 진행']);
+    expect(day(10).getAttribute('aria-label')).toBe('11월 10일, 일정 3개');
+
+    fireEvent.click(box);
+    expect(box.checked).toBe(true);
+    expect(barTexts()).toEqual(['할 일 진행']);
+    expect(day(10).getAttribute('aria-label')).toBe('11월 10일, 일정 1개');
+    fireEvent.click(day(10));
+    expect(within(detail()).queryByText('할 일 완료')).toBeNull();
+    expect(within(detail()).queryByText('정리된 일')).toBeNull();
+    expect(within(detail()).getByText('할 일 진행')).toBeTruthy();
+
+    fireEvent.click(box);
+    expect(barTexts()).toHaveLength(3);
+  });
+
+  it('완료한 것뿐인 날은 일정이 없는 날처럼 보이고, 반복 예정은 계속 보인다', () => {
+    const { getByLabelText, day, barTexts } = setup([todo({ text: '끝낸 일', completed: true, dueDate: '2026-11-09' })], [ROUTINE_SERIES]);
+    fireEvent.click(getByLabelText('완료한 항목 숨기기'));
+    expect(day(9).getAttribute('aria-label')).toBe('11월 9일, 일정 1개'); // 예정 회차만 남는다
+    expect(barTexts()).not.toContain('끝낸 일');
+  });
+
+  it('고른 설정은 다음에 열어도 유지된다', () => {
+    const first = setup(DATA());
+    fireEvent.click(first.getByLabelText('완료한 항목 숨기기'));
+    cleanup();
+    const again = setup(DATA());
+    expect((again.getByLabelText('완료한 항목 숨기기') as HTMLInputElement).checked).toBe(true);
+    expect(again.barTexts()).toEqual(['할 일 진행']);
+  });
+});
+
 describe('CalendarPage — 보기 전용', () => {
   beforeEach(() => {
+    localStorage.clear();
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-11-04T10:00:00'));
   });

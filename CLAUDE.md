@@ -21,21 +21,31 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - `참고자료/`는 사용자가 **Claude에게 참고용으로 주는 자료**(스크린샷·양식 등)를 넣는 폴더입니다. 사용자가 "이거 봐"처럼 자료를 줄 때는 먼저 이 폴더를 확인합니다.
 - **커밋·푸시하지 않습니다.** `.gitignore`에 등록돼 있고, 업무 자료가 섞여 있을 수 있으니 `git add -A`/`git add .` 후에도 스테이징돼 있지 않은지 `git status`로 확인합니다.
 - 자료 속 회사·사람 이름은 코드, 테스트, 스냅샷, 문서에 그대로 옮기지 않습니다. 필요하면 가짜 이름으로 바꿉니다.
+- 레이아웃 참고: `D:\wungsGit\contract-monitoring`(춘천시 납품 프로젝트)의 사이드바 셸을 **구조·치수만 참고**했습니다. 그 폴더는 읽기 전용으로만 다루고, 코드·로고·폰트·시스템명·문구는 가져오지 않습니다(이 저장소가 공개일 수 있음).
 - 주간보고 양식 스크린샷: 엑셀 한 칸(주 단위) 안에 `날짜 + 정기업무` 줄, 빈 줄, `[프로젝트] 내용` 줄들이 여러 줄로 들어갑니다. 주간보고 기능의 출력 형식 기준입니다.
 
 ## 코드 구조 (2026-11 리팩터링 이후)
-- `src/App.tsx`: 화면 조립, 백업 가져오기/내보내기, 토스트
+- `src/App.tsx`: 셸 조립(툴바·사이드바·본문), 화면 선택, 백업 가져오기/내보내기, 토스트. **상태(`useTodos`·`useMemos`)는 여기서 들고** 화면에는 props로 내려 줌
+- `src/pages/`: 화면 단위. `TodoPage`(할 일, 조립만), `WeeklyReportPage`(주간보고). 화면 이름·메뉴는 `constants/labels.ts`의 `VIEW_*`, 주소 해시(`#/todos`·`#/report`)로 구분
 - `src/components/`
+  - `AppNav.tsx`: 화면 전환 메뉴. 폭 1024px 이상은 왼쪽 카드형 사이드바(접기·펴기), 미만은 상단 가로 메뉴. 같은 마크업을 CSS로 두 모양으로 바꿈
+  - `AppToolbar.tsx`: 상단 툴바. 1024px 이상에서는 화면 위에 고정(높이 64px)
   - `TodoItem.tsx`: 할 일 카드(조립만 담당). 편집 폼 `TodoItemEditForm`, 하위 항목 `TodoItemSubtasks`, 더보기 메뉴 `TodoItemMenu`로 분리됨
   - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트
   - `*Modal.tsx`: 모달 계열. 모두 `<dialog>` + `useModalDialog`
 - `src/hooks/`
   - `useTodos`: 할 일 상태와 필터·정렬·실행취소·완료 이력. 시리즈와 할 일을 **함께** 바꾸는 작업(승격·삭제·초기화·시작 시 마이그레이션)도 여기 있음
   - `useRecurrenceSeries`: 반복 시리즈 상태·저장·회차 생성·CRUD. `useTodos`가 내부에서 호출함
+  - `useView`: 주소 해시 ↔ 현재 화면(`useSyncExternalStore`)
   - `useSelection`(선택 모드), `useModalDialog`, `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
-- `src/constants/labels.ts`: 우선순위·반복 주기 라벨과 옵션 목록
-- `src/utils/`: `date`, `recurrence`, `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
-- `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일
+- `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
+- `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `share`(복사·공유·엑셀 칸 복사와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
+- `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일. 레이아웃 폭 기준은 `$break_shell`(1024px)과 `@include shell`
+
+## 데이터 모델 메모
+- 업무 종류 `kind`: `task`(일반, `[카테고리] 내용`) / `routine`(정기, `날짜 + 내용 완료`) / `leave`(연차·휴가, `날짜 + 내용`). 없거나 잘못된 값은 `task`. `Todo`·`RecurrenceSeries`·`CompletionLogEntry`에 모두 있고, 반복 회차와 완료 이력이 이어받음
+- 연차·휴가는 날짜(`dueDate`) 필수·반복 불가. 완료 이력에도 `dueDate`를 남겨 정리된 연차가 주간보고에서 날짜를 잃지 않게 함
+- 주간보고는 저장하는 데이터가 아니라 **완료 상태로 남은 할 일 + 완료 이력**에서 그때그때 계산함(`buildWeeklyReport`)
 
 ## 중복을 다시 만들지 않기
 같은 일을 하는 코드를 새로 쓰기 전에 아래를 먼저 씁니다.
@@ -50,10 +60,17 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | 배열 항목 순서 이동 | `moveItem` |
 | localStorage 쓰기 | `writeStorage` |
 | `'all'` 없는 카테고리 목록 | `useTodos`의 `categoryOptions` |
+| 업무 종류 이름·`<option>` 목록, 값 정규화 | `KIND_LABEL`/`KIND_OPTIONS`, `normalizeKind` |
+| 화면 이름·메뉴 목록 | `labels.ts`의 `VIEW_LABEL`/`VIEW_OPTIONS`, 현재 화면은 `useView` |
+| 주 시작(월요일)·로컬 날짜·`2026.11.2` 표기 | `date.ts`의 `startOfWeek`/`toLocalDateStr`/`formatReportDate` |
+| 여러 줄 글을 엑셀 한 칸으로 복사 | `share.ts`의 `toExcelCell` |
+| 특정 폭(1024px) 이상에서만 적용하는 스타일 | `@include shell` (폭 값을 직접 쓰지 않음) |
+| 화면에서만 숨기고 스크린리더에는 남기기 | `.screen-out` 클래스, SCSS에서는 `@include visually-hidden` |
 
 ## 테스트와 안전장치
 - **`TodoItem.test.tsx`는 스냅샷 기반 동작 고정 테스트**입니다(`__snapshots__/`). 마크업을 일부러 바꾼 경우에만 diff를 검토한 뒤 `npx vitest run -u`로 갱신합니다. 의도하지 않았는데 깨졌다면 리팩터링 실수이니 코드를 고칩니다.
 - SCSS 파일을 나누거나 옮길 때는 전후 CSS를 비교합니다: `npx sass --quiet --no-source-map src/styles/main.scss > 파일.css` 후 `cmp`. 같아야 합니다. `main.scss`의 `@import` 순서가 곧 캐스케이드 순서입니다. (`scss.md`는 `@use`를 언급하지만 이 프로젝트는 아직 `@import`를 씁니다.)
+- 날짜에 의존하는 테스트는 `vi.useFakeTimers()` + `vi.setSystemTime(...)`으로 날짜를 고정하고, 끝나면 `vi.useRealTimers()`로 되돌립니다. 테스트 데이터의 회사·업체 이름은 가짜 이름을 씁니다(`참고자료` 규칙).
 - 저장 데이터와의 호환을 깨지 않습니다. 키: `todolist-items`, `todolist-recurrence-series`, `todolist-memos-array`, `todolist-completion-log` 등. 불러올 때는 `validate*`·`migrateTodo`를 거칩니다.
 
 ## 환경 주의 (Windows)
@@ -68,6 +85,12 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - **실기기 미확인**: 모바일 PWA와 카카오톡 공유는 직접 눌러 확인하지 못했습니다.
 - **전용 테스트 없음**: `useRecurrenceSeries`는 `useTodos.test.ts`가 간접적으로만 검증합니다.
 - **작은 동작 차이**: 하위 항목 입력창에 보내지 않은 글자가 있을 때 카드 편집 모드로 들어갔다 돌아오면 글자가 지워집니다(`TodoItemSubtasks`가 편집 중 언마운트되기 때문). 의도한 변경이 아니므로, 거슬리면 입력 상태를 `TodoItem`으로 올립니다.
+- **엑셀 붙여넣기 미확인**: 주간보고 `엑셀 칸에 복사`가 실제 공동 엑셀(웹)에서 한 칸에 들어가는지 확인하지 못했습니다. 안 되면 `toExcelCell` 방식을 바꿉니다.
+- **미확인 화면**: 사이드바·주간보고의 다크모드와 좁은 화면(1024px 미만)은 눈으로 확인하지 못했습니다.
+- **작은 동작 차이**: 화면을 옮기면 `TodoPage`가 언마운트되어 할 일 입력창에 쓰다 만 글자가 지워집니다. 거슬리면 입력 상태를 `App`으로 올립니다.
+- **작은 동작 차이**: 반복 회차 카드에서 종류를 바꾸면 그 회차만 바뀌고 시리즈 종류는 그대로입니다. 이전 완료 이력의 연차는 `dueDate`가 없어 주간보고에 들어가지 않습니다.
+- **`QuickNav` 숨김 폭**: 사이드바와 겹치지 않도록 1756px 미만에서 숨깁니다(접힘 상태와 무관하게 고정).
+- **남은 계획**: 캘린더(연차·일정 보기) → 대시보드 → 백업 강화 순서. 아직 시작하지 않았습니다.
 - **보류한 작업**: `@import → @use` 전환, `_icons_new.scss`(약 2,700줄) 분리. 두 가지 모두 급하지 않음.
 
 ## 작업 흐름

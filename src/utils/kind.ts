@@ -9,3 +9,17 @@ export function isTodoKind(v: unknown): v is TodoKind {
 export function normalizeKind(v: unknown): TodoKind {
   return isTodoKind(v) ? v : 'task';
 }
+
+// 종류별 입력 규칙. 연차·휴가는 보고서에 날짜가 찍히므로 날짜가 꼭 필요하고, 반복할 수 없다.
+export function kindRequiresDate(kind: TodoKind): boolean {
+  return kind === 'leave';
+}
+
+export function kindAllowsRecurrence(kind: TodoKind): boolean {
+  return kind !== 'leave';
+}
+
+// 날짜 입력칸의 이름 (연차는 '마감'이 아니라 쉬는 날짜다)
+export function dueDateLabel(kind: TodoKind): string {
+  return kind === 'leave' ? '날짜' : '마감일';
+}

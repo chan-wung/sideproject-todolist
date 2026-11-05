@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Todo, TodoKind } from '../types/todo';
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
+import { kindAllowsRecurrence, kindRequiresDate, dueDateLabel } from '../utils/kind';
 import Toast from './Toast';
 import DatePicker from './DatePicker';
 
@@ -28,13 +29,12 @@ export default function TodoInput({ onAdd, categories }: Props) {
       setText('');
       return;
     }
-    // 연차·휴가는 보고서에 날짜가 찍히므로 날짜가 꼭 필요하고, 반복하지 않는다.
-    if (kind === 'leave' && !dueDate) {
+    if (kindRequiresDate(kind) && !dueDate) {
       setToast('연차·휴가는 날짜를 선택해 주세요.');
       setToastKey(k => k + 1);
       return;
     }
-    onAdd(text, priority, dueDate, category, kind === 'leave' ? 'none' : recurrence, kind);
+    onAdd(text, priority, dueDate, category, kindAllowsRecurrence(kind) ? recurrence : 'none', kind);
     setText('');
     setDueDate('');
     setCategory('');
@@ -93,7 +93,7 @@ export default function TodoInput({ onAdd, categories }: Props) {
           </div>
 
           <div>
-            <label className="todo-input__label" id="todo-input-dueDate-label">{kind === 'leave' ? '날짜' : '마감일'}</label>
+            <label className="todo-input__label" id="todo-input-dueDate-label">{dueDateLabel(kind)}</label>
             <DatePicker value={dueDate} onChange={setDueDate} aria-labelledby="todo-input-dueDate-label" />
           </div>
 
@@ -119,9 +119,9 @@ export default function TodoInput({ onAdd, categories }: Props) {
             <select
               id="todo-input-recurrence"
               className="todo-input__select"
-              value={kind === 'leave' ? 'none' : recurrence}
+              value={kindAllowsRecurrence(kind) ? recurrence : 'none'}
               onChange={e => setRecurrence(e.target.value as Todo['recurrence'])}
-              disabled={kind === 'leave'}
+              disabled={!kindAllowsRecurrence(kind)}
             >
               <option value="none">반복 안 함</option>
               {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
 import type { Todo, RecurrenceSeries, RecurrenceFrequency, TodoKind } from '../types/todo';
-import { normalizeKind } from '../utils/kind';
+import { normalizeKind, kindAllowsRecurrence } from '../utils/kind';
 import { formatDate, todayStr, upcomingOccurrences } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
 import DatePicker from './DatePicker';
@@ -47,8 +47,8 @@ function SeriesFields({ value, onChange, showEndDate }: {
   onChange: (patch: Partial<SeriesInput>) => void;
   showEndDate?: boolean;
 }) {
-  // 연차·휴가는 반복할 수 없으므로 고르지 못하게 한다 (이미 연차로 저장된 옛 시리즈만 예외로 보여 준다).
-  const kindOptions = KIND_OPTIONS.filter(k => k !== 'leave' || value.kind === 'leave');
+  // 반복할 수 없는 종류(연차·휴가)는 고르지 못하게 한다 (이미 그 종류로 저장된 옛 시리즈만 예외로 보여 준다).
+  const kindOptions = KIND_OPTIONS.filter(k => kindAllowsRecurrence(k) || k === value.kind);
 
   return (
     <>

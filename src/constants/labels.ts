@@ -39,14 +39,15 @@ export const LEAVE_TYPES: { id: LeaveType; label: string }[] = [
 ];
 
 // 상단 메뉴(화면 전환). 주소의 해시(#/todos)와 1:1로 대응한다.
-export type View = 'dashboard' | 'todos' | 'calendar' | 'report';
+export type View = 'dashboard' | 'todos' | 'calendar' | 'memo' | 'report';
 
 export const VIEW_LABEL: Record<View, string> = {
   dashboard: '대시보드',
   todos: '할 일',
   calendar: '캘린더',
+  memo: '메모장',
   report: '주간보고',
 };
 
-export const VIEW_OPTIONS: View[] = ['dashboard', 'todos', 'calendar', 'report'];
+export const VIEW_OPTIONS: View[] = ['dashboard', 'todos', 'calendar', 'memo', 'report'];
 export const DEFAULT_VIEW: View = 'todos';

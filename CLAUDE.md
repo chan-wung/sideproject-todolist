@@ -26,7 +26,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 
 ## 코드 구조 (2026-11 리팩터링 이후)
 - `src/App.tsx`: 셸 조립(툴바·사이드바·본문), 화면 선택, 백업 가져오기/내보내기, 토스트. **상태(`useTodos`·`useMemos`)는 여기서 들고** 화면에는 props로 내려 줌
-- `src/pages/`: 화면 단위. `DashboardPage`(대시보드), `TodoPage`(할 일, 조립만), `CalendarPage`(캘린더), `WeeklyReportPage`(주간보고). 화면 이름·메뉴는 `constants/labels.ts`의 `VIEW_*`, 주소 해시(`#/todos`·`#/report`)로 구분
+- `src/pages/`: 화면 단위. `DashboardPage`(대시보드), `TodoPage`(할 일, 조립만), `CalendarPage`(캘린더), `MemoPage`(메모장), `WeeklyReportPage`(주간보고). 화면 이름·메뉴는 `constants/labels.ts`의 `VIEW_*`, 주소 해시(`#/todos`·`#/report`)로 구분
 - `src/components/`
   - `AppNav.tsx`: 화면 전환 메뉴. 폭 1024px 이상은 왼쪽 카드형 사이드바(접기·펴기), 미만은 상단 가로 메뉴. 같은 마크업을 CSS로 두 모양으로 바꿈
   - `PeriodNav.tsx`: 기간(주·달) 이동 막대. 주간보고·캘린더 공용

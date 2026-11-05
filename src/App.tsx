@@ -5,7 +5,7 @@ import type { Memo } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import { useSelection } from './hooks/useSelection';
-import { useView } from './hooks/useView';
+import { useView, viewHref } from './hooks/useView';
 import { useBackupReminder } from './hooks/useBackupReminder';
 import TodoPage from './pages/TodoPage';
 import WeeklyReportPage from './pages/WeeklyReportPage';
@@ -14,7 +14,7 @@ import DashboardPage from './pages/DashboardPage';
 import AppNav from './components/AppNav';
 import BackupReminder from './components/BackupReminder';
 import Toast from './components/Toast';
-import QuickMemo from './components/QuickMemo';
+import MemoPage from './pages/MemoPage';
 import AppToolbar from './components/AppToolbar';
 import SettingsModal from './components/SettingsModal';
 import CompletionLogModal from './components/CompletionLogModal';
@@ -313,11 +313,10 @@ export default function App() {
 
   const [isRecurrenceOpen, setIsRecurrenceOpen] = useState(false);
 
-  const [isMemoOpen, setIsMemoOpen] = useState(false);
-
+  // 할 일 카드의 메모 링크: 메모장 화면으로 이동해 그 메모를 고른다
   function handleOpenMemo(memoId: string) {
     setActiveId(memoId);
-    setIsMemoOpen(true);
+    window.location.hash = viewHref('memo');
   }
 
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -357,16 +356,6 @@ export default function App() {
         <div className="todo-app__header-left">
           <h1 className="todo-app__tit">Todo List</h1>
           <p className="todo-app__subtitle">할 일을 체계적으로 관리하세요</p>
-        </div>
-        <div className="todo-app__header-actions">
-          <button
-            type="button"
-            className="todo-app__memo-btn"
-            onClick={() => setIsMemoOpen(true)}
-            aria-label="빠른 메모장 열기"
-          >
-            📝 메모장
-          </button>
         </div>
       </header>
 
@@ -440,21 +429,22 @@ export default function App() {
         <DashboardPage todos={allTodos} completionLog={completionLog} />
       ) : view === 'calendar' ? (
         <CalendarPage todos={allTodos} series={recurrenceSeries} onAddLeave={handleAddLeave} />
+      ) : view === 'memo' ? (
+        <MemoPage
+          memos={memos}
+          setMemos={setMemos}
+          activeId={activeId}
+          setActiveId={setActiveId}
+          todos={allTodos}
+          onLinkMemo={linkMemoToTodo}
+          onUnlinkMemo={unlinkMemoFromTodo}
+          onCopyText={runCopy}
+          onShareText={runShare}
+          onKakaoShareText={runKakaoShare}
+        />
       ) : (
         <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} />
       )}
-      
-      <QuickMemo
-        isOpen={isMemoOpen}
-        onClose={() => setIsMemoOpen(false)}
-        memos={memos}
-        setMemos={setMemos}
-        activeId={activeId}
-        setActiveId={setActiveId}
-        todos={allTodos}
-        onLinkMemo={linkMemoToTodo}
-        onUnlinkMemo={unlinkMemoFromTodo}
-      />
 
       <SettingsModal
         isOpen={isSettingsOpen}

@@ -1,19 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
-import { useModalDialog } from '../hooks/useModalDialog';
-import ConfirmModal from './ConfirmModal';
-import Toast from './Toast';
+import ConfirmModal from '../components/ConfirmModal';
 import { generateId } from '../utils/id';
 import { moveItem } from '../utils/list';
-import { memoToText, copyText, shareText, copyFeedback, shareFeedback, kakaoFeedback } from '../utils/share';
-import type { Feedback } from '../utils/share';
-import { shareToKakao } from '../utils/kakao';
+import { memoToText } from '../utils/share';
 import type { Memo } from '../hooks/useMemos';
 import type { Todo } from '../types/todo';
 
 interface Props {
-  isOpen: boolean;
-  onClose: () => void;
   memos: Memo[];
   setMemos: (memos: Memo[]) => void;
   activeId: string | null;
@@ -21,14 +15,16 @@ interface Props {
   todos: Todo[];
   onLinkMemo: (todoId: string, memoId: string) => void;
   onUnlinkMemo: (todoId: string, memoId: string) => void;
+  /** 복사·공유는 앱 공용 토스트로 결과를 알린다 */
+  onCopyText: (text: string, successMessage: string) => void;
+  onShareText: (title: string, text: string) => void;
+  onKakaoShareText: (text: string) => void;
 }
 
-export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, setActiveId, todos, onLinkMemo, onUnlinkMemo }: Props) {
+// 메모장 화면. 왼쪽에 메모 목록(검색·고정·드래그 정렬), 오른쪽에 제목·연결된 할 일·내용을 나란히 보여 준다.
+export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos, onLinkMemo, onUnlinkMemo, onCopyText, onShareText, onKakaoShareText }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
-  // 모달이 top layer에 떠 있는 동안에는 앱 레벨 토스트가 backdrop에 가려지므로 자체 토스트를 사용한다.
-  const [feedback, setFeedback] = useState<(Feedback & { id: string }) | null>(null);
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -37,30 +33,27 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
   const [linkedCollapsed, setLinkedCollapsed] = useState(true);
   const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
 
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const moreRef = useRef<HTMLDivElement>(null);
 
   useDismiss(moreRef, moreOpen, () => setMoreOpen(false));
-  useModalDialog(dialogRef, isOpen);
 
+  // 화면에 들어오면 메모가 하나도 없을 때 기본 메모를 만들고, 선택된 메모가 없거나 사라졌으면 첫 메모를 고른다.
   useEffect(() => {
-    if (isOpen) {
-      if (memos.length === 0) {
-        let oldContent = '';
-        try {
-          const raw = localStorage.getItem('todolist-memo-content');
-          if (raw) oldContent = JSON.parse(raw);
-        } catch {
-          // ignore
-        }
-        const newId = generateId();
-        setMemos([{ id: newId, title: '기본 메모', content: oldContent }]);
-        setActiveId(newId);
-      } else if (!activeId || !memos.find(m => m.id === activeId)) {
-        setActiveId(memos[0].id);
+    if (memos.length === 0) {
+      let oldContent = '';
+      try {
+        const raw = localStorage.getItem('todolist-memo-content');
+        if (raw) oldContent = JSON.parse(raw);
+      } catch {
+        // ignore
       }
+      const newId = generateId();
+      setMemos([{ id: newId, title: '기본 메모', content: oldContent }]);
+      setActiveId(newId);
+    } else if (!activeId || !memos.find(m => m.id === activeId)) {
+      setActiveId(memos[0].id);
     }
-  }, [isOpen, memos, activeId, setMemos, setActiveId]);
+  }, [memos, activeId, setMemos, setActiveId]);
 
 
   function handleAdd() {
@@ -87,21 +80,9 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
     setMemos(memos.map(m => m.id === activeId ? { ...m, ...updates } : m));
   }
 
-  function showFeedback(next: Feedback | null) {
-    if (next) setFeedback({ id: generateId(), ...next });
-  }
-
-  async function handleCopyActive(memo: Memo) {
-    showFeedback(copyFeedback(await copyText(memoToText(memo)), '메모를 클립보드에 복사했습니다.'));
-  }
-
-  async function handleKakaoShareActive(memo: Memo) {
-    showFeedback(kakaoFeedback(await shareToKakao(memoToText(memo))));
-  }
-
-  async function handleShareActive(memo: Memo) {
-    showFeedback(shareFeedback(await shareText(memo.title || '메모 공유', memoToText(memo))));
-  }
+  const handleCopyActive = (memo: Memo) => onCopyText(memoToText(memo), '메모를 클립보드에 복사했습니다.');
+  const handleKakaoShareActive = (memo: Memo) => onKakaoShareText(memoToText(memo));
+  const handleShareActive = (memo: Memo) => onShareText(memo.title || '메모 공유', memoToText(memo));
 
   function toggleMemoPin(id: string) {
     const targetIndex = memos.findIndex(m => m.id === id);
@@ -155,40 +136,31 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
   const activeMemo = memos.find(m => m.id === activeId);
   const filteredMemos = memos.filter(m => m.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) {
-      onClose();
-    }
-  }
-
-  if (!isOpen) return null;
-
   const confirmTarget = confirmDeleteId ? memos.find(m => m.id === confirmDeleteId) : null;
 
   return (
-    <dialog ref={dialogRef} className="quick-memo-modal" onCancel={onClose} onClick={handleBackdropClick}>
-      <div className="quick-memo-modal__container">
-        <div className="quick-memo-modal__header">
-          <h2>📝 메모장 (탭 관리)</h2>
-          <button className="quick-memo-modal__close" onClick={onClose} type="button" aria-label="닫기"><span aria-hidden="true">&times;</span></button>
+    <main className="memo-page">
+      <div className="memo-page__box">
+        <div className="memo-page__header">
+          <h2 className="memo-page__tit">메모장</h2>
         </div>
         
-        <div className="quick-memo-modal__body">
+        <div className="memo-page__body">
           {/* 왼쪽: 탭(목록) 영역 */}
-          <div className={`quick-memo-modal__sidebar${mobileControlsOpen ? ' quick-memo-modal__sidebar--expanded' : ''}`}>
+          <div className={`memo-page__sidebar${mobileControlsOpen ? ' memo-page__sidebar--expanded' : ''}`}>
             <button
               type="button"
-              className={`quick-memo-modal__controls-toggle${mobileControlsOpen ? ' quick-memo-modal__controls-toggle--expanded' : ''}`}
+              className={`memo-page__controls-toggle${mobileControlsOpen ? ' memo-page__controls-toggle--expanded' : ''}`}
               onClick={() => setMobileControlsOpen(prev => !prev)}
             >
               {mobileControlsOpen ? '메모 목록 접기' : `📝 메모 목록 (${memos.length})`}
             </button>
-            <div className={`quick-memo-modal__panel${mobileControlsOpen ? ' quick-memo-modal__panel--expanded' : ''}`}>
-              <div className="quick-memo-modal__controls">
-                <button type="button" className="quick-memo-modal__add" onClick={handleAdd}>+ 새 메모 추가</button>
-                <div className="quick-memo-modal__search">
+            <div className={`memo-page__panel${mobileControlsOpen ? ' memo-page__panel--expanded' : ''}`}>
+              <div className="memo-page__controls">
+                <button type="button" className="memo-page__add" onClick={handleAdd}>+ 새 메모 추가</button>
+                <div className="memo-page__search">
                   <input
-                    className="quick-memo-modal__search-input"
+                    className="memo-page__search-input"
                     type="text"
                     placeholder="메모 검색..."
                     aria-label="메모 검색"
@@ -197,7 +169,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                   />
                 </div>
               </div>
-              <ul className="quick-memo-modal__list">
+              <ul className="memo-page__list">
                 {filteredMemos.map(m => {
                 const linkedCount = todos.filter(t => (t.memoIds ?? []).includes(m.id)).length;
                 return (
@@ -209,26 +181,26 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                   onDrop={() => handleDrop(m.id)}
                   onDragEnd={handleDragEnd}
                   className={[
-                    'quick-memo-modal__item',
-                    m.id === activeId ? 'quick-memo-modal__item--active' : '',
-                    m.pinned ? 'quick-memo-modal__item--pinned' : '',
-                    m.id === draggingId ? 'quick-memo-modal__item--dragging' : '',
-                    m.id === dragOverId ? 'quick-memo-modal__item--drag-over' : '',
+                    'memo-page__item',
+                    m.id === activeId ? 'memo-page__item--active' : '',
+                    m.pinned ? 'memo-page__item--pinned' : '',
+                    m.id === draggingId ? 'memo-page__item--dragging' : '',
+                    m.id === dragOverId ? 'memo-page__item--drag-over' : '',
                   ].filter(Boolean).join(' ')}
                 >
-                  <button type="button" className="quick-memo-modal__item-btn" onClick={() => { setActiveId(m.id); setMobileControlsOpen(false); }}>
-                    <span className="quick-memo-modal__drag-handle" aria-hidden="true">⠿</span>
-                    <span className="quick-memo-modal__item-tit">{m.title || '제목 없음'}</span>
+                  <button type="button" className="memo-page__item-btn" onClick={() => { setActiveId(m.id); setMobileControlsOpen(false); }}>
+                    <span className="memo-page__drag-handle" aria-hidden="true">⠿</span>
+                    <span className="memo-page__item-tit">{m.title || '제목 없음'}</span>
                     {linkedCount > 0 && (
-                      <span className="quick-memo-modal__item-count" aria-label={`연결된 할 일 ${linkedCount}개`}>
+                      <span className="memo-page__item-count" aria-label={`연결된 할 일 ${linkedCount}개`}>
                         {linkedCount}
                       </span>
                     )}
                   </button>
-                  <div className="quick-memo-modal__item-actions">
+                  <div className="memo-page__item-actions">
                     <button
                       type="button"
-                      className={`quick-memo-modal__item-pin${m.pinned ? ' quick-memo-modal__item-pin--active' : ''}`}
+                      className={`memo-page__item-pin${m.pinned ? ' memo-page__item-pin--active' : ''}`}
                       onClick={() => toggleMemoPin(m.id)}
                       aria-label={m.pinned ? '고정 해제' : '메모 고정'}
                       title={m.pinned ? '고정 해제' : '메모 고정'}
@@ -239,7 +211,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                     </button>
                     <button
                       type="button"
-                      className="quick-memo-modal__item-del"
+                      className="memo-page__item-del"
                       onClick={() => setConfirmDeleteId(m.id)}
                       aria-label="메모 삭제"
                       title="메모 삭제"
@@ -253,20 +225,20 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
           </div>
 
           {/* 오른쪽: 내용 영역 */}
-          <div className={`quick-memo-modal__content${mobileControlsOpen ? ' quick-memo-modal__content--hidden-mobile' : ''}`}>
+          <div className={`memo-page__content${mobileControlsOpen ? ' memo-page__content--hidden-mobile' : ''}`}>
             {activeMemo ? (
               <>
-                <div className="quick-memo-modal__title-row">
+                <div className="memo-page__title-row">
                   <input
-                    className="quick-memo-modal__title-input"
+                    className="memo-page__title-input"
                     value={activeMemo.title}
                     onChange={(e) => updateActiveMemo({ title: e.target.value })}
                     placeholder="메모 제목 (예: 배워봄, 현대자동차)"
                   />
-                  <div className="quick-memo-modal__content-actions" ref={moreRef}>
+                  <div className="memo-page__content-actions" ref={moreRef}>
                     <button
                       type="button"
-                      className={`quick-memo-modal__more-btn${moreOpen ? ' quick-memo-modal__more-btn--active' : ''}`}
+                      className={`memo-page__more-btn${moreOpen ? ' memo-page__more-btn--active' : ''}`}
                       onClick={() => setMoreOpen(prev => !prev)}
                       aria-label="더보기"
                       aria-haspopup="true"
@@ -279,25 +251,25 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                       </svg>
                     </button>
                     {moreOpen && (
-                      <div className="quick-memo-modal__more-menu" role="menu">
-                        <button type="button" className="quick-memo-modal__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleCopyActive(activeMemo); }}>클립보드 복사</button>
-                        <button type="button" className="quick-memo-modal__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleShareActive(activeMemo); }}>공유</button>
-                        <button type="button" className="quick-memo-modal__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleKakaoShareActive(activeMemo); }}>카카오톡 공유</button>
+                      <div className="memo-page__more-menu" role="menu">
+                        <button type="button" className="memo-page__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleCopyActive(activeMemo); }}>클립보드 복사</button>
+                        <button type="button" className="memo-page__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleShareActive(activeMemo); }}>공유</button>
+                        <button type="button" className="memo-page__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleKakaoShareActive(activeMemo); }}>카카오톡 공유</button>
                       </div>
                     )}
                   </div>
                 </div>
-                <div className="quick-memo-modal__linked">
+                <div className="memo-page__linked">
                   <button
                     type="button"
-                    className="quick-memo-modal__linked-toggle"
+                    className="memo-page__linked-toggle"
                     onClick={() => setLinkedCollapsed(prev => !prev)}
                     aria-expanded={!linkedCollapsed}
-                    aria-controls="quick-memo-linked-checklist"
+                    aria-controls="memo-linked-checklist"
                   >
-                    <span className="quick-memo-modal__linked-tit">📎 연결된 할 일</span>
+                    <span className="memo-page__linked-tit">📎 연결된 할 일</span>
                     <svg
-                      className={`quick-memo-modal__linked-toggle-icon${linkedCollapsed ? ' quick-memo-modal__linked-toggle-icon--collapsed' : ''}`}
+                      className={`memo-page__linked-toggle-icon${linkedCollapsed ? ' memo-page__linked-toggle-icon--collapsed' : ''}`}
                       aria-hidden="true"
                       viewBox="0 0 24 24"
                       fill="none"
@@ -311,7 +283,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                   </button>
                   {!linkedCollapsed && (
                     todos.length > 0 ? (
-                      <div className="quick-memo-modal__linked-checklist" id="quick-memo-linked-checklist">
+                      <div className="memo-page__linked-checklist" id="memo-linked-checklist">
                         {todos.map(t => {
                           const isLinked = activeId != null && (t.memoIds ?? []).includes(activeId);
                           return (
@@ -334,12 +306,12 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                         })}
                       </div>
                     ) : (
-                      <div className="quick-memo-modal__linked-empty">할 일이 없습니다.</div>
+                      <div className="memo-page__linked-empty">할 일이 없습니다.</div>
                     )
                   )}
                 </div>
                 <textarea
-                  className="quick-memo-modal__textarea"
+                  className="memo-page__textarea"
                   value={activeMemo.content}
                   onChange={(e) => updateActiveMemo({ content: e.target.value })}
                   placeholder="계정 정보, IP 주소 등을 이곳에 작성하세요..."
@@ -347,7 +319,7 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
                 />
               </>
             ) : (
-              <div className="quick-memo-modal__empty">선택된 메모가 없습니다.</div>
+              <div className="memo-page__empty">선택된 메모가 없습니다.</div>
             )}
           </div>
         </div>
@@ -359,14 +331,6 @@ export default function QuickMemo({ isOpen, onClose, memos, setMemos, activeId, 
           onCancel={() => setConfirmDeleteId(null)}
         />
       )}
-      {feedback && (
-        <Toast
-          key={feedback.id}
-          message={feedback.message}
-          type={feedback.type}
-          onClose={() => setFeedback(null)}
-        />
-      )}
-    </dialog>
+    </main>
   );
 }

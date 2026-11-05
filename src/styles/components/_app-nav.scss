@@ -9,11 +9,11 @@
   border-bottom: 1px solid var(--color-border);
 
   @include shell {
-    width: rem(276); // 카드 256 + 좌우 여백 10×2
+    width: rem($nav_width);
     background: var(--color-bg);
     border-bottom: 0;
     position: fixed;
-    top: rem(64); // 상단 고정 헤더 높이
+    top: rem($header_height);
     bottom: 0;
     left: 0;
     z-index: 140;
@@ -23,7 +23,7 @@
   // 접힌 사이드바: 아이콘만 (카드 80 + 좌우 여백 10×2)
   &--collapsed {
     @include shell {
-      width: rem(100);
+      width: rem($nav_width_collapsed);
     }
   }
 

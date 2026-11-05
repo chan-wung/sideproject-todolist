@@ -5,14 +5,14 @@
 
 .app-shell {
   @include shell {
-    margin-top: rem(64); // 상단 고정 헤더 높이
+    margin-top: rem($header_height);
   }
 
   &__content {
     min-width: 0;
 
     @include shell {
-      margin-left: rem(276); // 사이드바 폭
+      margin-left: rem($nav_width);
       @include transition(margin-left);
     }
   }
@@ -20,7 +20,7 @@
   // 사이드바를 접으면 본문이 그만큼 넓어진다
   &--nav-collapsed &__content {
     @include shell {
-      margin-left: rem(100);
+      margin-left: rem($nav_width_collapsed);
     }
   }
 }

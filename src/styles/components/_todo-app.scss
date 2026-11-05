@@ -9,7 +9,7 @@
 
   // 고정 헤더만큼 뺀다 (안 빼면 항상 세로 스크롤이 생김)
   @include shell {
-    min-height: calc(100vh - #{rem(64)});
+    min-height: calc(100vh - #{rem($header_height)});
   }
 
   // 화면 제목 (다른 화면의 제목과 같은 크기)

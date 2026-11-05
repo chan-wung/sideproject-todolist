@@ -3,6 +3,7 @@ import { useDismiss } from '../hooks/useDismiss';
 import { useCalendarMonth } from '../hooks/useCalendarMonth';
 import { dateStr, todayStr } from '../utils/date';
 import { PickerTrigger, PickerHeader, PickerGrid } from './DatePickerParts';
+import { cx } from '../utils/classNames';
 
 interface Props {
   startValue: string;
@@ -76,14 +77,14 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
       <button
         key={day}
         type="button"
-        className={[
+        className={cx(
           'date-range-picker__cell',
           'date-range-picker__cell--day',
           isToday ? 'date-range-picker__cell--today' : '',
           isInRange ? 'date-range-picker__cell--in-range' : '',
           isRangeStart ? 'date-range-picker__cell--range-start' : '',
           isRangeEnd ? 'date-range-picker__cell--range-end' : '',
-        ].filter(Boolean).join(' ')}
+        )}
         onClick={() => handleDayClick(str)}
         onMouseEnter={() => { if (pendingStart) setHoverDate(str); }}
       >

@@ -9,6 +9,7 @@ import { usePersistentState } from '../hooks/usePersistentState';
 import PeriodNav from '../components/PeriodNav';
 import PageHead from '../components/PageHead';
 import ViewLink from '../components/ViewLink';
+import { cx } from '../utils/classNames';
 
 interface Props {
   todos: Todo[];
@@ -20,12 +21,12 @@ interface Props {
 const MAX_LANES = 3; // 한 주에 띠로 보여 주는 최대 줄 수. 넘으면 날짜 칸에 '+N'
 
 function itemClass(item: CalendarItem, block: string): string {
-  return [
+  return cx(
     block,
     `${block}--${item.kind}`,
     item.upcoming ? `${block}--upcoming` : '',
     item.completed ? `${block}--done` : '',
-  ].filter(Boolean).join(' ');
+  );
 }
 
 // 월간 달력(보기 전용): 모든 할 일(완료·완료 정리된 것 포함), 연차, 정기 업무, 반복 일정의 앞날 예정을 보여 준다.
@@ -103,11 +104,11 @@ export default function CalendarPage({ todos, series, completionLog }: Props) {
                       <button
                         key={date}
                         type="button"
-                        className={[
+                        className={cx(
                           'calendar__day',
                           date === today ? 'calendar__day--today' : '',
                           date === selected ? 'calendar__day--selected' : '',
-                        ].filter(Boolean).join(' ')}
+                        )}
                         onClick={() => setSelected(date)}
                         aria-pressed={date === selected}
                         aria-current={date === today ? 'date' : undefined}
@@ -124,11 +125,11 @@ export default function CalendarPage({ todos, series, completionLog }: Props) {
                   {week.bars.map(bar => (
                     <span
                       key={`${bar.item.key}-${bar.col}`}
-                      className={[
+                      className={cx(
                         itemClass(bar.item, 'calendar__bar'),
                         bar.continuesBefore ? 'calendar__bar--cont-before' : '',
                         bar.continuesAfter ? 'calendar__bar--cont-after' : '',
-                      ].filter(Boolean).join(' ')}
+                      )}
                       style={{ gridColumn: `${bar.col} / span ${bar.span}`, gridRow: bar.lane + 1 }}
                     >
                       {bar.item.text}

@@ -9,6 +9,8 @@ import TodoItemSubtasks from './TodoItemSubtasks';
 import { ChevronIcon, DeleteIcon, DragHandleIcon, EditIcon, PinIcon } from './icons';
 import { isOverdue, formatDate } from '../utils/date';
 import { normalizeKind } from '../utils/kind';
+import { cx } from '../utils/classNames';
+import { truncate } from '../utils/text';
 
 interface Props {
   todo: Todo;
@@ -62,13 +64,13 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
   return (
     <div
       id={`todo-item-${todo.id}`}
-      className={[
+      className={cx(
         'todo-item',
         `todo-item--${todo.priority}`,
         todo.completed ? 'todo-item--completed' : '',
         overdue ? 'todo-item--overdue' : '',
         todo.pinned ? 'todo-item--pinned' : '',
-      ].filter(Boolean).join(' ')}
+      )}
     >
       {selectionMode && (
         <label className="todo-item__select form-chk form-chk--checkbox">
@@ -209,7 +211,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
 
       {showConfirm && (
         <ConfirmModal
-          message={`"${todo.text.length > 20 ? todo.text.slice(0, 20) + '…' : todo.text}" 을(를) 삭제할까요?`}
+          message={`"${truncate(todo.text, 20)}" 을(를) 삭제할까요?`}
           onConfirm={() => { setShowConfirm(false); onDelete(todo.id); }}
           onCancel={() => setShowConfirm(false)}
         />

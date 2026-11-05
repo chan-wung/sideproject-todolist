@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { Todo } from '../types/todo';
 import { CheckIcon, CloseIcon, DragHandleIcon, EditIcon } from './icons';
+import { cx } from '../utils/classNames';
 
 interface Props {
   todo: Todo;
@@ -41,7 +42,7 @@ export default function TodoItemSubtasks({ todo, onAddSubtask, onToggleSubtask, 
         {(todo.subtasks ?? []).map((sub, index) => (
           <div
             key={sub.id}
-            className={['todo-item__subtask', dragOverIndex === index ? 'todo-item__subtask--drag-over' : ''].filter(Boolean).join(' ')}
+            className={cx('todo-item__subtask', dragOverIndex === index ? 'todo-item__subtask--drag-over' : '')}
             draggable={editingSubId !== sub.id}
             onDragStart={(e) => { e.stopPropagation(); dragFromRef.current = index; }}
             onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); if (dragOverIndex !== index) setDragOverIndex(index); }}

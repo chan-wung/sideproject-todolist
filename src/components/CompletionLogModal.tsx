@@ -3,6 +3,7 @@ import { useModalDialog } from '../hooks/useModalDialog';
 import { PRIORITY_LABEL } from '../constants/labels';
 import type { CompletionLogEntry } from '../types/todo';
 import { formatDate, formatTime } from '../utils/date';
+import { truncate } from '../utils/text';
 import ConfirmModal from './ConfirmModal';
 import DateRangePicker from './DateRangePicker';
 import { CopyIcon, DeleteIcon, ShareIcon } from './icons';
@@ -205,7 +206,7 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
 
       {deleteTarget && (
         <ConfirmModal
-          message={`“${deleteTarget.text.length > 30 ? `${deleteTarget.text.slice(0, 30)}…` : deleteTarget.text}” 이력을 삭제할까요? 복구할 수 없고, 주간보고에서도 빠집니다.`}
+          message={`“${truncate(deleteTarget.text, 30)}” 이력을 삭제할까요? 복구할 수 없고, 주간보고에서도 빠집니다.`}
           onConfirm={() => { onDeleteEntry(deleteTarget); setDeleteTarget(null); }}
           onCancel={() => setDeleteTarget(null)}
         />

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { Todo, FilterStatus, SortKey, TodoUpdates } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import TodoItem from './TodoItem';
+import { cx } from '../utils/classNames';
 
 interface Props {
   todos: Todo[];
@@ -56,11 +57,11 @@ export default function TodoList({ todos, filterStatus, sortKey, categories, mem
       {todos.map(todo => (
         <li
           key={todo.id}
-          className={[
+          className={cx(
             'todo-list__item',
             manualSort ? 'todo-list__item--draggable' : '',
             manualSort && dragOverId === todo.id ? 'todo-list__item--drag-over' : '',
-          ].filter(Boolean).join(' ')}
+          )}
           draggable={manualSort}
           onDragStart={manualSort ? () => { dragFromIdRef.current = todo.id; } : undefined}
           onDragOver={manualSort ? (e) => { e.preventDefault(); if (dragOverId !== todo.id) setDragOverId(todo.id); } : undefined}

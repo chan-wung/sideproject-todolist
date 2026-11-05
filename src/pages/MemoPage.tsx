@@ -8,6 +8,7 @@ import { moveItem } from '../utils/list';
 import { memoToText } from '../utils/share';
 import type { Memo } from '../hooks/useMemos';
 import type { Todo } from '../types/todo';
+import { cx } from '../utils/classNames';
 
 interface Props {
   memos: Memo[];
@@ -180,13 +181,13 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                   onDragOver={(e) => handleDragOver(e, m.id)}
                   onDrop={() => handleDrop(m.id)}
                   onDragEnd={handleDragEnd}
-                  className={[
+                  className={cx(
                     'memo-page__item',
                     m.id === activeId ? 'memo-page__item--active' : '',
                     m.pinned ? 'memo-page__item--pinned' : '',
                     m.id === draggingId ? 'memo-page__item--dragging' : '',
                     m.id === dragOverId ? 'memo-page__item--drag-over' : '',
-                  ].filter(Boolean).join(' ')}
+                  )}
                 >
                   <button type="button" className="memo-page__item-btn" onClick={() => { setActiveId(m.id); setMobileControlsOpen(false); }}>
                     <span className="memo-page__drag-handle" aria-hidden="true">⠿</span>

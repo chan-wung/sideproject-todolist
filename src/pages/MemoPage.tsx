@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
 import ConfirmModal from '../components/ConfirmModal';
 import PageHead from '../components/PageHead';
-import { ChevronIcon, MoreIcon, PushPinIcon } from '../components/icons';
+import { ChevronIcon, MoreIcon, NoteIcon, PaperclipIcon, PushPinIcon } from '../components/icons';
 import { generateId } from '../utils/id';
 import { moveItem } from '../utils/list';
 import { memoToText } from '../utils/share';
@@ -154,7 +154,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
               className={`memo-page__controls-toggle${mobileControlsOpen ? ' memo-page__controls-toggle--expanded' : ''}`}
               onClick={() => setMobileControlsOpen(prev => !prev)}
             >
-              {mobileControlsOpen ? '메모 목록 접기' : `📝 메모 목록 (${memos.length})`}
+              {mobileControlsOpen ? '메모 목록 접기' : <span><NoteIcon className="ico-text" />메모 목록 ({memos.length})</span>}
             </button>
             <div className={`memo-page__panel${mobileControlsOpen ? ' memo-page__panel--expanded' : ''}`}>
               <div className="memo-page__controls">
@@ -262,7 +262,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                     aria-expanded={!linkedCollapsed}
                     aria-controls="memo-linked-checklist"
                   >
-                    <span className="memo-page__linked-tit">📎 연결된 할 일</span>
+                    <span className="memo-page__linked-tit"><PaperclipIcon className="ico-text" />연결된 할 일</span>
                     <ChevronIcon className={`memo-page__linked-toggle-icon${linkedCollapsed ? ' memo-page__linked-toggle-icon--collapsed' : ''}`} />
                   </button>
                   {!linkedCollapsed && (

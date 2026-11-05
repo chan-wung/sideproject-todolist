@@ -151,13 +151,13 @@ describe('TodoItem', () => {
 
     it('연결된 메모 버튼은 onOpenMemo(memoId)를 호출한다', () => {
       const { getByText, handlers } = setup({ memoIds: ['m1'] });
-      fireEvent.click(getByText('📎 회의록'));
+      fireEvent.click(getByText('회의록'));
       expect(handlers.onOpenMemo).toHaveBeenCalledWith('m1');
     });
 
     it('제목이 비어 있는 메모는 "제목 없음"으로 표시한다', () => {
       const { getByText } = setup({ memoIds: ['m2'] });
-      expect(getByText('📎 제목 없음')).toBeTruthy();
+      expect(getByText('제목 없음')).toBeTruthy();
     });
 
     it('삭제된 메모를 가리키는 id는 표시하지 않는다', () => {

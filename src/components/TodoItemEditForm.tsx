@@ -5,6 +5,7 @@ import { normalizeKind, kindAllowsRecurrence, kindRequiresDate, dueDateLabel } f
 import type { Memo } from '../hooks/useMemos';
 import CategoryPickerModal from './CategoryPickerModal';
 import TodoDateField from './TodoDateField';
+import { RepeatIcon } from './icons';
 
 interface Props {
   todo: Todo;
@@ -147,7 +148,7 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
             <label className="todo-item__edit-label" htmlFor={`todo-edit-recurrence-${todo.id}`}>반복 주기</label>
             {todo.seriesId ? (
               <p className="todo-item__edit-hint">
-                🔁 반복 일정에 속한 회차입니다. 주기 변경·종료는 상단 “반복 일정” 메뉴에서 하세요.
+                <RepeatIcon className="ico-text" />반복 일정에 속한 회차입니다. 주기 변경·종료는 상단 “반복 일정” 메뉴에서 하세요.
               </p>
             ) : (
               <select

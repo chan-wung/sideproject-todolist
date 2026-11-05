@@ -1,4 +1,5 @@
 import type { FilterStatus, SortKey, DueScope } from '../types/todo';
+import { RepeatIcon } from './icons';
 
 interface Props {
   filterStatus: FilterStatus;
@@ -111,7 +112,7 @@ export default function FilterBar({
             onClick={() => setRecurrenceOnly(!recurrenceOnly)}
             aria-pressed={recurrenceOnly}
           >
-            🔁 반복만
+            <RepeatIcon className="ico-text" />반복만
           </button>
         </div>
         <div className="filter-bar__sort">

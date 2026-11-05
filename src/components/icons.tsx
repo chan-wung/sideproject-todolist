@@ -1,8 +1,8 @@
 // TodoItem 등에서 쓰는 인라인 SVG 아이콘. 색은 currentColor를 따르고 크기는 부모 CSS가 정한다.
 
-export function PinIcon({ filled }: { filled: boolean }) {
+export function PinIcon({ filled, ...props }: { filled: boolean } & IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+    <svg {...iconAttrs(props)} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
   );
@@ -28,19 +28,21 @@ export function DeleteIcon() {
   );
 }
 
-// size·decorative는 크기를 속성으로 정하거나 스크린리더에서 숨겨야 하는 곳에서만 넘긴다(안 넘기면 속성이 붙지 않음)
-interface SizeProps {
-  size?: number;
+// size·className·decorative는 크기를 속성으로 정하거나 글자 옆에 붙이거나 스크린리더에서 숨겨야 하는 곳에서만 넘긴다(안 넘기면 속성이 붙지 않음).
+// size="1em"이면 둘러싼 글자 크기를 따른다.
+export interface IconProps {
+  size?: number | string;
+  className?: string;
   decorative?: boolean;
 }
 
-function sizeAttrs({ size, decorative }: SizeProps) {
-  return { width: size, height: size, 'aria-hidden': decorative ? true : undefined } as const;
+function iconAttrs({ size, className, decorative }: IconProps) {
+  return { width: size, height: size, className, 'aria-hidden': decorative ? true : undefined } as const;
 }
 
-export function MoreIcon(props: SizeProps) {
+export function MoreIcon(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" {...sizeAttrs(props)}>
+    <svg viewBox="0 0 24 24" fill="currentColor" {...iconAttrs(props)}>
       <circle cx="12" cy="5" r="1.8" />
       <circle cx="12" cy="12" r="1.8" />
       <circle cx="12" cy="19" r="1.8" />
@@ -130,9 +132,9 @@ export function CloseIcon({ strokeWidth = 2.5 }: { strokeWidth?: number }) {
 }
 
 // 사이드바 메뉴 아이콘
-export function ChecklistIcon() {
+export function ChecklistIcon(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg {...iconAttrs(props)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M9 6h11M9 12h11M9 18h11" />
       <path d="M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17" />
     </svg>
@@ -157,9 +159,9 @@ export function ChevronLeftIcon() {
   );
 }
 
-export function CalendarIcon() {
+export function CalendarIcon(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg {...iconAttrs(props)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="3" y="5" width="18" height="16" rx="2" />
       <path d="M3 10h18M8 3v4M16 3v4" />
     </svg>
@@ -177,9 +179,9 @@ export function DashboardIcon() {
   );
 }
 
-export function NoteIcon() {
+export function NoteIcon(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg {...iconAttrs(props)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
     </svg>
@@ -204,9 +206,9 @@ export function SunIcon() {
   );
 }
 
-export function RepeatIcon() {
+export function RepeatIcon(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg {...iconAttrs(props)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <polyline points="17 1 21 5 17 9" />
       <path d="M3 11V9a4 4 0 0 1 4-4h14" />
       <polyline points="7 23 3 19 7 15" />
@@ -248,6 +250,25 @@ export function SettingsIcon({ size = 15 }: { size?: number }) {
   return (
     <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
       <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.58 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
+    </svg>
+  );
+}
+
+// 메모 연결 표시용 클립 아이콘
+export function PaperclipIcon(props: IconProps) {
+  return (
+    <svg {...iconAttrs(props)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+    </svg>
+  );
+}
+
+// '모두 완료' 표시용 동그라미 체크 아이콘
+export function CheckCircleIcon(props: IconProps) {
+  return (
+    <svg {...iconAttrs(props)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="8 12.5 11 15.5 16 9" />
     </svg>
   );
 }

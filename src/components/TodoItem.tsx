@@ -6,7 +6,7 @@ import ConfirmModal from './ConfirmModal';
 import TodoItemEditForm from './TodoItemEditForm';
 import TodoItemMenu from './TodoItemMenu';
 import TodoItemSubtasks from './TodoItemSubtasks';
-import { ChevronIcon, DeleteIcon, DragHandleIcon, EditIcon, PinIcon } from './icons';
+import { ChevronIcon, DeleteIcon, DragHandleIcon, EditIcon, PaperclipIcon, PinIcon, RepeatIcon } from './icons';
 import { isOverdue, formatDate } from '../utils/date';
 import { normalizeKind } from '../utils/kind';
 import { cx } from '../utils/classNames';
@@ -146,7 +146,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           )}
           {(todo.seriesId || (todo.recurrence && todo.recurrence !== 'none')) && (
             <span className="todo-item__badge todo-item__badge--recurrence">
-              🔁 {todo.seriesId ? '반복' : FREQUENCY_LABEL[todo.recurrence as RecurrenceFrequency]}
+              <RepeatIcon className="ico-text" />{todo.seriesId ? '반복' : FREQUENCY_LABEL[todo.recurrence as RecurrenceFrequency]}
             </span>
           )}
           {kind !== 'task' && (
@@ -159,7 +159,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               className="todo-item__memo-link"
               onClick={() => onOpenMemo(m.id)}
             >
-              📎 {m.title || '제목 없음'}
+              <PaperclipIcon className="ico-text" />{m.title || '제목 없음'}
             </button>
           ))}
           <button
@@ -168,7 +168,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
             onClick={() => setIsEditing(true)}
             aria-label={linkedMemos.length > 0 ? '메모 추가 연결' : '메모 연결'}
           >
-            {linkedMemos.length > 0 ? '+ 메모' : '📎 메모 연결'}
+            {linkedMemos.length > 0 ? '+ 메모' : <><PaperclipIcon className="ico-text" />메모 연결</>}
           </button>
           {total > 0 && (
             <div className="todo-item__sub-meta">

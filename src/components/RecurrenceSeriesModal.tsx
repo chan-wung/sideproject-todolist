@@ -6,6 +6,7 @@ import { normalizeKind, kindAllowsRecurrence } from '../utils/kind';
 import { formatDate, todayStr, upcomingOccurrences } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
 import DatePicker from './DatePicker';
+import { RepeatIcon } from './icons';
 
 interface SeriesInput {
   text: string;
@@ -241,7 +242,7 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
                             {normalizeKind(s.kind) !== 'task' && (
                               <span className="recurrence-modal__badge">{KIND_LABEL[normalizeKind(s.kind)]}</span>
                             )}
-                            <span className="recurrence-modal__badge recurrence-modal__badge--freq">🔁 {FREQUENCY_LABEL[s.frequency]}</span>
+                            <span className="recurrence-modal__badge recurrence-modal__badge--freq"><RepeatIcon className="ico-text" />{FREQUENCY_LABEL[s.frequency]}</span>
                             <span className={`recurrence-modal__badge recurrence-modal__badge--${s.priority}`}>{PRIORITY_LABEL[s.priority]}</span>
                             <span className="recurrence-modal__badge recurrence-modal__badge--cat">{s.category}</span>
                             <span className="recurrence-modal__badge">기준일 {formatDate(s.anchorDate)}</span>

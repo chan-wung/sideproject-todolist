@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import type { Todo, FilterStatus, SortKey, TodoUpdates } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import TodoItem from './TodoItem';
+import { CheckCircleIcon, ChecklistIcon, NoteIcon } from './icons';
 import { cx } from '../utils/classNames';
 
 interface Props {
@@ -31,10 +33,10 @@ interface Props {
   onToggleSelect?: (id: string) => void;
 }
 
-const EMPTY_MESSAGES: Record<FilterStatus, { icon: string; text: string }> = {
-  all:       { icon: '📋', text: '할 일이 없어요. 새로운 할 일을 추가해 보세요!' },
-  active:    { icon: '🎉', text: '진행 중인 항목이 없어요. 모두 완료했나요?' },
-  completed: { icon: '📝', text: '완료된 항목이 없어요.' },
+const EMPTY_MESSAGES: Record<FilterStatus, { icon: ReactNode; text: string }> = {
+  all:       { icon: <ChecklistIcon size="1em" />, text: '할 일이 없어요. 새로운 할 일을 추가해 보세요!' },
+  active:    { icon: <CheckCircleIcon size="1em" />, text: '진행 중인 항목이 없어요. 모두 완료했나요?' },
+  completed: { icon: <NoteIcon size="1em" />, text: '완료된 항목이 없어요.' },
 };
 
 export default function TodoList({ todos, filterStatus, sortKey, categories, memos, onOpenMemo, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onReorderTodos, onToggleSubtasksCollapsed, selectionMode, selectedIds, onToggleSelect }: Props) {
@@ -46,7 +48,7 @@ export default function TodoList({ todos, filterStatus, sortKey, categories, mem
     const { icon, text } = EMPTY_MESSAGES[filterStatus];
     return (
       <div className="todo-list__empty">
-        <span className="todo-list__empty-icon">{icon}</span>
+        <span className="todo-list__empty-icon" aria-hidden="true">{icon}</span>
         <p>{text}</p>
       </div>
     );

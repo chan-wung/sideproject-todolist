@@ -62,6 +62,7 @@
   }
 
   &__pin {
+    display: inline-flex;
     @include font(11);
   }
 

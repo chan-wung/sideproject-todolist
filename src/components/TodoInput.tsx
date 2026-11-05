@@ -6,6 +6,7 @@ import Toast from './Toast';
 import { leaveStatus, type LeaveInput } from '../utils/leave';
 import TodoDateField from './TodoDateField';
 import LeaveFields from './LeaveFields';
+import { PaperclipIcon } from './icons';
 
 interface Props {
   onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string, recurrence?: Todo['recurrence'], kind?: TodoKind, startDate?: string) => void;
@@ -181,7 +182,7 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
       </div>
 
       <div className="todo-input__footer-row">
-        <p className="todo-input__hint">📎 메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>
+        <p className="todo-input__hint"><PaperclipIcon className="ico-text" />메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>
         <button className="todo-input__btn" type="submit">추가</button>
       </div>
     </form>

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { WEEKDAYS } from '../hooks/useCalendarMonth';
-import { ClearIcon } from './icons';
+import { CalendarIcon, ClearIcon } from './icons';
 
 // DatePicker(날짜 하나)와 DateRangePicker(기간)가 같이 쓰는 마크업 조각.
 // block은 클래스 접두사(`date-picker` / `date-range-picker`)라 BEM 클래스 이름은 각 선택기 그대로 나온다.
@@ -36,7 +36,7 @@ export function PickerTrigger({ block, isOpen, onToggle, value, hasValue, onClea
             <ClearIcon />
           </button>
         )}
-        <span className={`${block}__icon`} aria-hidden="true">📅</span>
+        <span className={`${block}__icon`} aria-hidden="true"><CalendarIcon size="1em" /></span>
       </div>
     </div>
   );

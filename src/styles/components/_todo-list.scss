@@ -15,8 +15,10 @@
 
     &-icon {
       margin-bottom: rem(12);
-      display: block;
+      display: flex;
+      justify-content: center;
       @include font(36);
+      line-height: 1;
     }
   }
 

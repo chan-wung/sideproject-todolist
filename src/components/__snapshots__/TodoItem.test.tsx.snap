@@ -151,7 +151,21 @@ exports[`TodoItem > 렌더 스냅샷 > 기본 보기 모드 1`] = `
           class="todo-item__memo-link todo-item__memo-link--empty"
           type="button"
         >
-          📎 메모 연결
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
+          메모 연결
         </button>
       </div>
       <div
@@ -357,7 +371,21 @@ exports[`TodoItem > 렌더 스냅샷 > 기한 초과 1`] = `
           class="todo-item__memo-link todo-item__memo-link--empty"
           type="button"
         >
-          📎 메모 연결
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
+          메모 연결
         </button>
       </div>
       <div
@@ -681,7 +709,21 @@ exports[`TodoItem > 렌더 스냅샷 > 더보기 메뉴 열림 1`] = `
           class="todo-item__memo-link todo-item__memo-link--empty"
           type="button"
         >
-          📎 메모 연결
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
+          메모 연결
         </button>
       </div>
       <div
@@ -946,7 +988,21 @@ exports[`TodoItem > 렌더 스냅샷 > 선택 모드(선택됨) + 수동 정렬 
           class="todo-item__memo-link todo-item__memo-link--empty"
           type="button"
         >
-          📎 메모 연결
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
+          메모 연결
         </button>
       </div>
       <div
@@ -1153,7 +1209,21 @@ exports[`TodoItem > 렌더 스냅샷 > 완료 + 고정 1`] = `
           class="todo-item__memo-link todo-item__memo-link--empty"
           type="button"
         >
-          📎 메모 연결
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
+          메모 연결
         </button>
       </div>
       <div
@@ -1343,7 +1413,28 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 1`] = `
                   aria-hidden="true"
                   class="date-range-picker__icon"
                 >
-                  📅
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    height="1em"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="1em"
+                  >
+                    <rect
+                      height="16"
+                      rx="2"
+                      width="18"
+                      x="3"
+                      y="5"
+                    />
+                    <path
+                      d="M3 10h18M8 3v4M16 3v4"
+                    />
+                  </svg>
                 </span>
               </div>
             </div>
@@ -1618,7 +1709,28 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차
                   aria-hidden="true"
                   class="date-range-picker__icon"
                 >
-                  📅
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    height="1em"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="1em"
+                  >
+                    <rect
+                      height="16"
+                      rx="2"
+                      width="18"
+                      x="3"
+                      y="5"
+                    />
+                    <path
+                      d="M3 10h18M8 3v4M16 3v4"
+                    />
+                  </svg>
                 </span>
               </div>
             </div>
@@ -1675,7 +1787,30 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차
           <p
             class="todo-item__edit-hint"
           >
-            🔁 반복 일정에 속한 회차입니다. 주기 변경·종료는 상단 “반복 일정” 메뉴에서 하세요.
+            <svg
+              aria-hidden="true"
+              class="ico-text"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="17 1 21 5 17 9"
+              />
+              <path
+                d="M3 11V9a4 4 0 0 1 4-4h14"
+              />
+              <polyline
+                points="7 23 3 19 7 15"
+              />
+              <path
+                d="M21 13v2a4 4 0 0 1-4 4H3"
+              />
+            </svg>
+            반복 일정에 속한 회차입니다. 주기 변경·종료는 상단 “반복 일정” 메뉴에서 하세요.
           </p>
         </div>
       </div>
@@ -1886,21 +2021,69 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 + 연결 메모 + 반복 �
         <span
           class="todo-item__badge todo-item__badge--recurrence"
         >
-          🔁 
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <polyline
+              points="17 1 21 5 17 9"
+            />
+            <path
+              d="M3 11V9a4 4 0 0 1 4-4h14"
+            />
+            <polyline
+              points="7 23 3 19 7 15"
+            />
+            <path
+              d="M21 13v2a4 4 0 0 1-4 4H3"
+            />
+          </svg>
           반복
         </span>
         <button
           class="todo-item__memo-link"
           type="button"
         >
-          📎 
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
           회의록
         </button>
         <button
           class="todo-item__memo-link"
           type="button"
         >
-          📎 
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
           제목 없음
         </button>
         <button
@@ -2439,7 +2622,29 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 접힘 + 레거시 반복 �
         <span
           class="todo-item__badge todo-item__badge--recurrence"
         >
-          🔁 
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <polyline
+              points="17 1 21 5 17 9"
+            />
+            <path
+              d="M3 11V9a4 4 0 0 1 4-4h14"
+            />
+            <polyline
+              points="7 23 3 19 7 15"
+            />
+            <path
+              d="M21 13v2a4 4 0 0 1-4 4H3"
+            />
+          </svg>
           매주
         </span>
         <button
@@ -2447,7 +2652,21 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 접힘 + 레거시 반복 �
           class="todo-item__memo-link todo-item__memo-link--empty"
           type="button"
         >
-          📎 메모 연결
+          <svg
+            aria-hidden="true"
+            class="ico-text"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"
+            />
+          </svg>
+          메모 연결
         </button>
         <div
           class="todo-item__sub-meta"

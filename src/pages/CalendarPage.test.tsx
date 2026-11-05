@@ -25,10 +25,11 @@ const ROUTINE_SERIES: RecurrenceSeries = {
 
 function setup(todos: Todo[] = [], series: RecurrenceSeries[] = []) {
   const onAddLeave = vi.fn();
-  const utils = render(<CalendarPage todos={todos} series={series} onAddLeave={onAddLeave} />);
+  const onDeleteLeave = vi.fn();
+  const utils = render(<CalendarPage todos={todos} series={series} onAddLeave={onAddLeave} onDeleteLeave={onDeleteLeave} />);
   const day = (n: number) => utils.getByRole('button', { name: new RegExp(`^\\d+월 ${n}일`) });
   const detail = () => utils.container.querySelector('.calendar__detail') as HTMLElement;
-  return { ...utils, day, detail, onAddLeave };
+  return { ...utils, day, detail, onAddLeave, onDeleteLeave };
 }
 
 describe('CalendarPage', () => {
@@ -180,5 +181,46 @@ describe('CalendarPage — 연차·휴가 등록', () => {
 
     fireEvent.click(getByRole('button', { name: '다음 달' }));
     expect(queryByRole('button', { name: '등록' })).toBeNull();
+  });
+});
+
+describe('CalendarPage — 연차·휴가 삭제', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-04T10:00:00'));
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
+
+  it('고른 날의 연차·휴가 항목에만 삭제 버튼이 있다 (일반 업무·정기 업무·예정은 없음)', () => {
+    const { getAllByRole, queryByRole, day } = setup(
+      [
+        todo({ id: 'leave1', text: '연차 (병원 진료)', kind: 'leave', dueDate: '2026-11-06' }),
+        todo({ id: 'task1', text: '일반 업무', kind: 'task', dueDate: '2026-11-06' }),
+        todo({ id: 'routine1', text: '정기 점검', kind: 'routine', dueDate: '2026-11-06' }),
+      ],
+      [ROUTINE_SERIES],
+    );
+    fireEvent.click(day(6));
+    expect(getAllByRole('button', { name: /삭제$/ })).toHaveLength(1);
+    expect(getAllByRole('button', { name: '연차 (병원 진료) 삭제' })).toHaveLength(1);
+    expect(queryByRole('button', { name: '일반 업무 삭제' })).toBeNull();
+
+    fireEvent.click(day(9)); // 반복 일정의 예정 회차
+    expect(queryByRole('button', { name: /삭제$/ })).toBeNull();
+  });
+
+  it('삭제 버튼을 누르면 그 연차의 할 일 id로 삭제를 알린다', () => {
+    const { getByRole, day, onDeleteLeave } = setup([
+      todo({ id: 'leave1', text: '오전 반차', kind: 'leave', dueDate: '2026-11-06' }),
+      todo({ id: 'leave2', text: '오후 반차', kind: 'leave', dueDate: '2026-11-06' }),
+    ]);
+    fireEvent.click(day(6));
+    fireEvent.click(getByRole('button', { name: '오후 반차 삭제' }));
+    expect(onDeleteLeave).toHaveBeenCalledTimes(1);
+    expect(onDeleteLeave).toHaveBeenCalledWith('leave2');
   });
 });

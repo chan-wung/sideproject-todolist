@@ -426,7 +426,7 @@ export default function App() {
       ) : view === 'dashboard' ? (
         <DashboardPage todos={allTodos} completionLog={completionLog} />
       ) : view === 'calendar' ? (
-        <CalendarPage todos={allTodos} series={recurrenceSeries} onAddLeave={handleAddLeave} />
+        <CalendarPage todos={allTodos} series={recurrenceSeries} onAddLeave={handleAddLeave} onDeleteLeave={deleteTodo} />
       ) : view === 'memo' ? (
         <MemoPage
           memos={memos}

@@ -7,12 +7,15 @@ import { buildCalendarItems, monthRange, type CalendarItem } from '../utils/cale
 import { dateStr, formatMonthDayWeekday, todayStr } from '../utils/date';
 import PeriodNav from '../components/PeriodNav';
 import LeaveForm from '../components/LeaveForm';
+import { DeleteIcon } from '../components/icons';
 
 interface Props {
   todos: Todo[];
   series: RecurrenceSeries[];
   /** 고른 날짜에 연차·휴가를 등록한다 */
   onAddLeave: (date: string, text: string) => void;
+  /** 등록한 연차·휴가를 지운다 (할 일 삭제와 같아 실행취소 알림이 뜬다) */
+  onDeleteLeave: (todoId: string) => void;
 }
 
 const MAX_CHIPS = 3; // 한 칸에 글자로 보여 주는 최대 항목 수. 넘으면 '+N'
@@ -27,7 +30,7 @@ function itemClass(item: CalendarItem, block: string): string {
 }
 
 // 월간 달력: 마감일이 있는 할 일, 연차, 정기 업무, 반복 일정의 앞날 예정을 날짜 칸에 보여 준다.
-export default function CalendarPage({ todos, series, onAddLeave }: Props) {
+export default function CalendarPage({ todos, series, onAddLeave, onDeleteLeave }: Props) {
   const [today, setToday] = useState(todayStr);
   const { year, month, label, blankCount, dayCount, goPrev, goNext, goTo } = useCalendarMonth(todayStr());
   const [selected, setSelected] = useState<string | null>(today);
@@ -126,6 +129,17 @@ export default function CalendarPage({ todos, series, onAddLeave }: Props) {
                         <span className={`calendar__item-txt${item.completed ? ' calendar__item-txt--done' : ''}`}>
                           {item.text}
                         </span>
+                        {item.kind === 'leave' && item.todoId && (
+                          <button
+                            type="button"
+                            className="calendar__item-del"
+                            onClick={() => onDeleteLeave(item.todoId as string)}
+                            aria-label={`${item.text} 삭제`}
+                            title="삭제"
+                          >
+                            <DeleteIcon />
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ul>

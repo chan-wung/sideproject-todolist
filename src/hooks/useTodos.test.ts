@@ -640,4 +640,48 @@ describe('useTodos', () => {
     });
   });
 
+  describe('완료 이력 한 건 삭제', () => {
+    it('deleteCompletionLogEntry는 지정한 이력 하나만 지운다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.importCompletionLog([
+          { id: 'a', text: '잘못 완료', category: '기본', priority: 'medium', completedAt: '2026-11-03T10:00:00' },
+          { id: 'b', text: '정상 1', category: '기본', priority: 'medium', completedAt: '2026-11-03T11:00:00' },
+          { id: 'c', text: '정상 2', category: '기본', priority: 'medium', completedAt: '2026-11-04T09:00:00' },
+        ]);
+      });
+      act(() => {
+        result.current.deleteCompletionLogEntry({ id: 'a', completedAt: '2026-11-03T10:00:00' });
+      });
+      expect(result.current.completionLog.map(e => e.id)).toEqual(['b', 'c']);
+    });
+
+    it('같은 id가 겹쳐 있어도 완료 시각까지 같은 한 건만 지운다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.importCompletionLog([
+          { id: 'dup', text: '같은 id 1', category: '기본', priority: 'medium', completedAt: '2026-11-03T10:00:00' },
+          { id: 'dup', text: '같은 id 2', category: '기본', priority: 'medium', completedAt: '2026-11-04T10:00:00' },
+        ]);
+      });
+      act(() => {
+        result.current.deleteCompletionLogEntry({ id: 'dup', completedAt: '2026-11-03T10:00:00' });
+      });
+      expect(result.current.completionLog.map(e => e.text)).toEqual(['같은 id 2']);
+    });
+
+    it('없는 이력을 지우려 해도 아무것도 바뀌지 않는다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.importCompletionLog([
+          { id: 'a', text: '하나', category: '기본', priority: 'medium', completedAt: '2026-11-03T10:00:00' },
+        ]);
+      });
+      act(() => {
+        result.current.deleteCompletionLogEntry({ id: 'zzz', completedAt: '2026-11-03T10:00:00' });
+      });
+      expect(result.current.completionLog).toHaveLength(1);
+    });
+  });
+
 });

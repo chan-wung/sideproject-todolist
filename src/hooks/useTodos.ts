@@ -185,6 +185,11 @@ export function useTodos() {
     setCompletionLog([]);
   }
 
+  // 잘못 기록된 이력 한 건만 지운다. 같은 id가 겹쳐 있을 수 있어 id와 완료 시각이 모두 같은 항목만 지운다.
+  function deleteCompletionLogEntry(entry: Pick<CompletionLogEntry, 'id' | 'completedAt'>) {
+    setCompletionLog(prev => prev.filter(e => !(e.id === entry.id && e.completedAt === entry.completedAt)));
+  }
+
   function addTodo(
     text: string,
     priority: Todo['priority'],
@@ -569,6 +574,7 @@ export function useTodos() {
     setRecurrenceOnly,
     completionLog,
     resetCompletionLog,
+    deleteCompletionLogEntry,
     exportCompletionLog,
     importCompletionLog,
     categories,

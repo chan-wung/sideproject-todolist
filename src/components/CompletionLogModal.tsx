@@ -5,12 +5,14 @@ import type { CompletionLogEntry } from '../types/todo';
 import { formatDate, formatTime } from '../utils/date';
 import ConfirmModal from './ConfirmModal';
 import DateRangePicker from './DateRangePicker';
+import { DeleteIcon } from './icons';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   entries: CompletionLogEntry[];
   onReset: () => void;
+  onDeleteEntry: (entry: CompletionLogEntry) => void;
   onCopyEntry: (entry: CompletionLogEntry) => void;
   onShareEntry: (entry: CompletionLogEntry) => void;
   onCopyAll: (entries: CompletionLogEntry[]) => void;
@@ -29,9 +31,10 @@ function groupByDate(entries: CompletionLogEntry[]): [string, CompletionLogEntry
   return Array.from(groups.entries());
 }
 
-export default function CompletionLogModal({ isOpen, onClose, entries, onReset, onCopyEntry, onShareEntry, onCopyAll, onShareAll, onKakaoShareAll }: Props) {
+export default function CompletionLogModal({ isOpen, onClose, entries, onReset, onDeleteEntry, onCopyEntry, onShareEntry, onCopyAll, onShareAll, onKakaoShareAll }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<CompletionLogEntry | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchDateStart, setSearchDateStart] = useState('');
   const [searchDateEnd, setSearchDateEnd] = useState('');
@@ -176,6 +179,14 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
                               <line x1="8.59" y1="10.49" x2="15.42" y2="6.51" />
                             </svg>
                           </button>
+                          <button
+                            type="button"
+                            className="completion-log-modal__item-btn completion-log-modal__item-btn--delete"
+                            onClick={() => setDeleteTarget(entry)}
+                            aria-label="이 이력 삭제"
+                          >
+                            <DeleteIcon />
+                          </button>
                         </div>
                       </div>
                       <p className="completion-log-modal__item-text">{entry.text}</p>
@@ -205,6 +216,13 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
         )}
       </div>
 
+      {deleteTarget && (
+        <ConfirmModal
+          message={`“${deleteTarget.text.length > 30 ? `${deleteTarget.text.slice(0, 30)}…` : deleteTarget.text}” 이력을 삭제할까요? 복구할 수 없고, 주간보고에서도 빠집니다.`}
+          onConfirm={() => { onDeleteEntry(deleteTarget); setDeleteTarget(null); }}
+          onCancel={() => setDeleteTarget(null)}
+        />
+      )}
       {showConfirm && (
         <ConfirmModal
           message="완료 이력을 전부 삭제할까요? 복구할 수 없습니다."

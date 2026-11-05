@@ -51,6 +51,7 @@ export default function App() {
     setRecurrenceOnly,
     completionLog,
     resetCompletionLog,
+    deleteCompletionLogEntry,
     exportCompletionLog,
     importCompletionLog,
     categories,
@@ -275,6 +276,11 @@ export default function App() {
     showToast({ message: '완료 이력을 초기화했습니다.', type: 'danger' });
   }
 
+  function handleDeleteLogEntry(entry: CompletionLogEntry) {
+    deleteCompletionLogEntry(entry);
+    showToast({ message: '완료 이력을 삭제했습니다.', type: 'danger' });
+  }
+
   const LOG_COPIED_MESSAGE = '완료 이력을 클립보드에 복사했습니다.';
   const handleCopyLogEntry = (entry: CompletionLogEntry) => runCopy(completionLogEntryToText(entry), LOG_COPIED_MESSAGE);
   const handleShareLogEntry = (entry: CompletionLogEntry) => runShare('완료 이력 공유', completionLogEntryToText(entry));
@@ -451,6 +457,7 @@ export default function App() {
         onClose={() => setIsCompletionLogOpen(false)}
         entries={completionLog}
         onReset={handleResetCompletionLog}
+        onDeleteEntry={handleDeleteLogEntry}
         onCopyEntry={handleCopyLogEntry}
         onShareEntry={handleShareLogEntry}
         onCopyAll={handleCopyAllLog}

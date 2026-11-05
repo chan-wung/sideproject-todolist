@@ -304,6 +304,11 @@ dialog.completion-log-modal {
       color: var(--color-main);
       background: var(--color-main-5);
     }
+
+    &--delete:hover {
+      color: var(--color-danger);
+      background: var(--color-main-5);
+    }
   }
 
   &__footer {

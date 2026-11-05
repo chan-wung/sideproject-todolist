@@ -3,6 +3,7 @@ import { usePersistentState } from '../hooks/usePersistentState';
 import { useDayChange } from '../hooks/useDayChange';
 import { yearProgress } from '../utils/date';
 import { downloadBackup } from '../utils/backup';
+import { MoonIcon, SunIcon, RepeatIcon, HistoryIcon } from './icons';
 
 interface Props {
   /** 사이드바가 접힌 상태 (넓은 화면에서 툴바 내용이 사이드바 오른쪽부터 시작하도록) */
@@ -70,7 +71,8 @@ export default function AppToolbar({ navCollapsed, getBackup, applyBackup, onImp
         className="app-toolbar__btn app-toolbar__btn--theme"
         onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
       >
-        {theme === 'light' ? '🌙 다크모드' : '☀️ 라이트모드'}
+        <span className="app-toolbar__ico">{theme === 'light' ? <MoonIcon /> : <SunIcon />}</span>
+        {theme === 'light' ? '다크모드' : '라이트모드'}
       </button>
       <div className="app-toolbar__backup">
         <button type="button" className="app-toolbar__btn app-toolbar__btn--export" onClick={handleExport}>
@@ -82,10 +84,12 @@ export default function AppToolbar({ navCollapsed, getBackup, applyBackup, onImp
         </label>
       </div>
       <button type="button" className="app-toolbar__btn app-toolbar__btn--recurrence" onClick={onRecurrenceOpen}>
-        🔁 반복 일정
+        <span className="app-toolbar__ico"><RepeatIcon /></span>
+        반복 일정
       </button>
       <button type="button" className="app-toolbar__btn app-toolbar__btn--log" onClick={onCompletionLogOpen}>
-        📜 완료 이력
+        <span className="app-toolbar__ico"><HistoryIcon /></span>
+        완료 이력
       </button>
       <button type="button" className="app-toolbar__btn app-toolbar__btn--settings" onClick={onSettingsOpen} aria-label="설정">
         <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

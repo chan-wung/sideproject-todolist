@@ -5,16 +5,11 @@ import type { Memo } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import { useSelection } from './hooks/useSelection';
-import TodoInput from './components/TodoInput';
-import FilterBar from './components/FilterBar';
-import TodoList from './components/TodoList';
-import DueSummary from './components/DueSummary';
+import TodoPage from './pages/TodoPage';
 import Toast from './components/Toast';
 import QuickMemo from './components/QuickMemo';
 import AppToolbar from './components/AppToolbar';
 import SettingsModal from './components/SettingsModal';
-import QuickNav from './components/QuickNav';
-import BulkActionBar from './components/BulkActionBar';
 import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
 import type { Todo, CompletionLogEntry, RecurrenceSeries } from './types/todo';
@@ -336,83 +331,71 @@ export default function App() {
         </div>
       </header>
 
-      <main className="todo-app__body">
-        <div className="todo-app__quick-nav-wrap">
-          <QuickNav filteredTodos={filteredTodos} />
-        </div>
-
-        <TodoInput onAdd={addTodo} categories={categoryOptions} />
-          
-        <DueSummary 
-          dueTodayCount={dueTodayCount} 
-          overdueCount={overdueCount} 
-          onJump={(scope) => setDueScope(scope)} 
-        />
-
-        <FilterBar
-          filterStatus={filterStatus}
-          setFilterStatus={setFilterStatus}
-          filterCategory={filterCategory}
-          setFilterCategory={setFilterCategory}
-          sortKey={sortKey}
-          setSortKey={setSortKey}
-          query={query}
-          setQuery={setQuery}
-          dueScope={dueScope}
-          setDueScope={setDueScope}
-          recurrenceOnly={recurrenceOnly}
-          setRecurrenceOnly={setRecurrenceOnly}
-          categories={categories}
-          activeCount={activeCount}
-          completedCount={completedCount}
-          onClearCompleted={clearCompleted}
-          selectionMode={selectionMode}
-          onToggleSelectionMode={handleToggleSelectionMode}
-          hasTodos={filteredTodos.length > 0}
-          hasSubtasks={hasSubtasks}
-          allCollapsed={allCollapsed}
-          onCollapseAll={collapseAllSubtasks}
-          onExpandAll={expandAllSubtasks}
-        />
-        {selectionMode && (
-          <BulkActionBar
-            selectedCount={selectedIds.size}
-            categories={categoryOptions}
-            onSelectAll={handleSelectAll}
-            onClearSelection={handleClearSelection}
-            onApplyCategory={handleBulkCategory}
-            onApplyPriority={handleBulkPriority}
-            onDelete={handleBulkDelete}
-            onClose={handleToggleSelectionMode}
-          />
-        )}
-        <TodoList
-          todos={filteredTodos}
-          filterStatus={filterStatus}
-          sortKey={sortKey}
-          categories={categoryOptions}
-          memos={memos}
-          onOpenMemo={handleOpenMemo}
-          onToggle={toggleTodo}
-          onDelete={deleteTodo}
-          onUpdate={updateTodo}
-          onPin={pinTodo}
-          onCopy={handleCopyTodo}
-          onShare={handleShareTodo}
-          onKakaoShare={handleKakaoShareTodo}
-          onDuplicate={handleDuplicateTodo}
-          onAddSubtask={addSubtask}
-          onToggleSubtask={toggleSubtask}
-          onDeleteSubtask={deleteSubtask}
-          onUpdateSubtask={updateSubtask}
-          onReorderSubtasks={reorderSubtasks}
-          onReorderTodos={reorderTodos}
-          onToggleSubtasksCollapsed={toggleSubtasksCollapsed}
-          selectionMode={selectionMode}
-          selectedIds={selectedIds}
-          onToggleSelect={handleToggleSelect}
-        />
-      </main>
+      <TodoPage
+        inputProps={{ onAdd: addTodo, categories: categoryOptions }}
+        dueSummaryProps={{ dueTodayCount, overdueCount, onJump: (scope) => setDueScope(scope) }}
+        filterBarProps={{
+          filterStatus,
+          setFilterStatus,
+          filterCategory,
+          setFilterCategory,
+          sortKey,
+          setSortKey,
+          query,
+          setQuery,
+          dueScope,
+          setDueScope,
+          recurrenceOnly,
+          setRecurrenceOnly,
+          categories,
+          activeCount,
+          completedCount,
+          onClearCompleted: clearCompleted,
+          selectionMode,
+          onToggleSelectionMode: handleToggleSelectionMode,
+          hasTodos: filteredTodos.length > 0,
+          hasSubtasks,
+          allCollapsed,
+          onCollapseAll: collapseAllSubtasks,
+          onExpandAll: expandAllSubtasks,
+        }}
+        bulkBarProps={selectionMode ? {
+          selectedCount: selectedIds.size,
+          categories: categoryOptions,
+          onSelectAll: handleSelectAll,
+          onClearSelection: handleClearSelection,
+          onApplyCategory: handleBulkCategory,
+          onApplyPriority: handleBulkPriority,
+          onDelete: handleBulkDelete,
+          onClose: handleToggleSelectionMode,
+        } : null}
+        listProps={{
+          todos: filteredTodos,
+          filterStatus,
+          sortKey,
+          categories: categoryOptions,
+          memos,
+          onOpenMemo: handleOpenMemo,
+          onToggle: toggleTodo,
+          onDelete: deleteTodo,
+          onUpdate: updateTodo,
+          onPin: pinTodo,
+          onCopy: handleCopyTodo,
+          onShare: handleShareTodo,
+          onKakaoShare: handleKakaoShareTodo,
+          onDuplicate: handleDuplicateTodo,
+          onAddSubtask: addSubtask,
+          onToggleSubtask: toggleSubtask,
+          onDeleteSubtask: deleteSubtask,
+          onUpdateSubtask: updateSubtask,
+          onReorderSubtasks: reorderSubtasks,
+          onReorderTodos: reorderTodos,
+          onToggleSubtasksCollapsed: toggleSubtasksCollapsed,
+          selectionMode,
+          selectedIds,
+          onToggleSelect: handleToggleSelect,
+        }}
+      />
       
       <QuickMemo
         isOpen={isMemoOpen}

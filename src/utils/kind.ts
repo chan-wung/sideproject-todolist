@@ -19,7 +19,7 @@ export function kindAllowsRecurrence(kind: TodoKind): boolean {
   return kind !== 'leave';
 }
 
-// 날짜 입력칸의 이름 (연차는 '마감'이 아니라 쉬는 날짜다)
+// 날짜 입력칸의 이름 (연차는 쉬는 날짜 하나, 나머지는 시작일~마감일 기간)
 export function dueDateLabel(kind: TodoKind): string {
-  return kind === 'leave' ? '날짜' : '마감일';
+  return kind === 'leave' ? '날짜' : '기간';
 }

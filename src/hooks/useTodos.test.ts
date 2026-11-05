@@ -640,6 +640,62 @@ describe('useTodos', () => {
     });
   });
 
+  describe('시작일(startDate)', () => {
+    it('addTodo는 마감일보다 앞선 시작일만 저장한다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('기간 업무', 'medium', '2026-11-10', '', 'none', 'task', '2026-11-05');
+        result.current.addTodo('역전된 시작일', 'medium', '2026-11-10', '', 'none', 'task', '2026-11-12');
+        result.current.addTodo('마감일 없음', 'medium', '', '', 'none', 'task', '2026-11-05');
+      });
+      const byText = (t: string) => result.current.allTodos.find(x => x.text === t)!;
+      expect(byText('기간 업무').startDate).toBe('2026-11-05');
+      expect(byText('역전된 시작일').startDate).toBeUndefined();
+      expect(byText('마감일 없음').startDate).toBeUndefined();
+    });
+
+    it('updateTodo는 날짜 키가 있을 때만 기간을 바꾸고, 빈 값이면 지운다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('업무', 'medium', '2026-11-10', '', 'none', 'task', '2026-11-05');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.updateTodo(id, { memoIds: ['m1'] }); // 날짜 키 없음 → 기간 유지
+      });
+      expect(result.current.allTodos[0].startDate).toBe('2026-11-05');
+      expect(result.current.allTodos[0].dueDate).toBe('2026-11-10');
+      act(() => {
+        result.current.updateTodo(id, { startDate: undefined, dueDate: '2026-11-10' });
+      });
+      expect(result.current.allTodos[0].startDate).toBeUndefined();
+      expect(result.current.allTodos[0].dueDate).toBe('2026-11-10');
+    });
+
+    it('완료한 기간 업무를 지우면 이력에 시작일이 남고, 불러올 때도 유지된다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('업무', 'medium', '2026-11-10', '', 'none', 'task', '2026-11-05');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => { result.current.toggleTodo(id); });
+      act(() => { result.current.deleteTodo(id); });
+      expect(result.current.completionLog[0].startDate).toBe('2026-11-05');
+      const reloaded = validateCompletionLog(JSON.parse(JSON.stringify(result.current.completionLog)));
+      expect(reloaded![0].startDate).toBe('2026-11-05');
+    });
+
+    it('validateTodos는 문자열이 아니거나 마감일 없이 있는 시작일을 버린다', () => {
+      const ok = validateTodos([
+        { id: 'a', text: 'a', dueDate: '2026-11-10', startDate: '2026-11-05' },
+        { id: 'b', text: 'b', dueDate: '2026-11-10', startDate: 5 },
+        { id: 'c', text: 'c', startDate: '2026-11-05' },
+        { id: 'd', text: 'd', dueDate: '2026-11-05', startDate: '2026-11-10' },
+      ])!;
+      expect(ok.map(t => t.startDate)).toEqual(['2026-11-05', undefined, undefined, undefined]);
+    });
+  });
+
   describe('완료 이력 한 건 삭제', () => {
     it('deleteCompletionLogEntry는 지정한 이력 하나만 지운다', () => {
       const { result } = renderHook(() => useTodos());

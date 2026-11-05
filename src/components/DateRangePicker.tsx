@@ -99,7 +99,7 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
     ? `${startValue} ~ ${endValue}`
     : pendingStart
       ? `${pendingStart} ~ 종료일 선택`
-      : '';
+      : startValue || endValue; // 하루만 고른 경우도 그 날짜를 보여 준다
 
   return (
     <div className={`date-range-picker ${className}`} ref={containerRef}>
@@ -132,7 +132,7 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
             <button type="button" className="date-range-picker__nav" onClick={goNext} aria-label="다음 달">&gt;</button>
           </div>
 
-          <p className="date-range-picker__hint">{pendingStart ? '종료일을 선택하세요' : '시작일을 선택하세요'}</p>
+          <p className="date-range-picker__hint">{pendingStart ? '종료일을 선택하세요 (하루만이면 같은 날을 다시 누르세요)' : '시작일을 선택하세요'}</p>
 
           <div className="date-range-picker__grid">
             {WEEKDAYS.map(d => (

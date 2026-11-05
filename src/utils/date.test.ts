@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   isToday, isOverdue, isThisWeek, formatDate,
   addMonthsClamped, addDaysStr, nthOccurrence, occurrencesInRange, upcomingOccurrences,
-  yearProgress, startOfWeek, endOfWeek, weekOfMonthLabel, formatReportDate, toLocalDateStr, dateStr, diffDays, formatMonthDayWeekday, WEEKDAYS,
+  yearProgress, startOfWeek, endOfWeek, weekOfMonthLabel, formatReportDate, toLocalDateStr, dateStr, diffDays, formatMonthDayWeekday, WEEKDAYS, normalizeRange,
 } from './date';
 
 describe('yearProgress', () => {
@@ -181,5 +181,22 @@ describe('formatMonthDayWeekday', () => {
 
   it('WEEKDAYS는 일요일부터 7개다', () => {
     expect(WEEKDAYS).toEqual(['일', '월', '화', '수', '목', '금', '토']);
+  });
+});
+
+describe('normalizeRange', () => {
+  it('아무것도 안 골랐으면 비어 있다', () => {
+    expect(normalizeRange('', '')).toEqual({});
+  });
+
+  it('하나만 골랐거나 같은 날이면 마감일 하루짜리다', () => {
+    expect(normalizeRange('2026-11-04', '')).toEqual({ dueDate: '2026-11-04' });
+    expect(normalizeRange('', '2026-11-04')).toEqual({ dueDate: '2026-11-04' });
+    expect(normalizeRange('2026-11-04', '2026-11-04')).toEqual({ dueDate: '2026-11-04' });
+  });
+
+  it('두 날짜가 다르면 앞선 날이 시작일, 뒤선 날이 마감일이다 (순서가 뒤집혀도 바로잡는다)', () => {
+    expect(normalizeRange('2026-11-03', '2026-11-05')).toEqual({ startDate: '2026-11-03', dueDate: '2026-11-05' });
+    expect(normalizeRange('2026-11-05', '2026-11-03')).toEqual({ startDate: '2026-11-03', dueDate: '2026-11-05' });
   });
 });

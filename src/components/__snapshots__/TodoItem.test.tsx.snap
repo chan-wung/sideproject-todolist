@@ -1297,33 +1297,33 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 1`] = `
             class="todo-item__edit-label"
             id="todo-edit-dueDate-label-t1"
           >
-            마감일
+            기간
           </label>
           <div
-            class="date-picker todo-item__edit-date-picker"
+            class="date-range-picker todo-item__edit-date-picker"
           >
             <div
-              class="date-picker__trigger-wrap"
+              class="date-range-picker__trigger-wrap"
             >
               <button
                 aria-expanded="false"
                 aria-haspopup="dialog"
                 aria-labelledby="todo-edit-dueDate-label-t1"
-                class="date-picker__input "
+                class="date-range-picker__input "
                 type="button"
               >
                 <span
-                  class="date-picker__value"
+                  class="date-range-picker__value"
                 >
                   2099-01-01
                 </span>
               </button>
               <div
-                class="date-picker__actions"
+                class="date-range-picker__actions"
               >
                 <button
                   aria-label="초기화"
-                  class="date-picker__clear"
+                  class="date-range-picker__clear"
                   type="button"
                 >
                   <svg
@@ -1341,7 +1341,7 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 1`] = `
                 </button>
                 <span
                   aria-hidden="true"
-                  class="date-picker__icon"
+                  class="date-range-picker__icon"
                 >
                   📅
                 </span>
@@ -1572,33 +1572,33 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차
             class="todo-item__edit-label"
             id="todo-edit-dueDate-label-t1"
           >
-            마감일
+            기간
           </label>
           <div
-            class="date-picker todo-item__edit-date-picker"
+            class="date-range-picker todo-item__edit-date-picker"
           >
             <div
-              class="date-picker__trigger-wrap"
+              class="date-range-picker__trigger-wrap"
             >
               <button
                 aria-expanded="false"
                 aria-haspopup="dialog"
                 aria-labelledby="todo-edit-dueDate-label-t1"
-                class="date-picker__input "
+                class="date-range-picker__input "
                 type="button"
               >
                 <span
-                  class="date-picker__value"
+                  class="date-range-picker__value"
                 >
                   2099-01-01
                 </span>
               </button>
               <div
-                class="date-picker__actions"
+                class="date-range-picker__actions"
               >
                 <button
                   aria-label="초기화"
-                  class="date-picker__clear"
+                  class="date-range-picker__clear"
                   type="button"
                 >
                   <svg
@@ -1616,7 +1616,7 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차
                 </button>
                 <span
                   aria-hidden="true"
-                  class="date-picker__icon"
+                  class="date-range-picker__icon"
                 >
                   📅
                 </span>

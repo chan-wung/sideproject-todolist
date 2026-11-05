@@ -191,7 +191,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
             <>
               <span className="todo-item__dates-sep" aria-hidden="true">/</span>
               <span className={`todo-item__dates-text${overdue ? ' todo-item__dates-text--overdue' : ''}`}>
-                마감일: {overdue ? '⚠ ' : ''}{formatDate(todo.dueDate)}
+                {todo.startDate ? '기간: ' : '마감일: '}{overdue ? '⚠ ' : ''}{todo.startDate ? `${formatDate(todo.startDate)} ~ ${formatDate(todo.dueDate)}` : formatDate(todo.dueDate)}
               </span>
             </>
           )}

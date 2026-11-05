@@ -3,16 +3,17 @@ import type { Todo, TodoKind } from '../types/todo';
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
 import { kindAllowsRecurrence, kindRequiresDate, dueDateLabel } from '../utils/kind';
 import Toast from './Toast';
-import DatePicker from './DatePicker';
+import TodoDateField from './TodoDateField';
 
 interface Props {
-  onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string, recurrence?: Todo['recurrence'], kind?: TodoKind) => void;
+  onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string, recurrence?: Todo['recurrence'], kind?: TodoKind, startDate?: string) => void;
   categories: string[];
 }
 
 export default function TodoInput({ onAdd, categories }: Props) {
   const [text, setText] = useState('');
   const [priority, setPriority] = useState<Todo['priority']>('medium');
+  const [startDate, setStartDate] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [category, setCategory] = useState('');
   const [recurrence, setRecurrence] = useState<Todo['recurrence']>('none');
@@ -34,8 +35,12 @@ export default function TodoInput({ onAdd, categories }: Props) {
       setToastKey(k => k + 1);
       return;
     }
-    onAdd(text, priority, dueDate, category, kindAllowsRecurrence(kind) ? recurrence : 'none', kind);
+    // 시작일은 기간을 받는 종류에서만 쓴다. 연차는 하루 기준이고, 반복 일정의 회차는 마감일을 기준으로 만들어진다.
+    const repeats = kindAllowsRecurrence(kind) && !!recurrence && recurrence !== 'none';
+    const usesStart = kind !== 'leave' && !repeats;
+    onAdd(text, priority, dueDate, category, kindAllowsRecurrence(kind) ? recurrence : 'none', kind, usesStart ? startDate : '');
     setText('');
+    setStartDate('');
     setDueDate('');
     setCategory('');
     setPriority('medium');
@@ -94,7 +99,13 @@ export default function TodoInput({ onAdd, categories }: Props) {
 
           <div>
             <label className="todo-input__label" id="todo-input-dueDate-label">{dueDateLabel(kind)}</label>
-            <DatePicker value={dueDate} onChange={setDueDate} aria-labelledby="todo-input-dueDate-label" />
+            <TodoDateField
+              kind={kind}
+              startDate={startDate}
+              dueDate={dueDate}
+              onChange={range => { setStartDate(range.startDate); setDueDate(range.dueDate); }}
+              aria-labelledby="todo-input-dueDate-label"
+            />
           </div>
 
           <div>

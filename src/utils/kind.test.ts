@@ -36,9 +36,9 @@ describe('종류별 입력 규칙', () => {
     expect(kindAllowsRecurrence('routine')).toBe(true);
   });
 
-  it('날짜 입력칸 이름: 연차는 날짜, 나머지는 마감일', () => {
+  it('날짜 입력칸 이름: 연차는 날짜, 나머지는 기간', () => {
     expect(dueDateLabel('leave')).toBe('날짜');
-    expect(dueDateLabel('task')).toBe('마감일');
-    expect(dueDateLabel('routine')).toBe('마감일');
+    expect(dueDateLabel('task')).toBe('기간');
+    expect(dueDateLabel('routine')).toBe('기간');
   });
 });

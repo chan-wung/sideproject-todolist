@@ -11,6 +11,7 @@ export interface Todo {
   text: string;
   completed: boolean;
   priority: 'low' | 'medium' | 'high';
+  startDate?: string; // 기간이 있는 할 일의 시작일. 없으면 마감일 하루짜리다. 있으면 항상 dueDate보다 앞선다.
   dueDate?: string;
   category: string;
   createdAt: string;
@@ -27,7 +28,7 @@ export interface Todo {
 }
 
 // 카드 편집 폼이 한 번에 수정할 수 있는 필드
-export type TodoUpdates = Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoIds' | 'kind'>>;
+export type TodoUpdates = Partial<Pick<Todo, 'text' | 'priority' | 'startDate' | 'dueDate' | 'category' | 'recurrence' | 'memoIds' | 'kind'>>;
 
 // 반복 일정 그 자체를 나타내는 1급 데이터.
 // 개별 회차(Todo)는 예정일이 도래하면 이 규칙으로부터 자동 생성되며, seriesId로 여기에 연결된다.
@@ -54,7 +55,8 @@ export interface CompletionLogEntry {
   priority: Todo['priority'];
   completedAt: string;
   kind?: TodoKind;
-  dueDate?: string; // 연차·휴가의 날짜를 보고서에서 되살리기 위해 남긴다
+  startDate?: string; // 기간이 있던 할 일의 시작일. 캘린더에 원래 기간으로 보여 주기 위해 남긴다
+  dueDate?: string; // 연차·휴가의 날짜를 보고서에서, 할 일의 기간을 캘린더에서 되살리기 위해 남긴다
   subtasks?: { text: string; completed: boolean }[];
 }
 

@@ -4,7 +4,7 @@ import type { Todo, TodoKind, TodoUpdates } from '../types/todo';
 import { normalizeKind, kindAllowsRecurrence, kindRequiresDate, dueDateLabel } from '../utils/kind';
 import type { Memo } from '../hooks/useMemos';
 import CategoryPickerModal from './CategoryPickerModal';
-import DatePicker from './DatePicker';
+import TodoDateField from './TodoDateField';
 
 interface Props {
   todo: Todo;
@@ -19,6 +19,7 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [editPriority, setEditPriority] = useState<Todo['priority']>(todo.priority);
+  const [editStartDate, setEditStartDate] = useState(todo.startDate ?? '');
   const [editDueDate, setEditDueDate] = useState(todo.dueDate ?? '');
   const [editCategory, setEditCategory] = useState(todo.category);
   const [editRecurrence, setEditRecurrence] = useState<Todo['recurrence']>(todo.recurrence || 'none');
@@ -38,9 +39,12 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
 
   function handleSave() {
     if (!editText.trim() || kindNeedsDate) return;
+    // 연차는 하루 기준이라 시작일을 지운다. 새로 반복을 지정하는 경우도 마감일 기준이라 쓰지 않는다.
+    const usesStart = editKind !== 'leave' && !(kindAllowsRecurrence(editKind) && editRecurrence && editRecurrence !== 'none');
     onSave({
       text: editText.trim(),
       priority: editPriority,
+      startDate: usesStart && editStartDate ? editStartDate : undefined,
       dueDate: editDueDate || undefined,
       category: editCategory.trim() || '기본',
       recurrence: kindAllowsRecurrence(editKind) && editRecurrence !== 'none' ? editRecurrence : undefined,
@@ -95,7 +99,14 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
           </div>
           <div className="todo-item__edit-group">
             <label className="todo-item__edit-label" id={`todo-edit-dueDate-label-${todo.id}`}>{dueDateLabel(editKind)}</label>
-            <DatePicker value={editDueDate} onChange={setEditDueDate} className="todo-item__edit-date-picker" aria-labelledby={`todo-edit-dueDate-label-${todo.id}`} />
+            <TodoDateField
+              kind={editKind}
+              startDate={editStartDate}
+              dueDate={editDueDate}
+              onChange={range => { setEditStartDate(range.startDate); setEditDueDate(range.dueDate); }}
+              className="todo-item__edit-date-picker"
+              aria-labelledby={`todo-edit-dueDate-label-${todo.id}`}
+            />
           </div>
           <div className="todo-item__edit-group">
             <label className="todo-item__edit-label" htmlFor={`todo-edit-category-${todo.id}`}>카테고리</label>

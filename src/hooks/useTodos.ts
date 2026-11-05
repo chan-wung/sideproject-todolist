@@ -71,12 +71,18 @@ export function validateTodos(incoming: unknown): Todo[] | null {
       memoIds = undefined;
     }
 
+    // 시작일은 문자열이고 마감일보다 앞설 때만 인정한다 (손상된 값은 버린다)
+    const startDate = typeof migrated.startDate === 'string' && typeof migrated.dueDate === 'string' && migrated.startDate < migrated.dueDate
+      ? migrated.startDate
+      : undefined;
+
     return {
       ...migrated,
       priority,
       completed,
       category,
       createdAt,
+      startDate,
       subtasks,
       memoIds,
       kind: normalizeKind(migrated.kind),
@@ -97,6 +103,7 @@ export function validateCompletionLog(incoming: unknown): CompletionLogEntry[] |
     priority: normalizePriority(o.priority),
     completedAt: o.completedAt,
     kind: normalizeKind(o.kind),
+    startDate: typeof o.startDate === 'string' ? o.startDate : undefined,
     dueDate: typeof o.dueDate === 'string' ? o.dueDate : undefined,
     subtasks: Array.isArray(o.subtasks)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -152,6 +159,7 @@ export function useTodos() {
         priority: t.priority,
         completedAt: t.completedAt ?? t.createdAt,
         kind: normalizeKind(t.kind),
+        startDate: t.startDate,
         dueDate: t.dueDate,
         subtasks: t.subtasks?.map(s => ({ text: s.text, completed: s.completed })),
       }));
@@ -196,7 +204,8 @@ export function useTodos() {
     dueDate: string,
     category: string,
     recurrence: Todo['recurrence'] = 'none',
-    kind: TodoKind = 'task'
+    kind: TodoKind = 'task',
+    startDate = ''
   ) {
     if (!text.trim()) return;
     const trimmed = text.trim();
@@ -220,6 +229,8 @@ export function useTodos() {
       text: trimmed,
       completed: false,
       priority,
+      // 시작일은 마감일이 있고 그보다 앞설 때만 저장한다
+      startDate: startDate && dueDate && startDate < dueDate ? startDate : undefined,
       dueDate: dueDate || undefined,
       category: cat,
       createdAt: new Date().toISOString(),
@@ -295,8 +306,14 @@ export function useTodos() {
 
   function updateTodo(id: string, updates: TodoUpdates) {
     const { recurrence, ...rest } = updates;
+    // 날짜는 updates에 키가 있을 때만 바꾼다 (값이 비면 지움). 메모 연결처럼 일부만 고칠 때 기간이 날아가지 않게 한다.
     setTodos(prev =>
-      prev.map(t => t.id === id ? { ...t, ...rest, dueDate: rest.dueDate || undefined } : t)
+      prev.map(t => t.id === id ? {
+        ...t,
+        ...rest,
+        startDate: 'startDate' in rest ? rest.startDate || undefined : t.startDate,
+        dueDate: 'dueDate' in rest ? rest.dueDate || undefined : t.dueDate,
+      } : t)
     );
     if (recurrence && recurrence !== 'none') {
       promoteTodoToSeries(id, recurrence, rest);

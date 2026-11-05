@@ -51,14 +51,37 @@ describe('TodoInput 종류 선택', () => {
   it('종류를 안 고르면 일반 업무로 추가한다', () => {
     const utils = renderInput();
     typeAndSubmit(utils, '일반 업무');
-    expect(utils.onAdd).toHaveBeenCalledWith('일반 업무', 'medium', '', '', 'none', 'task');
+    expect(utils.onAdd).toHaveBeenCalledWith('일반 업무', 'medium', '', '', 'none', 'task', '');
+  });
+
+  it('기간 칸에서 시작일과 마감일을 고르면 둘 다 넘기고, 하루만 고르면 마감일만 넘긴다', () => {
+    const utils = renderInput();
+    const pick = (day: string) => fireEvent.click(within(utils.container.querySelector('.date-range-picker__dropdown') as HTMLElement).getByRole('button', { name: day }));
+    const openPicker = () => fireEvent.click(utils.getByRole('button', { name: '기간' }));
+
+    openPicker();
+    pick('10');
+    pick('20');
+    typeAndSubmit(utils, '기간 업무');
+    const [, , due, , , , start] = utils.onAdd.mock.calls[0];
+    expect(start < due).toBe(true);
+    expect(start.endsWith('-10')).toBe(true);
+    expect(due.endsWith('-20')).toBe(true);
+
+    openPicker();
+    pick('15');
+    pick('15');
+    typeAndSubmit(utils, '하루 업무');
+    const [, , due2, , , , start2] = utils.onAdd.mock.calls[1];
+    expect(due2.endsWith('-15')).toBe(true);
+    expect(start2).toBe('');
   });
 
   it('정기 업무를 고르면 그 종류로 추가한다', () => {
     const utils = renderInput();
     fireEvent.change(utils.getByLabelText('종류'), { target: { value: 'routine' } });
     typeAndSubmit(utils, '바이러스 검사');
-    expect(utils.onAdd).toHaveBeenCalledWith('바이러스 검사', 'medium', '', '', 'none', 'routine');
+    expect(utils.onAdd).toHaveBeenCalledWith('바이러스 검사', 'medium', '', '', 'none', 'routine', '');
   });
 
   it('연차·휴가는 날짜가 없으면 추가하지 않고 안내한다', () => {
@@ -95,6 +118,24 @@ describe('TodoItem 종류 배지와 편집', () => {
   function enterEdit(container: HTMLElement) {
     fireEvent.click(container.querySelector('.todo-item__btn--edit') as HTMLElement);
   }
+
+  it('시작일이 있는 카드는 기간으로, 없는 카드는 마감일로 보여 준다', () => {
+    const range = renderItem(makeTodo({ startDate: '2099-01-01', dueDate: '2099-01-05' }));
+    expect(range.getByText(/기간: 2099\.01\.01 ~ 2099\.01\.05/)).toBeTruthy();
+    cleanup();
+    const single = renderItem(makeTodo({ dueDate: '2099-01-05' }));
+    expect(single.getByText(/마감일: 2099\.01\.05/)).toBeTruthy();
+  });
+
+  it('편집 폼에서 기간을 지우고 저장하면 시작일과 마감일이 함께 지워진다', () => {
+    const utils = renderItem(makeTodo({ startDate: '2099-01-01', dueDate: '2099-01-05' }));
+    fireEvent.click(utils.getByRole('button', { name: '수정' }));
+    fireEvent.click(utils.getByRole('button', { name: '초기화' }));
+    fireEvent.click(utils.getByRole('button', { name: '수정' }));
+    const saved = utils.onUpdate.mock.calls[0][1];
+    expect(saved.startDate).toBeUndefined();
+    expect(saved.dueDate).toBeUndefined();
+  });
 
   it('편집 폼에서 종류를 바꿔 저장하면 onUpdate에 kind가 담긴다', () => {
     const { container, getByLabelText, onUpdate } = renderItem(makeTodo({ dueDate: '2099-01-01' }));

@@ -96,6 +96,15 @@ export function weekOfMonthLabel(weekStart: string): string {
   return `${d.getMonth() + 1}월 ${Math.ceil(d.getDate() / 7)}주`;
 }
 
+// 기간 칸에서 고른 두 날짜를 할 일에 저장할 모양으로 바꾼다.
+// - 하나만 골랐거나 같은 날이면 마감일 하루짜리(dueDate만).
+// - 서로 다르면 앞선 날이 startDate, 뒤선 날이 dueDate. 순서가 뒤집혀 들어와도 바로잡는다.
+export function normalizeRange(start: string, end: string): { startDate?: string; dueDate?: string } {
+  if (!start && !end) return {};
+  if (!start || !end || start === end) return { dueDate: end || start };
+  return start < end ? { startDate: start, dueDate: end } : { startDate: end, dueDate: start };
+}
+
 // 해당 연·월(month0: 0=1월)의 마지막 날짜(28~31)
 export function daysInMonth(year: number, month0: number): number {
   return new Date(year, month0 + 1, 0).getDate();

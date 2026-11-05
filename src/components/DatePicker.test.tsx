@@ -139,6 +139,11 @@ describe('DateRangePicker', () => {
     expect(filled.getByText('2026-11-02 ~ 2026-11-08')).toBeTruthy();
   });
 
+  it('시작일만 있으면(하루짜리) 그 날짜 하나를 보여 준다', () => {
+    const single = setup('2026-11-02', '');
+    expect(single.getByText('2026-11-02')).toBeTruthy();
+  });
+
   it('지금 달의 달력과 요일 머리글, 시작일 안내를 보여 준다', () => {
     const { container, getByText, open } = setup();
     open();
@@ -198,7 +203,7 @@ describe('DateRangePicker', () => {
     fireEvent.click(dayButton(container, B, 10));
     expect(onChange).toHaveBeenLastCalledWith('2026-11-10', '');
     expect(container.querySelector(`.${B}__dropdown`)).not.toBeNull();
-    expect(getByText('종료일을 선택하세요')).toBeTruthy();
+    expect(getByText('종료일을 선택하세요 (하루만이면 같은 날을 다시 누르세요)')).toBeTruthy();
     expect(getByText('2026-11-10 ~ 종료일 선택')).toBeTruthy();
   });
 

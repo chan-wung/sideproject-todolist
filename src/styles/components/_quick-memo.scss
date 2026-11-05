@@ -207,7 +207,7 @@ dialog.quick-memo-modal {
     border-left: 3px solid transparent;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    @include transition(background-color, border-color, box-shadow);
+    @include transition(background-color border-color box-shadow);
 
     &:hover {
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -380,7 +380,7 @@ dialog.quick-memo-modal {
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    @include transition(background-color, color);
+    @include transition(background-color color);
 
     &:hover,
     &--active {

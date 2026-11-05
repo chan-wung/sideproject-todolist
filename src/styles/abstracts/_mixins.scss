@@ -156,8 +156,14 @@
   }
 }
 
-@mixin transition($property: all, $duration: 0.3s, $timing: ease) {
-  transition: $property $duration $timing;
+// 속성이 여러 개면 공백으로 이어서 한 인자로 넘긴다: @include transition(color background-color);
+// (쉼표로 나열하면 두 번째 값이 $duration으로 들어가 잘못된 CSS가 된다)
+@mixin transition($properties: all, $duration: 0.3s, $timing: ease) {
+  $items: ();
+  @each $property in $properties {
+    $items: append($items, $property $duration $timing, comma);
+  }
+  transition: $items;
 }
 
 @mixin flex-center {

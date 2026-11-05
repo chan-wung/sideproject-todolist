@@ -20,7 +20,7 @@
     border-radius: 8px;
     @include font(14);
     cursor: pointer;
-    @include transition(border-color, box-shadow, background-color); // make room for actions
+    @include transition(border-color box-shadow background-color); // make room for actions
 
     &:hover {
       border-color: var(--color-main);

@@ -36,7 +36,7 @@
     border-radius: 8px;
     @include font(13, "Medium");
     cursor: pointer;
-    @include transition(background-color, box-shadow, color);
+    @include transition(background-color box-shadow color);
 
     &--active {
       color: var(--color-on-accent);
@@ -150,7 +150,7 @@
     @include font(12, "Medium");
     white-space: nowrap;
     cursor: pointer;
-    @include transition(background-color, box-shadow, color);
+    @include transition(background-color box-shadow color);
 
     &--active {
       color: var(--color-on-accent);

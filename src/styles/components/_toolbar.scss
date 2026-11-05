@@ -13,13 +13,23 @@
   border-bottom: 1px solid var(--color-border);
 
   // 넓은 화면에서는 화면 맨 위에 고정 (한 줄)
+  // 사이드바(z-index 150)가 이 위에 걸쳐 그려지므로, 내용은 사이드바 오른쪽부터 시작한다
   @include shell {
     flex-wrap: nowrap;
     height: rem($header_height);
+    padding-left: rem($nav_width + 20); // 20 = 오른쪽 여백과 같은 간격
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 150;
+    z-index: 140;
+    @include transition(padding-left);
+  }
+
+  // 사이드바를 접으면 내용도 같이 왼쪽으로 당겨진다
+  &--nav-collapsed {
+    @include shell {
+      padding-left: rem($nav_width_collapsed + 20);
+    }
   }
 
   &__dday {

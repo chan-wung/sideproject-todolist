@@ -5,6 +5,8 @@ import { yearProgress } from '../utils/date';
 import { downloadBackup } from '../utils/backup';
 
 interface Props {
+  /** 사이드바가 접힌 상태 (넓은 화면에서 툴바 내용이 사이드바 오른쪽부터 시작하도록) */
+  navCollapsed: boolean;
   getBackup: () => unknown;
   applyBackup: (incoming: unknown) => boolean;
   onImportResult: (success: boolean) => void;
@@ -14,7 +16,7 @@ interface Props {
   onRecurrenceOpen: () => void;
 }
 
-export default function AppToolbar({ getBackup, applyBackup, onImportResult, onExport, onSettingsOpen, onCompletionLogOpen, onRecurrenceOpen }: Props) {
+export default function AppToolbar({ navCollapsed, getBackup, applyBackup, onImportResult, onExport, onSettingsOpen, onCompletionLogOpen, onRecurrenceOpen }: Props) {
   const [theme, setTheme] = usePersistentState<'light' | 'dark'>('todolist-pref-theme', 'light');
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onE
   }
 
   return (
-    <div className="app-toolbar">
+    <div className={`app-toolbar${navCollapsed ? ' app-toolbar--nav-collapsed' : ''}`}>
       <p className="app-toolbar__dday" title={`${progress.year}년이 ${progress.daysLeft}일 남았어요 (${progress.percent}% 지남)`}>
         <span className="screen-out">{progress.year}년 남은 날</span>
         <span className="app-toolbar__dday-num">{ddayLabel}</span>

@@ -16,7 +16,7 @@
     top: rem($header_height);
     bottom: 0;
     left: 0;
-    z-index: 140;
+    z-index: 150; // 상단 헤더(140)보다 위: 카드가 헤더 쪽으로 걸쳐 보이게
     @include transition(width);
   }
 
@@ -42,7 +42,7 @@
       border-radius: 16px;
       box-shadow: 0 0 rem(20) rem(5) rgba(0, 0, 0, 0.05);
       position: absolute;
-      top: rem(12);
+      top: rem(-38); // 헤더(64) 중 아래 26px를 덮도록 셸 경계 밖으로 올림 (셸의 회색 배경은 헤더 아래부터라 흰색이 이어짐)
       right: rem(10);
       bottom: rem(12);
       left: rem(10);

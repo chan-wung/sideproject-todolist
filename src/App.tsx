@@ -311,7 +311,7 @@ export default function App() {
           onClose={() => { setToast(null); dismissUndo(); }}
         />
       )}
-      <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
+      <AppToolbar navCollapsed={navCollapsed} getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
       <div className={`app-shell${navCollapsed ? ' app-shell--nav-collapsed' : ''}`}>
       <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} />
       <div className="app-shell__content">

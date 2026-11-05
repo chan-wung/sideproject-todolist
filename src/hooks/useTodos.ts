@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import type { Todo, FilterStatus, SortKey, DueScope, CompletionLogEntry, RecurrenceSeries, RecurrenceFrequency } from '../types/todo';
+import type { Todo, FilterStatus, SortKey, DueScope, CompletionLogEntry, RecurrenceSeries, RecurrenceFrequency, TodoKind, TodoUpdates } from '../types/todo';
 import { usePersistentState } from './usePersistentState';
 import { isToday, isThisWeek, isOverdue, todayStr } from '../utils/date';
 import { migrateLegacyRecurrence, materializeDueOccurrences, validateRecurrenceSeries } from '../utils/recurrence';
 import { generateId } from '../utils/id';
+import { normalizeKind } from '../utils/kind';
 import { moveItem } from '../utils/list';
 import { writeStorage } from '../utils/storage';
 import { useRecurrenceSeries } from './useRecurrenceSeries';
@@ -77,7 +78,8 @@ export function validateTodos(incoming: unknown): Todo[] | null {
       category,
       createdAt,
       subtasks,
-      memoIds
+      memoIds,
+      kind: normalizeKind(migrated.kind),
     } as Todo;
   });
 }
@@ -94,6 +96,7 @@ export function validateCompletionLog(incoming: unknown): CompletionLogEntry[] |
     category: typeof o.category === 'string' ? o.category : '기본',
     priority: normalizePriority(o.priority),
     completedAt: o.completedAt,
+    kind: normalizeKind(o.kind),
     subtasks: Array.isArray(o.subtasks)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? o.subtasks.filter((s: any) => s && typeof s.text === 'string').map((s: any) => ({ text: s.text, completed: !!s.completed }))
@@ -147,6 +150,7 @@ export function useTodos() {
         category: t.category,
         priority: t.priority,
         completedAt: t.completedAt ?? t.createdAt,
+        kind: normalizeKind(t.kind),
         subtasks: t.subtasks?.map(s => ({ text: s.text, completed: s.completed })),
       }));
     if (entries.length === 0) {
@@ -184,7 +188,8 @@ export function useTodos() {
     priority: Todo['priority'],
     dueDate: string,
     category: string,
-    recurrence: Todo['recurrence'] = 'none'
+    recurrence: Todo['recurrence'] = 'none',
+    kind: TodoKind = 'task'
   ) {
     if (!text.trim()) return;
     const trimmed = text.trim();
@@ -198,6 +203,7 @@ export function useTodos() {
         priority,
         frequency: recurrence,
         anchorDate: dueDate || todayStr(),
+        kind,
       });
       return;
     }
@@ -210,6 +216,7 @@ export function useTodos() {
       dueDate: dueDate || undefined,
       category: cat,
       createdAt: new Date().toISOString(),
+      kind,
     };
     setTodos(prev => [next, ...prev]);
   }
@@ -254,7 +261,7 @@ export function useTodos() {
   function promoteTodoToSeries(
     id: string,
     frequency: RecurrenceFrequency,
-    patch: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'memoIds'>>
+    patch: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'memoIds' | 'kind'>>
   ) {
     const target = todos.find(t => t.id === id);
     if (!target || target.seriesId) return;
@@ -270,6 +277,7 @@ export function useTodos() {
       anchorDate,
       subtasksTemplate: merged.subtasks && merged.subtasks.length > 0 ? merged.subtasks.map(s => s.text) : undefined,
       memoIds: memoIds && memoIds.length > 0 ? [...memoIds] : undefined,
+      kind: normalizeKind(merged.kind),
       status: 'active',
       lastMaterializedDate: anchorDate, // 이 할 일 자체가 첫 회차이므로 그 날짜까지는 채워진 것으로 본다
       createdAt: new Date().toISOString(),
@@ -278,7 +286,7 @@ export function useTodos() {
     setRecurrenceSeries(prev => [...prev, series]);
   }
 
-  function updateTodo(id: string, updates: Partial<Pick<Todo, 'text' | 'priority' | 'dueDate' | 'category' | 'recurrence' | 'memoIds'>>) {
+  function updateTodo(id: string, updates: TodoUpdates) {
     const { recurrence, ...rest } = updates;
     setTodos(prev =>
       prev.map(t => t.id === id ? { ...t, ...rest, dueDate: rest.dueDate || undefined } : t)

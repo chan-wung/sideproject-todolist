@@ -1,6 +1,7 @@
 import type { Todo, RecurrenceSeries, RecurrenceFrequency } from '../types/todo';
 import { addDaysStr, occurrencesInRange } from './date';
 import { generateId } from './id';
+import { normalizeKind } from './kind';
 
 const FREQUENCIES: RecurrenceFrequency[] = ['daily', 'weekly', 'monthly'];
 
@@ -26,6 +27,7 @@ export function makeTodoFromSeries(series: RecurrenceSeries, dueDate: string): T
       : undefined,
     memoIds: series.memoIds && series.memoIds.length > 0 ? [...series.memoIds] : undefined,
     seriesId: series.id,
+    kind: normalizeKind(series.kind),
   };
 }
 
@@ -147,6 +149,7 @@ export function migrateLegacyRecurrence(todos: Todo[], series: RecurrenceSeries[
         ? root.subtasks.map(s => s.text)
         : undefined,
       memoIds: root.memoIds && root.memoIds.length > 0 ? [...root.memoIds] : undefined,
+      kind: normalizeKind(root.kind),
       status: 'active',
       lastMaterializedDate: dueDates.length > 0 ? dueDates[dueDates.length - 1] : undefined,
       createdAt: new Date().toISOString(),
@@ -194,6 +197,7 @@ export function validateRecurrenceSeries(incoming: unknown): RecurrenceSeries[] 
       ? o.memoIds.filter((m: unknown) => typeof m === 'string')
       : undefined,
     endDate: typeof o.endDate === 'string' ? o.endDate : undefined,
+    kind: normalizeKind(o.kind),
     status: o.status === 'ended' ? 'ended' : 'active',
     lastMaterializedDate: typeof o.lastMaterializedDate === 'string' ? o.lastMaterializedDate : undefined,
     createdAt: typeof o.createdAt === 'string' ? o.createdAt : new Date().toISOString(),

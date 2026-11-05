@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import type { Todo, RecurrenceSeries, RecurrenceFrequency } from '../types/todo';
+import type { Todo, RecurrenceSeries, RecurrenceFrequency, TodoKind } from '../types/todo';
 import { todayStr } from '../utils/date';
 import { materializeDueOccurrences, validateRecurrenceSeries } from '../utils/recurrence';
 import { generateId } from '../utils/id';
+import { normalizeKind } from '../utils/kind';
 import { writeStorage } from '../utils/storage';
 
 const SERIES_STORAGE_KEY = 'todolist-recurrence-series';
@@ -61,6 +62,7 @@ export function useRecurrenceSeries(
     frequency: RecurrenceFrequency;
     anchorDate: string;
     endDate?: string;
+    kind?: TodoKind;
   }) {
     const text = input.text.trim();
     if (!text || !input.anchorDate) return;
@@ -72,6 +74,7 @@ export function useRecurrenceSeries(
       frequency: input.frequency,
       anchorDate: input.anchorDate,
       endDate: input.endDate || undefined,
+      kind: normalizeKind(input.kind),
       status: 'active',
       createdAt: new Date().toISOString(),
     };
@@ -82,7 +85,7 @@ export function useRecurrenceSeries(
   // 이미 목록에 생성된 회차(Todo)는 건드리지 않는다.
   function updateRecurrenceSeries(
     id: string,
-    updates: Partial<Pick<RecurrenceSeries, 'text' | 'category' | 'priority' | 'frequency' | 'anchorDate' | 'endDate'>>
+    updates: Partial<Pick<RecurrenceSeries, 'text' | 'category' | 'priority' | 'frequency' | 'anchorDate' | 'endDate' | 'kind'>>
   ) {
     setRecurrenceSeries(prev => prev.map(s => {
       if (s.id !== id) return s;

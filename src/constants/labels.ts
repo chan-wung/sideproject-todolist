@@ -1,4 +1,4 @@
-import type { Todo, RecurrenceFrequency } from '../types/todo';
+import type { Todo, RecurrenceFrequency, TodoKind } from '../types/todo';
 
 export type Priority = Todo['priority'];
 
@@ -18,6 +18,14 @@ export const FREQUENCY_LABEL: Record<RecurrenceFrequency, string> = {
 };
 
 export const FREQUENCY_OPTIONS: RecurrenceFrequency[] = ['daily', 'weekly', 'monthly'];
+
+export const KIND_LABEL: Record<TodoKind, string> = {
+  task: '일반 업무',
+  routine: '정기 업무',
+  leave: '연차·휴가',
+};
+
+export const KIND_OPTIONS: TodoKind[] = ['task', 'routine', 'leave'];
 
 // 상단 메뉴(화면 전환). 주소의 해시(#/todos)와 1:1로 대응한다.
 export type View = 'todos' | 'report';

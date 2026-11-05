@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useTodos, migrateTodo, validateTodos } from './useTodos';
+import { useTodos, migrateTodo, validateTodos, validateCompletionLog } from './useTodos';
+import { validateRecurrenceSeries } from '../utils/recurrence';
 
 describe('useTodos', () => {
   beforeEach(() => {
@@ -539,4 +540,83 @@ describe('useTodos', () => {
       expect(dates).toEqual(['2026-07-24', '2026-08-24']);
     });
   });
+
+  describe('업무 종류(kind)', () => {
+    it('옛 데이터(kind 없음)와 알 수 없는 값은 일반 업무(task)로 불러온다', () => {
+      const todos = validateTodos([
+        { id: '1', text: '옛 데이터' },
+        { id: '2', text: '이상한 값', kind: 'vacation' },
+        { id: '3', text: '연차', kind: 'leave' },
+      ]);
+      expect(todos!.map(t => t.kind)).toEqual(['task', 'task', 'leave']);
+
+      const log = validateCompletionLog([
+        { id: 'a', text: '옛 이력', completedAt: '2026-11-02T10:00:00' },
+        { id: 'b', text: '정기', completedAt: '2026-11-02T10:00:00', kind: 'routine' },
+      ]);
+      expect(log!.map(e => e.kind)).toEqual(['task', 'routine']);
+
+      const series = validateRecurrenceSeries([
+        { id: 's1', text: '옛 시리즈', frequency: 'weekly', anchorDate: '2026-11-02' },
+        { id: 's2', text: '정기', frequency: 'weekly', anchorDate: '2026-11-02', kind: 'routine' },
+      ]);
+      expect(series!.map(s => s.kind)).toEqual(['task', 'routine']);
+    });
+
+    it('addTodo는 종류를 저장하고, 안 주면 task다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('일반', 'medium', '', '');
+        result.current.addTodo('연차', 'medium', '2026-11-04', '', 'none', 'leave');
+      });
+      const byText = (text: string) => result.current.allTodos.find(t => t.text === text)!;
+      expect(byText('일반').kind).toBe('task');
+      expect(byText('연차').kind).toBe('leave');
+    });
+
+    it('종류를 고르고 반복을 걸면 시리즈와 그 회차가 같은 종류를 이어받는다', () => {
+      vi.useFakeTimers();
+      try {
+        vi.setSystemTime(new Date('2026-11-02T10:00:00'));
+        const { result } = renderHook(() => useTodos());
+        act(() => {
+          result.current.addTodo('바이러스 검사', 'medium', '2026-11-02', '', 'weekly', 'routine');
+        });
+        expect(result.current.recurrenceSeries[0].kind).toBe('routine');
+        const occ = result.current.allTodos.filter(t => t.seriesId === result.current.recurrenceSeries[0].id);
+        expect(occ).toHaveLength(1);
+        expect(occ[0].kind).toBe('routine');
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it('완료한 항목을 지우면 완료 이력에도 종류가 남는다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('정기 점검', 'medium', '', '', 'none', 'routine');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.toggleTodo(id);
+      });
+      act(() => {
+        result.current.deleteTodo(id);
+      });
+      expect(result.current.completionLog[0].kind).toBe('routine');
+    });
+
+    it('updateTodo로 종류를 바꿀 수 있다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => {
+        result.current.addTodo('업무', 'medium', '', '');
+      });
+      const id = result.current.allTodos[0].id;
+      act(() => {
+        result.current.updateTodo(id, { kind: 'leave' });
+      });
+      expect(result.current.allTodos[0].kind).toBe('leave');
+    });
+  });
+
 });

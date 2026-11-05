@@ -12,12 +12,12 @@ function setup(props: Partial<ComponentProps<typeof AppNav>> = {}) {
 describe('AppNav', () => {
   afterEach(() => cleanup());
 
-  it('메뉴 링크가 해시 주소를 가리키고 현재 화면에만 aria-current가 붙는다', () => {
+  it('메뉴 링크가 화면 주소를 가리키고 현재 화면에만 aria-current가 붙는다', () => {
     const { getByRole } = setup({ current: 'report' });
     const todos = getByRole('link', { name: '할 일' });
     const report = getByRole('link', { name: '주간보고' });
-    expect(todos.getAttribute('href')).toBe('#/todos');
-    expect(report.getAttribute('href')).toBe('#/report');
+    expect(todos.getAttribute('href')).toBe('/todos');
+    expect(report.getAttribute('href')).toBe('/report');
     expect(report.getAttribute('aria-current')).toBe('page');
     expect(todos.getAttribute('aria-current')).toBeNull();
   });

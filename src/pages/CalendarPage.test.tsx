@@ -269,6 +269,6 @@ describe('CalendarPage — 보기 전용', () => {
     expect(queryByLabelText('사유 (선택)')).toBeNull();
     expect(queryByRole('button', { name: '등록' })).toBeNull();
     expect(queryByRole('button', { name: /삭제$/ })).toBeNull();
-    expect(getByRole('link', { name: '할 일' }).getAttribute('href')).toBe('#/todos');
+    expect(getByRole('link', { name: '할 일' }).getAttribute('href')).toBe('/todos');
   });
 });

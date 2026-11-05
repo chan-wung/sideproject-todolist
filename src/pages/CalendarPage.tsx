@@ -5,10 +5,10 @@ import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
 import { useDayChange } from '../hooks/useDayChange';
 import { buildCalendarItems, formatPeriod, itemsOnDate, layoutMonth, monthRange, type CalendarItem } from '../utils/calendar';
 import { formatMonthDayWeekday, todayStr } from '../utils/date';
-import { viewHref } from '../hooks/useView';
 import { usePersistentState } from '../hooks/usePersistentState';
 import PeriodNav from '../components/PeriodNav';
 import PageHead from '../components/PageHead';
+import ViewLink from '../components/ViewLink';
 
 interface Props {
   todos: Todo[];
@@ -167,7 +167,7 @@ export default function CalendarPage({ todos, series, completionLog }: Props) {
               <p className="calendar__empty">날짜를 눌러 그날의 일정을 확인하세요.</p>
             )}
             <p className="calendar__hint">
-              연차·휴가와 새 할 일은 <a className="calendar__link" href={viewHref('todos')}>할 일</a> 화면에서 등록합니다.
+              연차·휴가와 새 할 일은 <ViewLink className="calendar__link" view="todos">할 일</ViewLink> 화면에서 등록합니다.
             </p>
           </section>
         </div>

@@ -38,7 +38,7 @@ export const LEAVE_TYPES: { id: LeaveType; label: string }[] = [
   { id: 'custom', label: '기타' },
 ];
 
-// 상단 메뉴(화면 전환). 주소의 해시(#/todos)와 1:1로 대응한다.
+// 상단 메뉴(화면 전환). 주소(/todos)와 1:1로 대응한다.
 export type View = 'dashboard' | 'todos' | 'calendar' | 'memo' | 'report';
 
 export const VIEW_LABEL: Record<View, string> = {

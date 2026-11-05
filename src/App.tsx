@@ -4,7 +4,7 @@ import { useMemos } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import { useSelection } from './hooks/useSelection';
-import { useView, viewHref } from './hooks/useView';
+import { useView, navigate } from './hooks/useView';
 import { useBackupReminder } from './hooks/useBackupReminder';
 import TodoPage from './pages/TodoPage';
 import WeeklyReportPage from './pages/WeeklyReportPage';
@@ -277,7 +277,7 @@ export default function App() {
   // 할 일 카드의 메모 링크: 메모장 화면으로 이동해 그 메모를 고른다
   function handleOpenMemo(memoId: string) {
     setActiveId(memoId);
-    window.location.hash = viewHref('memo');
+    navigate('memo');
   }
 
   const [showScrollTop, setShowScrollTop] = useState(false);

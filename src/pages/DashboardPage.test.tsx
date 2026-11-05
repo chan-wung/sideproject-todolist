@@ -108,7 +108,7 @@ describe('DashboardPage', () => {
     expect(c.getByText('밀린 일 1').closest('li')?.textContent).toContain('15일 지남'); // 10/20 → 11/4
     expect(c.queryByText('밀린 일 6')).toBeNull();
     expect(c.getByText(/외 2건/)).toBeTruthy();
-    expect(c.getByRole('link', { name: '할 일에서 보기' }).getAttribute('href')).toBe('#/todos');
+    expect(c.getByRole('link', { name: '할 일에서 보기' }).getAttribute('href')).toBe('/todos');
   });
 
   it('밀린 일이 없으면 안내 문구를 보여 준다', () => {
@@ -136,8 +136,8 @@ describe('DashboardPage', () => {
     expect(c.getByText('11월 6일 (금)')).toBeTruthy();
     expect(c.getByText('연차 14:00~15:00 (병원 진료)')).toBeTruthy();
     expect(c.queryByText('다음 주 연차')).toBeNull();
-    expect(c.getByRole('link', { name: '할 일에서 등록' }).getAttribute('href')).toBe('#/todos');
-    expect(c.getByRole('link', { name: '주간보고 보기' }).getAttribute('href')).toBe('#/report');
+    expect(c.getByRole('link', { name: '할 일에서 등록' }).getAttribute('href')).toBe('/todos');
+    expect(c.getByRole('link', { name: '주간보고 보기' }).getAttribute('href')).toBe('/report');
   });
 
   it('데이터가 없으면 모든 카드가 빈 상태 안내를 보여 준다', () => {

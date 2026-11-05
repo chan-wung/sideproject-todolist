@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Todo, CompletionLogEntry } from '../types/todo';
 import PageHead from '../components/PageHead';
 import { useDayChange } from '../hooks/useDayChange';
-import { viewHref } from '../hooks/useView';
+import ViewLink from '../components/ViewLink';
 import { buildDashboardStats, type DashboardTodo } from '../utils/dashboard';
 import { diffDays, formatMonthDayWeekday, formatReportDate, todayStr } from '../utils/date';
 
@@ -143,7 +143,7 @@ export default function DashboardPage({ todos, completionLog }: Props) {
                 </ul>
                 {overdueRest > 0 && (
                   <p className="dashboard__hint">
-                    외 {overdueRest}건 · <a className="dashboard__link" href={viewHref('todos')}>할 일에서 보기</a>
+                    외 {overdueRest}건 · <ViewLink className="dashboard__link" view="todos">할 일에서 보기</ViewLink>
                   </p>
                 )}
               </>
@@ -165,9 +165,9 @@ export default function DashboardPage({ todos, completionLog }: Props) {
               </ul>
             )}
             <p className="dashboard__hint">
-              <a className="dashboard__link" href={viewHref('todos')}>할 일에서 등록</a>
+              <ViewLink className="dashboard__link" view="todos">할 일에서 등록</ViewLink>
               {' · '}
-              <a className="dashboard__link" href={viewHref('report')}>주간보고 보기</a>
+              <ViewLink className="dashboard__link" view="report">주간보고 보기</ViewLink>
             </p>
           </section>
         </div>

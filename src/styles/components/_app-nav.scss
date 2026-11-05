@@ -197,6 +197,19 @@
     }
   }
 
+  &__report-dot {
+    @include size(6);
+    flex-shrink: 0;
+    background: var(--color-danger);
+    border-radius: 50%;
+
+    @include below_shell {
+      position: absolute;
+      top: rem(8);
+      right: calc(50% - rem(20));
+    }
+  }
+
   // 아이콘은 사이드바와 아래 탭 바에서 보인다
   &__ico {
     display: none;

@@ -3,6 +3,7 @@ import type { Memo } from '../hooks/useMemos';
 import { validateTodos, validateCompletionLog } from './todoData';
 import { validateMemos } from '../hooks/useMemos';
 import { validateRecurrenceSeries } from './recurrence';
+import { validateWeeklyReportData, type WeeklyReportData } from '../hooks/useWeeklyReports';
 
 // 백업 파일에서 읽어 낸 구역들. 파일에 있던 구역만 값이 있다.
 export interface ParsedBackup {
@@ -10,6 +11,7 @@ export interface ParsedBackup {
   memos?: Memo[];
   completionLog?: CompletionLogEntry[];
   recurrenceSeries?: RecurrenceSeries[];
+  weeklyReports?: WeeklyReportData;
 }
 
 // 백업 파일(JSON을 읽은 값)을 검증한다. 데이터를 덮어쓰는 경로라서 아래 순서를 지킨다.
@@ -46,6 +48,11 @@ export function parseBackup(raw: unknown): ParsedBackup | null {
     const series = validateRecurrenceSeries(p.recurrenceSeries);
     if (!series) return null;
     result.recurrenceSeries = series;
+  }
+  if (p.weeklyReports !== undefined) {
+    const weeklyReports = validateWeeklyReportData(p.weeklyReports);
+    if (!weeklyReports) return null;
+    result.weeklyReports = weeklyReports;
   }
 
   return Object.keys(result).length > 0 ? result : null;

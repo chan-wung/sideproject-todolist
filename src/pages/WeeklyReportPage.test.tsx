@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, cleanup } from '@testing-library/react';
+import { useState } from 'react';
 import WeeklyReportPage from './WeeklyReportPage';
 import type { Todo, CompletionLogEntry } from '../types/todo';
 
@@ -23,9 +24,34 @@ const THIS_WEEK_TEXT = '2026.11.2 바이러스 검사 완료\n\n[가나시청] �
 
 function setup(todos: Todo[] = TODOS, log: CompletionLogEntry[] = LOG) {
   const onCopy = vi.fn();
-  const utils = render(<WeeklyReportPage todos={todos} completionLog={log} onCopy={onCopy} />);
+  const onMarkCopied = vi.fn();
+  function TestPage() {
+    const [drafts, setDrafts] = useState<Record<string, string>>({});
+    return (
+      <WeeklyReportPage
+        todos={todos}
+        completionLog={log}
+        onCopy={onCopy}
+        drafts={drafts}
+        onSaveDraft={(weekStart, text, generatedText) => setDrafts(prev => {
+          const next = { ...prev };
+          if (text === generatedText) delete next[weekStart];
+          else next[weekStart] = text;
+          return next;
+        })}
+        onResetDraft={weekStart => setDrafts(prev => {
+          const next = { ...prev };
+          delete next[weekStart];
+          return next;
+        })}
+        onMarkCopied={onMarkCopied}
+        hasUnreportedLastWeek={false}
+      />
+    );
+  }
+  const utils = render(<TestPage />);
   const textarea = () => utils.getByLabelText('주간보고 내용') as HTMLTextAreaElement;
-  return { ...utils, onCopy, textarea };
+  return { ...utils, onCopy, onMarkCopied, textarea };
 }
 
 describe('WeeklyReportPage', () => {
@@ -76,33 +102,51 @@ describe('WeeklyReportPage', () => {
   });
 
   it('복사 버튼은 "텍스트 복사" 하나이고, 보고서 글을 따옴표 없이 그대로 복사한다', () => {
-    const { getByRole, getAllByRole, queryByRole, onCopy } = setup();
+    const { getByRole, getAllByRole, queryByRole, onCopy, onMarkCopied } = setup();
     expect(queryByRole('button', { name: '엑셀 칸에 복사' })).toBeNull();
     expect(getAllByRole('button').filter(b => b.textContent?.includes('복사'))).toHaveLength(1);
 
     fireEvent.click(getByRole('button', { name: '텍스트 복사' }));
     expect(onCopy).toHaveBeenCalledTimes(1);
     expect(onCopy).toHaveBeenLastCalledWith(THIS_WEEK_TEXT, '주간보고를 클립보드에 복사했습니다.');
+    expect(onMarkCopied).toHaveBeenCalledWith('2026-11-02');
+  });
+
+  it('지난주 미보고 안내를 보여 준다', () => {
+    const onCopy = vi.fn();
+    const { getByText } = render(
+      <WeeklyReportPage
+        todos={TODOS}
+        completionLog={LOG}
+        onCopy={onCopy}
+        drafts={{}}
+        onSaveDraft={vi.fn()}
+        onResetDraft={vi.fn()}
+        onMarkCopied={vi.fn()}
+        hasUnreportedLastWeek
+      />,
+    );
+    expect(getByText(/지난주 보고할 내용이 아직 복사되지 않았습니다/)).toBeTruthy();
   });
 
   it('손으로 고친 내용이 복사되고, 되돌리기 버튼으로 자동 내용으로 돌아간다', () => {
     const { getByRole, queryByRole, textarea, onCopy } = setup();
-    expect(queryByRole('button', { name: '자동으로 만든 내용으로 되돌리기' })).toBeNull();
+    expect(queryByRole('button', { name: '이 주의 수동 편집 내용 초기화' })).toBeNull();
 
     fireEvent.change(textarea(), { target: { value: '직접 고친 내용' } });
     fireEvent.click(getByRole('button', { name: '텍스트 복사' }));
     expect(onCopy).toHaveBeenLastCalledWith('직접 고친 내용', expect.any(String));
 
-    fireEvent.click(getByRole('button', { name: '자동으로 만든 내용으로 되돌리기' }));
+    fireEvent.click(getByRole('button', { name: '이 주의 수동 편집 내용 초기화' }));
     expect(textarea().value).toBe(THIS_WEEK_TEXT);
   });
 
-  it('주를 옮기면 손으로 고친 내용은 버린다', () => {
+  it('주를 옮겼다가 돌아와도 손으로 고친 내용을 유지한다', () => {
     const { getByRole, textarea } = setup();
     fireEvent.change(textarea(), { target: { value: '직접 고친 내용' } });
     fireEvent.click(getByRole('button', { name: '지난주' }));
     fireEvent.click(getByRole('button', { name: '다음주' }));
-    expect(textarea().value).toBe(THIS_WEEK_TEXT);
+    expect(textarea().value).toBe('직접 고친 내용');
   });
 
   it('완료한 일이 없는 주는 안내를 보여 주고 복사 버튼을 막는다', () => {
@@ -155,12 +199,12 @@ describe('WeeklyReportPage — 하위 항목 포함', () => {
   });
 
   it('직접 고친 내용이 있으면 체크박스를 잠가 고친 내용이 사라지지 않게 한다', () => {
-    const { textarea, getByLabelText, getByText } = setup(WITH_SUBS, []);
+    const { textarea, getByLabelText, getByText, getByRole } = setup(WITH_SUBS, []);
     fireEvent.change(textarea(), { target: { value: '내가 고친 글' } });
     expect((getByLabelText('하위 항목 포함') as HTMLInputElement).disabled).toBe(true);
     expect(getByText(/직접 고친 내용이 있어 바꿀 수 없습니다/)).toBeTruthy();
 
-    fireEvent.click(getByText('자동으로 만든 내용으로 되돌리기'));
+    fireEvent.click(getByRole('button', { name: '이 주의 수동 편집 내용 초기화' }));
     expect((getByLabelText('하위 항목 포함') as HTMLInputElement).disabled).toBe(false);
     expect(textarea().value).toBe(WITH_SUBS_TEXT);
   });

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTodos } from './hooks/useTodos';
 import { useMemos } from './hooks/useMemos';
+import { useWeeklyReports } from './hooks/useWeeklyReports';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import { useSelection } from './hooks/useSelection';
@@ -23,6 +24,8 @@ import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
 import type { Todo, CompletionLogEntry } from './types/todo';
 import { normalizeKind } from './utils/kind';
+import { buildWeeklyReport, shiftWeek } from './utils/weeklyReport';
+import { startOfWeek, todayStr } from './utils/date';
 import { downloadBackup } from './utils/backup';
 import { parseBackup } from './utils/backupData';
 import { todoToText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
@@ -98,6 +101,7 @@ export default function App() {
   const allCollapsed = hasSubtasks && todosWithSubtasks.every(t => t.subtasksCollapsed);
 
   const { memos, setMemos, activeId, setActiveId, resetMemos, replaceMemos } = useMemos();
+  const weeklyReports = useWeeklyReports();
 
   useEffect(() => {
     if (memos.length === 0) return;
@@ -113,7 +117,7 @@ export default function App() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); // html에 smooth가 걸려 있어 즉시 이동을 지정
   }, [view]);
 
-  const hasData = allTodos.length > 0 || memos.length > 0 || completionLog.length > 0 || recurrenceSeries.length > 0;
+  const hasData = allTodos.length > 0 || memos.length > 0 || completionLog.length > 0 || recurrenceSeries.length > 0 || Object.keys(weeklyReports.data.drafts).length > 0;
   const { lastBackup, reminder, markBackedUp, snooze } = useBackupReminder(hasData);
   const [navCollapsed, setNavCollapsed] = usePersistentState<boolean>('todolist-pref-nav-collapsed', false);
 
@@ -132,7 +136,7 @@ export default function App() {
   }, [undoMessage, performUndo, showToast]);
 
   function getBackup() {
-    return { version: 1, todos: exportData(), memos, completionLog: exportCompletionLog(), recurrenceSeries: exportRecurrenceSeries() };
+    return { version: 1, todos: exportData(), memos, completionLog: exportCompletionLog(), recurrenceSeries: exportRecurrenceSeries(), weeklyReports: weeklyReports.data };
   }
 
   // 백업 파일을 검증(parseBackup)한 뒤, 파일에 있던 구역만 덮어쓴다. 검증에 실패하면 아무것도 바꾸지 않는다.
@@ -143,6 +147,7 @@ export default function App() {
     if (backup.memos) replaceMemos(backup.memos);
     if (backup.completionLog) importCompletionLog(backup.completionLog);
     if (backup.recurrenceSeries) importRecurrenceSeries(backup.recurrenceSeries);
+    if (backup.weeklyReports) weeklyReports.importData(backup.weeklyReports);
     return true;
   }
 
@@ -217,6 +222,7 @@ export default function App() {
   function handleResetAll() {
     resetTodos();
     resetMemos();
+    weeklyReports.reset();
     showToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
   }
 
@@ -262,7 +268,7 @@ export default function App() {
       )}
       <AppToolbar navCollapsed={navCollapsed} getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
       <div className={`app-shell${navCollapsed ? ' app-shell--nav-collapsed' : ''}`}>
-      <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} />
+      <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} reportAttention={!buildWeeklyReport({ weekStart: shiftWeek(startOfWeek(todayStr()), -1), todos: allTodos, completionLog }).isEmpty && !weeklyReports.data.copiedWeeks.includes(shiftWeek(startOfWeek(todayStr()), -1))} />
       <div className="app-shell__content">
       <div className="todo-app">
       {reminder.show && (
@@ -358,7 +364,7 @@ export default function App() {
           onKakaoShareText={runKakaoShare}
         />
       ) : (
-        <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} />
+        <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} drafts={weeklyReports.data.drafts} onSaveDraft={weeklyReports.saveDraft} onResetDraft={weeklyReports.resetDraft} onMarkCopied={weeklyReports.markCopied} hasUnreportedLastWeek={!buildWeeklyReport({ weekStart: shiftWeek(startOfWeek(todayStr()), -1), todos: allTodos, completionLog }).isEmpty && !weeklyReports.data.copiedWeeks.includes(shiftWeek(startOfWeek(todayStr()), -1))} />
       )}
       </div>
 

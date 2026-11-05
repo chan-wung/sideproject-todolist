@@ -42,6 +42,16 @@
     line-height: 1.6;
   }
 
+  &__reminder {
+    padding: rem(12) rem(14);
+    color: var(--txt-color-base);
+    background: var(--color-main-5);
+    border: 1px solid var(--color-main-20);
+    border-radius: 8px;
+    @include font(13);
+    line-height: 1.6;
+  }
+
   &__textarea {
     flex: 1 0 auto;
     width: 100%;
@@ -81,25 +91,6 @@
     justify-content: flex-end;
     align-items: center;
     gap: rem(8);
-  }
-
-  &__reset-btn {
-    padding: rem(6) rem(8);
-    color: var(--txt-color-base);
-    background: transparent;
-    border: 0;
-    @include font(13, "Medium");
-    text-decoration: underline;
-    cursor: pointer;
-
-    &:hover {
-      color: var(--color-main);
-    }
-
-    &:focus-visible {
-      outline: 2px dashed var(--color-main);
-      outline-offset: 2px;
-    }
   }
 
   &__hint {

@@ -21,7 +21,7 @@ type PendingAction = 'todos' | 'memos' | 'all' | 'completionLog' | null;
 const CONFIRM_MESSAGES: Record<Exclude<PendingAction, null>, string> = {
   todos: '모든 할일이 삭제됩니다. 계속할까요?',
   memos: '모든 메모가 삭제됩니다. 계속할까요?',
-  all: '할일과 메모 전체가 삭제됩니다. 계속할까요?',
+  all: '할일, 메모, 저장한 주간보고가 삭제됩니다. 계속할까요?',
   completionLog: '완료 이력이 모두 삭제됩니다. 계속할까요?',
 };
 
@@ -132,7 +132,7 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
               <li className="settings-modal__item settings-modal__item--all">
                 <div className="settings-modal__item-info">
                   <strong className="settings-modal__item-tit">전체 초기화</strong>
-                  <span className="settings-modal__item-desc">할일과 메모를 모두 삭제합니다.</span>
+                  <span className="settings-modal__item-desc">할일, 메모, 저장한 주간보고를 모두 삭제합니다.</span>
                 </div>
                 <button type="button" className="settings-modal__reset-btn settings-modal__reset-btn--all" onClick={() => setPendingAction('all')}>
                   전체 초기화

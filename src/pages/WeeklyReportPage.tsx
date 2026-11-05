@@ -11,17 +11,20 @@ interface Props {
   todos: Todo[];
   completionLog: CompletionLogEntry[];
   onCopy: (text: string, successMessage: string) => void;
+  drafts: Record<string, string>;
+  onSaveDraft: (weekStart: string, text: string, generatedText: string) => void;
+  onResetDraft: (weekStart: string) => void;
+  onMarkCopied: (weekStart: string) => void;
+  hasUnreportedLastWeek: boolean;
 }
 
 // '2026.11.2' → '11.2'
 const monthDay = (dateStr: string) => formatReportDate(dateStr).slice(5);
 
 // 한 주(월~일)에 완료한 일을 주간보고 양식으로 모아 보여 주고, 엑셀 한 칸에 붙여넣을 수 있게 복사한다.
-export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props) {
+export default function WeeklyReportPage({ todos, completionLog, onCopy, drafts, onSaveDraft, onResetDraft, onMarkCopied, hasUnreportedLastWeek }: Props) {
   const [today, setToday] = useState(todayStr);
   const [weekStart, setWeekStart] = useState(() => startOfWeek(todayStr()));
-  // 복사 전에 손으로 고친 내용. null이면 자동으로 만든 글을 그대로 쓴다. 저장하지 않고, 주를 옮기면 버린다.
-  const [edited, setEdited] = useState<string | null>(null);
   // 하위 항목(제목 아래 '- 내용')을 보고서에 함께 넣을지. 고른 값은 기억한다.
   const [includeSubtasks, setIncludeSubtasks] = usePersistentState<boolean>('todolist-pref-report-subtasks', true);
 
@@ -34,18 +37,17 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
   );
 
   const currentWeekStart = startOfWeek(today);
+  const edited = drafts[weekStart] ?? null;
   const text = edited ?? report.text;
   const isBlank = text.trim() === '';
   const year = weekStart.slice(0, 4);
 
   function moveWeek(weeks: number) {
     setWeekStart(prev => shiftWeek(prev, weeks));
-    setEdited(null);
   }
 
   function goThisWeek() {
     setWeekStart(currentWeekStart);
-    setEdited(null);
   }
 
   return (
@@ -65,6 +67,12 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
             onToday={goThisWeek}
             todayDisabled={weekStart === currentWeekStart}
           />
+
+          {hasUnreportedLastWeek && (
+            <aside className="weekly-report__reminder" role="status">
+              지난주 보고할 내용이 아직 복사되지 않았습니다. 지난주로 이동해 내용을 확인하고 텍스트 복사를 눌러 주세요.
+            </aside>
+          )}
 
           {report.isEmpty && edited === null && (
             <p className="weekly-report__empty">
@@ -93,7 +101,7 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
               id="weekly-report-text"
               className="weekly-report__textarea"
               value={text}
-              onChange={e => setEdited(e.target.value)}
+              onChange={e => onSaveDraft(weekStart, e.target.value, report.text)}
               rows={12}
               spellCheck={false}
             />
@@ -103,14 +111,14 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
             <button
               type="button"
               className="btn btn--main"
-              onClick={() => onCopy(text, '주간보고를 클립보드에 복사했습니다.')}
+              onClick={() => { onCopy(text, '주간보고를 클립보드에 복사했습니다.'); onMarkCopied(weekStart); }}
               disabled={isBlank}
             >
               텍스트 복사
             </button>
             {edited !== null && (
-              <button type="button" className="weekly-report__reset-btn" onClick={() => setEdited(null)}>
-                자동으로 만든 내용으로 되돌리기
+              <button type="button" className="btn btn--outline-gray" onClick={() => onResetDraft(weekStart)} aria-label="이 주의 수동 편집 내용 초기화">
+                초기화
               </button>
             )}
           </div>

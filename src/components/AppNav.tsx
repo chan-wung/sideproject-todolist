@@ -8,6 +8,7 @@ interface Props {
   /** 사이드바를 아이콘만 보이게 접은 상태 (넓은 화면에서만 적용) */
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  reportAttention?: boolean;
 }
 
 const VIEW_ICON: Record<View, ReactNode> = {
@@ -20,7 +21,7 @@ const VIEW_ICON: Record<View, ReactNode> = {
 
 // 화면 전환 메뉴. 넓은 화면(1024px~)은 왼쪽 사이드바, 좁은 화면은 상단 가로 메뉴로 보인다(CSS로 전환).
 // 주소(/report) 링크라서 뒤로 가기·새로고침·즐겨찾기가 그대로 동작한다.
-export default function AppNav({ current, collapsed, onToggleCollapsed }: Props) {
+export default function AppNav({ current, collapsed, onToggleCollapsed, reportAttention }: Props) {
   const toggleLabel = collapsed ? '메뉴 펼치기' : '메뉴 접기';
 
   return (
@@ -52,6 +53,7 @@ export default function AppNav({ current, collapsed, onToggleCollapsed }: Props)
                 >
                   <span className="app-nav__ico">{VIEW_ICON[view]}</span>
                   <span className="app-nav__txt">{VIEW_LABEL[view]}</span>
+                  {view === 'report' && reportAttention && <span className="app-nav__report-dot" aria-label="지난주 보고 미완료" />}
                 </ViewLink>
               </li>
             ))}

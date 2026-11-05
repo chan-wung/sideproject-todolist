@@ -26,31 +26,41 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 
 ## 코드 구조 (2026-11 리팩터링 이후)
 - `src/App.tsx`: 셸 조립(툴바·사이드바·본문), 화면 선택, 백업 가져오기/내보내기, 토스트. **상태(`useTodos`·`useMemos`)는 여기서 들고** 화면에는 props로 내려 줌
-- `src/pages/`: 화면 단위. `DashboardPage`(대시보드), `TodoPage`(할 일, 조립만), `CalendarPage`(캘린더), `MemoPage`(메모장), `WeeklyReportPage`(주간보고). 화면 이름·메뉴는 `constants/labels.ts`의 `VIEW_*`, 주소 해시(`#/todos`·`#/report`)로 구분
+- `src/pages/`: 화면 단위. `DashboardPage`(대시보드), `TodoPage`(할 일, 조립만), `CalendarPage`(캘린더), `MemoPage`(메모장), `WeeklyReportPage`(주간보고). 화면 이름·메뉴는 `constants/labels.ts`의 `VIEW_*`, 주소 경로(`/todos`·`/report`, 해시 `#` 없음)로 구분
 - `src/components/`
-  - `AppNav.tsx`: 화면 전환 메뉴. 폭 1024px 이상은 왼쪽 카드형 사이드바(접기·펴기), 미만은 상단 가로 메뉴. 같은 마크업을 CSS로 두 모양으로 바꿈
+  - `AppNav.tsx`: 화면 전환 메뉴. 폭 1024px 이상은 왼쪽 카드형 사이드바, 미만(태블릿·모바일)은 화면 아래에 고정되는 탭 바(아이콘+이름). 같은 마크업을 CSS로 두 모양으로 바꿈. 사이드바 접기·펴기 버튼은 메뉴가 아니라서 카드 오른쪽 위 모서리에 걸친 작은 원형 화살표로 둔다(메뉴 목록 안에 넣지 않는다)
+  - `ViewLink.tsx`: 다른 화면으로 가는 링크. 진짜 `<a href="/report">`이고 그냥 누를 때만 `navigate()`로 화면을 바꾼다(Ctrl·휠 클릭은 새 탭). **화면 간 링크는 `<a href>`를 직접 쓰지 말고 이걸 쓴다**
   - `PeriodNav.tsx`: 기간(주·달) 이동 막대. 주간보고·캘린더 공용
   - `PageHead.tsx`: 화면 맨 위 제목 줄. 다섯 화면 공용
-  - `AppToolbar.tsx`: 상단 툴바. 1024px 이상에서는 화면 위에 고정(높이 64px)
+  - `AppToolbar.tsx`: 상단 툴바. 1024px 이상에서는 화면 위에 고정(높이 64px). 1024px 미만에서는 버튼이 아이콘만 보이는 한 줄(글자는 `app-toolbar__txt`로 감싸 스크린리더용으로 남기고 `title`로 도움말)
   - `TodoItem.tsx`: 할 일 카드(조립만 담당). 편집 폼 `TodoItemEditForm`, 하위 항목 `TodoItemSubtasks`, 더보기 메뉴 `TodoItemMenu`로 분리됨
-  - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트
+  - `TodoInput.tsx`: 할 일 입력창. 종류를 `연차·휴가`로 고르면 글 입력칸 대신 `LeaveFields`(연차 종류·시각·사유 칸)가 나온다. 스크롤로 화면 위에 붙을 때 뒤가 비치지 않도록 `::before`와 배경색 그림자를 깔아 둔다
+  - `TodoDateField.tsx`: 등록·편집 폼이 같이 쓰는 날짜 칸(연차는 날짜 하나 `DatePicker`, 그 밖은 시작일~마감일 `DateRangePicker`)
+  - `LeaveFields.tsx`: 연차 입력칸 묶음(화면만 그리고 값·등록은 `TodoInput`이 가짐)
+  - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트(툴바·메뉴 아이콘 포함, 이모지 대신 쓴다)
   - `*Modal.tsx`: 모달 계열. 모두 `<dialog>` + `useModalDialog`
 - `src/hooks/`
   - `useTodos`: 할 일 상태와 필터·정렬·실행취소·완료 이력. 시리즈와 할 일을 **함께** 바꾸는 작업(승격·삭제·초기화·시작 시 마이그레이션)도 여기 있음
   - `useRecurrenceSeries`: 반복 시리즈 상태·저장·회차 생성·CRUD. `useTodos`가 내부에서 호출함
-  - `useView`: 주소 해시 ↔ 현재 화면(`useSyncExternalStore`)
+  - `useView`: 주소 경로 ↔ 현재 화면(`useSyncExternalStore`, `popstate`+자체 이벤트). `navigate(view)`로 이동, `migrateLegacyHash()`가 옛 `/#/report` 북마크를 `/report`로 바꿈(`main.tsx`에서 호출). 모르는 경로는 기본 화면(할 일)
   - `useCalendarMonth`: 달력에 보이는 달·월 이동·앞 빈칸·일수 (`DatePicker`·`DateRangePicker`·`CalendarPage`가 같이 씀)
   - `useSelection`(선택 모드), `useModalDialog`, `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
-- `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(날짜별 캘린더 항목), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
-- **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 공용 `PageHead`(`h1`)로 그린다(앱 공통 헤더는 없음). 제목은 카드 밖(회색 배경 위)에 두고 카드 안에는 넣지 않는다. 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 상단 메뉴에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
+- `src/utils/`: `date`(주 계산·기간 저장 모양 `normalizeRange` 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(캘린더 기간 항목 `buildCalendarItems`·띠 배치 `layoutMonth`), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기·등록 가능 여부 `leaveStatus`), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
+- **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 공용 `PageHead`(`h1`)로 그린다(앱 공통 헤더는 없음). 제목은 카드 밖(회색 배경 위)에 두고 카드 안에는 넣지 않는다. 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 메뉴 상자에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
+- **좁은 화면(1024px 미만)**: 메뉴는 아래 탭 바(`$tabbar_height` 56px, `position: fixed`)라서 본문 아래에 같은 높이의 여백(`.app-shell`의 `padding-bottom`)을 두고, `맨 위로` 버튼과 토스트는 그 위로 띄운다. 이 폭에 쓰는 스타일은 `@include below_shell`
+- **글자 크기**: 글자는 전부 `@include font(N)` 믹스인을 거치고, PC(1024px 이상)에서는 믹스인이 `$font_scale_pc`(1.125)를 곱한다(본문 16px → 18px). 비율을 바꾸려면 `_variables.scss`의 이 값만 고친다. `font-size`를 직접 쓰지 않는다(배율이 빠짐). 간격·상자 크기(`rem()`)는 배율을 받지 않는다
 - **본문 높이**: `#root`(세로 flex, `min-height:100vh`) → `.app-shell` → `.app-shell__content` → `.todo-app` → `.todo-app__view`가 모두 `flex: 1 0 auto`로 남는 높이를 이어받는다. 푸터는 항상 맨 아래이고, 카드형 화면(`.calendar`·`.weekly-report`·`.memo-page`)은 같은 방식으로 카드가 남는 높이를 채운다. 헤더 높이는 `.app-shell`의 `padding-top`(**margin 금지**: body 밖으로 겹쳐 올라가 항상 64px 더 스크롤됨)으로만 둔다. `min-height: 100vh`를 안쪽 요소에 다시 걸지 않는다
 - `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일. 레이아웃 폭 기준은 `$break_shell`(1024px)과 `@include shell`
 
 ## 데이터 모델 메모
-- 업무 종류 `kind`: `task`(일반, `[카테고리] 내용`) / `routine`(정기, `날짜 + 내용 완료`) / `leave`(연차·휴가, `날짜 + 내용`). 없거나 잘못된 값은 `task`. `Todo`·`RecurrenceSeries`·`CompletionLogEntry`에 모두 있고, 반복 회차와 완료 이력이 이어받음
-- 연차·휴가의 이름·시각·사유는 `utils/leave.ts`가 **제목 한 줄**(`연차 14:00~15:00 (병원 진료)`)로 합쳐 저장한다(별도 필드 없음). 그래서 목록·완료 이력·백업·주간보고가 그대로 같이 쓴다. 등록 폼은 `LeaveForm`
-- 연차·휴가는 날짜(`dueDate`) 필수·반복 불가. 완료 이력에도 `dueDate`를 남겨 정리된 연차가 주간보고에서 날짜를 잃지 않게 함
+- 업무 종류 `kind`: `task`(일반, `[프로젝트] 내용`) / `routine`(정기, `날짜 + 내용 완료`) / `leave`(연차·휴가, `날짜 + 내용`). 없거나 잘못된 값은 `task`. `Todo`·`RecurrenceSeries`·`CompletionLogEntry`에 모두 있고, 반복 회차와 완료 이력이 이어받음
+- **프로젝트(화면 이름) = 코드의 `category`**: 화면 글자는 `프로젝트`(`춘천시청` 같은 이름이 들어가는 칸이라 업무 종류와 헷갈리지 않게 바꿈)지만 저장 필드·타입·함수 이름은 `category` 그대로다(저장 데이터·백업 호환). 화면에 보이는 새 글자는 `프로젝트`로 쓴다
+- 연차·휴가의 이름·시각·사유는 `utils/leave.ts`가 **제목 한 줄**(`연차 14:00~15:00 (병원 진료)`)로 합쳐 저장한다(별도 필드 없음). 그래서 목록·완료 이력·백업·주간보고가 그대로 같이 쓴다. 등록은 할 일 입력창(`TodoInput`)에서 종류를 `연차·휴가`로 고르면 나오는 `LeaveFields`로 한다(캘린더는 보기 전용이라 연차를 등록·삭제하지 않는다)
+- 기간: `Todo.startDate`(선택)가 있으면 시작일~`dueDate` 기간 업무, 없으면 마감일 하루짜리. `startDate < dueDate`일 때만 저장한다(`validateTodos`가 아니면 버림, `updateTodo`는 날짜 키가 있을 때만 바꿈). 완료 이력에도 `startDate`를 남긴다. 반복 일정은 마감일 기준이라 시작일을 쓰지 않는다
+- 캘린더는 **모든 항목**을 보여 준다: 할 일(완료 포함)은 `startDate ?? dueDate ?? 등록일` 기간에, 완료 정리된 이력(기간이 없는 옛 이력은 완료한 날)과 반복 예정 회차도 같이. 띠는 날짜 칸 층(`calendar__cells`) 위에 얹는 별도 층(`calendar__bars`, `pointer-events: none`)이고 한 주에 3줄까지, 넘치면 날짜 칸에 `+N`. `완료한 항목 숨기기` 체크박스(`todolist-pref-calendar-hide-done`)로 완료분을 뺄 수 있다
+- 연차·휴가는 날짜(`dueDate`) 필수·반복 불가·시작일 없음. 완료 이력에도 `dueDate`를 남겨 정리된 연차가 주간보고에서 날짜를 잃지 않게 함
+- 주간보고는 하위 항목도 제목 아래에 `- 내용`으로 넣는다(연차는 제외, `하위 항목 포함` 체크박스 `todolist-pref-report-subtasks`로 끔). 같은 제목은 한 덩어리로 합치고 하위 항목은 겹치지 않게 모은다
 - 주간보고는 저장하는 데이터가 아니라 **완료 상태로 남은 할 일 + 완료 이력**에서 그때그때 계산함(`buildWeeklyReport`)
 
 ## 중복을 다시 만들지 않기
@@ -65,18 +75,24 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | 복사·공유 결과 토스트 문구 | `share.ts`의 `copyFeedback`/`shareFeedback`/`kakaoFeedback` |
 | 배열 항목 순서 이동 | `moveItem` |
 | localStorage 쓰기 | `writeStorage` |
-| `'all'` 없는 카테고리 목록 | `useTodos`의 `categoryOptions` |
+| `'all'` 없는 프로젝트(`category`) 목록 | `useTodos`의 `categoryOptions` |
 | 업무 종류 이름·`<option>` 목록, 값 정규화 | `KIND_LABEL`/`KIND_OPTIONS`, `normalizeKind` |
 | 화면 이름·메뉴 목록 | `labels.ts`의 `VIEW_LABEL`/`VIEW_OPTIONS`, 현재 화면은 `useView` |
+| 다른 화면으로 가는 링크·이동 | `ViewLink`(링크), `navigate(view)`(코드에서 이동). `location.hash`·`<a href="#/…">`를 쓰지 않는다 |
+| 시작일~마감일 입력·저장 모양 | `TodoDateField`(입력 칸), `date.ts`의 `normalizeRange`(하나만 고르거나 같은 날이면 마감일만 저장) |
 | 주 시작(월요일)·로컬 날짜·`2026.11.2` 표기 | `date.ts`의 `startOfWeek`/`toLocalDateStr`/`formatReportDate` |
 | 달력 칸(월 이동·빈칸·일수), 칸의 날짜 문자열 | `useCalendarMonth`, `date.ts`의 `dateStr` |
 | 주·달 이동 막대 | `PeriodNav` |
 | 화면 맨 위 제목 줄 | `PageHead` (제목 + 옆에 붙는 보조 정보) |
 | 백업 파일 읽기·검증(가져오기) | `utils/backupData.ts`의 `parseBackup` (검증 실패면 아무것도 적용하지 않음) |
 | 백업 파일 내려받기, 백업 알림 판단 | `utils/backup.ts`의 `downloadBackup`/`backupReminder`, 상태는 `useBackupReminder` |
-| 연차 제목(이름·시각·사유) 만들기, 같은 연차인지 판별 | `utils/leave.ts`의 `composeLeaveText`/`isSameLeave` |
+| 연차 제목(이름·시각·사유) 만들기, 같은 연차인지·등록 가능한지 판별 | `utils/leave.ts`의 `composeLeaveText`/`isSameLeave`/`leaveStatus` |
+| 캘린더 항목·띠 배치 | `utils/calendar.ts`의 `buildCalendarItems`/`itemsOnDate`/`layoutMonth` |
+| 툴바·메뉴 아이콘 | `icons.tsx`(이모지를 쓰지 않는다) |
 | `transition` 여러 속성 | `@include transition(color background-color)` (공백으로 이은 한 인자, 쉼표 나열 금지) |
 | 특정 폭(1024px) 이상에서만 적용하는 스타일 | `@include shell` (폭 값을 직접 쓰지 않음) |
+| 1024px 미만(태블릿·모바일)에서만 적용하는 스타일 | `@include below_shell` |
+| 글자 크기 | `@include font(N)` (PC 배율 `$font_scale_pc`가 자동 적용됨) |
 | 화면에서만 숨기고 스크린리더에는 남기기 | `.screen-out` 클래스, SCSS에서는 `@include visually-hidden` |
 
 ## 테스트와 안전장치
@@ -91,6 +107,8 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - `core.autocrlf=true`라서 `LF will be replaced by CRLF` 경고는 정상입니다. 파일을 줄 단위로 자를 때 Git Bash의 `sed`는 `\r`을 지우니 `head`/`tail`을 씁니다.
 - PowerShell에서 `npm`·`git`의 stderr 출력은 `NativeCommandError`처럼 보여도 실패가 아닌 경우가 많습니다. 결과 줄과 종료 코드로 판단합니다.
 - `bash.exe.stackdump`는 Git Bash가 비정상 종료될 때 프로젝트 루트에 생기는 덤프 파일입니다. `.gitignore`에 있어 커밋되지는 않지만, **푸시할 때 프로젝트 안에 있으면 삭제**합니다.
+- Bash 도구의 heredoc으로 파이썬 스크립트를 넘길 때 역슬래시 두 개가 하나로 풀려 들어갑니다(`'\n'`을 쓰려면 `chr(92)`로 만들기). 길거나 따옴표가 많은 스크립트가 `unexpected EOF` 셸 오류를 내면 파일 쓰기 도구로 스크립트 파일을 만들어 실행합니다.
+- 화면 확인용 데이터를 브라우저 `localStorage`에 넣을 때는 **먼저 기존 값을 백업**합니다. 해시만 바꿔 이동하면 앱이 메모리의 옛 상태를 다시 저장소에 써서 넣은 데이터를 덮어쓸 수 있으니, 데이터를 넣은 뒤에는 주소를 바꿔 새로 불러옵니다. 끝나면 넣은 값을 지웁니다.
 - 개발 서버를 띄웠다면 **그 포트의 프로세스만** 종료합니다. `taskkill /IM chrome.exe`처럼 Chrome 전체를 끄지 않습니다.
 
 ## 알려진 상태
@@ -98,7 +116,9 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - **전용 테스트 없음**: `useRecurrenceSeries`는 `useTodos.test.ts`가 간접적으로만 검증합니다.
 - **작은 동작 차이**: 하위 항목 입력창에 보내지 않은 글자가 있을 때 카드 편집 모드로 들어갔다 돌아오면 글자가 지워집니다(`TodoItemSubtasks`가 편집 중 언마운트되기 때문). 의도한 변경이 아니므로, 거슬리면 입력 상태를 `TodoItem`으로 올립니다.
 - **엑셀 붙여넣기**: 주간보고는 `텍스트 복사` 하나뿐이다. 따옴표로 감싸 한 칸에 넣는 `엑셀 칸에 복사` 방식은 실제로 써 보니 맞지 않아 빼고 `toExcelCell`도 지웠다. 엑셀 칸을 더블클릭한 편집 상태에서 붙여넣어 한 칸에 들어가는지는 아직 확인하지 못했다.
-- **화면 확인 범위**: 다크모드와 좁은 화면(폭 900px·480px 프레임)은 대시보드·할 일·캘린더·메모장·주간보고를 눈으로 확인했다. 실제 휴대폰·태블릿 기기는 확인하지 못했다.
+- **화면 확인 범위**: 다크모드와 좁은 화면(폭 390px·700px·820px·1042px 프레임)에서 할 일·캘린더·주간보고·대시보드·메모장과 아래 탭 바·툴바를 눈으로 확인했다. 실제 휴대폰·태블릿 기기, 주소창이 접히는 모바일 브라우저(탭 바 위치)는 확인하지 못했다.
+- **배포 설정 필요**: 주소가 `/report`처럼 경로 방식이라 정적 호스팅에서는 모든 경로를 `index.html`로 돌려주는 설정이 필요하다(없으면 새로고침 시 404). 개발 서버·`vite preview`는 기본으로 된다. 어떤 호스팅에 올릴지는 아직 정해지지 않았다.
+- **글자 배율**: PC(1024px 이상)만 1.125배로 키웠다. 상자 높이가 `rem()`으로 고정된 곳은 글자가 커져도 높이는 그대로라, 새 UI를 만들 때 PC 폭에서 글자가 넘치지 않는지 본다.
 - **작은 동작 차이**: 화면을 옮기면 `TodoPage`가 언마운트되어 할 일 입력창에 쓰다 만 글자가 지워집니다. 거슬리면 입력 상태를 `App`으로 올립니다.
 - **작은 동작 차이**: 반복 회차 카드에서 종류를 바꾸면 그 회차만 바뀌고 시리즈 종류는 그대로입니다. 이전 완료 이력의 연차는 `dueDate`가 없어 주간보고에 들어가지 않습니다.
 - **남은 계획**: 처음 계획한 1~6단계는 모두 만들었습니다(대시보드, 캘린더, 백업 알림 포함). 남은 것은 아래 정리 항목들입니다.

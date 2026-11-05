@@ -51,3 +51,8 @@ export const VIEW_LABEL: Record<View, string> = {
 
 export const VIEW_OPTIONS: View[] = ['dashboard', 'todos', 'calendar', 'memo', 'report'];
 export const DEFAULT_VIEW: View = 'todos';
+
+// 캘린더 보기 (월·주·일)
+export type CalendarView = 'month' | 'week' | 'day';
+export const CALENDAR_VIEW_LABEL: Record<CalendarView, string> = { month: '월', week: '주', day: '일' };
+export const CALENDAR_VIEW_OPTIONS: CalendarView[] = ['month', 'week', 'day'];

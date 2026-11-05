@@ -27,7 +27,38 @@
 
   &__tools {
     display: flex;
-    justify-content: flex-end;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: rem(8) rem(12);
+  }
+
+  // ── 월·주·일 보기 전환 ──
+  &__views {
+    padding: rem(3);
+    display: inline-flex;
+    gap: rem(2);
+    background: var(--color-tab-bg);
+    border-radius: 10px;
+  }
+
+  &__view-btn {
+    min-width: rem(48);
+    padding: rem(5) rem(14);
+    color: var(--txt-color-base);
+    border-radius: 8px;
+    @include font(13, "Medium");
+    @include transition(color background-color);
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 1px;
+    }
+
+    &--active {
+      color: var(--txt-color-tit);
+      background: var(--color-tab-active-bg);
+    }
   }
 
   // ── 달력 칸 ──
@@ -51,6 +82,14 @@
     color: var(--txt-color-base);
     text-align: center;
     @include font(12, "Medium");
+
+    &--sun {
+      color: var(--color-sunday);
+    }
+
+    &--sat {
+      color: var(--color-saturday);
+    }
   }
 
   &__week {
@@ -104,6 +143,14 @@
   &__num {
     color: var(--txt-color-tit);
     @include font(13, "Medium");
+
+    .calendar__day--sun & {
+      color: var(--color-sunday);
+    }
+
+    .calendar__day--sat & {
+      color: var(--color-saturday);
+    }
 
     .calendar__day--today & {
       @include size(22);

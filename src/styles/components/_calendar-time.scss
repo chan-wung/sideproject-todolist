@@ -1,0 +1,177 @@
+// =============================================
+// CALENDAR TIME (캘린더 주·일 보기: 종일 줄 + 시간 눈금)
+// =============================================
+
+$calendar_hour_height: rem(48);
+$calendar_gutter: rem(40);
+
+.calendar {
+  // 보이는 날짜 수(주 7, 일 1)는 --calendar-cols로 받는다
+  &__time {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // 머리글·종일 줄은 스크롤해도 위에 붙어 있다
+  &__time-scroll {
+    max-height: rem(520);
+    overflow-y: auto;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+
+    @include tablet_pc {
+      max-height: rem(600);
+    }
+  }
+
+  &__time-top {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+
+  &__time-heads,
+  &__allday,
+  &__time-body {
+    display: grid;
+    grid-template-columns: $calendar_gutter repeat(var(--calendar-cols, 7), minmax(0, 1fr));
+  }
+
+  &__time-head {
+    padding: rem(4) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: rem(2);
+    border-radius: 8px;
+    @include transition(background-color);
+
+    &:hover {
+      background: var(--color-main-5);
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: -2px;
+    }
+
+    &--selected {
+      background: var(--color-main-5);
+    }
+  }
+
+  &__time-num {
+    @include flex-center;
+    @include size(28);
+    color: var(--txt-color-tit);
+    border-radius: 50%;
+    @include font(16, "Bold");
+
+    &--sun {
+      color: var(--color-sunday);
+    }
+
+    &--sat {
+      color: var(--color-saturday);
+    }
+
+    .calendar__time-head--today & {
+      color: var(--color-on-accent);
+      background: var(--color-main);
+    }
+  }
+
+  // ── 종일 줄 ──
+  &__allday {
+    border-top: 1px solid var(--color-border);
+  }
+
+  &__allday-label {
+    padding: rem(4) rem(6) 0 0;
+    color: var(--txt-color-base);
+    text-align: right;
+    @include font(11, "Medium");
+  }
+
+  &__allday-bars {
+    padding: rem(2) 0;
+    grid-column: 2 / -1;
+    display: grid;
+    grid-template-columns: repeat(var(--calendar-cols, 7), minmax(0, 1fr));
+    grid-auto-rows: rem(20);
+    row-gap: rem(2);
+    min-height: rem(24);
+  }
+
+  // ── 시간 눈금 ──
+  &__hours {
+    height: calc(#{$calendar_hour_height} * 24);
+  }
+
+  &__hour {
+    height: $calendar_hour_height;
+    padding-right: rem(6);
+    display: block;
+    color: var(--txt-color-base);
+    text-align: right;
+    @include font(11);
+    line-height: 1;
+    transform: translateY(-0.5em); // 글자 가운데가 눈금선에 오게 한다
+  }
+
+  &__time-col {
+    height: calc(#{$calendar_hour_height} * 24);
+    background-image: linear-gradient(to bottom, transparent calc(100% - 1px), var(--color-border) 0);
+    background-size: 100% $calendar_hour_height;
+    border-left: 1px solid var(--color-border);
+    position: relative;
+
+    &--today {
+      background-color: var(--color-main-5);
+    }
+  }
+
+  // 시각이 적힌 시간 연차 블록. 위치·크기는 style로 받는다.
+  &__event {
+    padding: rem(2) rem(6);
+    display: block;
+    overflow: hidden;
+    color: var(--color-main);
+    background: var(--color-main-20);
+    border-left: 3px solid var(--color-main);
+    border-radius: 4px;
+    @include font(11, "Medium");
+    min-height: rem(18);
+    position: absolute;
+    z-index: 10;
+
+    &--done {
+      opacity: 0.55;
+      text-decoration: line-through;
+    }
+  }
+
+  // 지금 시각 선 (오늘 칸에만)
+  &__now {
+    height: 0;
+    border-top: 2px solid var(--color-danger);
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    pointer-events: none;
+
+    &::before {
+      content: '';
+      @include size(8);
+      background: var(--color-danger);
+      border-radius: 50%;
+      position: absolute;
+      top: rem(-5);
+      left: rem(-4);
+    }
+  }
+}

@@ -124,6 +124,8 @@ $tbl_border: 1px solid $border_color;
   --color-border: #{$border_color};
   --color-danger: #{$red};
   --color-success: #{$green};
+  --color-sunday: #{$red};   /* 달력 일요일 */
+  --color-saturday: #{$blue}; /* 달력 토요일 */
 
   /* Layout */
   --layout-max-width: #{$site_max_width};
@@ -137,4 +139,5 @@ $tbl_border: 1px solid $border_color;
   --color-main: #5AA0FF; --main-color: #5AA0FF;
   --color-main-5: #0D1F3A; --color-main-10: #122850; --color-main-20: #1A3D78;
   --color-tab-bg: rgba(255, 255, 255, 0.08); --color-tab-active-bg: #2C2C2E;
+  --color-sunday: #FF6B6B; --color-saturday: #5AB8FF;
 }

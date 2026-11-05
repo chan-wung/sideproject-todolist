@@ -10,3 +10,10 @@ export function itemClass(item: CalendarItem, block: string): string {
     item.completed ? `${block}--done` : '',
   );
 }
+
+/** 요일(0=일 … 6=토)에 붙는 주말 색 모디파이어. 일요일은 빨강, 토요일은 파랑 */
+export function weekendMod(block: string, dow: number): string {
+  if (dow === 0) return `${block}--sun`;
+  if (dow === 6) return `${block}--sat`;
+  return '';
+}

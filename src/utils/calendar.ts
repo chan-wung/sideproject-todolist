@@ -1,6 +1,7 @@
 import type { Todo, RecurrenceSeries, TodoKind, CompletionLogEntry } from '../types/todo';
 import { occurrencesInRange, addDaysStr, dateStr, daysInMonth, toLocalDateStr } from './date';
 import { normalizeKind } from './kind';
+import { leaveTimeRange } from './leave';
 
 export interface CalendarItem {
   /** 항목을 구분하는 키 (할 일은 id, 예정 회차는 시리즈 id + 날짜, 완료 이력은 id + 완료 시각) */
@@ -247,4 +248,67 @@ export function layoutMonth(items: CalendarItem[], year: number, month0: number,
   });
 
   return { weeks, total, hidden };
+}
+
+// ── 주·일 보기 ──
+
+// 그 날이 속한 주의 일요일부터 토요일까지 7개 날짜 (월 보기와 같이 일요일 시작)
+export function sundayWeekDates(date: string): string[] {
+  const [y, m, d] = date.split('-').map(Number);
+  const dow = new Date(y, m - 1, d).getDay();
+  const sunday = addDaysStr(date, -dow);
+  return Array.from({ length: 7 }, (_, i) => addDaysStr(sunday, i));
+}
+
+/** 시간 눈금에 놓이는 블록 하나. 시각은 0시부터의 분(0~1440). */
+export interface TimedBlock {
+  item: CalendarItem;
+  startMin: number;
+  endMin: number;
+  /** 겹치는 블록끼리 나란히 놓을 때 몇 번째 열인지(0부터)와 전체 열 수 */
+  column: number;
+  columns: number;
+}
+
+const toMinutes = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+
+// 시간 눈금에 놓이는 항목(하루짜리 시간 연차)의 시각. 그 밖의 항목은 null (종일 줄에 놓는다)
+export function timedRange(item: CalendarItem): { startMin: number; endMin: number } | null {
+  if (item.kind !== 'leave' || item.start !== item.end) return null;
+  const range = leaveTimeRange(item.text);
+  return range ? { startMin: toMinutes(range.start), endMin: toMinutes(range.end) } : null;
+}
+
+// 하루에 놓을 항목을 종일(띠)과 시간(블록)으로 가른다.
+// 시간 블록은 하루짜리 시간 연차(제목에 시각이 있는 것)뿐이고, 나머지는 모두 종일이다.
+export function layoutTimed(items: CalendarItem[], date: string): { allDay: CalendarItem[]; timed: TimedBlock[] } {
+  const allDay: CalendarItem[] = [];
+  const raw: { item: CalendarItem; startMin: number; endMin: number }[] = [];
+  for (const item of items) {
+    if (!(item.start <= date && date <= item.end)) continue;
+    const range = timedRange(item);
+    if (range) raw.push({ item, ...range });
+    else allDay.push(item);
+  }
+
+  raw.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
+  const timed: TimedBlock[] = [];
+  let cluster: TimedBlock[] = [];
+  let clusterEnd = -1;
+  const flush = () => {
+    const columns = Math.max(0, ...cluster.map(b => b.column + 1));
+    cluster.forEach(b => { b.columns = columns; });
+    timed.push(...cluster);
+    cluster = [];
+  };
+  for (const r of raw) {
+    if (cluster.length > 0 && r.startMin >= clusterEnd) flush();
+    const used = new Set(cluster.filter(b => b.endMin > r.startMin).map(b => b.column));
+    let column = 0;
+    while (used.has(column)) column++;
+    cluster.push({ ...r, column, columns: 1 });
+    clusterEnd = Math.max(clusterEnd, r.endMin);
+  }
+  flush();
+  return { allDay, timed };
 }

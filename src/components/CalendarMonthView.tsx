@@ -1,6 +1,6 @@
 import { WEEKDAYS } from '../hooks/useCalendarMonth';
 import type { MonthLayout } from '../utils/calendar';
-import { itemClass } from '../utils/calendarClass';
+import { itemClass, weekendMod } from '../utils/calendarClass';
 import { cx } from '../utils/classNames';
 
 interface Props {
@@ -16,8 +16,8 @@ export default function CalendarMonthView({ layout, month, today, selected, onSe
   return (
     <div className="calendar__grid">
       <div className="calendar__heads">
-        {WEEKDAYS.map(d => (
-          <div key={d} className="calendar__head">{d}</div>
+        {WEEKDAYS.map((d, col) => (
+          <div key={d} className={cx('calendar__head', weekendMod('calendar__head', col))}>{d}</div>
         ))}
       </div>
       {layout.weeks.map(week => (
@@ -36,6 +36,7 @@ export default function CalendarMonthView({ layout, month, today, selected, onSe
                     'calendar__day',
                     date === today ? 'calendar__day--today' : '',
                     date === selected ? 'calendar__day--selected' : '',
+                    weekendMod('calendar__day', col),
                   )}
                   onClick={() => onSelect(date)}
                   aria-pressed={date === selected}

@@ -44,6 +44,13 @@ export function composeLeaveText(input: LeaveInput): string | null {
   return reason ? `${base} (${reason})` : base;
 }
 
+// 시간 연차 제목(`연차 14:00~15:00 (사유)`)에서 시각을 읽는다. 시각이 적혀 있지 않으면 null.
+export function leaveTimeRange(text: string): { start: string; end: string } | null {
+  const m = /^연차 (\d{2}:\d{2})~(\d{2}:\d{2})(?: |$)/.exec(text);
+  if (!m || !TIME.test(m[1]) || !TIME.test(m[2]) || m[1] >= m[2]) return null;
+  return { start: m[1], end: m[2] };
+}
+
 // 이미 저장된 제목이 같은 이름(사유만 다른 경우 포함)의 연차인지
 export function isSameLeave(savedText: string, base: string): boolean {
   return savedText === base || savedText.startsWith(`${base} (`);

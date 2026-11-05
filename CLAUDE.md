@@ -31,6 +31,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `AppNav.tsx`: 화면 전환 메뉴. 폭 1024px 이상은 왼쪽 카드형 사이드바, 미만(태블릿·모바일)은 화면 아래에 고정되는 탭 바(아이콘+이름). 같은 마크업을 CSS로 두 모양으로 바꿈. 사이드바 접기·펴기 버튼은 메뉴가 아니라서 카드 오른쪽 위 모서리에 걸친 작은 원형 화살표로 둔다(메뉴 목록 안에 넣지 않는다)
   - `ViewLink.tsx`: 다른 화면으로 가는 링크. 진짜 `<a href="/report">`이고 그냥 누를 때만 `navigate()`로 화면을 바꾼다(Ctrl·휠 클릭은 새 탭). **화면 간 링크는 `<a href>`를 직접 쓰지 말고 이걸 쓴다**
   - `PeriodNav.tsx`: 기간(주·달) 이동 막대. 주간보고·캘린더 공용
+  - `CalendarMonthView.tsx`·`CalendarTimeGrid.tsx`·`CalendarDayDetail.tsx`: 캘린더의 월 격자 / 주·일 보기(머리글+종일 줄+시간 눈금) / 고른 날 목록. `CalendarPage`는 보기 전환·기준 날짜·범위 계산만 하고 이 셋을 조립한다
   - `PageHead.tsx`: 화면 맨 위 제목 줄. 다섯 화면 공용
   - `AppToolbar.tsx`: 상단 툴바. 1024px 이상에서는 화면 위에 고정(높이 64px). 1024px 미만에서는 버튼이 아이콘만 보이는 한 줄(글자는 `app-toolbar__txt`로 감싸 스크린리더용으로 남기고 `title`로 도움말)
   - `TodoItem.tsx`: 할 일 카드(조립만 담당). 편집 폼 `TodoItemEditForm`, 하위 항목 `TodoItemSubtasks`, 더보기 메뉴 `TodoItemMenu`로 분리됨
@@ -49,7 +50,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `useSelection`(선택 모드), `useModalDialog`(열기/닫기·스크롤 잠금 + 바깥 클릭 닫기 핸들러를 돌려줌), `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
   - `useToast`(토스트 상태), `useShareActions`(복사·공유·카카오 공유 실행 + 결과 토스트)
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
-- `src/utils/`: `date`(주 계산·기간 저장 모양 `normalizeRange` 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(캘린더 기간 항목 `buildCalendarItems`·띠 배치 `layoutMonth`), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기·등록 가능 여부 `leaveStatus`), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`readStorage`·`writeStorage`), `todoData`(할 일·완료 이력 검증과 옛 형식 마이그레이션 `validateTodos`·`validateCompletionLog`, `toCompletionLogEntry`), `todoFilter`(`filterTodos`·`sortTodos`), `classNames`(`cx`), `text`(`truncate`)
+- `src/utils/`: `date`(주 계산·기간 저장 모양 `normalizeRange` 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(캘린더 기간 항목 `buildCalendarItems`·띠 배치 `layoutWeek`/`layoutMonth`·주·일 보기 `sundayWeekDates`/`layoutTimed`), `calendarClass`(띠·배지 클래스 `itemClass`, 주말 색 `weekendMod`), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기·등록 가능 여부 `leaveStatus`·제목에서 시각 읽기 `leaveTimeRange`), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`readStorage`·`writeStorage`), `todoData`(할 일·완료 이력 검증과 옛 형식 마이그레이션 `validateTodos`·`validateCompletionLog`, `toCompletionLogEntry`), `todoFilter`(`filterTodos`·`sortTodos`), `classNames`(`cx`), `text`(`truncate`)
 - **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 공용 `PageHead`(`h1`)로 그린다(앱 공통 헤더는 없음). 제목은 카드 밖(회색 배경 위)에 두고 카드 안에는 넣지 않는다. 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 메뉴 상자에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
 - **좁은 화면(1024px 미만)**: 메뉴는 아래 탭 바(`$tabbar_height` 56px, `position: fixed`)라서 본문 아래에 같은 높이의 여백(`.app-shell`의 `padding-bottom`)을 두고, `맨 위로` 버튼과 토스트는 그 위로 띄운다. 이 폭에 쓰는 스타일은 `@include below_shell`
 - **글자 크기**: 글자는 전부 `@include font(N)` 믹스인을 거치고, PC(1024px 이상)에서는 믹스인이 `$font_scale_pc`(1.125)를 곱한다(본문 16px → 18px). 비율을 바꾸려면 `_variables.scss`의 이 값만 고친다. `font-size`를 직접 쓰지 않는다(배율이 빠짐). 간격·상자 크기(`rem()`)는 배율을 받지 않는다
@@ -62,6 +63,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - 연차·휴가의 이름·시각·사유는 `utils/leave.ts`가 **제목 한 줄**(`연차 14:00~15:00 (병원 진료)`)로 합쳐 저장한다(별도 필드 없음). 그래서 목록·완료 이력·백업·주간보고가 그대로 같이 쓴다. 등록은 할 일 입력창(`TodoInput`)에서 종류를 `연차·휴가`로 고르면 나오는 `LeaveFields`로 한다(캘린더는 보기 전용이라 연차를 등록·삭제하지 않는다)
 - 기간: `Todo.startDate`(선택)가 있으면 시작일~`dueDate` 기간 업무, 없으면 마감일 하루짜리. `startDate < dueDate`일 때만 저장한다(`validateTodos`가 아니면 버림, `updateTodo`는 날짜 키가 있을 때만 바꿈). 완료 이력에도 `startDate`를 남긴다. 반복 일정은 마감일 기준이라 시작일을 쓰지 않는다
 - 캘린더는 **모든 항목**을 보여 준다: 할 일(완료 포함)은 `startDate ?? dueDate ?? 등록일` 기간에, 완료 정리된 이력(기간이 없는 옛 이력은 완료한 날)과 반복 예정 회차도 같이. 띠는 날짜 칸 층(`calendar__cells`) 위에 얹는 별도 층(`calendar__bars`, `pointer-events: none`)이고 한 주에 3줄까지, 넘치면 날짜 칸에 `+N`. `완료한 항목 숨기기` 체크박스(`todolist-pref-calendar-hide-done`)로 완료분을 뺄 수 있다
+- 캘린더 보기는 `월/주/일`(`CALENDAR_VIEW_*`, 고른 값은 `todolist-pref-calendar-view`)이고 주는 **일요일 시작**이다. 보고 있는 날짜 `anchor` 하나로 세 보기를 모두 정한다. 주·일 보기의 시간 칸에는 **하루짜리 시간 연차**(제목이 `연차 HH:MM~HH:MM`)만 놓이고 나머지는 모두 `종일` 줄(할 일에는 시각 필드가 없다). 시간 칸 높이는 1시간 `rem(48)` 고정이라 블록 위치는 하루의 분(0~1440)을 %로 계산한다. 일요일은 `--color-sunday`(빨강), 토요일은 `--color-saturday`(파랑) 변수를 쓴다
 - 연차·휴가는 날짜(`dueDate`) 필수·반복 불가·시작일 없음. 완료 이력에도 `dueDate`를 남겨 정리된 연차가 주간보고에서 날짜를 잃지 않게 함
 - 주간보고는 하위 항목도 제목 아래에 `- 내용`으로 넣는다(연차는 제외, `하위 항목 포함` 체크박스 `todolist-pref-report-subtasks`로 끔). 같은 제목은 한 덩어리로 합치고 하위 항목은 겹치지 않게 모은다
 - 주간보고는 저장하는 데이터가 아니라 **완료 상태로 남은 할 일 + 완료 이력**에서 그때그때 계산함(`buildWeeklyReport`)
@@ -98,6 +100,8 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | 백업 파일 내려받기, 백업 알림 판단 | `utils/backup.ts`의 `downloadBackup`/`backupReminder`, 상태는 `useBackupReminder` |
 | 연차 제목(이름·시각·사유) 만들기, 같은 연차인지·등록 가능한지 판별 | `utils/leave.ts`의 `composeLeaveText`/`isSameLeave`/`leaveStatus` |
 | 캘린더 항목·띠 배치 | `utils/calendar.ts`의 `buildCalendarItems`/`itemsOnDate`/`layoutMonth` |
+| 한 주(7칸)의 띠 배치 / 일요일 시작 주의 날짜들 / 시간 칸 배치 | `layoutWeek` / `sundayWeekDates` / `layoutTimed` (`utils/calendar.ts`) |
+| 일요일 빨강·토요일 파랑 | `weekendMod(block, 요일)` + `--color-sunday`/`--color-saturday` (색을 직접 쓰지 않는다) |
 | 툴바·메뉴 아이콘 | `icons.tsx`(이모지를 쓰지 않는다) |
 | `transition` 여러 속성 | `@include transition(color background-color)` (공백으로 이은 한 인자, 쉼표 나열 금지) |
 | 특정 폭(1024px) 이상에서만 적용하는 스타일 | `@include shell` (폭 값을 직접 쓰지 않음) |

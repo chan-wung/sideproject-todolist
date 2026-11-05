@@ -188,10 +188,10 @@ span.br, span.br2 {display: block; border: none;}
 
 // 글자 바로 옆에 붙는 작은 아이콘(이모지 대신). 글자 크기(1em)를 따라 PC 배율도 같이 커진다.
 .ico-text {
+  flex-shrink: 0;
   width: 1em;
   height: 1em;
   margin-right: 0.25em;
   display: inline-block; // reset의 svg { display: block }을 덮어 글자와 한 줄에 놓는다
   vertical-align: -0.125em;
-  flex-shrink: 0;
 }

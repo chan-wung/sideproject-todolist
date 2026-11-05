@@ -1,4 +1,4 @@
-// TodoItem 등에서 쓰는 인라인 SVG 아이콘. 색은 currentColor를 따르고 크기는 부모 CSS가 정한다.
+// 인라인 SVG 아이콘. 색은 currentColor를 따른다. 크기는 부모 CSS가 정하거나, IconProps를 받는 아이콘은 size("1em" 등)로 정한다.
 
 export function PinIcon({ filled, ...props }: { filled: boolean } & IconProps) {
   return (

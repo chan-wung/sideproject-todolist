@@ -1,5 +1,6 @@
 import type { Todo } from '../types/todo';
 import { PinIcon } from './icons';
+import { truncate } from '../utils/text';
 
 interface Props {
   filteredTodos: Todo[];
@@ -27,7 +28,7 @@ export default function QuickNav({ filteredTodos }: Props) {
             <button type="button" className="quick-nav__btn" onClick={() => scrollToTodo(t.id)} title={t.text}>
               {t.pinned && <span className="quick-nav__pin" role="img" aria-label="고정됨"><PinIcon filled size="1em" /></span>}
               <span className={`quick-nav__item-label${t.completed ? ' quick-nav__item-label--completed' : ''}`}>
-                {t.text.length > LABEL_MAX ? `${t.text.slice(0, LABEL_MAX)}…` : t.text}
+                {truncate(t.text, LABEL_MAX)}
               </span>
             </button>
           </li>

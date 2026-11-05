@@ -6,7 +6,7 @@ export default function ScrollTopButton() {
 
   useEffect(() => {
     const handleScroll = () => setVisible(window.scrollY > 0);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll(); // 초기 로드 시에도 한 번 체크
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);

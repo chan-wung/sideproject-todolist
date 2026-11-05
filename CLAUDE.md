@@ -44,6 +44,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
 - `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(날짜별 캘린더 항목), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
 - **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 공용 `PageHead`(`h1`)로 그린다(앱 공통 헤더는 없음). 제목은 카드 밖(회색 배경 위)에 두고 카드 안에는 넣지 않는다. 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 상단 메뉴에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
+- **본문 높이**: `#root`(세로 flex, `min-height:100vh`) → `.app-shell` → `.app-shell__content` → `.todo-app` → `.todo-app__view`가 모두 `flex: 1 0 auto`로 남는 높이를 이어받는다. 푸터는 항상 맨 아래이고, 카드형 화면(`.calendar`·`.weekly-report`·`.memo-page`)은 같은 방식으로 카드가 남는 높이를 채운다. 헤더 높이는 `.app-shell`의 `padding-top`(**margin 금지**: body 밖으로 겹쳐 올라가 항상 64px 더 스크롤됨)으로만 둔다. `min-height: 100vh`를 안쪽 요소에 다시 걸지 않는다
 - `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일. 레이아웃 폭 기준은 `$break_shell`(1024px)과 `@include shell`
 
 ## 데이터 모델 메모

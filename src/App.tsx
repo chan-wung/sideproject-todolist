@@ -319,6 +319,8 @@ export default function App() {
       {reminder.show && (
         <BackupReminder message={reminder.message} onExport={handleExportFromReminder} onSnooze={snooze} />
       )}
+      {/* 화면 칸: 푸터를 뺀 남는 높이를 가져가 짧은 화면에서도 푸터가 맨 아래에 붙게 한다 */}
+      <div className="todo-app__view">
       {view === 'todos' ? (
         <TodoPage
           inputProps={{ onAdd: addTodo, categories: categoryOptions }}
@@ -405,6 +407,7 @@ export default function App() {
       ) : (
         <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} />
       )}
+      </div>
 
       <SettingsModal
         isOpen={isSettingsOpen}

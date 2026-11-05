@@ -40,6 +40,14 @@ body.on {
   overflow: hidden;
 }
 
+// 앱 루트: 최소 화면 높이로 세로로 쌓아, 툴바·메뉴가 위에 쌓이는 좁은 화면에서도
+// 본문(.app-shell)이 남는 높이를 가져가 푸터가 짧은 화면의 맨 아래에 붙게 한다 (추가 스크롤 없음)
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 // ── 4. Semantic block ─────────────────────────
 article, aside, details, figcaption, figure,
 footer, header, menu, nav, section {

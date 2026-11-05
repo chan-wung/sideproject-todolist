@@ -4,12 +4,21 @@
 // =============================================
 
 .app-shell {
+  flex: 1 0 auto; // #root(세로 flex)의 남는 높이를 가져간다
+  display: flex;
+  flex-direction: column;
+
   @include shell {
-    margin-top: rem($header_height);
+    // margin이 아니라 padding: margin은 body 밖으로 겹쳐 올라가 body(height:100%)를 헤더 높이만큼 아래로 밀어
+    // 내용이 짧아도 항상 64px만큼 더 스크롤되었다
+    padding-top: rem($header_height);
   }
 
   &__content {
     min-width: 0;
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
 
     @include shell {
       margin-left: rem($nav_width);

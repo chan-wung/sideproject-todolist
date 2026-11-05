@@ -3,13 +3,17 @@
 // =============================================
 
 .todo-app {
-  min-height: 100vh;
+  flex: 1 0 auto; // 본문 칸의 남는 높이를 가져간다 (헤더·메뉴 높이는 앱 루트가 알아서 뺀다)
   padding: rem(20) rem(16) 0;
+  display: flex;
+  flex-direction: column;
   // 최대 폭을 두지 않고 사이드바 옆 공간을 꽉 채운다
 
-  // 고정 헤더만큼 뺀다 (안 빼면 항상 세로 스크롤이 생김)
-  @include shell {
-    min-height: calc(100vh - #{rem($header_height)});
+  // 화면 칸: 남는 높이를 가져가 푸터를 맨 아래로 민다 (카드형 화면은 카드가 이 높이를 채움)
+  &__view {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
   }
 
   &__body {

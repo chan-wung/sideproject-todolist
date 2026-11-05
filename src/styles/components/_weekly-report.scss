@@ -3,19 +3,33 @@
 // =============================================
 
 .weekly-report {
+  flex: 1 0 auto; // 화면 칸의 남는 높이를 카드가 채운다
+  display: flex;
+  flex-direction: column;
   position: relative;
 
   &__box {
     padding: rem(24) rem(20);
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
     background: var(--color-white);
     border: 1px solid var(--color-border);
     border-radius: 16px;
   }
 
   &__wrap {
+    flex: 1 0 auto;
     display: flex;
     flex-direction: column;
     gap: rem(16);
+  }
+
+  // 입력칸이 카드의 남는 높이를 가져가 버튼·안내가 카드 아래쪽에 붙는다
+  &__field {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
   }
 
   // ── 안내 · 입력 ──
@@ -29,6 +43,7 @@
   }
 
   &__textarea {
+    flex: 1 0 auto;
     width: 100%;
     min-height: rem(240);
     padding: rem(14);

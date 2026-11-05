@@ -13,11 +13,11 @@ bootstrapped_at: 2026-06-15
 
 A personal productivity tool built on calm, minimal principles inspired by Toss — the Korean fintech super-app. The canvas is pure white (`#ffffff`) with a light grey surface (`#F2F4F6`) as the page background, creating a clear card-lifts-from-page depth without heavy shadow drama. The primary interactive blue (`#0064FF`) is used exclusively for CTAs, active states, and selection highlights.
 
-The atmosphere is clean and focused. Cards have 16px radius corners and single-layer shadows. Typography runs on Pretendard — Korea's most readable sans-serif — in three weights (400, 600, 700). No decorative elements, no illustrations, no gradients on functional surfaces.
+The atmosphere is clean and focused. Cards have 16px radius corners and single-layer shadows. Typography runs on Pretendard — Korea's most readable sans-serif — in four weights (400, 500, 600, 700). No decorative elements, no illustrations, no gradients on functional surfaces.
 
 **Key characteristics:**
 - Todo Blue (`#0064FF`) as the single interactive accent — all tappable/clickable elements
-- Pretendard with Korean-Latin balance, 400/600/700 weight discipline
+- Pretendard with Korean-Latin balance, 400/500/600/700 weight discipline
 - `#F2F4F6` page background creates depth without shadows on cards
 - Priority indicated by left border only (3px colored stripe), not background fills
 - Segmented controls use neutral grey container + white active pill (iOS-style)
@@ -66,12 +66,12 @@ The atmosphere is clean and focused. Cards have 16px radius corners and single-l
 | Card Title | 18px / 1.8rem | 700 | Todo item text |
 | Subtitle | 16px / 1.6rem | 600 | Navigation, list headers |
 | Body | 14px / 1.4rem | 400 | Standard UI text, descriptions |
-| Body Small | 13px / 1.3rem | 400 | Metadata, secondary labels |
-| Caption | 12px / 1.2rem | 400 | Timestamps, fine print |
-| Badge | 11px / 1.1rem | 700 | Priority badges, category chips |
+| Body Small | 13px / 1.3rem | 500 | Metadata, secondary labels |
+| Caption | 12px / 1.2rem | 500 | Timestamps, fine print |
+| Badge | 11px / 1.1rem | 500 / 700 | Controls and metadata / priority badges |
 
 ### Principles
-- **Three weights, full discipline**: 400 (body), 600 (emphasis/navigation), 700 (headings/amounts)
+- **Four weights, full discipline**: 400 (body), 500 (metadata and compact controls), 600 (emphasis/navigation), 700 (headings, primary actions, and priority badges)
 - **Letter spacing**: -0.5px on display headings only; normal elsewhere
 - **Line height**: 1.5 for body, 1.3-1.4 for headings
 - **rem base**: 10px (`$font_size_base: 10px`) — 1.4rem = 14px
@@ -195,7 +195,7 @@ No colored shadows except for pinned items (blue tinted) and destructive element
 - Use `border-left: 3px solid` for priority — never background color on resting cards
 - Use `rgba(0,0,0,0.07)` grey for segmented control containers
 - Use white active pill + shadow for active tab state
-- Use Pretendard 400/600/700 only
+- Use Pretendard 400/500/600/700 only
 - Use `@include font()` mixin — never raw `font-size` / `font-weight`
 - Use `var(--color-white)`, `var(--color-bg)` CSS vars for dark mode support
 - Use `$main-color` SCSS var for blue; avoid hardcoding `#0064FF` in components

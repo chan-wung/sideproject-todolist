@@ -26,7 +26,6 @@ import { normalizeKind } from './utils/kind';
 import { downloadBackup } from './utils/backup';
 import { parseBackup } from './utils/backupData';
 import { todoToText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
-import { preloadKakao } from './utils/kakao';
 import './styles/main.scss';
 
 export default function App() {
@@ -107,10 +106,6 @@ export default function App() {
 
   const [notifyEnabled, setNotifyEnabled] = usePersistentState<boolean>('todolist-pref-notify', false);
   useDueNotifications(allTodos, notifyEnabled);
-
-  useEffect(() => {
-    preloadKakao();
-  }, []);
 
   const view = useView();
   // 화면(메뉴)을 옮기면 이전 화면의 스크롤 위치를 가져가지 않고 맨 위부터 보여 준다

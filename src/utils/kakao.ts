@@ -42,12 +42,7 @@ function loadSdk(): Promise<KakaoSDK> {
   return loadPromise;
 }
 
-// 클릭 시점에 SDK 로드가 끝나 있어야 공유 팝업이 팝업 차단에 걸리지 않으므로,
-// 앱 시작 시 미리 불러 둔다. 실패해도(오프라인 등) 앱 동작에는 영향 없음.
-export function preloadKakao() {
-  loadSdk().catch(() => {});
-}
-
+// 카카오톡 공유를 누를 때만 SDK를 불러온다. 평상시 앱 사용 중에는 외부 SDK를 요청하지 않는다.
 export async function shareToKakao(text: string): Promise<boolean> {
   try {
     const kakao = await loadSdk();

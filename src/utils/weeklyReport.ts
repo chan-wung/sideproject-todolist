@@ -21,7 +21,7 @@ export interface WeeklyReport {
   isEmpty: boolean;
 }
 
-interface ReportItem {
+export interface ReportItem {
   id: string;
   text: string;
   category: string;
@@ -78,6 +78,15 @@ function taskLine(item: ReportItem): string {
   return cat && cat !== DEFAULT_CATEGORY ? `[${cat}] ${item.text}` : item.text;
 }
 
+// 완료 상태로 남아 있는 할 일 + 완료 이력을 하나로 모은다 (같은 id는 할 일 쪽을 우선).
+// 주간보고와 대시보드가 같은 "완료한 일" 기준을 쓰도록 여기서 한 번만 만든다.
+export function collectReportItems(todos: Todo[], completionLog: CompletionLogEntry[]): ReportItem[] {
+  const byId = new Map<string, ReportItem>();
+  for (const e of completionLog) byId.set(e.id, fromLog(e));
+  for (const t of todos) byId.set(t.id, fromTodo(t)); // 같은 id면 할 일이 최신
+  return [...byId.values()];
+}
+
 // weekStart(월요일)부터 일요일까지의 주간보고를 만든다.
 // - 대상: 완료 상태로 남아 있는 할 일 + 완료 이력 (같은 id는 할 일 쪽을 우선)
 // - 연차·휴가는 완료 여부와 상관없이 날짜(dueDate)가 그 주에 있으면 넣는다.
@@ -89,10 +98,7 @@ export function buildWeeklyReport(input: {
   const { weekStart, todos, completionLog } = input;
   const weekEnd = endOfWeek(weekStart);
 
-  const byId = new Map<string, ReportItem>();
-  for (const e of completionLog) byId.set(e.id, fromLog(e));
-  for (const t of todos) byId.set(t.id, fromTodo(t)); // 같은 id면 할 일이 최신
-  const items = [...byId.values()];
+  const items = collectReportItems(todos, completionLog);
 
   const dated: { date: string; order: string; line: string }[] = [];
   const tasks: { order: string; key: string; line: string }[] = [];

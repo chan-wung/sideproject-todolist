@@ -68,6 +68,12 @@
   }
   font-size: ($target-size * 0.1) + rem;
 
+  // PC(1024px 이상)에서는 모든 글자를 같은 비율($font_scale_pc)로 키운다 (본문 기본 16px → 18px).
+  // 글자 크기는 모두 이 믹스인을 거치므로 한 곳에서 비율이 맞는다. 간격·상자 크기는 그대로다.
+  @include shell {
+    font-size: ($target-size * 0.1 * $font_scale_pc) + rem;
+  }
+
   @if type-of($weight) == 'number' {
     font-weight: $weight;
   } @else if map-has-key($weights, $weight) {

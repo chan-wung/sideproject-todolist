@@ -27,6 +27,9 @@ $font_family_sub: 'Pretendard';
 $site_max_width: 1280px;
 $site_min_width: 340px;
 
+// PC(1024px 이상) 글자 배율. 본문 기본 16px × 1.125 = 18px. 모든 font() 글자에 같은 비율로 적용된다
+$font_scale_pc: 1.125;
+
 // 셸 치수 (rem() 인자로 쓰는 px 숫자). 1024px 이상 사이드바 레이아웃에서 헤더·사이드바·본문이 같이 쓴다
 $header_height: 64; // 상단 고정 헤더 높이
 $tabbar_height: 56; // 1024px 미만(태블릿·모바일) 화면 아래 탭 바 높이

@@ -15,22 +15,24 @@
     @include font(14, "Bold");
     text-align: center;
     cursor: pointer;
-    @include transition(opacity);
+    @include transition(box-shadow transform);
 
+    // 할 일 카드와 같은 호버: 그림자가 짙어지고 살짝 떠오른다
     &:hover {
-      opacity: 0.9;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
+      transform: translateY(-1px);
     }
 
     &--overdue {
       color: var(--color-danger);
-      background: color-mix(in srgb, var(--color-danger) 55%, white);
-      border: 1px solid color-mix(in srgb, var(--color-danger) 75%, white);
+      background: var(--color-white);
+      border: 2px solid color-mix(in srgb, var(--color-danger) 75%, white);
     }
 
     &--today {
       color: var(--color-main);
-      background: var(--color-main-10);
-      border: 1px solid var(--color-main-20);
+      background: var(--color-white);
+      border: 2px solid var(--color-main-20);
     }
   }
 }

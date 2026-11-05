@@ -232,7 +232,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                     className="memo-page__title-input"
                     value={activeMemo.title}
                     onChange={(e) => updateActiveMemo({ title: e.target.value })}
-                    placeholder="메모 제목 (예: 배워봄, 현대자동차)"
+                    placeholder="메모 제목 (예: 서버 접속 정보, 가나다상사)"
                   />
                   <div className="memo-page__content-actions" ref={moreRef}>
                     <button

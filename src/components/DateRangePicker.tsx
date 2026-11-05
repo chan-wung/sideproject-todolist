@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
+import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
+import { dateStr, todayStr } from '../utils/date';
 
 interface Props {
   startValue: string;
@@ -10,12 +12,6 @@ interface Props {
   'aria-labelledby'?: string;
 }
 
-const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
-
-function toDateStr(year: number, month: number, day: number): string {
-  return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-}
-
 export default function DateRangePicker({ startValue, endValue, onChange, placeholder = '기간 선택', className = '', 'aria-labelledby': ariaLabelledby }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   // 시작일 클릭 후 종료일을 아직 고르지 않은 동안의 임시 앵커
@@ -23,34 +19,13 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
   const [hoverDate, setHoverDate] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [currentDate, setCurrentDate] = useState(() => {
-    const anchor = startValue || endValue;
-    if (anchor) {
-      const [y, m, d] = anchor.split('-');
-      return new Date(Number(y), Number(m) - 1, Number(d));
-    }
-    return new Date();
-  });
+  const { year, month, label, blankCount, dayCount, goPrev, goNext } = useCalendarMonth(startValue || endValue);
 
   useDismiss(containerRef, isOpen, () => {
     setIsOpen(false);
     setPendingStart(null);
     setHoverDate(null);
   }, { escape: false });
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  function handlePrevMonth() {
-    setCurrentDate(new Date(year, month - 1, 1));
-  }
-
-  function handleNextMonth() {
-    setCurrentDate(new Date(year, month + 1, 1));
-  }
 
   function handleDayClick(dateStr: string) {
     if (!pendingStart) {
@@ -87,17 +62,18 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
   const rangeLow = anchorStart && anchorEnd ? (anchorStart < anchorEnd ? anchorStart : anchorEnd) : anchorStart;
   const rangeHigh = anchorStart && anchorEnd ? (anchorStart < anchorEnd ? anchorEnd : anchorStart) : anchorStart;
 
-  const blanks = Array.from({ length: firstDayOfMonth }).map((_, i) => (
+  const today = todayStr();
+  const blanks = Array.from({ length: blankCount }).map((_, i) => (
     <div key={`blank-${i}`} className="date-range-picker__cell date-range-picker__cell--empty" />
   ));
 
-  const days = Array.from({ length: daysInMonth }).map((_, i) => {
+  const days = Array.from({ length: dayCount }).map((_, i) => {
     const day = i + 1;
-    const dateStr = toDateStr(year, month, day);
-    const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
-    const isInRange = !!(rangeLow && rangeHigh && dateStr >= rangeLow && dateStr <= rangeHigh);
-    const isRangeStart = dateStr === rangeLow;
-    const isRangeEnd = dateStr === rangeHigh;
+    const str = dateStr(year, month, day);
+    const isToday = today === str;
+    const isInRange = !!(rangeLow && rangeHigh && str >= rangeLow && str <= rangeHigh);
+    const isRangeStart = str === rangeLow;
+    const isRangeEnd = str === rangeHigh;
 
     return (
       <button
@@ -111,8 +87,8 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
           isRangeStart ? 'date-range-picker__cell--range-start' : '',
           isRangeEnd ? 'date-range-picker__cell--range-end' : '',
         ].filter(Boolean).join(' ')}
-        onClick={() => handleDayClick(dateStr)}
-        onMouseEnter={() => { if (pendingStart) setHoverDate(dateStr); }}
+        onClick={() => handleDayClick(str)}
+        onMouseEnter={() => { if (pendingStart) setHoverDate(str); }}
       >
         {day}
       </button>
@@ -151,15 +127,15 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
       {isOpen && (
         <div className="date-range-picker__dropdown">
           <div className="date-range-picker__header">
-            <button type="button" className="date-range-picker__nav" onClick={handlePrevMonth} aria-label="이전 달">&lt;</button>
-            <span className="date-range-picker__month">{year}년 {month + 1}월</span>
-            <button type="button" className="date-range-picker__nav" onClick={handleNextMonth} aria-label="다음 달">&gt;</button>
+            <button type="button" className="date-range-picker__nav" onClick={goPrev} aria-label="이전 달">&lt;</button>
+            <span className="date-range-picker__month">{label}</span>
+            <button type="button" className="date-range-picker__nav" onClick={goNext} aria-label="다음 달">&gt;</button>
           </div>
 
           <p className="date-range-picker__hint">{pendingStart ? '종료일을 선택하세요' : '시작일을 선택하세요'}</p>
 
           <div className="date-range-picker__grid">
-            {DAYS.map(d => (
+            {WEEKDAYS.map(d => (
               <div key={d} className="date-range-picker__cell date-range-picker__cell--head">{d}</div>
             ))}
             {blanks}

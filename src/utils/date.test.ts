@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   isToday, isOverdue, isThisWeek, formatDate,
   addMonthsClamped, addDaysStr, nthOccurrence, occurrencesInRange, upcomingOccurrences,
-  yearProgress, startOfWeek, endOfWeek, weekOfMonthLabel, formatReportDate, toLocalDateStr,
+  yearProgress, startOfWeek, endOfWeek, weekOfMonthLabel, formatReportDate, toLocalDateStr, dateStr,
 } from './date';
 
 describe('yearProgress', () => {
@@ -145,5 +145,13 @@ describe('주간보고용 날짜 함수', () => {
     expect(toLocalDateStr('2026-11-03T23:59:00')).toBe('2026-11-03');
     expect(toLocalDateStr(new Date(2026, 10, 3, 0, 30).toISOString())).toBe('2026-11-03');
     expect(toLocalDateStr('엉터리')).toBe('');
+  });
+});
+
+describe('dateStr', () => {
+  it('연·월(0=1월)·일을 YYYY-MM-DD로 만든다', () => {
+    expect(dateStr(2026, 10, 4)).toBe('2026-11-04');
+    expect(dateStr(2026, 0, 31)).toBe('2026-01-31');
+    expect(dateStr(2028, 1, 29)).toBe('2028-02-29');
   });
 });

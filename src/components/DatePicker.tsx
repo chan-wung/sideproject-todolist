@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
+import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
+import { dateStr, todayStr } from '../utils/date';
 
 interface Props {
   value: string;
@@ -9,42 +11,17 @@ interface Props {
   'aria-labelledby'?: string;
 }
 
-const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
-
 export default function DatePicker({ value, onChange, placeholder = '마감일 선택', className = '', 'aria-labelledby': ariaLabelledby }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 현재 달력에 표시할 연/월
-  const [currentDate, setCurrentDate] = useState(() => {
-    if (value) {
-      const [y, m, d] = value.split('-');
-      return new Date(Number(y), Number(m) - 1, Number(d));
-    }
-    return new Date();
-  });
+  const { year, month, label, blankCount, dayCount, goPrev, goNext } = useCalendarMonth(value);
 
   useDismiss(containerRef, isOpen, () => setIsOpen(false), { escape: false });
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-
-  const firstDayOfMonth = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  function handlePrevMonth() {
-    setCurrentDate(new Date(year, month - 1, 1));
-  }
-
-  function handleNextMonth() {
-    setCurrentDate(new Date(year, month + 1, 1));
-  }
-
   function handleDayClick(day: number) {
-    const y = year;
-    const m = String(month + 1).padStart(2, '0');
-    const d = String(day).padStart(2, '0');
-    onChange(`${y}-${m}-${d}`);
+    onChange(dateStr(year, month, day));
     setIsOpen(false);
   }
 
@@ -55,14 +32,16 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
   }
 
   // 달력 그리드 생성
-  const blanks = Array.from({ length: firstDayOfMonth }).map((_, i) => (
+  const today = todayStr();
+  const blanks = Array.from({ length: blankCount }).map((_, i) => (
     <div key={`blank-${i}`} className="date-picker__cell date-picker__cell--empty" />
   ));
   
-  const days = Array.from({ length: daysInMonth }).map((_, i) => {
+  const days = Array.from({ length: dayCount }).map((_, i) => {
     const day = i + 1;
-    const isSelected = value === `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+    const str = dateStr(year, month, day);
+    const isSelected = value === str;
+    const isToday = today === str;
     
     return (
       <button
@@ -102,13 +81,13 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
       {isOpen && (
         <div className="date-picker__dropdown">
           <div className="date-picker__header">
-            <button type="button" className="date-picker__nav" onClick={handlePrevMonth} aria-label="이전 달">&lt;</button>
-            <span className="date-picker__month">{year}년 {month + 1}월</span>
-            <button type="button" className="date-picker__nav" onClick={handleNextMonth} aria-label="다음 달">&gt;</button>
+            <button type="button" className="date-picker__nav" onClick={goPrev} aria-label="이전 달">&lt;</button>
+            <span className="date-picker__month">{label}</span>
+            <button type="button" className="date-picker__nav" onClick={goNext} aria-label="다음 달">&gt;</button>
           </div>
           
           <div className="date-picker__grid">
-            {DAYS.map(d => (
+            {WEEKDAYS.map(d => (
               <div key={d} className="date-picker__cell date-picker__cell--head">{d}</div>
             ))}
             {blanks}

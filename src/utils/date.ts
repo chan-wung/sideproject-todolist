@@ -48,6 +48,11 @@ function formatYmd(y: number, m1: number, d: number): string {
   return `${y}-${String(m1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
+// 연·월(month0: 0=1월)·일을 'YYYY-MM-DD'로 (달력 칸의 날짜 문자열)
+export function dateStr(year: number, month0: number, day: number): string {
+  return formatYmd(year, month0 + 1, day);
+}
+
 export function todayStr(): string {
   const d = new Date();
   return formatYmd(d.getFullYear(), d.getMonth() + 1, d.getDate());

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Todo, RecurrenceSeries } from '../types/todo';
-import { KIND_LABEL } from '../constants/labels';
+import { KIND_LABEL, LEAVE_PRESETS } from '../constants/labels';
 import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
 import { useDayChange } from '../hooks/useDayChange';
 import { buildCalendarItems, monthRange, type CalendarItem } from '../utils/calendar';
@@ -10,6 +10,8 @@ import PeriodNav from '../components/PeriodNav';
 interface Props {
   todos: Todo[];
   series: RecurrenceSeries[];
+  /** 고른 날짜에 연차·휴가를 등록한다 */
+  onAddLeave: (date: string, text: string) => void;
 }
 
 const MAX_CHIPS = 3; // 한 칸에 글자로 보여 주는 최대 항목 수. 넘으면 '+N'
@@ -30,10 +32,11 @@ function dayTitle(date: string): string {
 }
 
 // 월간 달력: 마감일이 있는 할 일, 연차, 정기 업무, 반복 일정의 앞날 예정을 날짜 칸에 보여 준다.
-export default function CalendarPage({ todos, series }: Props) {
+export default function CalendarPage({ todos, series, onAddLeave }: Props) {
   const [today, setToday] = useState(todayStr);
   const { year, month, label, blankCount, dayCount, goPrev, goNext, goTo } = useCalendarMonth(todayStr());
   const [selected, setSelected] = useState<string | null>(today);
+  const [customLeave, setCustomLeave] = useState('');
 
   // 자정이 지나거나 탭으로 돌아오면 '오늘' 표시를 새로 한다.
   useDayChange(() => setToday(todayStr()));
@@ -50,6 +53,21 @@ export default function CalendarPage({ todos, series }: Props) {
   function move(go: () => void) {
     go();
     setSelected(null); // 다른 달로 가면 고른 날짜는 버린다
+  }
+
+  // 그날 이미 같은 이름의 연차·휴가가 있으면 또 등록하지 못하게 한다
+  const hasLeave = (text: string) => selectedItems.some(i => i.kind === 'leave' && i.text === text);
+  const customText = customLeave.trim();
+
+  function addLeave(text: string) {
+    if (!selected || !text || hasLeave(text)) return;
+    onAddLeave(selected, text);
+  }
+
+  function handleCustomSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    addLeave(customText);
+    setCustomLeave('');
   }
 
   function goThisMonth() {
@@ -133,6 +151,37 @@ export default function CalendarPage({ todos, series }: Props) {
                     ))}
                   </ul>
                 )}
+                <form className="calendar__leave" onSubmit={handleCustomSubmit}>
+                  <p className="calendar__leave-tit">이 날 연차·휴가 등록</p>
+                  <div className="calendar__leave-presets">
+                    {LEAVE_PRESETS.map(name => (
+                      <button
+                        key={name}
+                        type="button"
+                        className="calendar__leave-btn"
+                        onClick={() => addLeave(name)}
+                        disabled={hasLeave(name)}
+                      >
+                        {name}{hasLeave(name) ? ' (등록됨)' : ''}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="calendar__leave-custom">
+                    <label className="screen-out" htmlFor="calendar-leave-custom">직접 입력하는 휴가 이름</label>
+                    <input
+                      id="calendar-leave-custom"
+                      className="calendar__leave-input"
+                      type="text"
+                      placeholder="직접 입력 (예: 병가, 경조사 휴가)"
+                      value={customLeave}
+                      onChange={e => setCustomLeave(e.target.value)}
+                      autoComplete="off"
+                    />
+                    <button type="submit" className="calendar__leave-btn calendar__leave-btn--submit" disabled={!customText || hasLeave(customText)}>
+                      등록
+                    </button>
+                  </div>
+                </form>
               </>
             ) : (
               <p className="calendar__empty">날짜를 눌러 그날의 일정을 확인하세요.</p>

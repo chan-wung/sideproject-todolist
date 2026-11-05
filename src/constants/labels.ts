@@ -27,6 +27,9 @@ export const KIND_LABEL: Record<TodoKind, string> = {
 
 export const KIND_OPTIONS: TodoKind[] = ['task', 'routine', 'leave'];
 
+// 캘린더에서 날짜를 눌러 바로 등록할 수 있는 연차·휴가 이름 (그 밖의 이름은 직접 입력)
+export const LEAVE_PRESETS = ['연차', '오전 반차', '오후 반차'];
+
 // 상단 메뉴(화면 전환). 주소의 해시(#/todos)와 1:1로 대응한다.
 export type View = 'todos' | 'calendar' | 'report';
 

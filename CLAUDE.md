@@ -42,7 +42,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `useSelection`(선택 모드), `useModalDialog`, `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
 - `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(날짜별 캘린더 항목), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `leave`(연차 제목 만들기), `share`(복사·공유·엑셀 칸 복사와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
-- **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 `h1`로 그린다(앱 공통 헤더는 없음). 본문 최대 폭은 `$site_max_width`(1280px). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
+- **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 `h1`로 그린다(앱 공통 헤더는 없음). 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 상단 메뉴에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
 - `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일. 레이아웃 폭 기준은 `$break_shell`(1024px)과 `@include shell`
 
 ## 데이터 모델 메모

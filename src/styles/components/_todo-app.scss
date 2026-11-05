@@ -4,8 +4,8 @@
 
 .todo-app {
   min-height: 100vh;
-  padding: rem(20) rem(16) rem(60);
-  @include contents_default;
+  padding: rem(20) rem(16) 0;
+  // 최대 폭을 두지 않고 사이드바 옆 공간을 꽉 채운다
 
   // 고정 헤더만큼 뺀다 (안 빼면 항상 세로 스크롤이 생김)
   @include shell {

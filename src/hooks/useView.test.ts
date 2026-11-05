@@ -14,6 +14,7 @@ describe('parseView', () => {
     expect(parseView('#/todos')).toBe('todos');
     expect(parseView('#/report')).toBe('report');
     expect(parseView('#/calendar')).toBe('calendar');
+    expect(parseView('#/dashboard')).toBe('dashboard');
     expect(parseView('#report')).toBe('report');
   });
 

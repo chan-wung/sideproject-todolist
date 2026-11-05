@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   isToday, isOverdue, isThisWeek, formatDate,
   addMonthsClamped, addDaysStr, nthOccurrence, occurrencesInRange, upcomingOccurrences,
-  yearProgress, startOfWeek, endOfWeek, weekOfMonthLabel, formatReportDate, toLocalDateStr, dateStr,
+  yearProgress, startOfWeek, endOfWeek, weekOfMonthLabel, formatReportDate, toLocalDateStr, dateStr, diffDays, formatMonthDayWeekday, WEEKDAYS,
 } from './date';
 
 describe('yearProgress', () => {
@@ -153,5 +153,33 @@ describe('dateStr', () => {
     expect(dateStr(2026, 10, 4)).toBe('2026-11-04');
     expect(dateStr(2026, 0, 31)).toBe('2026-01-31');
     expect(dateStr(2028, 1, 29)).toBe('2028-02-29');
+  });
+});
+
+describe('diffDays', () => {
+  it('날짜 사이의 일수 (뒤가 앞서면 음수)', () => {
+    expect(diffDays('2026-11-04', '2026-11-04')).toBe(0);
+    expect(diffDays('2026-11-04', '2026-11-10')).toBe(6);
+    expect(diffDays('2026-11-10', '2026-11-04')).toBe(-6);
+    expect(diffDays('2026-10-31', '2026-11-01')).toBe(1);
+    expect(diffDays('2026-12-31', '2027-01-01')).toBe(1);
+    expect(diffDays('2028-02-28', '2028-03-01')).toBe(2); // 윤년
+  });
+
+  it('서머타임이 있는 달을 넘어도 하루가 정확히 1이다', () => {
+    expect(diffDays('2026-03-07', '2026-03-09')).toBe(2);
+    expect(diffDays('2026-10-31', '2026-11-02')).toBe(2);
+  });
+});
+
+describe('formatMonthDayWeekday', () => {
+  it('월·일·요일 표기', () => {
+    expect(formatMonthDayWeekday('2026-11-04')).toBe('11월 4일 (수)');
+    expect(formatMonthDayWeekday('2026-11-08')).toBe('11월 8일 (일)');
+    expect(formatMonthDayWeekday('2026-01-05')).toBe('1월 5일 (월)');
+  });
+
+  it('WEEKDAYS는 일요일부터 7개다', () => {
+    expect(WEEKDAYS).toEqual(['일', '월', '화', '수', '목', '금', '토']);
   });
 });

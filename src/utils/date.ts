@@ -1,5 +1,7 @@
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+export const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
 function parseLocalDate(dateStr: string): Date {
   if (dateStr.includes('T')) {
     return new Date(dateStr);
@@ -31,6 +33,17 @@ export function isThisWeek(dueDate?: string): boolean {
 export function formatDate(dateStr: string): string {
   const d = parseLocalDate(dateStr);
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+
+// from에서 to까지 며칠 뒤인지 (to가 앞서면 음수). 날짜 문자열 'YYYY-MM-DD' 기준이라 시간대·서머타임에 흔들리지 않는다.
+export function diffDays(from: string, to: string): number {
+  return Math.round((parseLocalDate(to).getTime() - parseLocalDate(from).getTime()) / MS_PER_DAY);
+}
+
+// '2026-11-04' → '11월 4일 (수)'
+export function formatMonthDayWeekday(dateStr: string): string {
+  const d = parseLocalDate(dateStr);
+  return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WEEKDAYS[d.getDay()]})`;
 }
 
 // 주간보고 날짜 표기: 0을 붙이지 않는다 (예: 2026.11.2)

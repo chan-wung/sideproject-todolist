@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { daysInMonth } from '../utils/date';
+import { daysInMonth, WEEKDAYS } from '../utils/date';
 
-export const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+export { WEEKDAYS };
 
 // 'YYYY-MM-DD'가 있으면 그 달을, 없거나 비어 있으면 이번 달을 처음에 보여 준다.
 function initialMonth(anchor: string): Date {

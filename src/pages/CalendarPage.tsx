@@ -4,7 +4,7 @@ import { KIND_LABEL } from '../constants/labels';
 import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
 import { useDayChange } from '../hooks/useDayChange';
 import { buildCalendarItems, monthRange, type CalendarItem } from '../utils/calendar';
-import { dateStr, todayStr } from '../utils/date';
+import { dateStr, formatMonthDayWeekday, todayStr } from '../utils/date';
 import PeriodNav from '../components/PeriodNav';
 import LeaveForm from '../components/LeaveForm';
 
@@ -24,12 +24,6 @@ function itemClass(item: CalendarItem, block: string): string {
     item.upcoming ? `${block}--upcoming` : '',
     item.completed ? `${block}--done` : '',
   ].filter(Boolean).join(' ');
-}
-
-// '2026-11-04' → '11월 4일 (수)'
-function dayTitle(date: string): string {
-  const d = new Date(`${date}T00:00:00`);
-  return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WEEKDAYS[d.getDay()]})`;
 }
 
 // 월간 달력: 마감일이 있는 할 일, 연차, 정기 업무, 반복 일정의 앞날 예정을 날짜 칸에 보여 준다.
@@ -117,7 +111,7 @@ export default function CalendarPage({ todos, series, onAddLeave }: Props) {
           <section className="calendar__detail" aria-live="polite">
             {selected ? (
               <>
-                <h3 className="calendar__detail-tit">{dayTitle(selected)}</h3>
+                <h3 className="calendar__detail-tit">{formatMonthDayWeekday(selected)}</h3>
                 {selectedItems.length === 0 ? (
                   <p className="calendar__empty">이 날은 등록된 일정이 없습니다.</p>
                 ) : (

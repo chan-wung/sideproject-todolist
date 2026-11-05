@@ -1,0 +1,265 @@
+// =============================================
+// DASHBOARD (대시보드 화면)
+// =============================================
+
+.dashboard {
+  position: relative;
+
+  &__wrap {
+    display: flex;
+    flex-direction: column;
+    gap: rem(16);
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: rem(12);
+  }
+
+  &__tit {
+    color: var(--txt-color-tit);
+    @include font(20, "Bold");
+  }
+
+  &__week {
+    color: var(--txt-color-base);
+    @include font(13, "Medium");
+  }
+
+  // ── 숫자 카드 ──
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: rem(12);
+
+    @include tablet_pc {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  &__stat {
+    padding: rem(16);
+    display: flex;
+    flex-direction: column;
+    gap: rem(4);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+  }
+
+  &__stat-label {
+    color: var(--txt-color-base);
+    @include font(13, "Medium");
+  }
+
+  &__stat-value {
+    color: var(--txt-color-tit);
+    @include font(28, "Bold");
+
+    &--danger {
+      color: var(--color-danger);
+    }
+  }
+
+  &__stat-unit {
+    margin-left: rem(2);
+    color: var(--txt-color-base);
+    @include font(14, "Medium");
+  }
+
+  &__stat-sub {
+    color: var(--txt-color-base);
+    @include font(12);
+  }
+
+  // ── 카드 ──
+  &__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: rem(12);
+
+    @include tablet_pc {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  &__card {
+    padding: rem(18) rem(18) rem(16);
+    display: flex;
+    flex-direction: column;
+    gap: rem(12);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+
+    // 보고에서 빠질 수 있는 항목은 눈에 띄게
+    &--alert {
+      background: var(--color-main-5);
+      border-color: var(--color-main-20);
+    }
+  }
+
+  &__card-tit {
+    color: var(--txt-color-tit);
+    @include font(15, "Bold");
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: rem(8);
+    list-style: none;
+  }
+
+  &__line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: rem(6);
+  }
+
+  &__cat {
+    padding: rem(2) rem(8);
+    color: var(--color-main);
+    background: var(--color-main-10);
+    border-radius: 100px;
+    @include font(11, "Bold");
+  }
+
+  &__line-txt {
+    flex: 1;
+    min-width: 0;
+    color: var(--txt-color-tit);
+    @include font(14, "Medium");
+    word-break: break-word;
+  }
+
+  &__line-note {
+    color: var(--txt-color-base);
+    @include font(12, "Medium");
+    white-space: nowrap;
+  }
+
+  &__empty {
+    color: var(--txt-color-base);
+    @include font(13);
+  }
+
+  &__hint {
+    color: var(--txt-color-base);
+    @include font(12);
+    line-height: 1.5;
+  }
+
+  &__link {
+    color: var(--color-main);
+    @include font(12, "SemiBold");
+    text-decoration: underline;
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 2px;
+    }
+  }
+
+  // ── 프로젝트별 막대 ──
+  &__bar-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+    align-items: center;
+    gap: rem(10);
+  }
+
+  &__bar-name {
+    overflow: hidden;
+    color: var(--txt-color-tit);
+    @include font(13, "Medium");
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__bar-track {
+    height: rem(10);
+    display: block;
+    overflow: hidden;
+    background: var(--color-tab-bg);
+    border-radius: 100px;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    display: block;
+    background: var(--color-main);
+    border-radius: 100px;
+  }
+
+  &__bar-count {
+    min-width: rem(32);
+    color: var(--txt-color-base);
+    text-align: right;
+    @include font(12, "Medium");
+  }
+
+  // ── 최근 주 추이 ──
+  &__trend {
+    height: rem(150);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    gap: rem(8);
+    list-style: none;
+  }
+
+  &__trend-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: rem(4);
+  }
+
+  &__trend-count {
+    color: var(--txt-color-base);
+    @include font(12, "Medium");
+  }
+
+  &__trend-bar {
+    width: 100%;
+    max-width: rem(36);
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    background: var(--color-tab-bg);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  &__trend-fill {
+    width: 100%;
+    display: block;
+    background: var(--color-main-20);
+  }
+
+  &__trend-label {
+    color: var(--txt-color-base);
+    text-align: center;
+    @include font(11);
+    white-space: nowrap;
+  }
+
+  &__trend-col--now &__trend-fill {
+    background: var(--color-main);
+  }
+
+  &__trend-col--now &__trend-count,
+  &__trend-col--now &__trend-label {
+    color: var(--color-main);
+    @include font(12, "Bold");
+  }
+}

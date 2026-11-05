@@ -97,6 +97,7 @@ export function validateCompletionLog(incoming: unknown): CompletionLogEntry[] |
     priority: normalizePriority(o.priority),
     completedAt: o.completedAt,
     kind: normalizeKind(o.kind),
+    dueDate: typeof o.dueDate === 'string' ? o.dueDate : undefined,
     subtasks: Array.isArray(o.subtasks)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? o.subtasks.filter((s: any) => s && typeof s.text === 'string').map((s: any) => ({ text: s.text, completed: !!s.completed }))
@@ -151,6 +152,7 @@ export function useTodos() {
         priority: t.priority,
         completedAt: t.completedAt ?? t.createdAt,
         kind: normalizeKind(t.kind),
+        dueDate: t.dueDate,
         subtasks: t.subtasks?.map(s => ({ text: s.text, completed: s.completed })),
       }));
     if (entries.length === 0) {

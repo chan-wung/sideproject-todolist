@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   isToday, isOverdue, isThisWeek, formatDate, calculateNextRecurrence,
   addMonthsClamped, addDaysStr, nthOccurrence, occurrencesInRange, upcomingOccurrences,
-  yearProgress,
+  yearProgress, startOfWeek, endOfWeek, weekOfMonthLabel, formatReportDate, toLocalDateStr,
 } from './date';
 
 describe('yearProgress', () => {
@@ -118,5 +118,44 @@ describe('date utils', () => {
     // endDate 이후로는 멈춤
     expect(upcomingOccurrences('2026-07-24', 'monthly', '2026-08-01', 3, '2026-09-30'))
       .toEqual(['2026-08-24', '2026-09-24']);
+  });
+});
+
+describe('주간보고용 날짜 함수', () => {
+  it('startOfWeek: 어느 요일이든 그 주 월요일을 돌려주고, 일요일은 그 주의 마지막 날이다', () => {
+    expect(startOfWeek('2026-11-02')).toBe('2026-11-02'); // 월
+    expect(startOfWeek('2026-11-04')).toBe('2026-11-02'); // 수
+    expect(startOfWeek('2026-11-08')).toBe('2026-11-02'); // 일
+    expect(startOfWeek('2026-11-09')).toBe('2026-11-09'); // 다음 월
+  });
+
+  it('startOfWeek: 달·해가 바뀌어도 맞다', () => {
+    expect(startOfWeek('2026-12-01')).toBe('2026-11-30');
+    expect(startOfWeek('2027-01-01')).toBe('2026-12-28');
+  });
+
+  it('endOfWeek: 월요일에서 6일 뒤(일요일)', () => {
+    expect(endOfWeek('2026-11-02')).toBe('2026-11-08');
+    expect(endOfWeek('2026-10-26')).toBe('2026-11-01');
+  });
+
+  it('weekOfMonthLabel: 월요일이 속한 달의 N번째 월요일', () => {
+    expect(weekOfMonthLabel('2026-10-19')).toBe('10월 3주');
+    expect(weekOfMonthLabel('2026-10-26')).toBe('10월 4주');
+    expect(weekOfMonthLabel('2026-11-02')).toBe('11월 1주');
+    expect(weekOfMonthLabel('2026-11-30')).toBe('11월 5주');
+  });
+
+  it('formatReportDate: 월·일에 0을 붙이지 않는다', () => {
+    expect(formatReportDate('2026-11-02')).toBe('2026.11.2');
+    expect(formatReportDate('2026-10-26')).toBe('2026.10.26');
+    expect(formatReportDate('2026-01-05')).toBe('2026.1.5');
+  });
+
+  it('toLocalDateStr: 로컬 시각·날짜를 로컬 날짜로, 해석 불가면 빈 문자열', () => {
+    expect(toLocalDateStr('2026-11-03')).toBe('2026-11-03');
+    expect(toLocalDateStr('2026-11-03T23:59:00')).toBe('2026-11-03');
+    expect(toLocalDateStr(new Date(2026, 10, 3, 0, 30).toISOString())).toBe('2026-11-03');
+    expect(toLocalDateStr('엉터리')).toBe('');
   });
 });

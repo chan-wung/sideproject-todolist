@@ -33,6 +33,12 @@ export function formatDate(dateStr: string): string {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// 주간보고 날짜 표기: 0을 붙이지 않는다 (예: 2026.11.2)
+export function formatReportDate(dateStr: string): string {
+  const d = parseLocalDate(dateStr);
+  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
+}
+
 export function formatTime(dateStr: string): string {
   const d = parseLocalDate(dateStr);
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -45,6 +51,31 @@ function formatYmd(y: number, m1: number, d: number): string {
 export function todayStr(): string {
   const d = new Date();
   return formatYmd(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
+// 날짜·시각 문자열(UTC 'Z' 포함)을 로컬 기준 날짜(YYYY-MM-DD)로 바꾼다. 해석할 수 없으면 ''.
+export function toLocalDateStr(value: string): string {
+  const d = parseLocalDate(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return formatYmd(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
+// 그 날이 속한 주의 월요일 (일요일은 그 주의 마지막 날이다)
+export function startOfWeek(value: string): string {
+  const d = parseLocalDate(value);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // 월=0 … 일=6
+  return formatYmd(d.getFullYear(), d.getMonth() + 1, d.getDate());
+}
+
+// 주의 시작(월요일)에서 그 주의 일요일
+export function endOfWeek(weekStart: string): string {
+  return addDaysStr(weekStart, 6);
+}
+
+// 주 라벨: 월요일이 속한 달의 N번째 월요일 → 'N주' (예: 2026-11-02 → '11월 1주', 2026-10-26 → '10월 4주')
+export function weekOfMonthLabel(weekStart: string): string {
+  const d = parseLocalDate(weekStart);
+  return `${d.getMonth() + 1}월 ${Math.ceil(d.getDate() / 7)}주`;
 }
 
 // 해당 연·월(month0: 0=1월)의 마지막 날짜(28~31)

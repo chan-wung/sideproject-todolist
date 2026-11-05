@@ -54,6 +54,7 @@ export interface CompletionLogEntry {
   priority: Todo['priority'];
   completedAt: string;
   kind?: TodoKind;
+  dueDate?: string; // 연차·휴가의 날짜를 보고서에서 되살리기 위해 남긴다
   subtasks?: { text: string; completed: boolean }[];
 }
 

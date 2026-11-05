@@ -740,4 +740,87 @@ describe('useTodos', () => {
     });
   });
 
+  describe('필터·정렬', () => {
+    function seed() {
+      const mk = (id: string, text: string, extra: Record<string, unknown> = {}) => ({
+        id, text, completed: false, priority: 'medium', category: '기본',
+        createdAt: '2026-11-01T00:00:00.000Z', ...extra,
+      });
+      localStorage.setItem('todolist-items', JSON.stringify([
+        mk('a', '보고서 작성', { priority: 'low', category: '춘천', createdAt: '2026-11-01T00:00:00.000Z', dueDate: '2026-11-20' }),
+        mk('b', '회의 준비', { priority: 'high', category: '기본', createdAt: '2026-11-02T00:00:00.000Z', dueDate: '2026-11-10' }),
+        mk('c', '청소', { completed: true, category: '춘천', createdAt: '2026-11-03T00:00:00.000Z', seriesId: 's1' }),
+        mk('d', '고정 항목', { pinned: true, priority: 'low', createdAt: '2026-10-01T00:00:00.000Z' }),
+      ]));
+    }
+    const ids = (r: { current: { filteredTodos: { id: string }[] } }) => r.current.filteredTodos.map(t => t.id);
+
+    beforeEach(() => {
+      seed();
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-11-05T10:00:00'));
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('상태: 진행 중 / 완료 / 전체', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => result.current.setFilterStatus('active'));
+      expect(ids(result).sort()).toEqual(['a', 'b', 'd']);
+      act(() => result.current.setFilterStatus('completed'));
+      expect(ids(result)).toEqual(['c']);
+      act(() => result.current.setFilterStatus('all'));
+      expect(ids(result)).toHaveLength(4);
+    });
+
+    it('프로젝트와 검색어(글·프로젝트 이름)로 거른다', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => result.current.setFilterStatus('all'));
+      act(() => result.current.setFilterCategory('춘천'));
+      expect(ids(result).sort()).toEqual(['a', 'c']);
+      act(() => result.current.setFilterCategory('all'));
+      act(() => result.current.setQuery('  회의 '));
+      expect(ids(result)).toEqual(['b']);
+      act(() => result.current.setQuery('춘천'));
+      expect(ids(result).sort()).toEqual(['a', 'c']);
+    });
+
+    it('기한: 지연만 / 반복만', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => result.current.setFilterStatus('all'));
+      act(() => result.current.setDueScope('overdue'));
+      expect(ids(result)).toEqual([]);
+      act(() => result.current.setDueScope('all'));
+      act(() => result.current.setRecurrenceOnly(true));
+      expect(ids(result)).toEqual(['c']);
+    });
+
+    it('기본 정렬은 고정 항목이 맨 위, 나머지는 최근 등록순', () => {
+      const { result } = renderHook(() => useTodos());
+      expect(ids(result)).toEqual(['d', 'b', 'a']);
+    });
+
+    it('우선순위순·마감일순 정렬에서도 고정 항목이 맨 위', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => result.current.setSortKey('priority'));
+      expect(ids(result)).toEqual(['d', 'b', 'a']);
+      act(() => result.current.setSortKey('dueDate'));
+      expect(ids(result)).toEqual(['d', 'b', 'a']); // 마감일 없는 항목은 뒤
+    });
+
+    it('수동 정렬은 저장된 순서를 그대로 보여 준다(고정만 위로)', () => {
+      const { result } = renderHook(() => useTodos());
+      act(() => result.current.setSortKey('manual'));
+      expect(ids(result)).toEqual(['d', 'a', 'b']);
+    });
+
+    it('개수와 프로젝트 목록', () => {
+      const { result } = renderHook(() => useTodos());
+      expect(result.current.activeCount).toBe(3);
+      expect(result.current.completedCount).toBe(1);
+      expect(result.current.categoryOptions.sort()).toEqual(['기본', '춘천']);
+    });
+  });
+
 });

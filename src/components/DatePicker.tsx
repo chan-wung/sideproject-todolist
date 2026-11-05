@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
 import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
 import { dateStr, todayStr } from '../utils/date';
+import { ClearIcon } from './icons';
 
 interface Props {
   value: string;
@@ -71,7 +72,7 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
         <div className="date-picker__actions">
           {value && (
             <button type="button" className="date-picker__clear" onClick={handleClear} aria-label="초기화">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              <ClearIcon />
             </button>
           )}
           <span className="date-picker__icon" aria-hidden="true">📅</span>

@@ -28,9 +28,19 @@ export function DeleteIcon() {
   );
 }
 
-export function MoreIcon() {
+// size·decorative는 크기를 속성으로 정하거나 스크린리더에서 숨겨야 하는 곳에서만 넘긴다(안 넘기면 속성이 붙지 않음)
+interface SizeProps {
+  size?: number;
+  decorative?: boolean;
+}
+
+function sizeAttrs({ size, decorative }: SizeProps) {
+  return { width: size, height: size, 'aria-hidden': decorative ? true : undefined } as const;
+}
+
+export function MoreIcon(props: SizeProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor">
+    <svg viewBox="0 0 24 24" fill="currentColor" {...sizeAttrs(props)}>
       <circle cx="12" cy="5" r="1.8" />
       <circle cx="12" cy="12" r="1.8" />
       <circle cx="12" cy="19" r="1.8" />
@@ -111,9 +121,9 @@ export function CheckIcon() {
   );
 }
 
-export function CloseIcon() {
+export function CloseIcon({ strokeWidth = 2.5 }: { strokeWidth?: number }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round">
       <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   );
@@ -211,6 +221,33 @@ export function HistoryIcon() {
       <polyline points="1 4 1 10 7 10" />
       <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
       <polyline points="12 7 12 12 15 14" />
+    </svg>
+  );
+}
+
+// 날짜 선택기의 지우기(x) 버튼 안 아이콘
+export function ClearIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} stroke="currentColor" strokeWidth="2" fill="none">
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+// 메모 목록의 고정(핀) 버튼 아이콘
+export function PushPinIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
+    </svg>
+  );
+}
+
+// 상단 툴바의 설정 아이콘
+export function SettingsIcon({ size = 15 }: { size?: number }) {
+  return (
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.58 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z" />
     </svg>
   );
 }

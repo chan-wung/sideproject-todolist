@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
 import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
 import { dateStr, todayStr } from '../utils/date';
+import { ClearIcon } from './icons';
 
 interface Props {
   startValue: string;
@@ -117,7 +118,7 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
         <div className="date-range-picker__actions">
           {(startValue || endValue) && (
             <button type="button" className="date-range-picker__clear" onClick={handleClear} aria-label="초기화">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              <ClearIcon />
             </button>
           )}
           <span className="date-range-picker__icon" aria-hidden="true">📅</span>

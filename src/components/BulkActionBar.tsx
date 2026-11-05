@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Todo } from '../types/todo';
 import { PRIORITY_LABEL, PRIORITY_OPTIONS } from '../constants/labels';
 import ConfirmModal from './ConfirmModal';
+import { CloseIcon } from './icons';
 
 interface Props {
   selectedCount: number;
@@ -86,9 +87,7 @@ export default function BulkActionBar({
       </button>
 
       <button type="button" className="bulk-bar__close-btn" onClick={onClose} aria-label="선택 모드 종료">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
+        <CloseIcon strokeWidth={2} />
         <span className="screen-out">닫기</span>
       </button>
 

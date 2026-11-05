@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
 import ConfirmModal from '../components/ConfirmModal';
 import PageHead from '../components/PageHead';
+import { ChevronIcon, MoreIcon, PushPinIcon } from '../components/icons';
 import { generateId } from '../utils/id';
 import { moveItem } from '../utils/list';
 import { memoToText } from '../utils/share';
@@ -204,9 +205,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                       aria-label={m.pinned ? '고정 해제' : '메모 고정'}
                       title={m.pinned ? '고정 해제' : '메모 고정'}
                     >
-                      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
-                      </svg>
+                      <PushPinIcon />
                     </button>
                     <button
                       type="button"
@@ -243,11 +242,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                       aria-haspopup="true"
                       aria-expanded={moreOpen}
                     >
-                      <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-                        <circle cx="12" cy="5" r="1.8" />
-                        <circle cx="12" cy="12" r="1.8" />
-                        <circle cx="12" cy="19" r="1.8" />
-                      </svg>
+                      <MoreIcon size={18} decorative />
                     </button>
                     {moreOpen && (
                       <div className="memo-page__more-menu" role="menu">
@@ -267,18 +262,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                     aria-controls="memo-linked-checklist"
                   >
                     <span className="memo-page__linked-tit">📎 연결된 할 일</span>
-                    <svg
-                      className={`memo-page__linked-toggle-icon${linkedCollapsed ? ' memo-page__linked-toggle-icon--collapsed' : ''}`}
-                      aria-hidden="true"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
+                    <ChevronIcon className={`memo-page__linked-toggle-icon${linkedCollapsed ? ' memo-page__linked-toggle-icon--collapsed' : ''}`} />
                   </button>
                   {!linkedCollapsed && (
                     todos.length > 0 ? (

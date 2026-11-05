@@ -24,7 +24,6 @@
   &--low    { border-left-color: var(--color-success); }
 
   &--overdue {
-    background-color: color-mix(in srgb, var(--color-danger) 54%, white);
     border-left-color: var(--color-danger);
   }
 
@@ -84,6 +83,11 @@
     line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
+  }
+
+  // 기한이 지난 할 일은 제목(가장 큰 글자)을 빨갛게
+  &--overdue &__txt {
+    color: var(--color-danger);
   }
 
   &__meta {

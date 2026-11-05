@@ -23,7 +23,7 @@ export default function LeaveFields({ value, onChange, date, status }: Props) {
         <label className="leave-fields__field">
           <span className="leave-fields__label">연차 종류</span>
           <select
-            className="leave-fields__control"
+            className="leave-fields__control leave-fields__control--select"
             value={value.type}
             onChange={e => set({ type: e.target.value as LeaveType })}
           >

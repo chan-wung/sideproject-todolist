@@ -34,17 +34,25 @@
 
   &__control {
     min-width: rem(120);
-    height: rem(36);
-    padding: 0 rem(12);
+    height: rem(45);
+    padding: 0 rem(15);
     color: var(--txt-color-base);
     background: var(--color-white);
     border: 1px solid var(--color-border);
     border-radius: 8px;
-    @include font(13);
+    @include font(14);
+    @include transition(border-color);
 
-    &:focus-visible {
-      outline: 2px solid var(--color-main);
-      outline-offset: 0;
+    &:focus {
+      border-color: var(--color-main);
+      outline: none;
+    }
+
+    // 셀렉트는 공통 select 규칙의 화살표 아이콘을 background가 덮어쓰므로 다시 붙인다
+    &--select {
+      padding-right: rem(30);
+      background: svgIcoArrowDown($gray5, var(--color-white)) calc(100% - 10px) 50% / 10px no-repeat;
+      cursor: pointer;
     }
   }
 

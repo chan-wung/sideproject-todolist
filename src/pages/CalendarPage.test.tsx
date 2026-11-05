@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, cleanup, within } from '@testing-library/react';
 import CalendarPage from './CalendarPage';
-import type { Todo, RecurrenceSeries } from '../types/todo';
+import type { Todo, RecurrenceSeries, CompletionLogEntry } from '../types/todo';
 
 // 업체·업무 이름은 모두 가상의 이름이다. 오늘은 2026-11-04(수)로 고정.
 function todo(overrides: Partial<Todo> = {}): Todo {
@@ -23,13 +23,18 @@ const ROUTINE_SERIES: RecurrenceSeries = {
   createdAt: '2026-10-30T09:00:00',
 };
 
-function setup(todos: Todo[] = [], series: RecurrenceSeries[] = []) {
+function setup(todos: Todo[] = [], series: RecurrenceSeries[] = [], completionLog: CompletionLogEntry[] = []) {
   const onAddLeave = vi.fn();
   const onDeleteLeave = vi.fn();
-  const utils = render(<CalendarPage todos={todos} series={series} onAddLeave={onAddLeave} onDeleteLeave={onDeleteLeave} />);
+  const utils = render(
+    <CalendarPage todos={todos} series={series} completionLog={completionLog} onAddLeave={onAddLeave} onDeleteLeave={onDeleteLeave} />,
+  );
   const day = (n: number) => utils.getByRole('button', { name: new RegExp(`^\\d+월 ${n}일`) });
   const detail = () => utils.container.querySelector('.calendar__detail') as HTMLElement;
-  return { ...utils, day, detail, onAddLeave, onDeleteLeave };
+  // 띠는 날짜 칸 밖의 별도 층에 그려진다
+  const bars = () => Array.from(utils.container.querySelectorAll<HTMLElement>('.calendar__bar'));
+  const barTexts = () => bars().map(b => b.textContent);
+  return { ...utils, day, detail, bars, barTexts, onAddLeave, onDeleteLeave };
 }
 
 describe('CalendarPage', () => {
@@ -62,8 +67,8 @@ describe('CalendarPage', () => {
     expect(within(detail()).getByText('이 날은 등록된 일정이 없습니다.')).toBeTruthy();
   });
 
-  it('마감일이 있는 항목을 그 날짜 칸에 보여 주고, 넘치면 +N으로 줄인다', () => {
-    const { day } = setup([
+  it('마감일이 있는 항목을 띠로 보여 주고, 넘치면 날짜 칸에 +N으로 줄인다', () => {
+    const { day, bars, barTexts } = setup([
       todo({ text: '일 하나', dueDate: '2026-11-10' }),
       todo({ text: '일 둘', dueDate: '2026-11-10' }),
       todo({ text: '일 셋', dueDate: '2026-11-10' }),
@@ -72,10 +77,63 @@ describe('CalendarPage', () => {
     ]);
     const ten = day(10);
     expect(ten.getAttribute('aria-label')).toBe('11월 10일, 일정 4개');
-    expect(within(ten).getAllByText(/^일 (하나|둘|셋|넷)$/)).toHaveLength(3);
+    expect(barTexts().filter(t => /^일 (하나|둘|셋|넷)$/.test(t ?? ''))).toHaveLength(3);
+    expect(bars()).toHaveLength(4); // 10일 3줄 + 11일 1줄
     expect(within(ten).getByText('+1')).toBeTruthy();
     expect(day(11).getAttribute('aria-label')).toBe('11월 11일, 일정 1개');
     expect(day(12).getAttribute('aria-label')).toBe('11월 12일'); // 일정이 없으면 개수를 덧붙이지 않는다
+  });
+
+  it('띠는 보조 기술에 읽히지 않고(칸의 aria-label이 대신 알린다) 클릭을 가로채지 않는다', () => {
+    const { container } = setup([todo({ text: '띠 업무', dueDate: '2026-11-10' })]);
+    const layer = container.querySelector('.calendar__bars') as HTMLElement;
+    expect(layer.getAttribute('aria-hidden')).toBe('true');
+    expect(container.querySelector('.calendar__day')?.contains(container.querySelector('.calendar__bar'))).toBe(false);
+  });
+
+  it('기간이 있는 항목은 시작일부터 마감일까지 한 줄 띠로 이어지고, 주를 넘으면 주마다 이어 그린다', () => {
+    const { bars, day } = setup([todo({ text: '긴 업무', startDate: '2026-11-05', dueDate: '2026-11-11' })]); // 목 ~ 다음 주 수
+    const parts = bars();
+    expect(parts).toHaveLength(2);
+    expect(parts.map(b => b.style.gridColumn)).toEqual(['5 / span 3', '1 / span 4']);
+    expect(parts[0].className).toContain('calendar__bar--cont-after');
+    expect(parts[0].className).not.toContain('calendar__bar--cont-before');
+    expect(parts[1].className).toContain('calendar__bar--cont-before');
+    expect(parts[1].className).not.toContain('calendar__bar--cont-after');
+    // 기간 안의 모든 날에 일정 1개로 센다
+    expect(day(5).getAttribute('aria-label')).toBe('11월 5일, 일정 1개');
+    expect(day(8).getAttribute('aria-label')).toBe('11월 8일, 일정 1개');
+    expect(day(11).getAttribute('aria-label')).toBe('11월 11일, 일정 1개');
+    expect(day(12).getAttribute('aria-label')).toBe('11월 12일');
+  });
+
+  it('기간 안의 아무 날이나 누르면 목록에 그 항목이 나오고 기간이 함께 표시된다', () => {
+    const { day, detail } = setup([todo({ text: '긴 업무', startDate: '2026-11-05', dueDate: '2026-11-11' })]);
+    fireEvent.click(day(8));
+    const d = within(detail());
+    expect(d.getByText('긴 업무')).toBeTruthy();
+    expect(d.getByText('11.5 ~ 11.11')).toBeTruthy();
+    fireEvent.click(day(12));
+    expect(within(detail()).queryByText('긴 업무')).toBeNull();
+  });
+
+  it('완료한 할 일과 완료 정리된 이력도 보이고, 완료 표시가 붙는다', () => {
+    const { day, detail, bars } = setup(
+      [todo({ text: '끝낸 일', completed: true, dueDate: '2026-11-06' })],
+      [],
+      [{ id: 'old', text: '정리된 일', category: '기본', priority: 'medium', completedAt: '2026-11-03T15:00:00', startDate: '2026-11-02', dueDate: '2026-11-03' }],
+    );
+    expect(bars().map(b => b.textContent).sort()).toEqual(['끝낸 일', '정리된 일']);
+    expect(bars().every(b => b.className.includes('calendar__bar--done'))).toBe(true);
+    fireEvent.click(day(3));
+    expect(within(detail()).getByText('정리된 일').className).toContain('calendar__item-txt--done');
+    expect(within(detail()).getByText('11.2 ~ 11.3')).toBeTruthy();
+  });
+
+  it('날짜를 하나도 안 넣은 할 일은 등록한 날에 보인다', () => {
+    const { day, barTexts } = setup([todo({ text: '날짜 없음', dueDate: undefined, createdAt: '2026-11-07T09:00:00' })]);
+    expect(barTexts()).toEqual(['날짜 없음']);
+    expect(day(7).getAttribute('aria-label')).toBe('11월 7일, 일정 1개');
   });
 
   it('날짜를 누르면 그날의 목록(종류, 카테고리, 완료 여부)을 보여 준다', () => {
@@ -98,13 +156,13 @@ describe('CalendarPage', () => {
   });
 
   it('반복 일정의 앞날 회차를 "예정"으로 보여 준다', () => {
-    const { day, detail } = setup([], [ROUTINE_SERIES]); // 매주 월요일, 오늘 11/4(수)
+    const { container, day, detail } = setup([], [ROUTINE_SERIES]); // 매주 월요일, 오늘 11/4(수)
     fireEvent.click(day(9));
     const d = within(detail());
     expect(d.getByText('바이러스 검사')).toBeTruthy();
     expect(d.getByText('예정')).toBeTruthy();
     expect(d.getByText('정기 업무')).toBeTruthy();
-    expect(day(9).querySelector('.calendar__chip--upcoming')).not.toBeNull();
+    expect(container.querySelector('.calendar__bar--upcoming')).not.toBeNull();
     expect(day(2).getAttribute('aria-label')).toBe('11월 2일'); // 지난 회차는 예정으로 보이지 않는다
   });
 

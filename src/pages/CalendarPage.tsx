@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
-import type { Todo, RecurrenceSeries } from '../types/todo';
+import type { Todo, RecurrenceSeries, CompletionLogEntry } from '../types/todo';
 import { KIND_LABEL } from '../constants/labels';
 import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
 import { useDayChange } from '../hooks/useDayChange';
-import { buildCalendarItems, monthRange, type CalendarItem } from '../utils/calendar';
-import { dateStr, formatMonthDayWeekday, todayStr } from '../utils/date';
+import { buildCalendarItems, formatPeriod, itemsOnDate, layoutMonth, monthRange, type CalendarItem } from '../utils/calendar';
+import { formatMonthDayWeekday, todayStr } from '../utils/date';
 import PeriodNav from '../components/PeriodNav';
 import PageHead from '../components/PageHead';
 import LeaveForm from '../components/LeaveForm';
@@ -13,13 +13,15 @@ import { DeleteIcon } from '../components/icons';
 interface Props {
   todos: Todo[];
   series: RecurrenceSeries[];
+  /** '완료 정리'로 목록에서 빠진 항목. 캘린더에는 원래 기간에 계속 보인다 */
+  completionLog: CompletionLogEntry[];
   /** 고른 날짜에 연차·휴가를 등록한다 */
   onAddLeave: (date: string, text: string) => void;
   /** 등록한 연차·휴가를 지운다 (할 일 삭제와 같아 실행취소 알림이 뜬다) */
   onDeleteLeave: (todoId: string) => void;
 }
 
-const MAX_CHIPS = 3; // 한 칸에 글자로 보여 주는 최대 항목 수. 넘으면 '+N'
+const MAX_LANES = 3; // 한 주에 띠로 보여 주는 최대 줄 수. 넘으면 날짜 칸에 '+N'
 
 function itemClass(item: CalendarItem, block: string): string {
   return [
@@ -30,10 +32,11 @@ function itemClass(item: CalendarItem, block: string): string {
   ].filter(Boolean).join(' ');
 }
 
-// 월간 달력: 마감일이 있는 할 일, 연차, 정기 업무, 반복 일정의 앞날 예정을 날짜 칸에 보여 준다.
-export default function CalendarPage({ todos, series, onAddLeave, onDeleteLeave }: Props) {
+// 월간 달력: 모든 할 일(완료·완료 정리된 것 포함), 연차, 정기 업무, 반복 일정의 앞날 예정을 보여 준다.
+// 기간이 있는 항목은 시작일부터 마감일까지 이어진 띠로 그린다.
+export default function CalendarPage({ todos, series, completionLog, onAddLeave, onDeleteLeave }: Props) {
   const [today, setToday] = useState(todayStr);
-  const { year, month, label, blankCount, dayCount, goPrev, goNext, goTo } = useCalendarMonth(todayStr());
+  const { year, month, label, goPrev, goNext, goTo } = useCalendarMonth(todayStr());
   const [selected, setSelected] = useState<string | null>(today);
 
   // 자정이 지나거나 탭으로 돌아오면 '오늘' 표시를 새로 한다.
@@ -41,12 +44,13 @@ export default function CalendarPage({ todos, series, onAddLeave, onDeleteLeave 
 
   const { from, to } = monthRange(year, month);
   const items = useMemo(
-    () => buildCalendarItems({ todos, series, from, to, today }),
-    [todos, series, from, to, today],
+    () => buildCalendarItems({ todos, series, completionLog, from, to, today }),
+    [todos, series, completionLog, from, to, today],
   );
+  const layout = useMemo(() => layoutMonth(items, year, month, MAX_LANES), [items, year, month]);
 
   const isCurrentMonth = from === `${today.slice(0, 7)}-01`;
-  const selectedItems = selected ? items[selected] ?? [] : [];
+  const selectedItems = selected ? itemsOnDate(items, selected) : [];
 
   function move(go: () => void) {
     go();
@@ -76,40 +80,57 @@ export default function CalendarPage({ todos, series, onAddLeave, onDeleteLeave 
           />
 
           <div className="calendar__grid">
-            {WEEKDAYS.map(d => (
-              <div key={d} className="calendar__head">{d}</div>
-            ))}
-            {Array.from({ length: blankCount }).map((_, i) => (
-              <div key={`blank-${i}`} className="calendar__blank" />
-            ))}
-            {Array.from({ length: dayCount }).map((_, i) => {
-              const day = i + 1;
-              const date = dateStr(year, month, day);
-              const dayItems = items[date] ?? [];
-              const extra = dayItems.length - MAX_CHIPS;
-              return (
-                <button
-                  key={day}
-                  type="button"
-                  className={[
-                    'calendar__day',
-                    date === today ? 'calendar__day--today' : '',
-                    date === selected ? 'calendar__day--selected' : '',
-                  ].filter(Boolean).join(' ')}
-                  onClick={() => setSelected(date)}
-                  aria-pressed={date === selected}
-                  aria-current={date === today ? 'date' : undefined}
-                  aria-label={`${month + 1}월 ${day}일${dayItems.length > 0 ? `, 일정 ${dayItems.length}개` : ''}`}
-                >
-                  <span className="calendar__num">{day}</span>
-                  {dayItems.slice(0, MAX_CHIPS).map(item => (
-                    <span key={item.key} className={itemClass(item, 'calendar__chip')}>{item.text}</span>
+            <div className="calendar__heads">
+              {WEEKDAYS.map(d => (
+                <div key={d} className="calendar__head">{d}</div>
+              ))}
+            </div>
+            {layout.weeks.map(week => (
+              <div key={week.dates.find(Boolean)} className="calendar__week">
+                <div className="calendar__cells">
+                  {week.dates.map((date, col) => {
+                    if (!date) return <div key={`blank-${col}`} className="calendar__blank" />;
+                    const day = Number(date.slice(8, 10));
+                    const count = layout.total[date] ?? 0;
+                    const extra = layout.hidden[date] ?? 0;
+                    return (
+                      <button
+                        key={date}
+                        type="button"
+                        className={[
+                          'calendar__day',
+                          date === today ? 'calendar__day--today' : '',
+                          date === selected ? 'calendar__day--selected' : '',
+                        ].filter(Boolean).join(' ')}
+                        onClick={() => setSelected(date)}
+                        aria-pressed={date === selected}
+                        aria-current={date === today ? 'date' : undefined}
+                        aria-label={`${month + 1}월 ${day}일${count > 0 ? `, 일정 ${count}개` : ''}`}
+                      >
+                        <span className="calendar__num">{day}</span>
+                        {extra > 0 && <span className="calendar__more">+{extra}</span>}
+                        {count > 0 && <span className="calendar__count" aria-hidden="true">{count}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="calendar__bars" aria-hidden="true">
+                  {week.bars.map(bar => (
+                    <span
+                      key={`${bar.item.key}-${bar.col}`}
+                      className={[
+                        itemClass(bar.item, 'calendar__bar'),
+                        bar.continuesBefore ? 'calendar__bar--cont-before' : '',
+                        bar.continuesAfter ? 'calendar__bar--cont-after' : '',
+                      ].filter(Boolean).join(' ')}
+                      style={{ gridColumn: `${bar.col} / span ${bar.span}`, gridRow: bar.lane + 1 }}
+                    >
+                      {bar.item.text}
+                    </span>
                   ))}
-                  {extra > 0 && <span className="calendar__more">+{extra}</span>}
-                  {dayItems.length > 0 && <span className="calendar__count" aria-hidden="true">{dayItems.length}</span>}
-                </button>
-              );
-            })}
+                </div>
+              </div>
+            ))}
           </div>
 
           <section className="calendar__detail" aria-live="polite">
@@ -127,6 +148,7 @@ export default function CalendarPage({ todos, series, onAddLeave, onDeleteLeave 
                         {item.category && item.category !== '기본' && (
                           <span className="calendar__cat">{item.category}</span>
                         )}
+                        {formatPeriod(item) && <span className="calendar__period">{formatPeriod(item)}</span>}
                         <span className={`calendar__item-txt${item.completed ? ' calendar__item-txt--done' : ''}`}>
                           {item.text}
                         </span>

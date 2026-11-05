@@ -87,7 +87,7 @@ describe('TodoInput 종류 선택', () => {
   it('연차·휴가는 날짜가 없으면 추가하지 않고 안내한다', () => {
     const utils = renderInput();
     fireEvent.change(utils.getByLabelText('종류'), { target: { value: 'leave' } });
-    typeAndSubmit(utils, '연차');
+    fireEvent.click(utils.getByRole('button', { name: '추가' })); // 연차 모드에는 글 입력칸이 없다
     expect(utils.onAdd).not.toHaveBeenCalled();
     expect(utils.getByText('연차·휴가는 날짜를 선택해 주세요.')).toBeTruthy();
   });

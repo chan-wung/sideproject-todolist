@@ -20,6 +20,7 @@ import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
 import type { Todo, CompletionLogEntry } from './types/todo';
 import { generateId } from './utils/id';
+import { normalizeKind } from './utils/kind';
 import { downloadBackup } from './utils/backup';
 import { parseBackup } from './utils/backupData';
 import {
@@ -236,13 +237,6 @@ export default function App() {
     showToast({ message: '할 일을 복사해서 아래에 추가했습니다.', type: 'success' });
   }
 
-  // 캘린더에서 날짜를 눌러 연차·휴가를 바로 등록한다 (날짜가 곧 보고서의 날짜)
-  function handleAddLeave(date: string, text: string) {
-    addTodo(text, 'medium', date, '', 'none', 'leave');
-    const [, m, d] = date.split('-');
-    showToast({ message: `${Number(m)}월 ${Number(d)}일 “${text}”을(를) 등록했습니다.`, type: 'success' });
-  }
-
   function handleResetTodos() {
     resetTodos();
     showToast({ message: '할일을 초기화했습니다.', type: 'danger' });
@@ -323,7 +317,11 @@ export default function App() {
       <div className="todo-app__view">
       {view === 'todos' ? (
         <TodoPage
-          inputProps={{ onAdd: addTodo, categories: categoryOptions }}
+          inputProps={{
+            onAdd: addTodo,
+            categories: categoryOptions,
+            leaveTitlesOn: date => allTodos.filter(t => normalizeKind(t.kind) === 'leave' && t.dueDate === date).map(t => t.text),
+          }}
           dueSummaryProps={{ dueTodayCount, overdueCount, onJump: (scope) => setDueScope(scope) }}
           filterBarProps={{
             filterStatus,
@@ -390,7 +388,7 @@ export default function App() {
       ) : view === 'dashboard' ? (
         <DashboardPage todos={allTodos} completionLog={completionLog} />
       ) : view === 'calendar' ? (
-        <CalendarPage todos={allTodos} series={recurrenceSeries} completionLog={completionLog} onAddLeave={handleAddLeave} onDeleteLeave={deleteTodo} />
+        <CalendarPage todos={allTodos} series={recurrenceSeries} completionLog={completionLog} />
       ) : view === 'memo' ? (
         <MemoPage
           memos={memos}

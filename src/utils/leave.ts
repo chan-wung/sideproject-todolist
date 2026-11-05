@@ -48,3 +48,21 @@ export function composeLeaveText(input: LeaveInput): string | null {
 export function isSameLeave(savedText: string, base: string): boolean {
   return savedText === base || savedText.startsWith(`${base} (`);
 }
+
+export interface LeaveStatus {
+  /** 등록할 최종 제목 한 줄. 아직 덜 입력했으면 null */
+  text: string | null;
+  /** 시간 연차의 시각 안내 (문제가 없으면 null) */
+  timeError: string | null;
+  /** 그날 이미 같은 이름의 연차가 있는지 */
+  duplicate: boolean;
+  canSubmit: boolean;
+}
+
+// 입력 폼이 보여 줄 안내와 등록 가능 여부를 한 번에 계산한다. savedLeaves는 그날 이미 등록된 연차·휴가의 제목들.
+export function leaveStatus(input: LeaveInput, savedLeaves: string[]): LeaveStatus {
+  const base = leaveBase(input);
+  const text = composeLeaveText(input);
+  const duplicate = !!base && savedLeaves.some(saved => isSameLeave(saved, base));
+  return { text, timeError: leaveError(input), duplicate, canSubmit: !!text && !duplicate };
+}

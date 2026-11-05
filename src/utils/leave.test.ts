@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { leaveBase, leaveError, composeLeaveText, isSameLeave, type LeaveInput } from './leave';
+import { leaveBase, leaveError, composeLeaveText, isSameLeave, leaveStatus, type LeaveInput } from './leave';
 
 function input(overrides: Partial<LeaveInput> = {}): LeaveInput {
   return { type: 'annual', start: '', end: '', name: '', reason: '', ...overrides };
@@ -75,5 +75,29 @@ describe('isSameLeave', () => {
     expect(isSameLeave('연차 14:00~15:00', '연차')).toBe(false); // 하루 연차와 시간 연차는 다르다
     expect(isSameLeave('연차 15:00~16:00', '연차 14:00~15:00')).toBe(false);
     expect(isSameLeave('연차휴가', '연차')).toBe(false);
+  });
+});
+
+describe('leaveStatus', () => {
+  it('입력이 갖춰지면 등록할 제목과 등록 가능 여부를 알려 준다', () => {
+    expect(leaveStatus(input({ reason: '병원' }), [])).toEqual({ text: '연차 (병원)', timeError: null, duplicate: false, canSubmit: true });
+  });
+
+  it('덜 입력했으면 등록할 수 없다 (기타는 이름, 시간 연차는 시각이 필요)', () => {
+    expect(leaveStatus(input({ type: 'custom' }), []).canSubmit).toBe(false);
+    expect(leaveStatus(input({ type: 'hourly', start: '14:00' }), []).canSubmit).toBe(false);
+  });
+
+  it('종료가 시작보다 늦지 않으면 안내 문구와 함께 등록할 수 없다', () => {
+    const s = leaveStatus(input({ type: 'hourly', start: '15:00', end: '14:00' }), []);
+    expect(s.timeError).toBe('종료 시각은 시작 시각보다 늦어야 합니다.');
+    expect(s.canSubmit).toBe(false);
+  });
+
+  it('그날 같은 이름이 있으면(사유가 달라도) 중복이라 등록할 수 없다', () => {
+    const s = leaveStatus(input(), ['연차 (병원 진료)']);
+    expect(s.duplicate).toBe(true);
+    expect(s.canSubmit).toBe(false);
+    expect(leaveStatus(input({ type: 'am' }), ['연차 (병원 진료)']).canSubmit).toBe(true);
   });
 });

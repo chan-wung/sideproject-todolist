@@ -165,7 +165,7 @@ export default function DashboardPage({ todos, completionLog }: Props) {
               </ul>
             )}
             <p className="dashboard__hint">
-              <a className="dashboard__link" href={viewHref('calendar')}>캘린더에서 등록</a>
+              <a className="dashboard__link" href={viewHref('todos')}>할 일에서 등록</a>
               {' · '}
               <a className="dashboard__link" href={viewHref('report')}>주간보고 보기</a>
             </p>

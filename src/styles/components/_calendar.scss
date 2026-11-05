@@ -278,35 +278,22 @@
     }
   }
 
-  &__item-del {
-    @include size(28);
-    @include flex-center;
-    flex-shrink: 0;
-    color: var(--txt-color-base);
-    background: transparent;
-    border: 0;
-    border-radius: 50%;
-    cursor: pointer;
-    @include transition(color background-color);
-
-    svg {
-      @include size(15);
-      display: block;
-    }
-
-    &:hover {
-      color: var(--color-danger);
-      background: var(--color-white);
-    }
-
-    &:focus-visible {
-      outline: 2px dashed var(--color-main);
-      outline-offset: 2px;
-    }
-  }
-
   &__empty {
     color: var(--txt-color-base);
     @include font(13);
+  }
+
+  &__hint {
+    margin-top: rem(14);
+    padding-top: rem(12);
+    color: var(--txt-color-base);
+    border-top: 1px solid var(--color-border);
+    @include font(12);
+  }
+
+  &__link {
+    color: var(--color-main);
+    @include font(12, "Medium");
+    text-decoration: underline;
   }
 }

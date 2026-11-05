@@ -5,20 +5,15 @@ import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
 import { useDayChange } from '../hooks/useDayChange';
 import { buildCalendarItems, formatPeriod, itemsOnDate, layoutMonth, monthRange, type CalendarItem } from '../utils/calendar';
 import { formatMonthDayWeekday, todayStr } from '../utils/date';
+import { viewHref } from '../hooks/useView';
 import PeriodNav from '../components/PeriodNav';
 import PageHead from '../components/PageHead';
-import LeaveForm from '../components/LeaveForm';
-import { DeleteIcon } from '../components/icons';
 
 interface Props {
   todos: Todo[];
   series: RecurrenceSeries[];
   /** '완료 정리'로 목록에서 빠진 항목. 캘린더에는 원래 기간에 계속 보인다 */
   completionLog: CompletionLogEntry[];
-  /** 고른 날짜에 연차·휴가를 등록한다 */
-  onAddLeave: (date: string, text: string) => void;
-  /** 등록한 연차·휴가를 지운다 (할 일 삭제와 같아 실행취소 알림이 뜬다) */
-  onDeleteLeave: (todoId: string) => void;
 }
 
 const MAX_LANES = 3; // 한 주에 띠로 보여 주는 최대 줄 수. 넘으면 날짜 칸에 '+N'
@@ -32,9 +27,9 @@ function itemClass(item: CalendarItem, block: string): string {
   ].filter(Boolean).join(' ');
 }
 
-// 월간 달력: 모든 할 일(완료·완료 정리된 것 포함), 연차, 정기 업무, 반복 일정의 앞날 예정을 보여 준다.
+// 월간 달력(보기 전용): 모든 할 일(완료·완료 정리된 것 포함), 연차, 정기 업무, 반복 일정의 앞날 예정을 보여 준다.
 // 기간이 있는 항목은 시작일부터 마감일까지 이어진 띠로 그린다.
-export default function CalendarPage({ todos, series, completionLog, onAddLeave, onDeleteLeave }: Props) {
+export default function CalendarPage({ todos, series, completionLog }: Props) {
   const [today, setToday] = useState(todayStr);
   const { year, month, label, goPrev, goNext, goTo } = useCalendarMonth(todayStr());
   const [selected, setSelected] = useState<string | null>(today);
@@ -152,31 +147,17 @@ export default function CalendarPage({ todos, series, completionLog, onAddLeave,
                         <span className={`calendar__item-txt${item.completed ? ' calendar__item-txt--done' : ''}`}>
                           {item.text}
                         </span>
-                        {item.kind === 'leave' && item.todoId && (
-                          <button
-                            type="button"
-                            className="calendar__item-del"
-                            onClick={() => onDeleteLeave(item.todoId as string)}
-                            aria-label={`${item.text} 삭제`}
-                            title="삭제"
-                          >
-                            <DeleteIcon />
-                          </button>
-                        )}
                       </li>
                     ))}
                   </ul>
                 )}
-                <LeaveForm
-                  key={selected}
-                  date={selected}
-                  savedLeaves={selectedItems.filter(i => i.kind === 'leave').map(i => i.text)}
-                  onSubmit={text => onAddLeave(selected, text)}
-                />
               </>
             ) : (
               <p className="calendar__empty">날짜를 눌러 그날의 일정을 확인하세요.</p>
             )}
+            <p className="calendar__hint">
+              연차·휴가와 새 할 일은 <a className="calendar__link" href={viewHref('todos')}>할 일</a> 화면에서 등록합니다.
+            </p>
           </section>
         </div>
       </div>

@@ -24,17 +24,13 @@ const ROUTINE_SERIES: RecurrenceSeries = {
 };
 
 function setup(todos: Todo[] = [], series: RecurrenceSeries[] = [], completionLog: CompletionLogEntry[] = []) {
-  const onAddLeave = vi.fn();
-  const onDeleteLeave = vi.fn();
-  const utils = render(
-    <CalendarPage todos={todos} series={series} completionLog={completionLog} onAddLeave={onAddLeave} onDeleteLeave={onDeleteLeave} />,
-  );
+  const utils = render(<CalendarPage todos={todos} series={series} completionLog={completionLog} />);
   const day = (n: number) => utils.getByRole('button', { name: new RegExp(`^\\d+월 ${n}일`) });
   const detail = () => utils.container.querySelector('.calendar__detail') as HTMLElement;
   // 띠는 날짜 칸 밖의 별도 층에 그려진다
   const bars = () => Array.from(utils.container.querySelectorAll<HTMLElement>('.calendar__bar'));
   const barTexts = () => bars().map(b => b.textContent);
-  return { ...utils, day, detail, bars, barTexts, onAddLeave, onDeleteLeave };
+  return { ...utils, day, detail, bars, barTexts };
 }
 
 describe('CalendarPage', () => {
@@ -195,7 +191,7 @@ describe('CalendarPage', () => {
   });
 });
 
-describe('CalendarPage — 연차·휴가 등록', () => {
+describe('CalendarPage — 보기 전용', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-11-04T10:00:00'));
@@ -206,79 +202,14 @@ describe('CalendarPage — 연차·휴가 등록', () => {
     vi.useRealTimers();
   });
 
-  it('고른 날짜(처음엔 오늘)에 연차를 한 번에 등록한다', () => {
-    const { getByRole, onAddLeave } = setup();
-    fireEvent.click(getByRole('button', { name: '등록' }));
-    expect(onAddLeave).toHaveBeenCalledTimes(1);
-    expect(onAddLeave).toHaveBeenCalledWith('2026-11-04', '연차');
-  });
-
-  it('다른 날짜를 누르면 그 날짜로, 종류와 사유까지 합쳐서 등록한다', () => {
-    const { getByRole, getByLabelText, day, onAddLeave } = setup();
-    fireEvent.click(day(6));
-    fireEvent.change(getByLabelText('종류'), { target: { value: 'am' } });
-    fireEvent.change(getByLabelText('사유 (선택)'), { target: { value: '병원 진료' } });
-    fireEvent.click(getByRole('button', { name: '등록' }));
-    expect(onAddLeave).toHaveBeenCalledWith('2026-11-06', '오전 반차 (병원 진료)');
-  });
-
-  it('그날 이미 등록된 연차와 같은 이름이면 막는다 (일반 업무는 영향 없음)', () => {
-    const blocked = setup([todo({ text: '연차 (병원 진료)', kind: 'leave', dueDate: '2026-11-04' })]);
-    expect((blocked.getByRole('button', { name: '등록' }) as HTMLButtonElement).disabled).toBe(true);
-    cleanup();
-
-    const free = setup([todo({ text: '연차', kind: 'task', dueDate: '2026-11-04' })]);
-    expect((free.getByRole('button', { name: '등록' }) as HTMLButtonElement).disabled).toBe(false);
-  });
-
-  it('날짜를 바꾸면 쓰던 내용은 비우고, 날짜를 안 고른 상태에서는 등록칸이 없다', () => {
-    const { getByRole, getByLabelText, queryByRole, day } = setup();
-    fireEvent.change(getByLabelText('종류'), { target: { value: 'pm' } });
-    fireEvent.click(day(6));
-    expect((getByLabelText('종류') as HTMLSelectElement).value).toBe('annual');
-
-    fireEvent.click(getByRole('button', { name: '다음 달' }));
-    expect(queryByRole('button', { name: '등록' })).toBeNull();
-  });
-});
-
-describe('CalendarPage — 연차·휴가 삭제', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-11-04T10:00:00'));
-  });
-
-  afterEach(() => {
-    cleanup();
-    vi.useRealTimers();
-  });
-
-  it('고른 날의 연차·휴가 항목에만 삭제 버튼이 있다 (일반 업무·정기 업무·예정은 없음)', () => {
-    const { getAllByRole, queryByRole, day } = setup(
-      [
-        todo({ id: 'leave1', text: '연차 (병원 진료)', kind: 'leave', dueDate: '2026-11-06' }),
-        todo({ id: 'task1', text: '일반 업무', kind: 'task', dueDate: '2026-11-06' }),
-        todo({ id: 'routine1', text: '정기 점검', kind: 'routine', dueDate: '2026-11-06' }),
-      ],
-      [ROUTINE_SERIES],
-    );
-    fireEvent.click(day(6));
-    expect(getAllByRole('button', { name: /삭제$/ })).toHaveLength(1);
-    expect(getAllByRole('button', { name: '연차 (병원 진료) 삭제' })).toHaveLength(1);
-    expect(queryByRole('button', { name: '일반 업무 삭제' })).toBeNull();
-
-    fireEvent.click(day(9)); // 반복 일정의 예정 회차
-    expect(queryByRole('button', { name: /삭제$/ })).toBeNull();
-  });
-
-  it('삭제 버튼을 누르면 그 연차의 할 일 id로 삭제를 알린다', () => {
-    const { getByRole, day, onDeleteLeave } = setup([
-      todo({ id: 'leave1', text: '오전 반차', kind: 'leave', dueDate: '2026-11-06' }),
-      todo({ id: 'leave2', text: '오후 반차', kind: 'leave', dueDate: '2026-11-06' }),
+  it('연차·휴가 등록 폼과 삭제 버튼이 없고, 할 일 화면으로 가는 안내만 둔다', () => {
+    const { queryByRole, queryByLabelText, getByRole, day } = setup([
+      todo({ text: '연차 (병원 진료)', kind: 'leave', dueDate: '2026-11-06' }),
     ]);
     fireEvent.click(day(6));
-    fireEvent.click(getByRole('button', { name: '오후 반차 삭제' }));
-    expect(onDeleteLeave).toHaveBeenCalledTimes(1);
-    expect(onDeleteLeave).toHaveBeenCalledWith('leave2');
+    expect(queryByLabelText('사유 (선택)')).toBeNull();
+    expect(queryByRole('button', { name: '등록' })).toBeNull();
+    expect(queryByRole('button', { name: /삭제$/ })).toBeNull();
+    expect(getByRole('link', { name: '할 일' }).getAttribute('href')).toBe('#/todos');
   });
 });

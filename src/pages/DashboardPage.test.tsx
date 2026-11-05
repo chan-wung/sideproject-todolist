@@ -127,7 +127,7 @@ describe('DashboardPage', () => {
     expect(within(none.card('못 한 정기 업무')).getByText('이번 주 마감인 정기 업무를 모두 마쳤습니다.')).toBeTruthy();
   });
 
-  it('이번 주 연차·휴가를 날짜와 함께 보여 주고 캘린더·주간보고로 가는 링크를 둔다', () => {
+  it('이번 주 연차·휴가를 날짜와 함께 보여 주고 할 일·주간보고로 가는 링크를 둔다', () => {
     const { card } = setup([
       todo({ text: '연차 14:00~15:00 (병원 진료)', kind: 'leave', dueDate: '2026-11-06' }),
       todo({ text: '다음 주 연차', kind: 'leave', dueDate: '2026-11-10' }),
@@ -136,7 +136,7 @@ describe('DashboardPage', () => {
     expect(c.getByText('11월 6일 (금)')).toBeTruthy();
     expect(c.getByText('연차 14:00~15:00 (병원 진료)')).toBeTruthy();
     expect(c.queryByText('다음 주 연차')).toBeNull();
-    expect(c.getByRole('link', { name: '캘린더에서 등록' }).getAttribute('href')).toBe('#/calendar');
+    expect(c.getByRole('link', { name: '할 일에서 등록' }).getAttribute('href')).toBe('#/todos');
     expect(c.getByRole('link', { name: '주간보고 보기' }).getAttribute('href')).toBe('#/report');
   });
 

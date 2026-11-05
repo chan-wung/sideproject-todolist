@@ -30,6 +30,16 @@ export default function AppNav({ current, collapsed, onToggleCollapsed }: Props)
           <img className="app-nav__brand-img" src="/logo.svg" alt="" width="40" height="40" />
           <span className="app-nav__brand-tit">Todo List</span>
         </ViewLink>
+        <button
+          type="button"
+          className="app-nav__toggle"
+          onClick={onToggleCollapsed}
+          aria-expanded={!collapsed}
+          aria-label={toggleLabel}
+          title={toggleLabel}
+        >
+          <span className="app-nav__toggle-ico"><ChevronLeftIcon /></span>
+        </button>
         <nav className="app-nav__wrap" aria-label="주 메뉴">
           <ul className="app-nav__list">
             {VIEW_OPTIONS.map(view => (
@@ -46,17 +56,6 @@ export default function AppNav({ current, collapsed, onToggleCollapsed }: Props)
               </li>
             ))}
           </ul>
-          <button
-            type="button"
-            className="app-nav__toggle"
-            onClick={onToggleCollapsed}
-            aria-expanded={!collapsed}
-            aria-label={toggleLabel}
-            title={toggleLabel}
-          >
-            <span className="app-nav__toggle-ico"><ChevronLeftIcon /></span>
-            <span className="app-nav__toggle-txt" aria-hidden="true">접기</span>
-          </button>
         </nav>
       </div>
     </aside>

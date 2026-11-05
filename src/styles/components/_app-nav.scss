@@ -240,27 +240,29 @@
     }
   }
 
-  // 접기·펴기 버튼은 사이드바에서만 보인다
+  // 접기·펴기 버튼: 메뉴가 아니라 사이드바 자체를 조작하는 버튼이라, 메뉴 항목과 다르게
+  // 카드 오른쪽 테두리에 걸친 작은 원형 화살표로 둔다. 사이드바에서만 보인다.
   &__toggle {
     display: none;
 
     @include shell {
-      height: rem(44);
-      margin-top: auto;
-      padding: 0 rem(16);
-      display: flex;
-      align-items: center;
-      gap: rem(12);
+      @include size(28);
+      @include flex-center;
       color: var(--txt-color-base);
-      background: transparent;
-      border: 0;
-      border-radius: rem(14);
-      @include font(14, "Medium");
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      position: absolute;
+      top: rem(30);
+      right: rem(-14);
+      z-index: 1;
       cursor: pointer;
-      @include transition();
+      @include transition(color border-color);
 
       &:hover {
-        background: var(--color-main-5);
+        color: var(--color-main);
+        border-color: var(--color-main);
       }
 
       &:focus-visible {
@@ -271,31 +273,17 @@
   }
 
   &__toggle-ico {
-    flex-shrink: 0;
+    display: flex;
 
     svg {
-      @include size(20);
+      @include size(16);
       display: block;
       @include transition(transform);
     }
   }
 
-  &--collapsed &__toggle {
-    @include shell {
-      width: rem(48);
-      height: rem(48);
-      margin: auto auto 0;
-      padding: 0;
-      justify-content: center;
-      border-radius: 9999px;
-    }
-  }
-
+  // 접히면 화살표 방향이 뒤집힌다
   &--collapsed &__toggle-ico svg {
     transform: rotate(180deg);
-  }
-
-  &--collapsed &__toggle-txt {
-    display: none;
   }
 }

@@ -8,8 +8,8 @@
   background: var(--color-white);
   border: none;
   border-radius: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  // 첫 그림자는 카드를 16px 위로 옮긴 배경색 면이다. 붙어 있을 때 둥근 모서리 바깥으로 목록이 비쳐 보이지 않게 덮는다
+  box-shadow: 0 rem(-16) 0 0 var(--color-bg), 0 4px 16px rgba(0, 0, 0, 0.08);
   position: sticky;
   top: rem(16);
   z-index: 100;
@@ -17,6 +17,18 @@
   // 넓은 화면에서는 상단 헤더(64px)에 가리지 않게 그 아래에 붙인다
   @include shell {
     top: rem(80);
+  }
+
+  // 붙어 있을 때 카드 위쪽 빈틈(top 값만큼)으로 스크롤되는 목록이 비쳐 보이지 않게, 카드 뒤에 페이지 배경색을 깐다
+  &::before {
+    content: '';
+    height: rem(16);
+    background: var(--color-bg);
+    position: absolute;
+    top: rem(-16);
+    left: 0;
+    right: 0;
+    z-index: -1;
   }
 
   &__row {

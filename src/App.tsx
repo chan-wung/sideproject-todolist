@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTodos } from './hooks/useTodos';
 import { useMemos } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
@@ -6,6 +6,8 @@ import { usePersistentState } from './hooks/usePersistentState';
 import { useSelection } from './hooks/useSelection';
 import { useView, navigate } from './hooks/useView';
 import { useBackupReminder } from './hooks/useBackupReminder';
+import { useToast } from './hooks/useToast';
+import { useShareActions } from './hooks/useShareActions';
 import TodoPage from './pages/TodoPage';
 import WeeklyReportPage from './pages/WeeklyReportPage';
 import CalendarPage from './pages/CalendarPage';
@@ -13,31 +15,19 @@ import DashboardPage from './pages/DashboardPage';
 import AppNav from './components/AppNav';
 import BackupReminder from './components/BackupReminder';
 import Toast from './components/Toast';
+import ScrollTopButton from './components/ScrollTopButton';
 import MemoPage from './pages/MemoPage';
 import AppToolbar from './components/AppToolbar';
 import SettingsModal from './components/SettingsModal';
 import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
 import type { Todo, CompletionLogEntry } from './types/todo';
-import { generateId } from './utils/id';
 import { normalizeKind } from './utils/kind';
 import { downloadBackup } from './utils/backup';
 import { parseBackup } from './utils/backupData';
-import {
-  todoToText, copyText, shareText, completionLogEntryToText, completionLogEntriesToText,
-  copyFeedback, shareFeedback, kakaoFeedback,
-} from './utils/share';
-import { preloadKakao, shareToKakao } from './utils/kakao';
+import { todoToText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
+import { preloadKakao } from './utils/kakao';
 import './styles/main.scss';
-
-interface ToastState {
-  id: string;
-  message: string;
-  actionLabel?: string;
-  onAction?: () => void;
-  duration?: number;
-  type?: 'primary' | 'success' | 'danger';
-}
 
 export default function App() {
   const {
@@ -132,11 +122,8 @@ export default function App() {
   const { lastBackup, reminder, markBackedUp, snooze } = useBackupReminder(hasData);
   const [navCollapsed, setNavCollapsed] = usePersistentState<boolean>('todolist-pref-nav-collapsed', false);
 
-  const [toast, setToast] = useState<ToastState | null>(null);
-
-  const showToast = useCallback((state: Omit<ToastState, 'id'>) => {
-    setToast({ ...state, id: generateId() });
-  }, []);
+  const { toast, showToast, clearToast } = useToast();
+  const { runCopy, runShare, runKakaoShare } = useShareActions(showToast);
 
   useEffect(() => {
     if (!undoMessage) return;
@@ -213,21 +200,6 @@ export default function App() {
     handleClearSelection();
   }
 
-  // 복사·공유·카카오 공유를 실행하고 결과에 맞는 토스트를 띄운다.
-  async function runCopy(text: string, successMessage: string) {
-    showToast(copyFeedback(await copyText(text), successMessage));
-  }
-
-  async function runShare(title: string, text: string) {
-    const feedback = shareFeedback(await shareText(title, text));
-    if (feedback) showToast(feedback);
-  }
-
-  async function runKakaoShare(text: string) {
-    const feedback = kakaoFeedback(await shareToKakao(text));
-    if (feedback) showToast(feedback);
-  }
-
   const handleCopyTodo = (todo: Todo) => runCopy(todoToText(todo), '할 일을 클립보드에 복사했습니다.');
   const handleShareTodo = (todo: Todo) => runShare('할 일 공유', todoToText(todo));
   const handleKakaoShareTodo = (todo: Todo) => runKakaoShare(todoToText(todo));
@@ -280,18 +252,6 @@ export default function App() {
     navigate('memo');
   }
 
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 0);
-    };
-    window.addEventListener('scroll', handleScroll);
-    // 초기 로드 시에도 한 번 체크
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
     <>
       {toast && (
@@ -302,7 +262,7 @@ export default function App() {
           actionLabel={toast.actionLabel}
           onAction={toast.onAction}
           type={toast.type}
-          onClose={() => { setToast(null); dismissUndo(); }}
+          onClose={() => { clearToast(); dismissUndo(); }}
         />
       )}
       <AppToolbar navCollapsed={navCollapsed} getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
@@ -445,16 +405,7 @@ export default function App() {
         onKakaoShareAll={handleKakaoShareAllLog}
       />
 
-      {showScrollTop && (
-        <button
-          type="button"
-          className="scroll-top-btn"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          aria-label="맨 위로"
-        >
-          ↑
-        </button>
-      )}
+      <ScrollTopButton />
 
       <footer className="todo-app__footer">
         <p className="todo-app__footer-copy">

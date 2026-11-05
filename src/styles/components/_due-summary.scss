@@ -3,7 +3,7 @@
   display: flex;
   gap: rem(8);
 
-  @media (max-width: $break_tab) {
+  @include below_tab {
     flex-direction: column;
   }
 

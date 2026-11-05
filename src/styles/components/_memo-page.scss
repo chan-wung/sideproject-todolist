@@ -34,7 +34,7 @@
     display: flex;
     overflow: hidden;
 
-    @media (max-width: $break_tab) {
+    @include below_tab {
       flex-direction: column;
     }
   }
@@ -47,7 +47,7 @@
     border-right: 1px solid var(--color-border);
     overflow: hidden;
 
-    @media (max-width: $break_tab) {
+    @include below_tab {
       width: 100%;
       height: auto;
       border-right: none;
@@ -63,7 +63,7 @@
   &__controls-toggle {
     display: none;
 
-    @media (max-width: $break_tab) {
+    @include below_tab {
       flex-shrink: 0;
       width: 100%;
       height: rem(36);
@@ -100,7 +100,7 @@
     background: var(--color-main-5);
     overflow: hidden;
 
-    @media (max-width: $break_tab) {
+    @include below_tab {
       flex: none;
       display: none;
 
@@ -325,7 +325,7 @@
     background: var(--color-white);
 
     &--hidden-mobile {
-      @media (max-width: $break_tab) {
+      @include below_tab {
         display: none;
       }
     }

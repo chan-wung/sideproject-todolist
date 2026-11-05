@@ -5,6 +5,13 @@
   }
 }
 
+// 태블릿 미만(768px 이하): 모달·필터 막대 등 작은 화면 전용 스타일
+@mixin below_tab {
+  @media (max-width: #{$break_tab}) {
+    @content;
+  }
+}
+
 @mixin pc {
   @media (min-width: #{$break_pc}) {
     @content;

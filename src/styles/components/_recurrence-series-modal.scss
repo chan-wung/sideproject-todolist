@@ -159,7 +159,7 @@ dialog.recurrence-modal {
     border: 1px solid var(--color-border);
     border-radius: 10px;
 
-    @media (max-width: $break_tab) {
+    @include below_tab {
       flex-direction: column;
     }
 
@@ -216,7 +216,7 @@ dialog.recurrence-modal {
     gap: rem(6);
     align-items: flex-start;
 
-    @media (max-width: $break_tab) {
+    @include below_tab {
       align-items: stretch;
     }
   }

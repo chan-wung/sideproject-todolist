@@ -16,11 +16,7 @@ export default function CategoryPickerModal({ categories, value, onApply, onClos
   const [selected, setSelected] = useState(isPreset ? value : CUSTOM);
   const [customText, setCustomText] = useState(isPreset ? '' : value);
 
-  useModalDialog(dialogRef, true);
-
-  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onClose();
-  }
+  const handleBackdropClick = useModalDialog(dialogRef, true, onClose);
 
   function handleApply() {
     const next = selected === CUSTOM ? customText.trim() : selected;

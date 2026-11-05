@@ -11,11 +11,7 @@ export default function ConfirmModal({ message, onConfirm, onCancel }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   // 마운트되면 바로 열린다. Escape로 닫힐 때의 상태 동기화는 <dialog onCancel>로 위임
-  useModalDialog(dialogRef, true);
-
-  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onCancel();
-  }
+  const handleBackdropClick = useModalDialog(dialogRef, true, onCancel);
 
   return (
     <dialog ref={dialogRef} className="confirm-modal" onClick={handleBackdropClick} onCancel={onCancel}>

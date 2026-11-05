@@ -73,4 +73,38 @@ describe('useModalDialog', () => {
     expect(dialog.open).toBe(false);
     expect(document.body.style.overflow).toBe('');
   });
+
+  describe('바깥(backdrop) 클릭', () => {
+    function setupWithClose() {
+      const onClose = vi.fn();
+      const dialog = document.createElement('dialog');
+      const inner = document.createElement('div');
+      dialog.append(inner);
+      document.body.append(dialog);
+      const ref = { current: dialog } as RefObject<HTMLDialogElement>;
+      const { result } = renderHook(() => useModalDialog(ref, true, onClose));
+      const click = (target: Element) => result.current({ target } as unknown as React.MouseEvent<HTMLDialogElement>);
+      return { dialog, inner, onClose, click };
+    }
+
+    it('dialog 자체(어두운 바깥)를 누르면 onClose를 부른다', () => {
+      const { dialog, onClose, click } = setupWithClose();
+      click(dialog);
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('안쪽 내용을 누르면 닫지 않는다', () => {
+      const { inner, onClose, click } = setupWithClose();
+      click(inner);
+      expect(onClose).not.toHaveBeenCalled();
+    });
+
+    it('onClose를 안 넘기면 눌러도 아무 일 없다', () => {
+      const dialog = document.createElement('dialog');
+      document.body.append(dialog);
+      const ref = { current: dialog } as RefObject<HTMLDialogElement>;
+      const { result } = renderHook(() => useModalDialog(ref, true));
+      expect(() => result.current({ target: dialog } as unknown as React.MouseEvent<HTMLDialogElement>)).not.toThrow();
+    });
+  });
 });

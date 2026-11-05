@@ -115,7 +115,7 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
   const [editForm, setEditForm] = useState<SeriesInput>(EMPTY_ADD);
   const [confirm, setConfirm] = useState<{ type: 'end' | 'delete'; id: string } | null>(null);
 
-  useModalDialog(dialogRef, isOpen);
+  const handleBackdropClick = useModalDialog(dialogRef, isOpen, onClose);
 
   // 닫힐 때 입력 중이던 폼 상태를 초기화한다.
   useEffect(() => {
@@ -124,10 +124,6 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
       setAddForm(EMPTY_ADD);
     }
   }, [isOpen]);
-
-  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onClose();
-  }
 
   if (!isOpen) return null;
 

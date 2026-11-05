@@ -29,7 +29,7 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  useModalDialog(dialogRef, isOpen);
+  const handleBackdropClick = useModalDialog(dialogRef, isOpen, onClose);
 
   function handleConfirm() {
     if (pendingAction === 'todos') onResetTodos();
@@ -38,10 +38,6 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
     else if (pendingAction === 'completionLog') onResetCompletionLog();
     setPendingAction(null);
     onClose();
-  }
-
-  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onClose();
   }
 
   if (!isOpen) return null;

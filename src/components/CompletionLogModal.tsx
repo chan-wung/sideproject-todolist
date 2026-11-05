@@ -40,11 +40,7 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
   const [searchDateEnd, setSearchDateEnd] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
 
-  useModalDialog(dialogRef, isOpen);
-
-  function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onClose();
-  }
+  const handleBackdropClick = useModalDialog(dialogRef, isOpen, onClose);
 
   if (!isOpen) return null;
 

@@ -38,12 +38,6 @@ export function completionLogEntriesToText(entries: CompletionLogEntry[]): strin
   return entries.map(completionLogEntryToText).join('\n\n');
 }
 
-// 엑셀에 붙여넣을 때 여러 줄이 줄마다 다른 행으로 흩어지지 않고 한 칸에 들어가도록, 전체를 큰따옴표로 감싼다.
-// (엑셀은 따옴표로 감싼 칸 안의 줄바꿈을 그 칸의 일부로 읽고, 안쪽 큰따옴표는 두 번 써서 구분한다.)
-export function toExcelCell(text: string): string {
-  return `"${text.replace(/"/g, '""')}"`;
-}
-
 export async function copyText(text: string): Promise<boolean> {
   try {
     if (navigator.clipboard?.writeText) {

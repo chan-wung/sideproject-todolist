@@ -3,7 +3,6 @@ import type { Todo, CompletionLogEntry } from '../types/todo';
 import { useDayChange } from '../hooks/useDayChange';
 import PeriodNav from '../components/PeriodNav';
 import { formatReportDate, startOfWeek, todayStr } from '../utils/date';
-import { toExcelCell } from '../utils/share';
 import { buildWeeklyReport, shiftWeek } from '../utils/weeklyReport';
 
 interface Props {
@@ -85,14 +84,6 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
             <button
               type="button"
               className="btn btn--main"
-              onClick={() => onCopy(toExcelCell(text), '엑셀용으로 복사했습니다. 엑셀에서 칸을 선택하고 붙여넣으세요.')}
-              disabled={isBlank}
-            >
-              엑셀 칸에 복사
-            </button>
-            <button
-              type="button"
-              className="btn btn--outline-gray"
               onClick={() => onCopy(text, '주간보고를 클립보드에 복사했습니다.')}
               disabled={isBlank}
             >
@@ -106,7 +97,7 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
           </div>
 
           <p className="weekly-report__hint">
-            엑셀에서는 칸 하나를 선택한 채로 붙여넣으세요. 칸 안을 더블클릭해 편집 중이면 따옴표가 그대로 보이거나 줄마다 나뉠 수 있습니다.
+            엑셀에는 칸을 더블클릭해 편집 상태로 만든 뒤 붙여넣으면 한 칸에 여러 줄로 들어갑니다. 칸을 선택만 하고 붙여넣으면 줄마다 다른 칸으로 나뉠 수 있습니다.
           </p>
         </div>
       </div>

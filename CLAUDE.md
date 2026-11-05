@@ -41,7 +41,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `useCalendarMonth`: 달력에 보이는 달·월 이동·앞 빈칸·일수 (`DatePicker`·`DateRangePicker`·`CalendarPage`가 같이 씀)
   - `useSelection`(선택 모드), `useModalDialog`, `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
-- `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(날짜별 캘린더 항목), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기), `share`(복사·공유·엑셀 칸 복사와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
+- `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(날짜별 캘린더 항목), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
 - **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 `h1`로 그린다(앱 공통 헤더는 없음). 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 상단 메뉴에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
 - `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일. 레이아웃 폭 기준은 `$break_shell`(1024px)과 `@include shell`
 
@@ -67,7 +67,6 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | 업무 종류 이름·`<option>` 목록, 값 정규화 | `KIND_LABEL`/`KIND_OPTIONS`, `normalizeKind` |
 | 화면 이름·메뉴 목록 | `labels.ts`의 `VIEW_LABEL`/`VIEW_OPTIONS`, 현재 화면은 `useView` |
 | 주 시작(월요일)·로컬 날짜·`2026.11.2` 표기 | `date.ts`의 `startOfWeek`/`toLocalDateStr`/`formatReportDate` |
-| 여러 줄 글을 엑셀 한 칸으로 복사 | `share.ts`의 `toExcelCell` |
 | 달력 칸(월 이동·빈칸·일수), 칸의 날짜 문자열 | `useCalendarMonth`, `date.ts`의 `dateStr` |
 | 주·달 이동 막대 | `PeriodNav` |
 | 백업 파일 읽기·검증(가져오기) | `utils/backupData.ts`의 `parseBackup` (검증 실패면 아무것도 적용하지 않음) |
@@ -95,7 +94,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - **실기기 미확인**: 모바일 PWA와 카카오톡 공유는 직접 눌러 확인하지 못했습니다.
 - **전용 테스트 없음**: `useRecurrenceSeries`는 `useTodos.test.ts`가 간접적으로만 검증합니다.
 - **작은 동작 차이**: 하위 항목 입력창에 보내지 않은 글자가 있을 때 카드 편집 모드로 들어갔다 돌아오면 글자가 지워집니다(`TodoItemSubtasks`가 편집 중 언마운트되기 때문). 의도한 변경이 아니므로, 거슬리면 입력 상태를 `TodoItem`으로 올립니다.
-- **엑셀 붙여넣기 미확인**: 주간보고 `엑셀 칸에 복사`가 실제 공동 엑셀(웹)에서 한 칸에 들어가는지 확인하지 못했습니다. 안 되면 `toExcelCell` 방식을 바꿉니다.
+- **엑셀 붙여넣기**: 주간보고는 `텍스트 복사` 하나뿐이다. 따옴표로 감싸 한 칸에 넣는 `엑셀 칸에 복사` 방식은 실제로 써 보니 맞지 않아 빼고 `toExcelCell`도 지웠다. 엑셀 칸을 더블클릭한 편집 상태에서 붙여넣어 한 칸에 들어가는지는 아직 확인하지 못했다.
 - **미확인 화면**: 사이드바·주간보고의 다크모드와 좁은 화면(1024px 미만)은 눈으로 확인하지 못했습니다.
 - **작은 동작 차이**: 화면을 옮기면 `TodoPage`가 언마운트되어 할 일 입력창에 쓰다 만 글자가 지워집니다. 거슬리면 입력 상태를 `App`으로 올립니다.
 - **작은 동작 차이**: 반복 회차 카드에서 종류를 바꾸면 그 회차만 바뀌고 시리즈 종류는 그대로입니다. 이전 완료 이력의 연차는 `dueDate`가 없어 주간보고에 들어가지 않습니다.

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { todoToText, memoToText, copyFeedback, shareFeedback, kakaoFeedback, toExcelCell } from './share';
+import { todoToText, memoToText, copyFeedback, shareFeedback, kakaoFeedback } from './share';
 import type { Todo } from '../types/todo';
 
 function makeTodo(overrides: Partial<Todo> = {}): Todo {
@@ -69,19 +69,5 @@ describe('feedback messages', () => {
   it('kakaoFeedback: 성공이면 null, 실패면 danger', () => {
     expect(kakaoFeedback(true)).toBeNull();
     expect(kakaoFeedback(false)?.type).toBe('danger');
-  });
-});
-
-describe('toExcelCell', () => {
-  it('여러 줄 텍스트 전체를 큰따옴표로 감싸 한 칸으로 붙여넣게 한다', () => {
-    expect(toExcelCell('첫 줄\n\n셋째 줄')).toBe('"첫 줄\n\n셋째 줄"');
-  });
-
-  it('안쪽 큰따옴표는 두 번 써서 구분한다', () => {
-    expect(toExcelCell('"중요" 업무')).toBe('"""중요"" 업무"');
-  });
-
-  it('빈 텍스트도 빈 칸으로 감싼다', () => {
-    expect(toExcelCell('')).toBe('""');
   });
 });

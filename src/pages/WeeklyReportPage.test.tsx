@@ -75,13 +75,14 @@ describe('WeeklyReportPage', () => {
     expect(getByText('2026년 11월 2주')).toBeTruthy();
   });
 
-  it('"엑셀 칸에 복사"는 따옴표로 감싼 글을, "텍스트 복사"는 그대로 복사한다', () => {
-    const { getByRole, onCopy } = setup();
-    fireEvent.click(getByRole('button', { name: '엑셀 칸에 복사' }));
-    expect(onCopy).toHaveBeenLastCalledWith(`"${THIS_WEEK_TEXT}"`, expect.stringContaining('엑셀'));
+  it('복사 버튼은 "텍스트 복사" 하나이고, 보고서 글을 따옴표 없이 그대로 복사한다', () => {
+    const { getByRole, getAllByRole, queryByRole, onCopy } = setup();
+    expect(queryByRole('button', { name: '엑셀 칸에 복사' })).toBeNull();
+    expect(getAllByRole('button').filter(b => b.textContent?.includes('복사'))).toHaveLength(1);
 
     fireEvent.click(getByRole('button', { name: '텍스트 복사' }));
-    expect(onCopy).toHaveBeenLastCalledWith(THIS_WEEK_TEXT, expect.any(String));
+    expect(onCopy).toHaveBeenCalledTimes(1);
+    expect(onCopy).toHaveBeenLastCalledWith(THIS_WEEK_TEXT, '주간보고를 클립보드에 복사했습니다.');
   });
 
   it('손으로 고친 내용이 복사되고, 되돌리기 버튼으로 자동 내용으로 돌아간다', () => {
@@ -107,7 +108,6 @@ describe('WeeklyReportPage', () => {
   it('완료한 일이 없는 주는 안내를 보여 주고 복사 버튼을 막는다', () => {
     const { getByText, getByRole } = setup([], []);
     expect(getByText(/이 주에 완료한 일이 없습니다/)).toBeTruthy();
-    expect((getByRole('button', { name: '엑셀 칸에 복사' }) as HTMLButtonElement).disabled).toBe(true);
     expect((getByRole('button', { name: '텍스트 복사' }) as HTMLButtonElement).disabled).toBe(true);
   });
 });

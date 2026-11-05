@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
-import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
+import { useCalendarMonth } from '../hooks/useCalendarMonth';
 import { dateStr, todayStr } from '../utils/date';
-import { ClearIcon } from './icons';
+import { PickerTrigger, PickerHeader, PickerGrid } from './DatePickerParts';
 
 interface Props {
   value: string;
@@ -34,10 +34,6 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
 
   // 달력 그리드 생성
   const today = todayStr();
-  const blanks = Array.from({ length: blankCount }).map((_, i) => (
-    <div key={`blank-${i}`} className="date-picker__cell date-picker__cell--empty" />
-  ));
-  
   const days = Array.from({ length: dayCount }).map((_, i) => {
     const day = i + 1;
     const str = dateStr(year, month, day);
@@ -58,42 +54,23 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
 
   return (
     <div className={`date-picker ${className}`} ref={containerRef}>
-      <div className="date-picker__trigger-wrap">
-        <button 
-          type="button"
-          className={`date-picker__input ${isOpen ? 'date-picker__input--active' : ''}`} 
-          onClick={() => setIsOpen(!isOpen)}
-          aria-expanded={isOpen}
-          aria-haspopup="dialog"
-          aria-labelledby={ariaLabelledby}
-        >
-          <span className="date-picker__value">{value || <span className="date-picker__placeholder">{placeholder}</span>}</span>
-        </button>
-        <div className="date-picker__actions">
-          {value && (
-            <button type="button" className="date-picker__clear" onClick={handleClear} aria-label="초기화">
-              <ClearIcon />
-            </button>
-          )}
-          <span className="date-picker__icon" aria-hidden="true">📅</span>
-        </div>
-      </div>
+      <PickerTrigger
+        block="date-picker"
+        isOpen={isOpen}
+        onToggle={() => setIsOpen(!isOpen)}
+        value={value || <span className="date-picker__placeholder">{placeholder}</span>}
+        hasValue={!!value}
+        onClear={handleClear}
+        aria-labelledby={ariaLabelledby}
+      />
 
       {isOpen && (
         <div className="date-picker__dropdown">
-          <div className="date-picker__header">
-            <button type="button" className="date-picker__nav" onClick={goPrev} aria-label="이전 달">&lt;</button>
-            <span className="date-picker__month">{label}</span>
-            <button type="button" className="date-picker__nav" onClick={goNext} aria-label="다음 달">&gt;</button>
-          </div>
-          
-          <div className="date-picker__grid">
-            {WEEKDAYS.map(d => (
-              <div key={d} className="date-picker__cell date-picker__cell--head">{d}</div>
-            ))}
-            {blanks}
+          <PickerHeader block="date-picker" label={label} onPrev={goPrev} onNext={goNext} />
+
+          <PickerGrid block="date-picker" blankCount={blankCount}>
             {days}
-          </div>
+          </PickerGrid>
         </div>
       )}
     </div>

@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
-import { useCalendarMonth, WEEKDAYS } from '../hooks/useCalendarMonth';
+import { useCalendarMonth } from '../hooks/useCalendarMonth';
 import { dateStr, todayStr } from '../utils/date';
-import { ClearIcon } from './icons';
+import { PickerTrigger, PickerHeader, PickerGrid } from './DatePickerParts';
 
 interface Props {
   startValue: string;
@@ -64,10 +64,6 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
   const rangeHigh = anchorStart && anchorEnd ? (anchorStart < anchorEnd ? anchorEnd : anchorStart) : anchorStart;
 
   const today = todayStr();
-  const blanks = Array.from({ length: blankCount }).map((_, i) => (
-    <div key={`blank-${i}`} className="date-range-picker__cell date-range-picker__cell--empty" />
-  ));
-
   const days = Array.from({ length: dayCount }).map((_, i) => {
     const day = i + 1;
     const str = dateStr(year, month, day);
@@ -104,44 +100,25 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
 
   return (
     <div className={`date-range-picker ${className}`} ref={containerRef}>
-      <div className="date-range-picker__trigger-wrap">
-        <button
-          type="button"
-          className={`date-range-picker__input ${isOpen ? 'date-range-picker__input--active' : ''}`}
-          onClick={handleToggle}
-          aria-expanded={isOpen}
-          aria-haspopup="dialog"
-          aria-labelledby={ariaLabelledby}
-        >
-          <span className="date-range-picker__value">{displayText || <span className="date-range-picker__placeholder">{placeholder}</span>}</span>
-        </button>
-        <div className="date-range-picker__actions">
-          {(startValue || endValue) && (
-            <button type="button" className="date-range-picker__clear" onClick={handleClear} aria-label="초기화">
-              <ClearIcon />
-            </button>
-          )}
-          <span className="date-range-picker__icon" aria-hidden="true">📅</span>
-        </div>
-      </div>
+      <PickerTrigger
+        block="date-range-picker"
+        isOpen={isOpen}
+        onToggle={handleToggle}
+        value={displayText || <span className="date-range-picker__placeholder">{placeholder}</span>}
+        hasValue={!!(startValue || endValue)}
+        onClear={handleClear}
+        aria-labelledby={ariaLabelledby}
+      />
 
       {isOpen && (
         <div className="date-range-picker__dropdown">
-          <div className="date-range-picker__header">
-            <button type="button" className="date-range-picker__nav" onClick={goPrev} aria-label="이전 달">&lt;</button>
-            <span className="date-range-picker__month">{label}</span>
-            <button type="button" className="date-range-picker__nav" onClick={goNext} aria-label="다음 달">&gt;</button>
-          </div>
+          <PickerHeader block="date-range-picker" label={label} onPrev={goPrev} onNext={goNext} />
 
           <p className="date-range-picker__hint">{pendingStart ? '종료일을 선택하세요 (하루만이면 같은 날을 다시 누르세요)' : '시작일을 선택하세요'}</p>
 
-          <div className="date-range-picker__grid">
-            {WEEKDAYS.map(d => (
-              <div key={d} className="date-range-picker__cell date-range-picker__cell--head">{d}</div>
-            ))}
-            {blanks}
+          <PickerGrid block="date-range-picker" blankCount={blankCount}>
             {days}
-          </div>
+          </PickerGrid>
         </div>
       )}
     </div>

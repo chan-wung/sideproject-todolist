@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  isToday, isOverdue, isThisWeek, formatDate, calculateNextRecurrence,
+  isToday, isOverdue, isThisWeek, formatDate,
   addMonthsClamped, addDaysStr, nthOccurrence, occurrencesInRange, upcomingOccurrences,
   yearProgress, startOfWeek, endOfWeek, weekOfMonthLabel, formatReportDate, toLocalDateStr,
 } from './date';
@@ -64,18 +64,6 @@ describe('date utils', () => {
   it('formatDate', () => {
     expect(formatDate('2026-07-02')).toBe('2026.07.02');
     expect(formatDate('2026-07-02T10:00:00.000Z')).toBe('2026.07.02');
-  });
-
-  it('calculateNextRecurrence', () => {
-    expect(calculateNextRecurrence('2026-07-02', 'daily')).toBe('2026-07-03');
-    expect(calculateNextRecurrence('2026-07-02', 'weekly')).toBe('2026-07-09');
-    expect(calculateNextRecurrence('2026-07-02', 'monthly')).toBe('2026-08-02');
-    expect(calculateNextRecurrence('2026-07-02', 'none')).toBe(undefined);
-    expect(calculateNextRecurrence('2026-07-02', undefined)).toBe(undefined);
-    expect(calculateNextRecurrence(undefined, 'daily')).toBe('2026-07-03');
-
-    // 월말 경계: 2월엔 31일이 없으므로 말일로 클램프 (다음 달로 넘치지 않음)
-    expect(calculateNextRecurrence('2026-01-31', 'monthly')).toBe('2026-02-28');
   });
 
   it('addDaysStr', () => {

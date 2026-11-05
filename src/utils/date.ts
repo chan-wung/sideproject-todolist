@@ -188,12 +188,3 @@ export function yearProgress(now: Date = new Date()): YearProgress {
     totalDays,
   };
 }
-
-export function calculateNextRecurrence(dateStr?: string, rule?: 'none' | 'daily' | 'weekly' | 'monthly'): string | undefined {
-  if (!rule || rule === 'none') return undefined;
-  const base = dateStr ? parseLocalDate(dateStr) : new Date();
-  const baseStr = formatYmd(base.getFullYear(), base.getMonth() + 1, base.getDate());
-  if (rule === 'daily') return addDaysStr(baseStr, 1);
-  if (rule === 'weekly') return addDaysStr(baseStr, 7);
-  return addMonthsClamped(baseStr, 1);
-}

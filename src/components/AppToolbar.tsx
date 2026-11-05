@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useDayChange } from '../hooks/useDayChange';
-import { yearProgress } from '../utils/date';
+import { todayStr, yearProgress } from '../utils/date';
 
 interface Props {
   getBackup: () => unknown;
@@ -38,9 +38,7 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onE
     const a = document.createElement('a');
     a.href = url;
     
-    const d = new Date();
-    const dateStr = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-    a.download = `todolist-backup-${dateStr}.json`;
+    a.download = `todolist-backup-${todayStr().replace(/-/g, '')}.json`;
     
     a.click();
     URL.revokeObjectURL(url);

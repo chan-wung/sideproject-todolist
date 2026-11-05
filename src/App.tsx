@@ -116,6 +116,7 @@ export default function App() {
   }, []);
 
   const view = useView();
+  const [navCollapsed, setNavCollapsed] = usePersistentState<boolean>('todolist-pref-nav-collapsed', false);
 
   const [toast, setToast] = useState<ToastState | null>(null);
 
@@ -318,8 +319,8 @@ export default function App() {
         />
       )}
       <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
-      <div className="app-shell">
-      <AppNav current={view} />
+      <div className={`app-shell${navCollapsed ? ' app-shell--nav-collapsed' : ''}`}>
+      <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} />
       <div className="app-shell__content">
       <div className="todo-app">
       <header className="todo-app__header">

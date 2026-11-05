@@ -13,6 +13,14 @@
 
     @include shell {
       margin-left: rem(276); // 사이드바 폭
+      @include transition(margin-left);
+    }
+  }
+
+  // 사이드바를 접으면 본문이 그만큼 넓어진다
+  &--nav-collapsed &__content {
+    @include shell {
+      margin-left: rem(100);
     }
   }
 }

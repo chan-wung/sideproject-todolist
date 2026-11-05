@@ -17,6 +17,14 @@
     bottom: 0;
     left: 0;
     z-index: 140;
+    @include transition(width);
+  }
+
+  // 접힌 사이드바: 아이콘만 (카드 80 + 좌우 여백 10×2)
+  &--collapsed {
+    @include shell {
+      width: rem(100);
+    }
   }
 
   &__box {
@@ -69,6 +77,10 @@
     color: var(--txt-color-tit);
     @include font(22, "Bold");
     white-space: nowrap;
+  }
+
+  &--collapsed &__brand-tit {
+    display: none;
   }
 
   &__wrap {
@@ -159,5 +171,88 @@
       display: block;
       flex-shrink: 0;
     }
+  }
+
+  &--collapsed &__wrap {
+    @include shell {
+      padding: rem(14);
+    }
+  }
+
+  &--collapsed &__link {
+    @include shell {
+      width: rem(48);
+      height: rem(48);
+      margin: 0 auto;
+      padding: 0;
+      justify-content: center;
+      border-radius: 9999px;
+    }
+  }
+
+  // 접히면 글자는 화면에서만 숨기고 스크린리더에는 남긴다
+  &--collapsed &__txt {
+    @include shell {
+      @include visually-hidden;
+    }
+  }
+
+  // 접기·펴기 버튼은 사이드바에서만 보인다
+  &__toggle {
+    display: none;
+
+    @include shell {
+      height: rem(44);
+      margin-top: auto;
+      padding: 0 rem(16);
+      display: flex;
+      align-items: center;
+      gap: rem(12);
+      color: var(--txt-color-base);
+      background: transparent;
+      border: 0;
+      border-radius: rem(14);
+      @include font(14, "Medium");
+      cursor: pointer;
+      @include transition();
+
+      &:hover {
+        background: var(--color-main-5);
+      }
+
+      &:focus-visible {
+        outline: 2px dashed var(--color-main);
+        outline-offset: 2px;
+      }
+    }
+  }
+
+  &__toggle-ico {
+    flex-shrink: 0;
+
+    svg {
+      @include size(20);
+      display: block;
+      @include transition(transform);
+    }
+  }
+
+  &--collapsed &__toggle {
+    @include shell {
+      width: rem(48);
+      height: rem(48);
+      margin: auto auto 0;
+      padding: 0;
+      justify-content: center;
+      border-radius: 9999px;
+    }
+  }
+
+  &--collapsed &__toggle-ico svg {
+    transform: rotate(180deg);
+  }
+
+  &--collapsed &__toggle-txt {
+    display: none;
   }
 }

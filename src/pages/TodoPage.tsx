@@ -4,6 +4,7 @@ import FilterBar from '../components/FilterBar';
 import TodoList from '../components/TodoList';
 import DueSummary from '../components/DueSummary';
 import QuickNav from '../components/QuickNav';
+import PageHead from '../components/PageHead';
 import BulkActionBar from '../components/BulkActionBar';
 
 // 할 일 화면 조립만 담당한다. 상태와 핸들러는 App이 만들어 내려준다.
@@ -20,7 +21,7 @@ interface Props {
 export default function TodoPage({ inputProps, dueSummaryProps, filterBarProps, bulkBarProps, listProps }: Props) {
   return (
     <main className="todo-app__body">
-      <h1 className="todo-app__tit">할 일</h1>
+      <PageHead title="할 일" />
 
       <QuickNav filteredTodos={listProps.todos} />
 

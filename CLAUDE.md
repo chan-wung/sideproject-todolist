@@ -30,6 +30,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - `src/components/`
   - `AppNav.tsx`: 화면 전환 메뉴. 폭 1024px 이상은 왼쪽 카드형 사이드바(접기·펴기), 미만은 상단 가로 메뉴. 같은 마크업을 CSS로 두 모양으로 바꿈
   - `PeriodNav.tsx`: 기간(주·달) 이동 막대. 주간보고·캘린더 공용
+  - `PageHead.tsx`: 화면 맨 위 제목 줄. 다섯 화면 공용
   - `AppToolbar.tsx`: 상단 툴바. 1024px 이상에서는 화면 위에 고정(높이 64px)
   - `TodoItem.tsx`: 할 일 카드(조립만 담당). 편집 폼 `TodoItemEditForm`, 하위 항목 `TodoItemSubtasks`, 더보기 메뉴 `TodoItemMenu`로 분리됨
   - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트
@@ -42,7 +43,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `useSelection`(선택 모드), `useModalDialog`, `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
 - `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(날짜별 캘린더 항목), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
-- **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 `h1`로 그린다(앱 공통 헤더는 없음). 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 상단 메뉴에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
+- **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 공용 `PageHead`(`h1`)로 그린다(앱 공통 헤더는 없음). 제목은 카드 밖(회색 배경 위)에 두고 카드 안에는 넣지 않는다. 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 상단 메뉴에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
 - `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일. 레이아웃 폭 기준은 `$break_shell`(1024px)과 `@include shell`
 
 ## 데이터 모델 메모
@@ -69,6 +70,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | 주 시작(월요일)·로컬 날짜·`2026.11.2` 표기 | `date.ts`의 `startOfWeek`/`toLocalDateStr`/`formatReportDate` |
 | 달력 칸(월 이동·빈칸·일수), 칸의 날짜 문자열 | `useCalendarMonth`, `date.ts`의 `dateStr` |
 | 주·달 이동 막대 | `PeriodNav` |
+| 화면 맨 위 제목 줄 | `PageHead` (제목 + 옆에 붙는 보조 정보) |
 | 백업 파일 읽기·검증(가져오기) | `utils/backupData.ts`의 `parseBackup` (검증 실패면 아무것도 적용하지 않음) |
 | 백업 파일 내려받기, 백업 알림 판단 | `utils/backup.ts`의 `downloadBackup`/`backupReminder`, 상태는 `useBackupReminder` |
 | 연차 제목(이름·시각·사유) 만들기, 같은 연차인지 판별 | `utils/leave.ts`의 `composeLeaveText`/`isSameLeave` |

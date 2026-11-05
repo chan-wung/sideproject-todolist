@@ -1,0 +1,22 @@
+// =============================================
+// PAGE HEAD (화면 맨 위 제목 줄)
+// 모든 화면이 카드 밖에서 같은 모양으로 쓴다
+// =============================================
+
+.page-head {
+  margin-bottom: rem(16);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: rem(12);
+
+  &__tit {
+    color: var(--txt-color-tit);
+    @include font(20, "Bold");
+  }
+
+  &__util {
+    color: var(--txt-color-base);
+    @include font(13, "Medium");
+  }
+}

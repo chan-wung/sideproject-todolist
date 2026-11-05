@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { Todo, CompletionLogEntry } from '../types/todo';
+import PageHead from '../components/PageHead';
 import { useDayChange } from '../hooks/useDayChange';
 import { viewHref } from '../hooks/useView';
 import { buildDashboardStats, type DashboardTodo } from '../utils/dashboard';
@@ -58,14 +59,11 @@ export default function DashboardPage({ todos, completionLog }: Props) {
 
   return (
     <main className="dashboard">
-      <div className="dashboard__wrap">
-        <div className="dashboard__head">
-          <h1 className="dashboard__tit">대시보드</h1>
-          <p className="dashboard__week">
-            {stats.weekStart.slice(0, 4)}년 {stats.weekLabel} ({monthDay(stats.weekStart)} ~ {monthDay(stats.weekEnd)})
-          </p>
-        </div>
+      <PageHead title="대시보드">
+        {stats.weekStart.slice(0, 4)}년 {stats.weekLabel} ({monthDay(stats.weekStart)} ~ {monthDay(stats.weekEnd)})
+      </PageHead>
 
+      <div className="dashboard__wrap">
         <div className="dashboard__stats">
           <StatCard label="이번 주 완료" value={stats.completedThisWeek} sub={compare} />
           <StatCard label="진행 중" value={stats.activeCount} sub="연차·휴가는 제외" />

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
 import ConfirmModal from '../components/ConfirmModal';
+import PageHead from '../components/PageHead';
 import { generateId } from '../utils/id';
 import { moveItem } from '../utils/list';
 import { memoToText } from '../utils/share';
@@ -140,11 +141,9 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
 
   return (
     <main className="memo-page">
+      <PageHead title="메모장" />
+
       <div className="memo-page__box">
-        <div className="memo-page__header">
-          <h1 className="memo-page__tit">메모장</h1>
-        </div>
-        
         <div className="memo-page__body">
           {/* 왼쪽: 탭(목록) 영역 */}
           <div className={`memo-page__sidebar${mobileControlsOpen ? ' memo-page__sidebar--expanded' : ''}`}>

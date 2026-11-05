@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { Todo, CompletionLogEntry } from '../types/todo';
 import { useDayChange } from '../hooks/useDayChange';
 import PeriodNav from '../components/PeriodNav';
+import PageHead from '../components/PageHead';
 import { formatReportDate, startOfWeek, todayStr } from '../utils/date';
 import { buildWeeklyReport, shiftWeek } from '../utils/weeklyReport';
 
@@ -46,10 +47,10 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
 
   return (
     <main className="weekly-report">
+      <PageHead title="주간보고" />
+
       <div className="weekly-report__box">
         <div className="weekly-report__wrap">
-          <h1 className="weekly-report__tit">주간보고</h1>
-
           <PeriodNav
             title={`${year}년 ${report.label}`}
             sub={`${monthDay(report.weekStart)} ~ ${monthDay(report.weekEnd)}`}

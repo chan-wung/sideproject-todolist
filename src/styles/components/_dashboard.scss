@@ -11,23 +11,6 @@
     gap: rem(16);
   }
 
-  &__head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: rem(12);
-  }
-
-  &__tit {
-    color: var(--txt-color-tit);
-    @include font(20, "Bold");
-  }
-
-  &__week {
-    color: var(--txt-color-base);
-    @include font(13, "Medium");
-  }
-
   // ── 숫자 카드 ──
   &__stats {
     display: grid;

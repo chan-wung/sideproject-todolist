@@ -16,20 +16,6 @@
     overflow: hidden;
   }
 
-  &__header {
-    padding: rem(20) rem(24);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  &__tit {
-    margin: 0;
-    color: var(--txt-color-tit);
-    @include font(18, "Bold");
-  }
-
   &__body {
     flex: 1;
     display: flex;

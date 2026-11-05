@@ -12,13 +12,6 @@
     min-height: calc(100vh - #{rem($header_height)});
   }
 
-  // 화면 제목 (다른 화면의 제목과 같은 크기)
-  &__tit {
-    margin-bottom: rem(16);
-    color: var(--txt-color-tit);
-    @include font(20, "Bold");
-  }
-
   &__body {
     position: relative;
   }

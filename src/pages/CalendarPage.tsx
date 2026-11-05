@@ -6,6 +6,7 @@ import { useDayChange } from '../hooks/useDayChange';
 import { buildCalendarItems, monthRange, type CalendarItem } from '../utils/calendar';
 import { dateStr, formatMonthDayWeekday, todayStr } from '../utils/date';
 import PeriodNav from '../components/PeriodNav';
+import PageHead from '../components/PageHead';
 import LeaveForm from '../components/LeaveForm';
 import { DeleteIcon } from '../components/icons';
 
@@ -59,10 +60,10 @@ export default function CalendarPage({ todos, series, onAddLeave, onDeleteLeave 
 
   return (
     <main className="calendar">
+      <PageHead title="캘린더" />
+
       <div className="calendar__box">
         <div className="calendar__wrap">
-          <h1 className="calendar__tit">캘린더</h1>
-
           <PeriodNav
             title={label}
             prevLabel="이전 달"

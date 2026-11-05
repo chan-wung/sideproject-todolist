@@ -34,3 +34,6 @@ dist-ssr
 
 # Crash dumps
 bash.exe.stackdump
+
+# 참고자료 (Claude 참고용 스크린샷·문서 — 커밋 금지)
+/참고자료/

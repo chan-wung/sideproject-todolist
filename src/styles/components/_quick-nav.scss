@@ -14,8 +14,8 @@
   left: rem(-260);
   overflow-y: auto;
 
-  // 창이 좁을 때 숨기기 처리 (본문 침범 방지)
-  @media (max-width: 1480px) {
+  // 창이 좁을 때 숨기기 처리 (사이드바·본문 침범 방지: 사이드바 276 + 이 패널 260 + 본문 960)
+  @media (max-width: 1756px) {
     display: none;
   }
 

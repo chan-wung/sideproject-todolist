@@ -318,7 +318,9 @@ export default function App() {
         />
       )}
       <AppToolbar getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
+      <div className="app-shell">
       <AppNav current={view} />
+      <div className="app-shell__content">
       <div className="todo-app">
       <header className="todo-app__header">
         <div className="todo-app__header-left">
@@ -472,6 +474,8 @@ export default function App() {
           <span className="todo-app__footer-legal">무단 복제 및 배포를 금지합니다.</span>
         </p>
       </footer>
+    </div>
+    </div>
     </div>
     </>
   );

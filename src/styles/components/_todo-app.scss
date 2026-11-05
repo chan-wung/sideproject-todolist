@@ -7,6 +7,11 @@
   padding: rem(20) rem(16) rem(60);
   @include contents_default;
 
+  // 고정 헤더만큼 뺀다 (안 빼면 항상 세로 스크롤이 생김)
+  @include shell {
+    min-height: calc(100vh - #{rem(64)});
+  }
+
   &__header {
     margin-bottom: rem(20);
     padding: rem(16) 0 rem(20);

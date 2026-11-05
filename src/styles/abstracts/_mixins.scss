@@ -11,6 +11,13 @@
   }
 }
 
+// 사이드바 레이아웃이 켜지는 폭(1024px 이상)
+@mixin shell {
+  @media (min-width: #{$break_shell}) {
+    @content;
+  }
+}
+
 @mixin tablet_pc {
   @media (min-width: #{$break_tab}) {
     @content;

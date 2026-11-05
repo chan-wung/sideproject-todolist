@@ -1,5 +1,6 @@
 // =============================================
 // APP NAV (화면 전환 메뉴)
+// 기본: 상단 가로 메뉴 / 1024px 이상: 왼쪽 사이드바(떠 있는 카드)
 // =============================================
 
 .app-nav {
@@ -7,9 +8,78 @@
   background: var(--color-white);
   border-bottom: 1px solid var(--color-border);
 
+  @include shell {
+    width: rem(276); // 카드 256 + 좌우 여백 10×2
+    background: var(--color-bg);
+    border-bottom: 0;
+    position: fixed;
+    top: rem(64); // 상단 고정 헤더 높이
+    bottom: 0;
+    left: 0;
+    z-index: 140;
+  }
+
   &__box {
     @include contents_default;
     padding: 0 rem(16);
+
+    @include shell {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: 16px;
+      box-shadow: 0 0 rem(20) rem(5) rgba(0, 0, 0, 0.05);
+      position: absolute;
+      top: rem(12);
+      right: rem(10);
+      bottom: rem(12);
+      left: rem(10);
+
+      [data-theme="dark"] & {
+        box-shadow: 0 0 rem(20) rem(5) rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+
+  // 브랜드는 사이드바에서만 보인다
+  &__brand {
+    display: none;
+
+    @include shell {
+      margin-top: rem(10);
+      padding: rem(14);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: rem(12);
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+  }
+
+  &__brand-img {
+    display: block;
+  }
+
+  &__brand-tit {
+    color: var(--txt-color-tit);
+    @include font(22, "Bold");
+    white-space: nowrap;
+  }
+
+  &__wrap {
+    @include shell {
+      padding: rem(16);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
   }
 
   &__list {
@@ -19,11 +89,19 @@
     gap: rem(4);
     list-style: none;
     overflow-x: auto;
+
+    @include shell {
+      flex-direction: column;
+      gap: rem(12);
+      overflow-x: visible;
+    }
   }
 
   &__link {
     padding: rem(12) rem(14);
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: rem(12);
     color: var(--txt-color-base);
     border-bottom: 2px solid transparent;
     @include font(14, "SemiBold");
@@ -43,6 +121,43 @@
     &[aria-current="page"] {
       color: var(--color-main);
       border-bottom-color: var(--color-main);
+    }
+
+    @include shell {
+      height: rem(44);
+      padding: 0 rem(16);
+      background: transparent;
+      border-bottom: 0;
+      border-radius: rem(14);
+      @include font(16, "SemiBold");
+
+      &:hover {
+        background: var(--color-main-5);
+      }
+
+      &:focus-visible {
+        outline-offset: 2px;
+      }
+
+      &[aria-current="page"] {
+        color: var(--color-on-accent);
+        background: var(--color-main);
+      }
+    }
+  }
+
+  // 아이콘은 사이드바에서만 보인다
+  &__ico {
+    display: none;
+
+    svg {
+      @include size(20);
+      display: block;
+    }
+
+    @include shell {
+      display: block;
+      flex-shrink: 0;
     }
   }
 }

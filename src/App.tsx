@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useTodos, validateTodos, validateCompletionLog, validateRecurrenceSeries } from './hooks/useTodos';
-import { useMemos, validateMemos } from './hooks/useMemos';
-import type { Memo } from './hooks/useMemos';
+import { useTodos } from './hooks/useTodos';
+import { useMemos } from './hooks/useMemos';
 import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import { useSelection } from './hooks/useSelection';
@@ -19,9 +18,10 @@ import AppToolbar from './components/AppToolbar';
 import SettingsModal from './components/SettingsModal';
 import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
-import type { Todo, CompletionLogEntry, RecurrenceSeries } from './types/todo';
+import type { Todo, CompletionLogEntry } from './types/todo';
 import { generateId } from './utils/id';
 import { downloadBackup } from './utils/backup';
+import { parseBackup } from './utils/backupData';
 import {
   todoToText, copyText, shareText, completionLogEntryToText, completionLogEntriesToText,
   copyFeedback, shareFeedback, kakaoFeedback,
@@ -152,53 +152,15 @@ export default function App() {
     return { version: 1, todos: exportData(), memos, completionLog: exportCompletionLog(), recurrenceSeries: exportRecurrenceSeries() };
   }
 
+  // 백업 파일을 검증(parseBackup)한 뒤, 파일에 있던 구역만 덮어쓴다. 검증에 실패하면 아무것도 바꾸지 않는다.
   function applyBackup(parsed: unknown): boolean {
-    if (Array.isArray(parsed)) {
-      const validTodos = validateTodos(parsed);
-      if (validTodos) {
-        importData(validTodos);
-        return true;
-      }
-      return false;
-    }
-    if (parsed && typeof parsed === 'object') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const p = parsed as any;
-      let ok = false;
-      let validTodos: Todo[] | null = null;
-      let validMemos: Memo[] | null = null;
-      let validLog: CompletionLogEntry[] | null = null;
-      let validSeries: RecurrenceSeries[] | null = null;
-
-      if (p.todos !== undefined) {
-        validTodos = validateTodos(p.todos);
-        if (!validTodos) return false;
-        ok = true;
-      }
-      if (p.memos !== undefined) {
-        validMemos = validateMemos(p.memos);
-        if (!validMemos) return false;
-        ok = true;
-      }
-      if (p.completionLog !== undefined) {
-        validLog = validateCompletionLog(p.completionLog);
-        if (!validLog) return false;
-        ok = true;
-      }
-      if (p.recurrenceSeries !== undefined) {
-        validSeries = validateRecurrenceSeries(p.recurrenceSeries);
-        if (!validSeries) return false;
-        ok = true;
-      }
-
-      if (validTodos) importData(validTodos);
-      if (validMemos) replaceMemos(validMemos);
-      if (validLog) importCompletionLog(validLog);
-      if (validSeries) importRecurrenceSeries(validSeries);
-
-      return ok;
-    }
-    return false;
+    const backup = parseBackup(parsed);
+    if (!backup) return false;
+    if (backup.todos) importData(backup.todos);
+    if (backup.memos) replaceMemos(backup.memos);
+    if (backup.completionLog) importCompletionLog(backup.completionLog);
+    if (backup.recurrenceSeries) importRecurrenceSeries(backup.recurrenceSeries);
+    return true;
   }
 
   function handleImportResult(success: boolean) {

@@ -142,7 +142,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
     <main className="memo-page">
       <div className="memo-page__box">
         <div className="memo-page__header">
-          <h2 className="memo-page__tit">메모장</h2>
+          <h1 className="memo-page__tit">메모장</h1>
         </div>
         
         <div className="memo-page__body">

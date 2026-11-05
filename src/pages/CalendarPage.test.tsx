@@ -42,6 +42,13 @@ describe('CalendarPage', () => {
     vi.useRealTimers();
   });
 
+  it('화면 제목은 h1 하나다', () => {
+    const { getAllByRole } = setup();
+    const h1 = getAllByRole('heading', { level: 1 });
+    expect(h1).toHaveLength(1);
+    expect(h1[0].textContent).toBe('캘린더');
+  });
+
   it('이번 달 달력을 그리고 오늘을 표시하며, 처음엔 오늘을 골라 둔다', () => {
     const { container, getByText, day, detail } = setup();
     expect(getByText('2026년 11월')).toBeTruthy();

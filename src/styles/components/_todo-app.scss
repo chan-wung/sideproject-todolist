@@ -12,72 +12,15 @@
     min-height: calc(100vh - #{rem(64)});
   }
 
-  &__header {
-    margin-bottom: rem(20);
-    padding: rem(16) 0 rem(20);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    @media (max-width: $break_tab) {
-      padding: 0;
-      align-items: flex-start;
-      gap: rem(16);
-    }
-  }
-  
-  &__header-left {
-    display: flex;
-    flex-direction: column;
-  }
-
-  &__header-actions {
-    display: flex;
-    align-items: center;
-    gap: rem(8);
-  }
-
-  &__memo-btn {
-    padding: rem(6) rem(12);
-    color: var(--txt-color-tit);
-    background: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-    @include font(14, "Medium");
-    cursor: pointer;
-    @include transition();
-
-    &:hover {
-      color: var(--color-main);
-      background: var(--color-white);
-      border-color: var(--color-main);
-    }
-  }
-
+  // 화면 제목 (다른 화면의 제목과 같은 크기)
   &__tit {
+    margin-bottom: rem(16);
     color: var(--txt-color-tit);
-    @include font(28, "ExtraBold");
-    letter-spacing: -0.5px;
-  }
-
-  &__subtitle {
-    margin-top: rem(4);
-    color: $gray9;
-    @include font(14);
+    @include font(20, "Bold");
   }
 
   &__body {
     position: relative;
-  }
-
-  &__quick-nav-wrap {
-    width: 0;
-    height: 0;
-    position: sticky;
-    top: 24px;
-    z-index: 10;
-    overflow: visible;
   }
 }
 

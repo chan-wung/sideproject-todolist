@@ -51,6 +51,13 @@ describe('MemoPage', () => {
     expect(list().querySelector('.memo-page__item--active')?.textContent).toContain('서버 계정');
   });
 
+  it('화면 제목은 h1 하나다', () => {
+    const { getAllByRole } = setup();
+    const h1 = getAllByRole('heading', { level: 1 });
+    expect(h1).toHaveLength(1);
+    expect(h1[0].textContent).toBe('메모장');
+  });
+
   it('목록에서 다른 메모를 누르면 그 메모를 고른다', () => {
     const { list, setActiveId } = setup();
     fireEvent.click(within(list()).getByText('회의록'));

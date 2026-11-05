@@ -58,7 +58,7 @@ export default function CalendarPage({ todos, series, onAddLeave }: Props) {
     <main className="calendar">
       <div className="calendar__box">
         <div className="calendar__wrap">
-          <h2 className="calendar__tit">캘린더</h2>
+          <h1 className="calendar__tit">캘린더</h1>
 
           <PeriodNav
             title={label}

@@ -38,6 +38,13 @@ describe('DashboardPage', () => {
     vi.useRealTimers();
   });
 
+  it('화면 제목은 h1 하나다', () => {
+    const { getAllByRole } = setup();
+    const h1 = getAllByRole('heading', { level: 1 });
+    expect(h1).toHaveLength(1);
+    expect(h1[0].textContent).toBe('대시보드');
+  });
+
   it('제목과 이번 주 기간을 보여 준다', () => {
     const { getByText } = setup();
     expect(getByText('대시보드')).toBeTruthy();

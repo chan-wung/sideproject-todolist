@@ -42,6 +42,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `useSelection`(선택 모드), `useModalDialog`, `useDismiss`, `useDayChange`, `usePersistentState`, `useMemos`
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
 - `src/utils/`: `date`(주 계산 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(날짜별 캘린더 항목), `dashboard`(대시보드 숫자), `backup`(백업 파일·알림 판단), `leave`(연차 제목 만들기), `share`(복사·공유·엑셀 칸 복사와 토스트 문구), `list`(`moveItem`), `storage`(`writeStorage`)
+- **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 `h1`로 그린다(앱 공통 헤더는 없음). 본문 최대 폭은 `$site_max_width`(1280px). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
 - `src/styles/`: `main.scss`가 `abstracts → base → components` 순서로 `@import`. 컴포넌트마다 `components/_이름.scss` 한 파일. 레이아웃 폭 기준은 `$break_shell`(1024px)과 `@include shell`
 
 ## 데이터 모델 메모
@@ -97,10 +98,8 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - **미확인 화면**: 사이드바·주간보고의 다크모드와 좁은 화면(1024px 미만)은 눈으로 확인하지 못했습니다.
 - **작은 동작 차이**: 화면을 옮기면 `TodoPage`가 언마운트되어 할 일 입력창에 쓰다 만 글자가 지워집니다. 거슬리면 입력 상태를 `App`으로 올립니다.
 - **작은 동작 차이**: 반복 회차 카드에서 종류를 바꾸면 그 회차만 바뀌고 시리즈 종류는 그대로입니다. 이전 완료 이력의 연차는 `dueDate`가 없어 주간보고에 들어가지 않습니다.
-- **`QuickNav` 숨김 폭**: 사이드바와 겹치지 않도록 1756px 미만에서 숨깁니다(접힘 상태와 무관하게 고정).
 - **남은 계획**: 처음 계획한 1~6단계는 모두 만들었습니다(대시보드, 캘린더, 백업 알림 포함). 남은 것은 아래 정리 항목들입니다. 캘린더에서 등록한 연차를 지우는 기능은 아직 없고, 할 일 목록에서 삭제합니다.
 - **시작 화면**: 메뉴 맨 위는 `대시보드`지만 처음 열리는 화면(`DEFAULT_VIEW`)은 `할 일`입니다. 바꾸려면 `labels.ts`의 `DEFAULT_VIEW`를 고칩니다.
-- **본문 제목 중복**: 모든 화면 위에 `Todo List` 제목이 그대로 있어 사이드바 브랜드와 겹칩니다. 화면 이름으로 바꾸는 정리가 남아 있습니다.
 - **보류한 작업**: `@import → @use` 전환, `_icons_new.scss`(약 2,700줄) 분리. 두 가지 모두 급하지 않음.
 
 ## 작업 흐름

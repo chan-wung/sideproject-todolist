@@ -122,6 +122,11 @@ export default function App() {
   }, []);
 
   const view = useView();
+  // 화면(메뉴)을 옮기면 이전 화면의 스크롤 위치를 가져가지 않고 맨 위부터 보여 준다
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); // html에 smooth가 걸려 있어 즉시 이동을 지정
+  }, [view]);
+
   const hasData = allTodos.length > 0 || memos.length > 0 || completionLog.length > 0 || recurrenceSeries.length > 0;
   const { lastBackup, reminder, markBackedUp, snooze } = useBackupReminder(hasData);
   const [navCollapsed, setNavCollapsed] = usePersistentState<boolean>('todolist-pref-nav-collapsed', false);
@@ -352,13 +357,6 @@ export default function App() {
       {reminder.show && (
         <BackupReminder message={reminder.message} onExport={handleExportFromReminder} onSnooze={snooze} />
       )}
-      <header className="todo-app__header">
-        <div className="todo-app__header-left">
-          <h1 className="todo-app__tit">Todo List</h1>
-          <p className="todo-app__subtitle">할 일을 체계적으로 관리하세요</p>
-        </div>
-      </header>
-
       {view === 'todos' ? (
         <TodoPage
           inputProps={{ onAdd: addTodo, categories: categoryOptions }}

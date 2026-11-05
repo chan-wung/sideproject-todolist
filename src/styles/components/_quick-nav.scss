@@ -1,84 +1,68 @@
+// =============================================
+// QUICK NAV (할 일 목록 위 가로 바로가기)
+// =============================================
+
 .quick-nav {
-  width: rem(240);
-  max-height: calc(100vh - 120px);
-  padding: rem(16) rem(12);
+  margin-bottom: rem(12);
+  padding: rem(8) rem(12);
   display: flex;
-  flex-direction: column;
-  gap: rem(16);
+  align-items: center;
+  gap: rem(10);
   background: var(--color-white);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-  position: absolute;
-  top: 0;
-  left: rem(-260);
-  overflow-y: auto;
-
-  // 창이 좁을 때 숨기기 처리 (사이드바·본문 침범 방지: 사이드바 276 + 이 패널 260 + 본문 960)
-  @media (max-width: 1756px) {
-    display: none;
-  }
+  border-radius: 16px;
 
   &__tit {
-    margin: 0;
-    padding-bottom: rem(12);
+    flex-shrink: 0;
     color: var(--txt-color-tit);
-    border-bottom: 1px solid var(--color-border);
-    @include font(14, "Bold");
+    @include font(13, "Bold");
+    white-space: nowrap;
   }
 
+  // 항목이 많으면 가로로 스크롤한다
   &__list {
+    min-width: 0;
     margin: 0;
-    padding: 0;
+    padding: rem(2) 0;
+    flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: rem(4);
+    gap: rem(6);
     list-style: none;
+    overflow-x: auto;
+    scrollbar-width: thin;
   }
 
   &__item {
-    &--empty {
-      padding: rem(20) 0;
-      display: flex;
-      justify-content: center;
-      color: $gray9;
-      cursor: default;
-      &:hover {
-        color: $gray9;
-        background: transparent;
-      }
-    }
+    flex-shrink: 0;
   }
 
   &__btn {
-    width: 100%;
-    padding: rem(8) rem(12);
-    display: flex;
-    align-items: center;
-    gap: rem(6);
-    color: var(--txt-color-base);
-    background: transparent;
-    border: none;
-    border-radius: 6px;
-    @include font(13, "Medium");
-    text-align: left;
-    cursor: pointer;
-    @include transition();
-
-    &:hover {
-      color: var(--color-main);
-      background: var(--color-main-5);
-    }
-  }
-
-  &__item-text {
+    padding: rem(5) rem(12);
     display: flex;
     align-items: center;
     gap: rem(4);
+    color: var(--txt-color-base);
+    background: var(--color-tab-bg);
+    border: none;
+    border-radius: 100px;
+    @include font(12, "Medium");
+    white-space: nowrap;
+    cursor: pointer;
+    @include transition(color background-color);
+
+    &:hover {
+      color: var(--color-main);
+      background: var(--color-main-10);
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 2px;
+    }
   }
 
   &__pin {
-    @include font(12);
+    @include font(11);
   }
 
   &__item-label {

@@ -20,9 +20,9 @@ interface Props {
 export default function TodoPage({ inputProps, dueSummaryProps, filterBarProps, bulkBarProps, listProps }: Props) {
   return (
     <main className="todo-app__body">
-      <div className="todo-app__quick-nav-wrap">
-        <QuickNav filteredTodos={listProps.todos} />
-      </div>
+      <h1 className="todo-app__tit">할 일</h1>
+
+      <QuickNav filteredTodos={listProps.todos} />
 
       <TodoInput {...inputProps} />
 

@@ -60,7 +60,7 @@ export default function DashboardPage({ todos, completionLog }: Props) {
     <main className="dashboard">
       <div className="dashboard__wrap">
         <div className="dashboard__head">
-          <h2 className="dashboard__tit">대시보드</h2>
+          <h1 className="dashboard__tit">대시보드</h1>
           <p className="dashboard__week">
             {stats.weekStart.slice(0, 4)}년 {stats.weekLabel} ({monthDay(stats.weekStart)} ~ {monthDay(stats.weekEnd)})
           </p>

@@ -49,7 +49,7 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy }: Props
     <main className="weekly-report">
       <div className="weekly-report__box">
         <div className="weekly-report__wrap">
-          <h2 className="weekly-report__tit">주간보고</h2>
+          <h1 className="weekly-report__tit">주간보고</h1>
 
           <PeriodNav
             title={`${year}년 ${report.label}`}

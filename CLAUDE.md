@@ -46,6 +46,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 
 ## 데이터 모델 메모
 - 업무 종류 `kind`: `task`(일반, `[카테고리] 내용`) / `routine`(정기, `날짜 + 내용 완료`) / `leave`(연차·휴가, `날짜 + 내용`). 없거나 잘못된 값은 `task`. `Todo`·`RecurrenceSeries`·`CompletionLogEntry`에 모두 있고, 반복 회차와 완료 이력이 이어받음
+- 연차·휴가의 이름·시각·사유는 `utils/leave.ts`가 **제목 한 줄**(`연차 14:00~15:00 (병원 진료)`)로 합쳐 저장한다(별도 필드 없음). 그래서 목록·완료 이력·백업·주간보고가 그대로 같이 쓴다. 등록 폼은 `LeaveForm`
 - 연차·휴가는 날짜(`dueDate`) 필수·반복 불가. 완료 이력에도 `dueDate`를 남겨 정리된 연차가 주간보고에서 날짜를 잃지 않게 함
 - 주간보고는 저장하는 데이터가 아니라 **완료 상태로 남은 할 일 + 완료 이력**에서 그때그때 계산함(`buildWeeklyReport`)
 
@@ -68,6 +69,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | 여러 줄 글을 엑셀 한 칸으로 복사 | `share.ts`의 `toExcelCell` |
 | 달력 칸(월 이동·빈칸·일수), 칸의 날짜 문자열 | `useCalendarMonth`, `date.ts`의 `dateStr` |
 | 주·달 이동 막대 | `PeriodNav` |
+| 연차 제목(이름·시각·사유) 만들기, 같은 연차인지 판별 | `utils/leave.ts`의 `composeLeaveText`/`isSameLeave` |
 | `transition` 여러 속성 | `@include transition(color background-color)` (공백으로 이은 한 인자, 쉼표 나열 금지) |
 | 특정 폭(1024px) 이상에서만 적용하는 스타일 | `@include shell` (폭 값을 직접 쓰지 않음) |
 | 화면에서만 숨기고 스크린리더에는 남기기 | `.screen-out` 클래스, SCSS에서는 `@include visually-hidden` |

@@ -129,7 +129,7 @@ describe('CalendarPage', () => {
   });
 });
 
-describe('CalendarPage — 연차·휴가 빠른 등록', () => {
+describe('CalendarPage — 연차·휴가 등록', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-11-04T10:00:00'));
@@ -140,65 +140,38 @@ describe('CalendarPage — 연차·휴가 빠른 등록', () => {
     vi.useRealTimers();
   });
 
-  it('고른 날짜에 버튼 한 번으로 연차를 등록한다 (처음엔 오늘이 골라져 있다)', () => {
+  it('고른 날짜(처음엔 오늘)에 연차를 한 번에 등록한다', () => {
     const { getByRole, onAddLeave } = setup();
-    fireEvent.click(getByRole('button', { name: '연차' }));
+    fireEvent.click(getByRole('button', { name: '등록' }));
     expect(onAddLeave).toHaveBeenCalledTimes(1);
     expect(onAddLeave).toHaveBeenCalledWith('2026-11-04', '연차');
   });
 
-  it('다른 날짜를 누르면 그 날짜로 등록하고, 반차도 같은 방식이다', () => {
-    const { getByRole, day, onAddLeave } = setup();
+  it('다른 날짜를 누르면 그 날짜로, 종류와 사유까지 합쳐서 등록한다', () => {
+    const { getByRole, getByLabelText, day, onAddLeave } = setup();
     fireEvent.click(day(6));
-    fireEvent.click(getByRole('button', { name: '오전 반차' }));
-    expect(onAddLeave).toHaveBeenLastCalledWith('2026-11-06', '오전 반차');
-    fireEvent.click(getByRole('button', { name: '오후 반차' }));
-    expect(onAddLeave).toHaveBeenLastCalledWith('2026-11-06', '오후 반차');
+    fireEvent.change(getByLabelText('종류'), { target: { value: 'am' } });
+    fireEvent.change(getByLabelText('사유 (선택)'), { target: { value: '병원 진료' } });
+    fireEvent.click(getByRole('button', { name: '등록' }));
+    expect(onAddLeave).toHaveBeenCalledWith('2026-11-06', '오전 반차 (병원 진료)');
   });
 
-  it('그날 이미 같은 이름이 있으면 버튼이 막혀 중복 등록을 못 한다', () => {
-    const { getByRole, onAddLeave } = setup([todo({ text: '연차', kind: 'leave', dueDate: '2026-11-04' })]);
-    const registered = getByRole('button', { name: '연차 (등록됨)' }) as HTMLButtonElement;
-    expect(registered.disabled).toBe(true);
-    fireEvent.click(registered);
-    expect(onAddLeave).not.toHaveBeenCalled();
-    expect((getByRole('button', { name: '오전 반차' }) as HTMLButtonElement).disabled).toBe(false);
+  it('그날 이미 등록된 연차와 같은 이름이면 막는다 (일반 업무는 영향 없음)', () => {
+    const blocked = setup([todo({ text: '연차 (병원 진료)', kind: 'leave', dueDate: '2026-11-04' })]);
+    expect((blocked.getByRole('button', { name: '등록' }) as HTMLButtonElement).disabled).toBe(true);
+    cleanup();
+
+    const free = setup([todo({ text: '연차', kind: 'task', dueDate: '2026-11-04' })]);
+    expect((free.getByRole('button', { name: '등록' }) as HTMLButtonElement).disabled).toBe(false);
   });
 
-  it('일반 업무 이름이 같아도 연차 버튼은 막지 않는다', () => {
-    const { getByRole } = setup([todo({ text: '연차', kind: 'task', dueDate: '2026-11-04' })]);
-    expect((getByRole('button', { name: '연차' }) as HTMLButtonElement).disabled).toBe(false);
-  });
+  it('날짜를 바꾸면 쓰던 내용은 비우고, 날짜를 안 고른 상태에서는 등록칸이 없다', () => {
+    const { getByRole, getByLabelText, queryByRole, day } = setup();
+    fireEvent.change(getByLabelText('종류'), { target: { value: 'pm' } });
+    fireEvent.click(day(6));
+    expect((getByLabelText('종류') as HTMLSelectElement).value).toBe('annual');
 
-  it('직접 입력한 이름으로 등록하고 입력칸을 비운다', () => {
-    const { getByLabelText, getByRole, onAddLeave } = setup();
-    const input = getByLabelText('직접 입력하는 휴가 이름') as HTMLInputElement;
-    const submit = getByRole('button', { name: '등록' }) as HTMLButtonElement;
-    expect(submit.disabled).toBe(true); // 비어 있으면 못 누른다
-
-    fireEvent.change(input, { target: { value: '  병가  ' } });
-    expect(submit.disabled).toBe(false);
-    fireEvent.click(submit);
-    expect(onAddLeave).toHaveBeenCalledWith('2026-11-04', '병가'); // 앞뒤 공백은 뗀다
-    expect(input.value).toBe('');
-  });
-
-  it('공백만 입력하거나 이미 있는 이름이면 등록하지 못한다', () => {
-    const { getByLabelText, getByRole, onAddLeave } = setup([todo({ text: '병가', kind: 'leave', dueDate: '2026-11-04' })]);
-    const input = getByLabelText('직접 입력하는 휴가 이름') as HTMLInputElement;
-    const submit = getByRole('button', { name: '등록' }) as HTMLButtonElement;
-
-    fireEvent.change(input, { target: { value: '   ' } });
-    expect(submit.disabled).toBe(true);
-
-    fireEvent.change(input, { target: { value: '병가' } });
-    expect(submit.disabled).toBe(true);
-    expect(onAddLeave).not.toHaveBeenCalled();
-  });
-
-  it('날짜를 고르지 않은 상태(다른 달로 이동 직후)에는 등록칸이 보이지 않는다', () => {
-    const { getByRole, queryByRole } = setup();
     fireEvent.click(getByRole('button', { name: '다음 달' }));
-    expect(queryByRole('button', { name: '오전 반차' })).toBeNull();
+    expect(queryByRole('button', { name: '등록' })).toBeNull();
   });
 });

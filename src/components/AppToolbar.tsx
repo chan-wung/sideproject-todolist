@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { useDayChange } from '../hooks/useDayChange';
-import { todayStr, yearProgress } from '../utils/date';
+import { yearProgress } from '../utils/date';
+import { downloadBackup } from '../utils/backup';
 
 interface Props {
   getBackup: () => unknown;
@@ -32,16 +33,7 @@ export default function AppToolbar({ getBackup, applyBackup, onImportResult, onE
   const ddayLabel = progress.daysLeft === 0 ? 'D-DAY' : `D-${progress.daysLeft}`;
 
   function handleExport() {
-    const data = getBackup();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    
-    a.download = `todolist-backup-${todayStr().replace(/-/g, '')}.json`;
-    
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBackup(getBackup());
     onExport();
   }
 

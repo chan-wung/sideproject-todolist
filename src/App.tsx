@@ -6,11 +6,13 @@ import { useDueNotifications } from './hooks/useDueNotifications';
 import { usePersistentState } from './hooks/usePersistentState';
 import { useSelection } from './hooks/useSelection';
 import { useView } from './hooks/useView';
+import { useBackupReminder } from './hooks/useBackupReminder';
 import TodoPage from './pages/TodoPage';
 import WeeklyReportPage from './pages/WeeklyReportPage';
 import CalendarPage from './pages/CalendarPage';
 import DashboardPage from './pages/DashboardPage';
 import AppNav from './components/AppNav';
+import BackupReminder from './components/BackupReminder';
 import Toast from './components/Toast';
 import QuickMemo from './components/QuickMemo';
 import AppToolbar from './components/AppToolbar';
@@ -19,6 +21,7 @@ import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
 import type { Todo, CompletionLogEntry, RecurrenceSeries } from './types/todo';
 import { generateId } from './utils/id';
+import { downloadBackup } from './utils/backup';
 import {
   todoToText, copyText, shareText, completionLogEntryToText, completionLogEntriesToText,
   copyFeedback, shareFeedback, kakaoFeedback,
@@ -119,6 +122,8 @@ export default function App() {
   }, []);
 
   const view = useView();
+  const hasData = allTodos.length > 0 || memos.length > 0 || completionLog.length > 0 || recurrenceSeries.length > 0;
+  const { lastBackup, reminder, markBackedUp, snooze } = useBackupReminder(hasData);
   const [navCollapsed, setNavCollapsed] = usePersistentState<boolean>('todolist-pref-nav-collapsed', false);
 
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -200,7 +205,14 @@ export default function App() {
   }
 
   function handleExportResult() {
+    markBackedUp();
     showToast({ message: '데이터를 내보냈습니다.', type: 'success' });
+  }
+
+  // 알림 배너의 '지금 내보내기': 툴바의 내보내기와 같은 파일을 내려받는다
+  function handleExportFromReminder() {
+    downloadBackup(getBackup());
+    handleExportResult();
   }
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -338,6 +350,9 @@ export default function App() {
       <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} />
       <div className="app-shell__content">
       <div className="todo-app">
+      {reminder.show && (
+        <BackupReminder message={reminder.message} onExport={handleExportFromReminder} onSnooze={snooze} />
+      )}
       <header className="todo-app__header">
         <div className="todo-app__header-left">
           <h1 className="todo-app__tit">Todo List</h1>
@@ -450,6 +465,7 @@ export default function App() {
         onResetCompletionLog={handleResetCompletionLog}
         notifyEnabled={notifyEnabled}
         onToggleNotify={setNotifyEnabled}
+        lastBackup={lastBackup}
       />
 
       <RecurrenceSeriesModal

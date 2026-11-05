@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
 import ConfirmModal from './ConfirmModal';
+import { formatDate } from '../utils/date';
 
 interface Props {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface Props {
   onResetCompletionLog: () => void;
   notifyEnabled: boolean;
   onToggleNotify: (v: boolean) => void;
+  /** 마지막으로 내보낸 날짜 'YYYY-MM-DD' (없으면 null) */
+  lastBackup: string | null;
 }
 
 type PendingAction = 'todos' | 'memos' | 'all' | 'completionLog' | null;
@@ -22,7 +25,7 @@ const CONFIRM_MESSAGES: Record<Exclude<PendingAction, null>, string> = {
   completionLog: '완료 이력이 모두 삭제됩니다. 계속할까요?',
 };
 
-export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMemos, onResetAll, onResetCompletionLog, notifyEnabled, onToggleNotify }: Props) {
+export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMemos, onResetAll, onResetCompletionLog, notifyEnabled, onToggleNotify, lastBackup }: Props) {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -87,6 +90,16 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
                 </label>
               </li>
             </ul>
+          </section>
+
+          <section className="settings-modal__section">
+            <h3 className="settings-modal__section-tit">백업</h3>
+            <p className="settings-modal__desc">
+              {lastBackup
+                ? `마지막 백업(내보내기): ${formatDate(lastBackup)}`
+                : '아직 백업한 적이 없습니다.'}
+              {' '}데이터는 이 브라우저에만 저장되므로, 상단 툴바의 내보내기로 파일을 보관해 두세요. 7일 넘게 백업하지 않으면 화면 위에서 알려 드립니다.
+            </p>
           </section>
 
           <section className="settings-modal__section">

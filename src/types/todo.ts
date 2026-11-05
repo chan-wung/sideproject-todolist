@@ -3,7 +3,7 @@ export interface Subtask { id: string; text: string; completed: boolean; }
 export type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly';
 
 // 업무 종류. 주간보고에서 줄 모양이 달라진다.
-// task: 일반 업무([카테고리] 내용) / routine: 정기 업무(날짜 + 내용 완료) / leave: 연차·휴가(날짜 + 내용)
+// task: 일반 업무([프로젝트] 내용) / routine: 정기 업무(날짜 + 내용 완료) / leave: 연차·휴가(날짜 + 내용)
 export type TodoKind = 'task' | 'routine' | 'leave';
 
 export interface Todo {

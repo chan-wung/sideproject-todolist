@@ -17,7 +17,7 @@ export interface DashboardStats {
   /** 이번 주에 완료한 일 수 (일반 + 정기 업무. 연차·휴가는 제외) */
   completedThisWeek: number;
   completedLastWeek: number;
-  /** 이번 주에 완료한 일의 카테고리별 개수 (많은 순, 같으면 이름순) */
+  /** 이번 주에 완료한 일의 프로젝트별 개수 (많은 순, 같으면 이름순) */
   byCategory: { category: string; count: number }[];
   /** 최근 6주 완료 수 (오래된 주 → 이번 주) */
   trend: { weekStart: string; label: string; count: number }[];

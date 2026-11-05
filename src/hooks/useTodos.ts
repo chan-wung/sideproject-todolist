@@ -472,7 +472,7 @@ export function useTodos() {
     return ['all', ...Array.from(new Set(todos.map(t => t.category)))];
   }, [todos]);
 
-  // 'all' 없이 실제 카테고리만 (입력창 자동완성·일괄 변경 등에서 사용)
+  // 'all' 없이 실제 프로젝트만 (입력창 자동완성·일괄 변경 등에서 사용)
   const categoryOptions = useMemo(() => categories.slice(1), [categories]);
 
   useEffect(() => {

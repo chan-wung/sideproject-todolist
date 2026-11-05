@@ -34,7 +34,7 @@ function build(todos: Todo[] = [], completionLog: CompletionLogEntry[] = [], wee
 }
 
 describe('buildWeeklyReport — 양식', () => {
-  it('날짜 줄(정기 업무·연차), 빈 줄, [카테고리] 줄 순서로 만든다', () => {
+  it('날짜 줄(정기 업무·연차), 빈 줄, [프로젝트] 줄 순서로 만든다', () => {
     const report = build([
       done({ id: 'r', text: '바이러스 검사', kind: 'routine', completedAt: '2026-11-02T09:00:00' }),
       done({ id: 'l', text: '연차', kind: 'leave', completed: false, completedAt: undefined, dueDate: '2026-11-04' }),
@@ -69,7 +69,7 @@ describe('buildWeeklyReport — 양식', () => {
 });
 
 describe('buildWeeklyReport — 일반 업무', () => {
-  it('같은 카테고리·내용은 한 줄로 합치고, 먼저 완료한 순서로 둔다', () => {
+  it('같은 프로젝트·내용은 한 줄로 합치고, 먼저 완료한 순서로 둔다', () => {
     const report = build([
       done({ text: '유지보수', category: '가나시청', completedAt: '2026-11-05T10:00:00' }),
       done({ text: '메인 수정', category: '다라시스템', completedAt: '2026-11-03T10:00:00' }),
@@ -78,12 +78,12 @@ describe('buildWeeklyReport — 일반 업무', () => {
     expect(report.projectLines).toEqual(['[다라시스템] 메인 수정', '[가나시청] 유지보수']);
   });
 
-  it('카테고리가 기본이거나 비어 있으면 대괄호를 붙이지 않는다', () => {
+  it('프로젝트가 기본이거나 비어 있으면 대괄호를 붙이지 않는다', () => {
     const report = build([
       done({ text: '기본 업무', category: '기본', completedAt: '2026-11-03T10:00:00' }),
-      done({ text: '빈 카테고리', category: '  ', completedAt: '2026-11-03T11:00:00' }),
+      done({ text: '빈 프로젝트', category: '  ', completedAt: '2026-11-03T11:00:00' }),
     ]);
-    expect(report.projectLines).toEqual(['기본 업무', '빈 카테고리']);
+    expect(report.projectLines).toEqual(['기본 업무', '빈 프로젝트']);
   });
 
   it('여러 줄로 쓴 제목은 한 줄로 이어 붙인다', () => {

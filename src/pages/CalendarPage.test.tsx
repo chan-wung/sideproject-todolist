@@ -133,7 +133,7 @@ describe('CalendarPage', () => {
     expect(day(7).getAttribute('aria-label')).toBe('11월 7일, 일정 1개');
   });
 
-  it('날짜를 누르면 그날의 목록(종류, 카테고리, 완료 여부)을 보여 준다', () => {
+  it('날짜를 누르면 그날의 목록(종류, 프로젝트, 완료 여부)을 보여 준다', () => {
     const { day, detail } = setup([
       todo({ text: '연차 쓰는 날', kind: 'leave', dueDate: '2026-11-06' }),
       todo({ text: '유지보수', category: '가나시청', dueDate: '2026-11-06' }),

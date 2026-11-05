@@ -76,7 +76,7 @@ describe('DashboardPage', () => {
     expect(stat('밀린 일').querySelector('.dashboard__stat-value--danger')).toBeNull();
   });
 
-  it('프로젝트별 완료: 이번 주 완료한 일을 카테고리별 개수로 보여 준다', () => {
+  it('프로젝트별 완료: 이번 주 완료한 일을 프로젝트별 개수로 보여 준다', () => {
     const { card } = setup([
       done('2026-11-03T10:00:00', { category: '가나시청' }),
       done('2026-11-03T11:00:00', { category: '가나시청', text: '다른 일' }),

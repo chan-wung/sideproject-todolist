@@ -287,7 +287,7 @@ describe('TodoItem', () => {
       expect(q(container, '.todo-item__edit-field--textarea')).toBeNull();
     });
 
-    it('카테고리를 비우면 "기본"으로 저장한다', () => {
+    it('프로젝트를 비우면 "기본"으로 저장한다', () => {
       const utils = setup();
       enterEdit(utils);
       fireEvent.change(q(utils.container, '#todo-edit-category-t1'), { target: { value: '   ' } });
@@ -371,17 +371,17 @@ describe('TodoItem', () => {
       expect(utils.getByText(/반복 일정에 속한 회차입니다/)).toBeTruthy();
     });
 
-    it('카테고리 추천 버튼을 누르면 입력값이 바뀐다', () => {
+    it('프로젝트 추천 버튼을 누르면 입력값이 바뀐다', () => {
       const utils = setup();
       enterEdit(utils);
       fireEvent.click(q(utils.container, '.todo-item__category-suggest-btn:not(.todo-item__category-suggest-btn--active)'));
       expect(q<HTMLInputElement>(utils.container, '#todo-edit-category-t1').value).toBe('개인');
     });
 
-    it('카테고리 선택 창에서 고르고 적용하면 입력값이 바뀐다', () => {
+    it('프로젝트 선택 창에서 고르고 적용하면 입력값이 바뀐다', () => {
       const utils = setup();
       enterEdit(utils);
-      fireEvent.click(utils.getByText('카테고리 선택'));
+      fireEvent.click(utils.getByText('프로젝트 선택'));
 
       const dialog = q(document.body, 'dialog.category-picker-modal');
       expect(dialog.hasAttribute('open')).toBe(true);
@@ -392,7 +392,7 @@ describe('TodoItem', () => {
       expect(q<HTMLInputElement>(utils.container, '#todo-edit-category-t1').value).toBe('개인');
     });
 
-    it('카테고리가 하나도 없으면 추천 영역과 선택 버튼을 보여 주지 않는다', () => {
+    it('프로젝트가 하나도 없으면 추천 영역과 선택 버튼을 보여 주지 않는다', () => {
       const utils = setup({}, { categories: [] });
       enterEdit(utils);
       expect(q(utils.container, '.todo-item__category-suggest')).toBeNull();

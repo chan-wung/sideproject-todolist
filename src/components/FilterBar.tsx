@@ -73,7 +73,7 @@ export default function FilterBar({
 }: Props) {
   return (
     <div className="filter-bar">
-      <input className="filter-bar__search" type="search" placeholder="검색 (제목·카테고리)"
+      <input className="filter-bar__search" type="search" placeholder="검색 (제목·프로젝트)"
         aria-label="할일 검색"
         value={query} onChange={e => setQuery(e.target.value)} />
       
@@ -135,9 +135,9 @@ export default function FilterBar({
               className="filter-bar__category"
               value={filterCategory}
               onChange={e => setFilterCategory(e.target.value)}
-              aria-label="카테고리 필터"
+              aria-label="프로젝트 필터"
             >
-              <option value="all">전체 카테고리</option>
+              <option value="all">전체 프로젝트</option>
               {categories.filter(c => c !== 'all').map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}

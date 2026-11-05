@@ -33,7 +33,7 @@ export default function CategoryPickerModal({ categories, value, onApply, onClos
     <dialog ref={dialogRef} className="category-picker-modal" onClick={handleBackdropClick} onCancel={onClose}>
       <div className="category-picker-modal__container">
         <div className="category-picker-modal__header">
-          <h2 className="category-picker-modal__tit">카테고리 선택</h2>
+          <h2 className="category-picker-modal__tit">프로젝트 선택</h2>
           <button type="button" className="category-picker-modal__close" onClick={onClose} aria-label="닫기">
             ×
           </button>
@@ -66,7 +66,7 @@ export default function CategoryPickerModal({ categories, value, onApply, onClos
               <input
                 type="text"
                 className="category-picker-modal__custom-field"
-                placeholder="새 카테고리"
+                placeholder="새 프로젝트"
                 value={customText}
                 onChange={e => { setCustomText(e.target.value); setSelected(CUSTOM); }}
                 onFocus={() => setSelected(CUSTOM)}

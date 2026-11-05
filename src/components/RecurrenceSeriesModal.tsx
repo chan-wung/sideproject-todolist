@@ -41,7 +41,7 @@ const EMPTY_ADD: SeriesInput = {
   kind: 'task',
 };
 
-// 반복 시리즈 추가 폼과 인라인 편집 폼이 공유하는 입력 필드 묶음 (주기/기준일/우선순위/카테고리, 선택적으로 종료일).
+// 반복 시리즈 추가 폼과 인라인 편집 폼이 공유하는 입력 필드 묶음 (주기/기준일/우선순위/프로젝트, 선택적으로 종료일).
 function SeriesFields({ value, onChange, showEndDate }: {
   value: SeriesInput;
   onChange: (patch: Partial<SeriesInput>) => void;
@@ -87,7 +87,7 @@ function SeriesFields({ value, onChange, showEndDate }: {
         </select>
       </label>
       <label className="recurrence-modal__field">
-        <span className="recurrence-modal__field-label">카테고리</span>
+        <span className="recurrence-modal__field-label">프로젝트</span>
         <input
           type="text"
           className="recurrence-modal__input"

@@ -200,7 +200,7 @@ export default function App() {
 
   function handleBulkCategory(category: string) {
     bulkUpdateCategory(Array.from(selectedIds), category);
-    showToast({ message: '선택한 항목의 카테고리를 변경했습니다.' });
+    showToast({ message: '선택한 항목의 프로젝트를 변경했습니다.' });
   }
 
   function handleBulkPriority(priority: Todo['priority']) {

@@ -133,7 +133,7 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
           </div>
 
           <div>
-            <label className="todo-input__label" htmlFor="todo-input-category">카테고리</label>
+            <label className="todo-input__label" htmlFor="todo-input-category">프로젝트</label>
             <input
               id="todo-input-category"
               className="todo-input__field"

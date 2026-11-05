@@ -78,8 +78,8 @@ describe('buildDashboardStats — 완료 수', () => {
   });
 });
 
-describe('buildDashboardStats — 카테고리별', () => {
-  it('이번 주 완료한 일을 카테고리별로 세고 많은 순, 같으면 이름순으로 정렬한다', () => {
+describe('buildDashboardStats — 프로젝트별', () => {
+  it('이번 주 완료한 일을 프로젝트별로 세고 많은 순, 같으면 이름순으로 정렬한다', () => {
     const s = stats([
       done('2026-11-03T10:00:00', { category: '다라시스템' }),
       done('2026-11-03T11:00:00', { category: '가나시청' }),

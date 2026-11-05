@@ -109,7 +109,7 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
             />
           </div>
           <div className="todo-item__edit-group">
-            <label className="todo-item__edit-label" htmlFor={`todo-edit-category-${todo.id}`}>카테고리</label>
+            <label className="todo-item__edit-label" htmlFor={`todo-edit-category-${todo.id}`}>프로젝트</label>
             <input
               id={`todo-edit-category-${todo.id}`}
               className="todo-item__edit-field todo-item__edit-field--sm"
@@ -138,7 +138,7 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
                   className="todo-item__category-picker-btn"
                   onClick={() => setCategoryPickerOpen(true)}
                 >
-                  카테고리 선택
+                  프로젝트 선택
                 </button>
               </>
             )}

@@ -47,7 +47,7 @@ export default function BulkActionBar({
         <input
           className="bulk-bar__category-input"
           type="text"
-          placeholder="카테고리 변경"
+          placeholder="프로젝트 변경"
           value={categoryInput}
           onChange={e => setCategoryInput(e.target.value)}
           list="bulk-category-options"

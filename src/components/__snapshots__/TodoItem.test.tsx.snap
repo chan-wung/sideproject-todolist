@@ -1356,7 +1356,7 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 1`] = `
             class="todo-item__edit-label"
             for="todo-edit-category-t1"
           >
-            카테고리
+            프로젝트
           </label>
           <input
             autocomplete="off"
@@ -1385,7 +1385,7 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 1`] = `
             class="todo-item__category-picker-btn"
             type="button"
           >
-            카테고리 선택
+            프로젝트 선택
           </button>
         </div>
         <div
@@ -1631,7 +1631,7 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차
             class="todo-item__edit-label"
             for="todo-edit-category-t1"
           >
-            카테고리
+            프로젝트
           </label>
           <input
             autocomplete="off"
@@ -1660,7 +1660,7 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차
             class="todo-item__category-picker-btn"
             type="button"
           >
-            카테고리 선택
+            프로젝트 선택
           </button>
         </div>
         <div

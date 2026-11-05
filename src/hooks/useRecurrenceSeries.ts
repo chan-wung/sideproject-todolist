@@ -5,19 +5,9 @@ import { todayStr } from '../utils/date';
 import { materializeDueOccurrences, validateRecurrenceSeries } from '../utils/recurrence';
 import { generateId } from '../utils/id';
 import { normalizeKind } from '../utils/kind';
-import { writeStorage } from '../utils/storage';
+import { readStorage, writeStorage } from '../utils/storage';
 
 const SERIES_STORAGE_KEY = 'todolist-recurrence-series';
-
-function loadSeriesFromStorage(): RecurrenceSeries[] {
-  try {
-    const raw = localStorage.getItem(SERIES_STORAGE_KEY);
-    if (!raw) return [];
-    return validateRecurrenceSeries(JSON.parse(raw)) || [];
-  } catch {
-    return [];
-  }
-}
 
 // 반복 시리즈 상태와 저장, 도래한 회차 생성(materialize), 시리즈 규칙 CRUD.
 // 회차는 할 일 목록에 추가되므로 todos의 최신값(ref)과 setTodos를 받는다.
@@ -26,7 +16,7 @@ export function useRecurrenceSeries(
   todosRef: MutableRefObject<Todo[]>,
   setTodos: Dispatch<SetStateAction<Todo[]>>,
 ) {
-  const [recurrenceSeries, setRecurrenceSeries] = useState<RecurrenceSeries[]>(loadSeriesFromStorage);
+  const [recurrenceSeries, setRecurrenceSeries] = useState<RecurrenceSeries[]>(() => readStorage(SERIES_STORAGE_KEY, validateRecurrenceSeries, []));
   const recurrenceSeriesRef = useRef(recurrenceSeries);
   recurrenceSeriesRef.current = recurrenceSeries;
 

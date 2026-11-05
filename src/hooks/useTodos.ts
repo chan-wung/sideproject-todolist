@@ -6,7 +6,7 @@ import { migrateLegacyRecurrence, materializeDueOccurrences, validateRecurrenceS
 import { generateId } from '../utils/id';
 import { normalizeKind } from '../utils/kind';
 import { moveItem } from '../utils/list';
-import { writeStorage } from '../utils/storage';
+import { readStorage, writeStorage } from '../utils/storage';
 import { useRecurrenceSeries } from './useRecurrenceSeries';
 
 const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, low: 2 };
@@ -29,17 +29,6 @@ export function migrateTodo(raw: any): Todo {
     return { ...rest, memoIds: [memoId] } as Todo;
   }
   return rest as Todo;
-}
-
-function loadFromStorage(): Todo[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return validateTodos(parsed) || [];
-  } catch {
-    return [];
-  }
 }
 
 export function validateTodos(incoming: unknown): Todo[] | null {
@@ -113,7 +102,7 @@ export function validateCompletionLog(incoming: unknown): CompletionLogEntry[] |
 }
 
 export function useTodos() {
-  const [todos, setTodos] = useState<Todo[]>(loadFromStorage);
+  const [todos, setTodos] = useState<Todo[]>(() => readStorage(STORAGE_KEY, validateTodos, []));
   const todosRef = useRef(todos);
   todosRef.current = todos;
   const {

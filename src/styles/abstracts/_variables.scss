@@ -6,7 +6,7 @@
 $break_pc: 1200px;
 $break_tab: 768px;
 $break_mob: 340px;
-$break_shell: 1024px; // 이 폭 이상이면 사이드바 레이아웃, 미만이면 상단 가로 메뉴
+$break_shell: 1024px; // 이 폭 이상이면 사이드바 레이아웃, 미만이면 화면 아래 탭 바
 
 // 폰트 굵기 & 사이즈 맵 (Mixin에서 사용되므로 SCSS Map으로 유지)
 $weights: (

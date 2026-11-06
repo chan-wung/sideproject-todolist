@@ -43,10 +43,13 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `ScrollTopButton.tsx`: 스크롤이 내려가 있을 때만 나오는 `맨 위로` 버튼(스크롤 감지 포함)
   - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트(툴바·메뉴 아이콘 포함, 이모지 대신 쓴다). 일부는 `size`·`className`·`decorative`를 받는다(`size="1em"`이면 글자 크기를 따름). **글자 옆에 붙일 때는 `className="ico-text"`**: 전역 reset이 `svg`를 `display: block`으로 두기 때문에 이 클래스 없이는 줄이 바뀐다
   - `*Modal.tsx`: 모달 계열. 모두 `<dialog>` + `useModalDialog`
+  - `StorageNotice.tsx`: 화면 위 안내 — 저장 실패(내보내기·다시 저장), 읽을 수 없는 저장 데이터(원문 내려받기·보관본 지우기), 다른 탭이 데이터를 바꿈(이 탭 내용으로 계속·다른 탭 내용 불러오기). 상태는 `useStorageStatus`가 `utils/storage.ts`에서 구독한다
+  - `UpdateNotice.tsx`: PWA 새 버전이 준비됐을 때의 `지금 새로고침`/`나중에` 안내 (`useUpdateReady`·`utils/pwaUpdate`)
 - `src/hooks/`
   - `useTodos`: 할 일 상태와 필터·정렬·실행취소·완료 이력. 시리즈와 할 일을 **함께** 바꾸는 작업(승격·삭제·초기화·시작 시 마이그레이션)도 여기 있음
   - `useRecurrenceSeries`: 반복 시리즈 상태·저장·회차 생성·CRUD. `useTodos`가 내부에서 호출함
   - `useView`: 주소 경로 ↔ 현재 화면(`useSyncExternalStore`, `popstate`+자체 이벤트). `navigate(view)`로 이동, `migrateLegacyHash()`가 옛 `/#/report` 북마크를 `/report`로 바꿈(`main.tsx`에서 호출). 모르는 경로는 기본 화면(할 일)
+  - `useStorageStatus`(저장 실패·손상 보관본·다른 탭 변경 구독), `useUpdateReady`(새 버전 준비 여부), `useStableCallbacks`(핸들러 주소 고정, 목록 memo용)
   - `useBackupFlow`: 백업 내보내기·가져오기 흐름(`pendingImport`·`confirmImport`·`exportBackup`·`importFile`)
   - `useCalendarMonth`: 달력에 보이는 달·월 이동·앞 빈칸·일수 (`DatePicker`·`DateRangePicker`·`CalendarPage`가 같이 씀)
   - `useSelection`(선택 모드), `useModalDialog`(열기/닫기·스크롤 잠금 + 바깥 클릭 닫기 핸들러를 돌려줌), `useDismiss`, `useTheme`(라이트/다크 저장 + `body[data-theme]`), `useDayChange`, `usePersistentState`, `useMemos`, `useWeeklyReports`(주별 보고서 저장본·복사 완료 기록)
@@ -149,7 +152,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - **테스트 격리·CI**: 렌더하는 테스트 파일은 모두 `afterEach(cleanup)`을 갖고(훅 테스트 포함), fake timer는 `useRealTimers`, `vi.spyOn`은 `restoreAllMocks`로 되돌린다. `npx vitest run --sequence.shuffle.files --sequence.shuffle.tests --sequence.seed=N`으로 섞어 돌려도 통과해야 한다(시드 1~3 확인). 여러 탭/저장 상태를 건드리는 테스트는 `resetStorageTracking()`을 쓴다. `.github/workflows/ci.yml`이 push(main)·PR마다 `check`(`npm ci` → lint → test → build)와 `e2e`(`npm run e2e`) 두 작업을 돌린다(Node 22, 배포·비밀키 없음, 아직 실제 러너에서 돌려 보지 못했다). 테스트 경고 중 `Both esbuild and oxc options were set`·`esbuild option ... deprecated`는 `@vitejs/plugin-react`(Vite 5용)가 vitest 하위 Vite 8에서 내는 설정 경고이고, `Not implemented: navigation to another Document`는 jsdom이 링크 이동을 구현하지 않아서 나는 메시지다. 둘 다 실패가 아니다.
 - **통합 테스트**: `src/App.test.tsx`가 백업 가져오기(확인·취소·버전 거부)·전체 초기화·메모 연결 정리를, `src/App.flows.test.tsx`가 백업 내보내기→가져오기 왕복(다섯 구역)과 주간보고 복사 성공/실패 기록을 앱 전체로 확인한다. `<dialog>`의 `showModal`/`close`를 모킹하고 `vi.useFakeTimers({ shouldAdvanceTime: true })`를 쓴다.
 - **작은 동작 차이**: 반복 회차 카드에서 종류를 바꾸면 그 회차만 바뀌고 시리즈 종류는 그대로입니다. 이전 완료 이력의 연차는 `dueDate`가 없어 주간보고에 들어가지 않습니다.
-- **남은 계획**: 처음 계획한 1~6단계는 모두 만들었습니다(대시보드, 캘린더, 백업 알림 포함). 남은 것은 아래 정리 항목들입니다.
+- **진행 상태**: 처음 계획한 1~6단계(대시보드, 캘린더, 백업 알림 포함)와, 그 뒤의 개선 계획(`plans.md`의 T01~T15: 데이터 손실·잘못된 동작 수정, 입력·접근성, 구조 정리, 여러 탭 충돌, 테스트·CI·e2e, 실행 스크립트·PWA, 성능 측정, 문서 정합성)을 모두 처리했습니다. 각 작업에서 확인하지 못한 것은 이 '알려진 상태'와 해당 항목에 적어 두었습니다. 남은 것은 아래 보류 항목과 실기기 확인입니다.
 - **시작 화면**: 메뉴 맨 위는 `대시보드`지만 처음 열리는 화면(`DEFAULT_VIEW`)은 `할 일`입니다. 바꾸려면 `labels.ts`의 `DEFAULT_VIEW`를 고칩니다.
 - **보류한 작업**: `@import → @use` 전환, `_icons_new.scss`(약 2,700줄) 분리. 두 가지 모두 급하지 않음.
 

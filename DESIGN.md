@@ -27,7 +27,7 @@ The atmosphere is clean and focused. Cards have 16px radius corners and single-l
 ### Primary
 - **Todo Blue** (`#0064FF`): Primary interactive color — buttons, links, active tabs, toggle states, focus rings.
 - **Blue Hover** (`#0050CC`): Pressed/hover state for blue elements.
-- **Blue Light 5** (`#EBF3FF`): Informational surface — subtle tinted backgrounds, category chips.
+- **Blue Light 5** (`#EBF3FF`): Informational surface — subtle tinted backgrounds, project (`category`) chips.
 - **Blue Light 10** (`#D2E5FF`): Stronger blue tint — active item backgrounds.
 - **Blue Light 20** (`#A6C8FF`): Medium blue tint — hover fills, selected badges.
 
@@ -140,7 +140,7 @@ Always use `@include font(size, weight)` — never `font-size` or `font-weight` 
 - Padding: 3px 9px
 - Font: 11px / 700
 - Priority badge colors inherit from semantic palette (light bg + dark text)
-- Category chip: `#EBF3FF` bg + `#0064FF` text
+- Project (`category` field) chip: `#EBF3FF` bg + `#0064FF` text
 
 ### Segmented Controls (tabs, sort)
 - Container: `rgba(0,0,0,0.07)` background, 10px radius, 3px padding
@@ -165,8 +165,10 @@ Always use `@include font(size, weight)` — never `font-size` or `font-weight` 
 - xs: 4px | sm: 8px | md: 12px | base: 16px | lg: 20px | xl: 24px | xxl: 32px
 
 ### Container
-- Max-width: 960px, centered
-- Page padding: 20px horizontal, 20px top, 60px bottom
+- 앱 셸: 폭 **1024px 이상**(`$break_shell`)은 왼쪽 카드형 사이드바(폭 276px, 접으면 100px) + 위에 고정되는 툴바(높이 64px) + 본문. 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다. 1024px 미만은 사이드바 대신 화면 아래에 고정되는 탭 바(높이 56px)이고 본문 아래에 같은 높이의 여백을 둔다
+- 헤더 높이는 `.app-shell`의 `padding-top`으로만 둔다 (margin 금지)
+- 각 화면의 제목(`h1`)은 그 화면이 공용 `PageHead`로 카드 밖(회색 배경 위)에 그린다
+- 카드형 화면(캘린더·주간보고·메모장)은 남는 높이를 카드가 채운다
 - Card gap: 8px between todo items
 
 ### Horizontal padding
@@ -215,13 +217,15 @@ No colored shadows except for pinned items (blue tinted) and destructive element
 ### Breakpoints
 | Name | Width | Changes |
 |---|---|---|
-| Mobile | < 768px | Single column, reduced padding |
-| Tablet | 768px–1199px | Side-by-side groups possible |
-| Desktop | ≥ 1200px | Max-width 960px centered |
+| Mobile | < 768px | Single column, reduced padding, bottom tab bar |
+| Tablet | 768px–1023px | Side-by-side groups possible, bottom tab bar |
+| Desktop shell | ≥ 1024px | Sidebar + fixed toolbar, content fills the remaining width, PC font scale ×1.125 |
+
+`@include shell`(≥1024px), `@include below_shell`(<1024px), `@include below_tab`(≤768px)만 쓰고 폭 값을 직접 쓰지 않는다. 글자는 모두 `@include font(N)`을 거치며 PC(≥1024px)에서는 `$font_scale_pc`(1.125)가 곱해진다(본문 16px → 18px). 간격·상자 크기(`rem()`)는 배율을 받지 않는다.
 
 ### Sticky Behavior
-- Todo input: `position: sticky; top: 16px; z-index: 100` — sentinel div triggers scroll-top button
-- Scroll-top button: appears when input leaves viewport (IntersectionObserver)
+- Todo input: `position: sticky; top: 16px; z-index: 100` (≥1024px에서는 고정 툴바 아래인 `top: 80px`)
+- Scroll-top button: 스크롤이 내려가 있을 때만(`window.scrollY > 0`) 나타나고, 좁은 화면에서는 아래 탭 바 위로 띄운다
 
 ## 9. Agent Prompt Guide
 
@@ -251,11 +255,15 @@ $border_color: #E5E8EB;
 ### File Structure
 ```
 src/styles/
-  abstracts/  _variables.scss, _mixins.scss, _icons.scss, _icons_new.scss
-  base/       _reset.scss, _typography.scss, _accessibility.scss, _utilities.scss
-  components/ _todo.scss, _quick-memo.scss, _sidebar.scss, _button.scss,
-              _form.scss, _date-picker.scss, _quick-nav.scss, _due-summary.scss
-  main.scss   (import order matters: variables → icons → mixins → icons_new → base → components)
+  abstracts/  _variables.scss, _mixins.scss, _icons.scss, _icons_new.scss, _date-picker-base.scss
+  base/       _reset.scss, _typography.scss, _accessibility.scss, _utilities.scss, _custom-scroll.scss
+  components/ 컴포넌트마다 한 파일: _app-shell, _app-nav, _toolbar, _profile-menu, _page-head,
+              _todo-app, _todo-input, _todo-item, _todo-list, _filter-bar, _bulk-bar, _due-summary, _quick-nav,
+              _calendar, _calendar-time, _dashboard, _memo-page, _weekly-report, _period-nav,
+              _date-picker, _date-range-picker, _form, _form-chk, _button, _toast,
+              _settings-modal, _confirm-modal, _completion-log-modal, _recurrence-series-modal, _category-picker-modal,
+              _backup-reminder, _storage-notice, _leave-fields, _app-footer
+  main.scss   (@import 순서가 곧 캐스케이드 순서: abstracts → base → components. 이 프로젝트는 아직 @use가 아니라 @import를 쓴다)
 ```
 
 ### Example component patterns

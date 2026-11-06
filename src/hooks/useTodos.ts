@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import type { Todo, Subtask, FilterStatus, SortKey, DueScope, CompletionLogEntry, RecurrenceSeries, RecurrenceFrequency, TodoKind, TodoUpdates } from '../types/todo';
-import { usePersistentState } from './usePersistentState';
+import { usePersistentState, oneOf } from './usePersistentState';
 import { isToday, isOverdue, todayStr } from '../utils/date';
 import { migrateLegacyRecurrence, materializeDueOccurrences } from '../utils/recurrence';
 import { generateId } from '../utils/id';
 import { normalizeKind } from '../utils/kind';
 import { moveItem } from '../utils/list';
 import { readStorage, writeStorage } from '../utils/storage';
-import { validateTodos, toCompletionLogEntry } from '../utils/todoData';
+import { validateTodos, validateCompletionLog, toCompletionLogEntry } from '../utils/todoData';
 import { filterTodos, sortTodos } from '../utils/todoFilter';
 import { completePastLeaves } from '../utils/leave';
 import { useRecurrenceSeries } from './useRecurrenceSeries';
@@ -34,19 +34,19 @@ export function useTodos() {
     exportRecurrenceSeries,
     importRecurrenceSeries,
   } = useRecurrenceSeries(todosRef, setTodos);
-  const [filterStatus, setFilterStatus] = usePersistentState<FilterStatus>('todolist-pref-status', 'active');
+  const [filterStatus, setFilterStatus] = usePersistentState<FilterStatus>('todolist-pref-status', 'active', oneOf('all', 'active', 'completed'));
   const [filterCategory, setFilterCategory] = usePersistentState<string>('todolist-pref-category', 'all');
-  const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default');
+  const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default', oneOf('default', 'priority', 'dueDate', 'manual'));
   const [query, setQuery] = usePersistentState<string>('todolist-pref-query', '');
-  const [dueScope, setDueScope] = usePersistentState<DueScope>('todolist-pref-due', 'all');
+  const [dueScope, setDueScope] = usePersistentState<DueScope>('todolist-pref-due', 'all', oneOf('all', 'today', 'week', 'overdue'));
   const [recurrenceOnly, setRecurrenceOnly] = usePersistentState<boolean>('todolist-pref-recurrence-only', false);
-  const [completionLog, setCompletionLog] = usePersistentState<CompletionLogEntry[]>('todolist-completion-log', []);
+  const [completionLog, setCompletionLog] = usePersistentState<CompletionLogEntry[]>('todolist-completion-log', [], validateCompletionLog);
   // 실행취소는 "방금 한 삭제"만 되돌린다. 전체 스냅샷을 복원하면 그 뒤에 한 추가·수정까지 같이 사라진다.
   const [undoInfo, setUndoInfo] = useState<{ message: string; id: number } | null>(null);
   const undoActionRef = useRef<UndoAction | null>(null);
   const undoSeqRef = useRef(0);
 
-  useEffect(() => writeStorage(STORAGE_KEY, todos), [todos]);
+  useEffect(() => { writeStorage(STORAGE_KEY, todos); }, [todos]);
 
   // 같은 안내 문구로 연속 삭제해도 새 실행취소로 인식되도록 번호(id)를 매번 올린다.
   function registerUndo(message: string, action: UndoAction) {

@@ -1,4 +1,5 @@
 import { usePersistentState } from './usePersistentState';
+import { isValidDateStr } from '../utils/date';
 
 export interface WeeklyReportData {
   drafts: Record<string, string>;
@@ -8,9 +9,8 @@ export interface WeeklyReportData {
 const STORAGE_KEY = 'todolist-weekly-reports';
 const INITIAL_DATA: WeeklyReportData = { drafts: {}, copiedWeeks: [] };
 
-function isWeekStart(value: unknown): value is string {
-  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
-}
+// 주 키는 달력에 실제로 있는 날짜여야 한다 (잘못된 키를 다른 주로 합치거나 몰래 버리지 않고 데이터 전체를 거부한다)
+const isWeekStart = isValidDateStr;
 
 export function validateWeeklyReportData(raw: unknown): WeeklyReportData | null {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
@@ -24,7 +24,7 @@ export function validateWeeklyReportData(raw: unknown): WeeklyReportData | null 
 
 // 주별 수동 편집본과 복사 완료 기록. 자동 생성 보고서와 분리해 저장한다.
 export function useWeeklyReports() {
-  const [data, setData] = usePersistentState<WeeklyReportData>(STORAGE_KEY, INITIAL_DATA);
+  const [data, setData] = usePersistentState<WeeklyReportData>(STORAGE_KEY, INITIAL_DATA, validateWeeklyReportData);
 
   function saveDraft(weekStart: string, text: string, generatedText: string) {
     setData(prev => {

@@ -4,7 +4,7 @@ import { CALENDAR_VIEW_LABEL, CALENDAR_VIEW_OPTIONS, type CalendarView } from '.
 import { useDayChange } from '../hooks/useDayChange';
 import { buildCalendarItems, itemsOnDate, layoutMonth, monthRange, sundayWeekDates } from '../utils/calendar';
 import { addDaysStr, addMonthsClamped, formatMonthDayWeekday, todayStr } from '../utils/date';
-import { usePersistentState } from '../hooks/usePersistentState';
+import { usePersistentState, oneOf } from '../hooks/usePersistentState';
 import PeriodNav from '../components/PeriodNav';
 import PageHead from '../components/PageHead';
 import CalendarMonthView from '../components/CalendarMonthView';
@@ -38,7 +38,7 @@ export default function CalendarPage({ todos, series, completionLog }: Props) {
   // 보고 있는 날짜. 월 보기에서는 그 달 안의 한 날, 주 보기에서는 그 주 안의 한 날이다.
   const [anchor, setAnchor] = useState(todayStr);
   const [selected, setSelected] = useState<string | null>(today);
-  const [savedView, setView] = usePersistentState<CalendarView>('todolist-pref-calendar-view', 'month');
+  const [savedView, setView] = usePersistentState<CalendarView>('todolist-pref-calendar-view', 'month', oneOf(...CALENDAR_VIEW_OPTIONS));
   const view: CalendarView = CALENDAR_VIEW_OPTIONS.includes(savedView) ? savedView : 'month';
 
   // 자정이 지나거나 탭으로 돌아오면 '오늘' 표시를 새로 한다.

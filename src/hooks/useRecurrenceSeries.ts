@@ -20,7 +20,7 @@ export function useRecurrenceSeries(
   const recurrenceSeriesRef = useRef(recurrenceSeries);
   recurrenceSeriesRef.current = recurrenceSeries;
 
-  useEffect(() => writeStorage(SERIES_STORAGE_KEY, recurrenceSeries), [recurrenceSeries]);
+  useEffect(() => { writeStorage(SERIES_STORAGE_KEY, recurrenceSeries); }, [recurrenceSeries]);
 
   // materializeDueOccurrences 결과를 상태에 반영하는 공통 처리.
   // alwaysPersistSeries: 방금 새 시리즈를 추가해 목록 자체가 이미 바뀐 경우 true

@@ -16,7 +16,7 @@ export function validateMemos(incoming: unknown): Memo[] | null {
 }
 
 export function useMemos() {
-  const [memos, setMemos] = usePersistentState<Memo[]>('todolist-memos-array', []);
+  const [memos, setMemos] = usePersistentState<Memo[]>('todolist-memos-array', [], validateMemos);
   const [activeId, setActiveId] = usePersistentState<string | null>('todolist-active-memo', null);
 
   function resetMemos() {

@@ -1,6 +1,7 @@
 // 할 일·완료 이력의 저장 데이터 검증과 옛 형식 마이그레이션. localStorage에서 읽을 때와 백업 파일을 가져올 때 같이 쓴다.
 import type { Todo, CompletionLogEntry } from '../types/todo';
 import { normalizeKind } from './kind';
+import { isValidDateStr } from './date';
 
 export function normalizePriority(value: unknown): Todo['priority'] {
   return value === 'low' || value === 'medium' || value === 'high' ? value : 'medium';
@@ -47,8 +48,9 @@ export function validateTodos(incoming: unknown): Todo[] | null {
       memoIds = undefined;
     }
 
-    // 시작일은 문자열이고 마감일보다 앞설 때만 인정한다 (손상된 값은 버린다)
-    const startDate = typeof migrated.startDate === 'string' && typeof migrated.dueDate === 'string' && migrated.startDate < migrated.dueDate
+    // 날짜는 달력에 실제로 있는 날짜만 인정한다 (손상된 값은 버린다). 시작일은 마감일보다 앞설 때만 인정한다.
+    const dueDate = isValidDateStr(migrated.dueDate) ? migrated.dueDate : undefined;
+    const startDate = isValidDateStr(migrated.startDate) && dueDate && migrated.startDate < dueDate
       ? migrated.startDate
       : undefined;
 
@@ -58,6 +60,7 @@ export function validateTodos(incoming: unknown): Todo[] | null {
       completed,
       category,
       createdAt,
+      dueDate,
       startDate,
       subtasks,
       memoIds,
@@ -79,8 +82,8 @@ export function validateCompletionLog(incoming: unknown): CompletionLogEntry[] |
     priority: normalizePriority(o.priority),
     completedAt: o.completedAt,
     kind: normalizeKind(o.kind),
-    startDate: typeof o.startDate === 'string' ? o.startDate : undefined,
-    dueDate: typeof o.dueDate === 'string' ? o.dueDate : undefined,
+    startDate: isValidDateStr(o.startDate) ? o.startDate : undefined,
+    dueDate: isValidDateStr(o.dueDate) ? o.dueDate : undefined,
     subtasks: Array.isArray(o.subtasks)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? o.subtasks.filter((s: any) => s && typeof s.text === 'string').map((s: any) => ({ text: s.text, completed: !!s.completed }))

@@ -170,3 +170,18 @@ export function buildWeeklyReport(input: {
 export function shiftWeek(weekStart: string, weeks: number): string {
   return addDaysStr(weekStart, weeks * 7);
 }
+
+// 그 주 보고를 아직 안 낸 것으로 볼지. 이미 복사한 주는 제외하고,
+// 자동 생성 글이 비었어도 직접 쓴 글(비어 있지 않은 수동 저장본)이 있으면 보고할 내용이 있는 것으로 본다.
+export function hasUnreportedWeek(input: {
+  weekStart: string;
+  todos: Todo[];
+  completionLog: CompletionLogEntry[];
+  drafts: Record<string, string>;
+  copiedWeeks: string[];
+}): boolean {
+  const { weekStart, todos, completionLog, drafts, copiedWeeks } = input;
+  if (copiedWeeks.includes(weekStart)) return false;
+  if ((drafts[weekStart] ?? '').trim() !== '') return true;
+  return !buildWeeklyReport({ weekStart, todos, completionLog }).isEmpty;
+}

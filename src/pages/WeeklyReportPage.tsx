@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { Todo, CompletionLogEntry } from '../types/todo';
 import { useDayChange } from '../hooks/useDayChange';
 import { usePersistentState } from '../hooks/usePersistentState';
@@ -10,7 +10,7 @@ import { buildWeeklyReport, shiftWeek } from '../utils/weeklyReport';
 interface Props {
   todos: Todo[];
   completionLog: CompletionLogEntry[];
-  onCopy: (text: string, successMessage: string) => void;
+  onCopy: (text: string, successMessage: string) => Promise<boolean>;
   drafts: Record<string, string>;
   onSaveDraft: (weekStart: string, text: string, generatedText: string) => void;
   onResetDraft: (weekStart: string) => void;
@@ -41,6 +41,25 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy, drafts,
   const text = edited ?? report.text;
   const isBlank = text.trim() === '';
   const year = weekStart.slice(0, 4);
+
+  // 복사가 성공한 뒤에만, 복사를 누른 그 주를 보고 완료로 기록한다. 복사하는 동안 다시 누르거나 주를 옮겨도 영향 없다.
+  const [copying, setCopying] = useState(false);
+  const copyingRef = useRef(false);
+  async function handleCopy() {
+    if (copyingRef.current) return;
+    copyingRef.current = true;
+    setCopying(true);
+    const target = weekStart;
+    try {
+      const ok = await onCopy(text, '주간보고를 클립보드에 복사했습니다.');
+      if (ok) onMarkCopied(target);
+    } catch {
+      // 실패 안내는 onCopy가 이미 보여 준다. 미보고 상태는 그대로 둔다.
+    } finally {
+      copyingRef.current = false;
+      setCopying(false);
+    }
+  }
 
   function moveWeek(weeks: number) {
     setWeekStart(prev => shiftWeek(prev, weeks));
@@ -111,8 +130,8 @@ export default function WeeklyReportPage({ todos, completionLog, onCopy, drafts,
             <button
               type="button"
               className="btn btn--main"
-              onClick={() => { onCopy(text, '주간보고를 클립보드에 복사했습니다.'); onMarkCopied(weekStart); }}
-              disabled={isBlank}
+              onClick={handleCopy}
+              disabled={isBlank || copying}
             >
               텍스트 복사
             </button>

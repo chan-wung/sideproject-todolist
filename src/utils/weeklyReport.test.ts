@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildWeeklyReport, shiftWeek } from './weeklyReport';
+import { buildWeeklyReport, shiftWeek, hasUnreportedWeek } from './weeklyReport';
 import type { Todo, CompletionLogEntry } from '../types/todo';
 
 // 테스트 데이터의 업체·시스템 이름은 모두 가상의 이름이다.
@@ -229,5 +229,30 @@ describe('shiftWeek', () => {
     expect(shiftWeek('2026-11-02', 1)).toBe('2026-11-09');
     expect(shiftWeek('2026-11-02', -1)).toBe('2026-10-26');
     expect(shiftWeek('2026-11-02', 0)).toBe('2026-11-02');
+  });
+});
+
+describe('hasUnreportedWeek', () => {
+  const base = { weekStart: WEEK, todos: [] as Todo[], completionLog: [] as CompletionLogEntry[], drafts: {} as Record<string, string>, copiedWeeks: [] as string[] };
+
+  it('완료한 일이 있고 아직 복사하지 않았으면 미보고다', () => {
+    expect(hasUnreportedWeek({ ...base, todos: [done()] })).toBe(true);
+  });
+
+  it('이미 복사한 주는 미보고가 아니다', () => {
+    expect(hasUnreportedWeek({ ...base, todos: [done()], copiedWeeks: [WEEK] })).toBe(false);
+  });
+
+  it('완료한 일도 직접 쓴 글도 없으면 미보고가 아니다', () => {
+    expect(hasUnreportedWeek(base)).toBe(false);
+    expect(hasUnreportedWeek({ ...base, drafts: { [WEEK]: '   ' } })).toBe(false);
+  });
+
+  it('자동 생성 글이 비어 있어도 직접 쓴 글이 있으면 미보고다', () => {
+    expect(hasUnreportedWeek({ ...base, drafts: { [WEEK]: '직접 쓴 보고' } })).toBe(true);
+  });
+
+  it('다른 주의 저장본·복사 기록은 영향을 주지 않는다', () => {
+    expect(hasUnreportedWeek({ ...base, drafts: { '2026-11-09': '다음 주 글' }, copiedWeeks: ['2026-10-26'] })).toBe(false);
   });
 });

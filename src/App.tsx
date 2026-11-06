@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTodos } from './hooks/useTodos';
 import { useMemos } from './hooks/useMemos';
 import { useWeeklyReports } from './hooks/useWeeklyReports';
@@ -26,7 +26,7 @@ import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
 import type { Todo, CompletionLogEntry } from './types/todo';
 import { normalizeKind } from './utils/kind';
-import { buildWeeklyReport, shiftWeek } from './utils/weeklyReport';
+import { hasUnreportedWeek, shiftWeek } from './utils/weeklyReport';
 import { startOfWeek, todayStr } from './utils/date';
 import { downloadBackup, readBackupFile } from './utils/backup';
 import { parseBackup } from './utils/backupData';
@@ -92,6 +92,7 @@ export default function App() {
     exportRecurrenceSeries,
     importRecurrenceSeries,
     undoMessage,
+    undoId,
     performUndo,
     dismissUndo,
     linkMemoToTodo,
@@ -119,13 +120,29 @@ export default function App() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); // html에 smooth가 걸려 있어 즉시 이동을 지정
   }, [view]);
 
-  const hasData = allTodos.length > 0 || memos.length > 0 || completionLog.length > 0 || recurrenceSeries.length > 0 || Object.keys(weeklyReports.data.drafts).length > 0;
+  // 지난주 보고를 아직 안 냈는지: 사이드바 알림 점과 주간보고 화면 안내가 같은 값을 쓴다
+  const lastWeekStart = shiftWeek(startOfWeek(todayStr()), -1);
+  const hasUnreportedLastWeek = hasUnreportedWeek({
+    weekStart: lastWeekStart,
+    todos: allTodos,
+    completionLog,
+    drafts: weeklyReports.data.drafts,
+    copiedWeeks: weeklyReports.data.copiedWeeks,
+  });
+
+  const hasData = allTodos.length > 0 || memos.length > 0 || completionLog.length > 0 || recurrenceSeries.length > 0 || Object.keys(weeklyReports.data.drafts).length > 0 || weeklyReports.data.copiedWeeks.length > 0;
   const { lastBackup, reminder, markBackedUp, snooze } = useBackupReminder(hasData);
   const [navCollapsed, setNavCollapsed] = usePersistentState<boolean>('todolist-pref-nav-collapsed', false);
 
   const { toast, showToast, clearToast } = useToast();
-  const { runCopy, runShare, runKakaoShare } = useShareActions(showToast);
+  // 복사·공유 토스트가 실행취소 토스트를 대신하면 그 실행취소는 더 이상 누를 수 없으니 함께 버린다
+  const showShareToast = useCallback((state: Parameters<typeof showToast>[0]) => {
+    dismissUndo();
+    showToast(state);
+  }, [dismissUndo, showToast]);
+  const { runCopy, runShare, runKakaoShare } = useShareActions(showShareToast);
 
+  // undoId가 바뀔 때마다(같은 문구의 연속 삭제 포함) 토스트와 5초 유예를 새로 시작한다
   useEffect(() => {
     if (!undoMessage) return;
     showToast({
@@ -135,7 +152,8 @@ export default function App() {
       duration: 5000,
       type: 'danger',
     });
-  }, [undoMessage, performUndo, showToast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [undoId, performUndo, showToast]);
 
   function getBackup() {
     return { version: 1, todos: exportData(), memos, completionLog: exportCompletionLog(), recurrenceSeries: exportRecurrenceSeries(), weeklyReports: weeklyReports.data };
@@ -290,7 +308,7 @@ export default function App() {
       )}
       <AppToolbar navCollapsed={navCollapsed} theme={theme} onToggleTheme={toggleTheme} profile={profile} />
       <div className={`app-shell${navCollapsed ? ' app-shell--nav-collapsed' : ''}`}>
-      <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} profile={profile} reportAttention={!buildWeeklyReport({ weekStart: shiftWeek(startOfWeek(todayStr()), -1), todos: allTodos, completionLog }).isEmpty && !weeklyReports.data.copiedWeeks.includes(shiftWeek(startOfWeek(todayStr()), -1))} />
+      <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} profile={profile} reportAttention={hasUnreportedLastWeek} />
       <div className="app-shell__content">
       <div className="todo-app">
       {reminder.show && (
@@ -386,7 +404,7 @@ export default function App() {
           onKakaoShareText={runKakaoShare}
         />
       ) : (
-        <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} drafts={weeklyReports.data.drafts} onSaveDraft={weeklyReports.saveDraft} onResetDraft={weeklyReports.resetDraft} onMarkCopied={weeklyReports.markCopied} hasUnreportedLastWeek={!buildWeeklyReport({ weekStart: shiftWeek(startOfWeek(todayStr()), -1), todos: allTodos, completionLog }).isEmpty && !weeklyReports.data.copiedWeeks.includes(shiftWeek(startOfWeek(todayStr()), -1))} />
+        <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} drafts={weeklyReports.data.drafts} onSaveDraft={weeklyReports.saveDraft} onResetDraft={weeklyReports.resetDraft} onMarkCopied={weeklyReports.markCopied} hasUnreportedLastWeek={hasUnreportedLastWeek} />
       )}
       </div>
 

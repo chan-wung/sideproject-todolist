@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, fireEvent, cleanup } from '@testing-library/react';
+import { render, fireEvent, cleanup, act } from '@testing-library/react';
 import { useState } from 'react';
 import WeeklyReportPage from './WeeklyReportPage';
 import type { Todo, CompletionLogEntry } from '../types/todo';
@@ -22,8 +22,7 @@ const LOG: CompletionLogEntry[] = [
 
 const THIS_WEEK_TEXT = '2026.11.2 바이러스 검사 완료\n\n[가나시청] 유지보수(홈페이지 수정요청)';
 
-function setup(todos: Todo[] = TODOS, log: CompletionLogEntry[] = LOG) {
-  const onCopy = vi.fn();
+function setup(todos: Todo[] = TODOS, log: CompletionLogEntry[] = LOG, onCopy = vi.fn().mockResolvedValue(true)) {
   const onMarkCopied = vi.fn();
   function TestPage() {
     const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -101,14 +100,60 @@ describe('WeeklyReportPage', () => {
     expect(getByText('2026년 11월 2주')).toBeTruthy();
   });
 
-  it('복사 버튼은 "텍스트 복사" 하나이고, 보고서 글을 따옴표 없이 그대로 복사한다', () => {
+  it('복사 버튼은 "텍스트 복사" 하나이고, 보고서 글을 따옴표 없이 그대로 복사한다', async () => {
     const { getByRole, getAllByRole, queryByRole, onCopy, onMarkCopied } = setup();
     expect(queryByRole('button', { name: '엑셀 칸에 복사' })).toBeNull();
     expect(getAllByRole('button').filter(b => b.textContent?.includes('복사'))).toHaveLength(1);
 
-    fireEvent.click(getByRole('button', { name: '텍스트 복사' }));
+    await act(async () => { fireEvent.click(getByRole('button', { name: '텍스트 복사' })); });
     expect(onCopy).toHaveBeenCalledTimes(1);
     expect(onCopy).toHaveBeenLastCalledWith(THIS_WEEK_TEXT, '주간보고를 클립보드에 복사했습니다.');
+    expect(onMarkCopied).toHaveBeenCalledTimes(1);
+    expect(onMarkCopied).toHaveBeenCalledWith('2026-11-02');
+  });
+
+  it('복사에 실패하면 복사 완료로 기록하지 않는다', async () => {
+    const { getByRole, onCopy, onMarkCopied } = setup(TODOS, LOG, vi.fn().mockResolvedValue(false));
+    await act(async () => { fireEvent.click(getByRole('button', { name: '텍스트 복사' })); });
+    expect(onCopy).toHaveBeenCalledTimes(1);
+    expect(onMarkCopied).not.toHaveBeenCalled();
+  });
+
+  it('복사 중 예외가 나도 복사 완료로 기록하지 않고, 버튼은 다시 눌러진다', async () => {
+    const { getByRole, onCopy, onMarkCopied } = setup(TODOS, LOG, vi.fn().mockRejectedValue(new Error('boom')));
+    const btn = getByRole('button', { name: '텍스트 복사' }) as HTMLButtonElement;
+    await act(async () => { fireEvent.click(btn); });
+    expect(onMarkCopied).not.toHaveBeenCalled();
+    expect(btn.disabled).toBe(false);
+    await act(async () => { fireEvent.click(btn); });
+    expect(onCopy).toHaveBeenCalledTimes(2);
+  });
+
+  it('복사가 끝나기 전에는 다시 눌러도 복사를 또 시작하지 않는다', async () => {
+    let finish: (ok: boolean) => void = () => {};
+    const pending = vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; }));
+    const { getByRole, onCopy, onMarkCopied } = setup(TODOS, LOG, pending);
+    const btn = getByRole('button', { name: '텍스트 복사' }) as HTMLButtonElement;
+
+    await act(async () => { fireEvent.click(btn); fireEvent.click(btn); });
+    expect(onCopy).toHaveBeenCalledTimes(1);
+    expect(btn.disabled).toBe(true);
+
+    await act(async () => { finish(true); });
+    expect(onMarkCopied).toHaveBeenCalledTimes(1);
+    expect(btn.disabled).toBe(false);
+  });
+
+  it('복사하는 동안 주를 옮겨도 복사를 누른 그 주를 완료로 기록한다', async () => {
+    let finish: (ok: boolean) => void = () => {};
+    const pending = vi.fn(() => new Promise<boolean>(resolve => { finish = resolve; }));
+    const { getByRole, onMarkCopied } = setup(TODOS, LOG, pending);
+
+    await act(async () => { fireEvent.click(getByRole('button', { name: '텍스트 복사' })); });
+    fireEvent.click(getByRole('button', { name: '다음주' }));
+    await act(async () => { finish(true); });
+
+    expect(onMarkCopied).toHaveBeenCalledTimes(1);
     expect(onMarkCopied).toHaveBeenCalledWith('2026-11-02');
   });
 

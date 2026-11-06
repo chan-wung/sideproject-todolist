@@ -32,3 +32,28 @@ jobs:
       - run: npm test
 
       - run: npm run build
+
+  # 실제 Chrome에서 핵심 흐름(저장·백업 왕복·오프라인·두 탭·한글 입력)을 확인한다.
+  # ubuntu-latest 러너에 설치된 Chrome을 쓰므로 브라우저를 따로 내려받지 않는다.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run e2e
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

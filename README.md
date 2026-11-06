@@ -157,6 +157,9 @@ npm run dev
 npm run test
 npm run test:watch
 
+# 브라우저 통합 테스트: 설치된 Chrome으로 저장·백업 왕복·오프라인·두 탭·한글 입력을 확인 (빌드 후 4173 포트로 실행)
+npm run e2e
+
 # 린트
 npm run lint
 

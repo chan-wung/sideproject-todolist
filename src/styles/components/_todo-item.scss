@@ -605,6 +605,11 @@
   &__btn-sub-move {
     flex-shrink: 0;
     @include size(24);
+
+    // 손가락으로 누르는 화면에서는 누르는 영역을 44px로 키운다 (마우스에서는 기존 크기)
+    @media (pointer: coarse) {
+      @include size(44);
+    }
     @include flex-center;
     background: transparent;
     border: none;

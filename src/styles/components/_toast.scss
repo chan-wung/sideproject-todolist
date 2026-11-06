@@ -43,6 +43,11 @@
   animation: toast-in 0.22s ease;
   --toast-color: var(--color-main);
 
+  // '동작 줄이기' 설정에서는 나타나는 움직임을 없앤다 (클래스 규칙이라 전역 규칙으로는 덮이지 않음)
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
   &--success { --toast-color: var(--color-success); }
   &--danger  { --toast-color: var(--color-danger); }
 
@@ -105,6 +110,12 @@
     animation-name: toast-progress;
     animation-timing-function: linear;
     animation-fill-mode: forwards;
+
+    // 남은 시간 막대는 계속 줄어드는 움직임이라 '동작 줄이기'에서는 숨긴다 (5초 뒤 사라지는 동작은 그대로)
+    @media (prefers-reduced-motion: reduce) {
+      animation-name: none;
+      display: none;
+    }
   }
 }
 

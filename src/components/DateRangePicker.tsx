@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useKeepInViewport } from '../hooks/useKeepInViewport';
 import { useDismiss } from '../hooks/useDismiss';
 import { useCalendarMonth } from '../hooks/useCalendarMonth';
 import { dateStr, formatFullDate, todayStr } from '../utils/date';
@@ -21,6 +22,8 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
   const [hoverDate, setHoverDate] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  useKeepInViewport(dropdownRef, isOpen);
 
   const { year, month, label, blankCount, dayCount, goPrev, goNext } = useCalendarMonth(startValue || endValue);
 
@@ -118,7 +121,7 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
       />
 
       {isOpen && (
-        <div className="date-range-picker__dropdown" role="dialog" aria-label="기간 선택">
+        <div ref={dropdownRef} className="date-range-picker__dropdown" role="dialog" aria-label="기간 선택">
           <PickerHeader block="date-range-picker" label={label} onPrev={goPrev} onNext={goNext} />
 
           <p className="date-range-picker__hint" aria-live="polite">{pendingStart ? '종료일을 선택하세요 (하루만이면 같은 날을 다시 누르세요)' : '시작일을 선택하세요'}</p>

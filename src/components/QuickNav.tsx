@@ -1,3 +1,4 @@
+import { smoothScrollBehavior } from '../utils/motion';
 import type { Todo } from '../types/todo';
 import { PinIcon } from './icons';
 import { truncate } from '../utils/text';
@@ -15,7 +16,7 @@ export default function QuickNav({ filteredTodos }: Props) {
   function scrollToTodo(id: string) {
     const el = document.getElementById(`todo-item-${id}`);
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.scrollIntoView({ behavior: smoothScrollBehavior(), block: 'center' });
     }
   }
 

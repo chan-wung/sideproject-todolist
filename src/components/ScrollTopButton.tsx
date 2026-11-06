@@ -1,3 +1,4 @@
+import { smoothScrollBehavior } from '../utils/motion';
 import { useEffect, useState } from 'react';
 
 // 스크롤이 조금이라도 내려가 있을 때만 나타나는 '맨 위로' 버튼
@@ -17,7 +18,7 @@ export default function ScrollTopButton() {
     <button
       type="button"
       className="scroll-top-btn"
-      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      onClick={() => window.scrollTo({ top: 0, behavior: smoothScrollBehavior() })}
       aria-label="맨 위로"
     >
       ↑

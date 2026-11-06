@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
+import { useKeepInViewport } from '../hooks/useKeepInViewport';
 import { useCalendarMonth } from '../hooks/useCalendarMonth';
 import { dateStr, formatFullDate, todayStr } from '../utils/date';
 import { PickerTrigger, PickerHeader, PickerGrid } from './DatePickerParts';
@@ -16,10 +17,12 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // 현재 달력에 표시할 연/월
   const { year, month, label, blankCount, dayCount, goPrev, goNext } = useCalendarMonth(value);
 
+  useKeepInViewport(dropdownRef, isOpen);
   useDismiss(containerRef, isOpen, () => setIsOpen(false), { focusRef: triggerRef });
 
   function handleDayClick(day: number) {
@@ -71,7 +74,7 @@ export default function DatePicker({ value, onChange, placeholder = '마감일 �
       />
 
       {isOpen && (
-        <div className="date-picker__dropdown" role="dialog" aria-label="날짜 선택">
+        <div ref={dropdownRef} className="date-picker__dropdown" role="dialog" aria-label="날짜 선택">
           <PickerHeader block="date-picker" label={label} onPrev={goPrev} onNext={goNext} />
 
           <PickerGrid block="date-picker" blankCount={blankCount}>

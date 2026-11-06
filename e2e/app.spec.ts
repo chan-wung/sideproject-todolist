@@ -150,3 +150,31 @@ test.describe('두 탭 충돌', () => {
     await expect(todo(b, 'E2E B탭 업무')).toBeVisible()
   })
 })
+
+test.describe('좁은 화면과 동작 줄이기', () => {
+  test('320px 화면에서 기간 선택 팝업이 화면 밖으로 넘치지 않는다', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 })
+    await page.goto('/todos')
+    await page.getByRole('button', { name: '상세 옵션 열기' }).click()
+    await page.locator('.date-range-picker__input').first().click()
+
+    const dropdown = page.locator('.date-range-picker__dropdown')
+    await expect(dropdown).toBeVisible()
+    const box = (await dropdown.boundingBox())!
+    expect(box.x).toBeGreaterThanOrEqual(0)
+    expect(box.x + box.width).toBeLessThanOrEqual(320)
+    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
+    expect(scrollWidth).toBeLessThanOrEqual(320 + 1)
+  })
+
+  test('동작 줄이기를 켜면 컴포넌트 전환이 사실상 꺼지고, 끄면 그대로다', async ({ page }) => {
+    const duration = () => todoField(page).evaluate(el => getComputedStyle(el).transitionDuration)
+
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.goto('/todos')
+    expect(parseFloat(await duration())).toBeLessThan(0.001)
+
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    expect(parseFloat(await duration())).toBeGreaterThanOrEqual(0.3)
+  })
+})

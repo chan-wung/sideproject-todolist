@@ -37,6 +37,22 @@ export function backupFileName(today: string): string {
   return `todolist-backup-${today.replace(/-/g, '')}.json`;
 }
 
+// 가져오기로 고른 파일을 JSON으로 읽는다. 파일을 못 읽거나 JSON이 아니면 reject한다.
+export function readBackupFile(file: Blob): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        resolve(JSON.parse(String(reader.result)));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
 // 백업 데이터를 JSON 파일로 내려받는다.
 export function downloadBackup(data: unknown): void {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

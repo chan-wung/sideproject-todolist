@@ -1,33 +1,21 @@
-import { useEffect, useState } from 'react';
-import { usePersistentState } from '../hooks/usePersistentState';
+import { useState } from 'react';
 import { useDayChange } from '../hooks/useDayChange';
+import type { Theme } from '../hooks/useTheme';
 import { yearProgress } from '../utils/date';
-import { downloadBackup } from '../utils/backup';
-import { MoonIcon, SunIcon, RepeatIcon, HistoryIcon, SettingsIcon } from './icons';
+import ProfileMenu, { type ProfileMenuShared } from './ProfileMenu';
+import { MoonIcon, SunIcon } from './icons';
 
 interface Props {
   /** 사이드바가 접힌 상태 (넓은 화면에서 툴바 내용이 사이드바 오른쪽부터 시작하도록) */
   navCollapsed: boolean;
-  getBackup: () => unknown;
-  applyBackup: (incoming: unknown) => boolean;
-  onImportResult: (success: boolean) => void;
-  onExport: () => void;
-  onSettingsOpen: () => void;
-  onCompletionLogOpen: () => void;
-  onRecurrenceOpen: () => void;
+  theme: Theme;
+  onToggleTheme: () => void;
+  /** 좁은 화면(1024px 미만)에서 오른쪽 끝에 보이는 프로필 메뉴에 넘기는 값·동작 */
+  profile: ProfileMenuShared;
 }
 
-export default function AppToolbar({ navCollapsed, getBackup, applyBackup, onImportResult, onExport, onSettingsOpen, onCompletionLogOpen, onRecurrenceOpen }: Props) {
-  const [theme, setTheme] = usePersistentState<'light' | 'dark'>('todolist-pref-theme', 'light');
-
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.body.dataset.theme = 'dark';
-    } else {
-      delete document.body.dataset.theme;
-    }
-  }, [theme]);
-
+// 상단 띠: 올해 남은 날(D-day), 다크모드 버튼, 사이드바가 없는 좁은 화면용 프로필 메뉴
+export default function AppToolbar({ navCollapsed, theme, onToggleTheme, profile }: Props) {
   const [progress, setProgress] = useState(() => yearProgress());
 
   // 자정이 지나거나 PWA가 다시 포커스되면 D-day를 새로 계산
@@ -36,30 +24,6 @@ export default function AppToolbar({ navCollapsed, getBackup, applyBackup, onImp
   const themeLabel = theme === 'light' ? '다크모드' : '라이트모드';
   const ddayLabel = progress.daysLeft === 0 ? 'D-DAY' : `D-${progress.daysLeft}`;
 
-  function handleExport() {
-    downloadBackup(getBackup());
-    onExport();
-  }
-
-  function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const text = event.target?.result as string;
-        const parsed = JSON.parse(text);
-        const success = applyBackup(parsed);
-        onImportResult(success);
-      } catch {
-        onImportResult(false);
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = ''; // Reset file input
-  }
-
   return (
     <div className={`app-toolbar${navCollapsed ? ' app-toolbar--nav-collapsed' : ''}`}>
       <p className="app-toolbar__dday" title={`${progress.year}년이 ${progress.daysLeft}일 남았어요 (${progress.percent}% 지남)`}>
@@ -67,36 +31,10 @@ export default function AppToolbar({ navCollapsed, getBackup, applyBackup, onImp
         <span className="app-toolbar__dday-num">{ddayLabel}</span>
         <span className="app-toolbar__dday-rate">{progress.percent}%</span>
       </p>
-      <button
-        type="button" 
-        className="app-toolbar__btn app-toolbar__btn--theme"
-        onClick={() => setTheme(prev => prev === 'light' ? 'dark' : 'light')}
-        title={themeLabel}
-      >
+      <button type="button" className="app-toolbar__btn" onClick={onToggleTheme} aria-label={themeLabel} title={themeLabel}>
         <span className="app-toolbar__ico">{theme === 'light' ? <MoonIcon /> : <SunIcon />}</span>
-        <span className="app-toolbar__txt">{themeLabel}</span>
       </button>
-      <div className="app-toolbar__backup">
-        <button type="button" className="app-toolbar__btn app-toolbar__btn--export" onClick={handleExport} title="내보내기">
-          <span className="app-toolbar__txt">내보내기</span>
-        </button>
-        <label className="app-toolbar__btn app-toolbar__btn--import" title="가져오기">
-          <span className="app-toolbar__txt">가져오기</span>
-          <input type="file" accept="application/json" onChange={handleImport} className="screen-out" />
-        </label>
-      </div>
-      <button type="button" className="app-toolbar__btn app-toolbar__btn--recurrence" onClick={onRecurrenceOpen} title="반복 일정">
-        <span className="app-toolbar__ico"><RepeatIcon /></span>
-        <span className="app-toolbar__txt">반복 일정</span>
-      </button>
-      <button type="button" className="app-toolbar__btn app-toolbar__btn--log" onClick={onCompletionLogOpen} title="완료 이력">
-        <span className="app-toolbar__ico"><HistoryIcon /></span>
-        <span className="app-toolbar__txt">완료 이력</span>
-      </button>
-      <button type="button" className="app-toolbar__btn app-toolbar__btn--settings" onClick={onSettingsOpen} aria-label="설정" title="설정">
-        <SettingsIcon />
-        <span className="screen-out">설정</span>
-      </button>
+      <ProfileMenu {...profile} placement="toolbar" />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { VIEW_LABEL, VIEW_OPTIONS, type View } from '../constants/labels';
 import ViewLink from './ViewLink';
+import ProfileMenu, { type ProfileMenuShared } from './ProfileMenu';
 import { DashboardIcon, ChecklistIcon, CalendarIcon, NoteIcon, ReportIcon, ChevronLeftIcon } from './icons';
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
   collapsed: boolean;
   onToggleCollapsed: () => void;
   reportAttention?: boolean;
+  /** 맨 아래 프로필 메뉴에 넘기는 값·동작 */
+  profile: ProfileMenuShared;
 }
 
 const VIEW_ICON: Record<View, ReactNode> = {
@@ -19,9 +22,9 @@ const VIEW_ICON: Record<View, ReactNode> = {
   report: <ReportIcon />,
 };
 
-// 화면 전환 메뉴. 넓은 화면(1024px~)은 왼쪽 사이드바, 좁은 화면은 상단 가로 메뉴로 보인다(CSS로 전환).
+// 화면 전환 메뉴. 넓은 화면(1024px~)은 왼쪽 사이드바(맨 아래에 프로필 메뉴), 좁은 화면은 아래 탭 바로 보인다(CSS로 전환).
 // 주소(/report) 링크라서 뒤로 가기·새로고침·즐겨찾기가 그대로 동작한다.
-export default function AppNav({ current, collapsed, onToggleCollapsed, reportAttention }: Props) {
+export default function AppNav({ current, collapsed, onToggleCollapsed, reportAttention, profile }: Props) {
   const toggleLabel = collapsed ? '메뉴 펼치기' : '메뉴 접기';
 
   return (
@@ -59,6 +62,7 @@ export default function AppNav({ current, collapsed, onToggleCollapsed, reportAt
             ))}
           </ul>
         </nav>
+        <ProfileMenu {...profile} placement="nav" collapsed={collapsed} />
       </div>
     </aside>
   );

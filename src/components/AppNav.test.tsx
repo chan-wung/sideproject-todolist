@@ -3,9 +3,19 @@ import { render, fireEvent, cleanup } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 import AppNav from './AppNav';
 
+const PROFILE = {
+  name: '',
+  onNameChange: () => {},
+  onExport: () => {},
+  onImport: () => {},
+  onRecurrenceOpen: () => {},
+  onCompletionLogOpen: () => {},
+  onSettingsOpen: () => {},
+};
+
 function setup(props: Partial<ComponentProps<typeof AppNav>> = {}) {
   const onToggleCollapsed = vi.fn();
-  const utils = render(<AppNav current="todos" collapsed={false} onToggleCollapsed={onToggleCollapsed} {...props} />);
+  const utils = render(<AppNav current="todos" collapsed={false} onToggleCollapsed={onToggleCollapsed} profile={PROFILE} {...props} />);
   return { ...utils, onToggleCollapsed };
 }
 

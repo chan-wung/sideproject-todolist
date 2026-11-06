@@ -9,6 +9,7 @@ import { useView, navigate } from './hooks/useView';
 import { useBackupReminder } from './hooks/useBackupReminder';
 import { useToast } from './hooks/useToast';
 import { useShareActions } from './hooks/useShareActions';
+import { useTheme } from './hooks/useTheme';
 import TodoPage from './pages/TodoPage';
 import WeeklyReportPage from './pages/WeeklyReportPage';
 import CalendarPage from './pages/CalendarPage';
@@ -19,6 +20,7 @@ import Toast from './components/Toast';
 import ScrollTopButton from './components/ScrollTopButton';
 import MemoPage from './pages/MemoPage';
 import AppToolbar from './components/AppToolbar';
+import type { ProfileMenuShared } from './components/ProfileMenu';
 import SettingsModal from './components/SettingsModal';
 import CompletionLogModal from './components/CompletionLogModal';
 import RecurrenceSeriesModal from './components/RecurrenceSeriesModal';
@@ -26,7 +28,7 @@ import type { Todo, CompletionLogEntry } from './types/todo';
 import { normalizeKind } from './utils/kind';
 import { buildWeeklyReport, shiftWeek } from './utils/weeklyReport';
 import { startOfWeek, todayStr } from './utils/date';
-import { downloadBackup } from './utils/backup';
+import { downloadBackup, readBackupFile } from './utils/backup';
 import { parseBackup } from './utils/backupData';
 import { todoToText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
 import './styles/main.scss';
@@ -164,10 +166,17 @@ export default function App() {
     showToast({ message: '데이터를 내보냈습니다.', type: 'success' });
   }
 
-  // 알림 배너의 '지금 내보내기': 툴바의 내보내기와 같은 파일을 내려받는다
+  // 프로필 메뉴의 내보내기와 알림 배너의 '지금 내보내기'가 같이 쓴다
   function handleExportFromReminder() {
     downloadBackup(getBackup());
     handleExportResult();
+  }
+
+  // 프로필 메뉴의 가져오기: 파일을 읽어(JSON) 적용하고 결과를 토스트로 알린다
+  function handleImportFile(file: File) {
+    readBackupFile(file)
+      .then(parsed => handleImportResult(applyBackup(parsed)))
+      .catch(() => handleImportResult(false));
   }
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -247,6 +256,19 @@ export default function App() {
 
   const [isRecurrenceOpen, setIsRecurrenceOpen] = useState(false);
 
+  // 다크모드 버튼은 툴바에 두고, 프로필 메뉴(넓은 화면은 사이드바 아래, 좁은 화면은 툴바 오른쪽)가 같이 쓰는 값·동작은 아래에 모은다
+  const { theme, toggleTheme } = useTheme();
+  const [profileName, setProfileName] = usePersistentState<string>('todolist-pref-profile-name', '');
+  const profile: ProfileMenuShared = {
+    name: profileName,
+    onNameChange: setProfileName,
+    onExport: handleExportFromReminder,
+    onImport: handleImportFile,
+    onRecurrenceOpen: () => setIsRecurrenceOpen(true),
+    onCompletionLogOpen: () => setIsCompletionLogOpen(true),
+    onSettingsOpen: () => setIsSettingsOpen(true),
+  };
+
   // 할 일 카드의 메모 링크: 메모장 화면으로 이동해 그 메모를 고른다
   function handleOpenMemo(memoId: string) {
     setActiveId(memoId);
@@ -266,9 +288,9 @@ export default function App() {
           onClose={() => { clearToast(); dismissUndo(); }}
         />
       )}
-      <AppToolbar navCollapsed={navCollapsed} getBackup={getBackup} applyBackup={applyBackup} onImportResult={handleImportResult} onExport={handleExportResult} onSettingsOpen={() => setIsSettingsOpen(true)} onCompletionLogOpen={() => setIsCompletionLogOpen(true)} onRecurrenceOpen={() => setIsRecurrenceOpen(true)} />
+      <AppToolbar navCollapsed={navCollapsed} theme={theme} onToggleTheme={toggleTheme} profile={profile} />
       <div className={`app-shell${navCollapsed ? ' app-shell--nav-collapsed' : ''}`}>
-      <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} reportAttention={!buildWeeklyReport({ weekStart: shiftWeek(startOfWeek(todayStr()), -1), todos: allTodos, completionLog }).isEmpty && !weeklyReports.data.copiedWeeks.includes(shiftWeek(startOfWeek(todayStr()), -1))} />
+      <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} profile={profile} reportAttention={!buildWeeklyReport({ weekStart: shiftWeek(startOfWeek(todayStr()), -1), todos: allTodos, completionLog }).isEmpty && !weeklyReports.data.copiedWeeks.includes(shiftWeek(startOfWeek(todayStr()), -1))} />
       <div className="app-shell__content">
       <div className="todo-app">
       {reminder.show && (

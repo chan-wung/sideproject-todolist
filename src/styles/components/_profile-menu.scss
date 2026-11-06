@@ -1,0 +1,221 @@
+// =============================================
+// PROFILE MENU (프로필 버튼 + 기능 드롭다운)
+// 1024px 이상: 사이드바 맨 아래 이름 버튼(위로 열림) / 미만: 툴바 오른쪽 끝 원형 버튼(아래로 열림)
+// =============================================
+
+.profile-menu {
+  position: relative;
+
+  // 버튼 글자: 이름 전체는 사이드바에서만 보이고, 원형 버튼(툴바·접힌 사이드바)은 첫 글자만 보인다
+  &__txt {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__initial {
+    display: none;
+
+    svg {
+      @include size(20);
+      display: block;
+    }
+  }
+
+  &__btn {
+    @include flex-center;
+    gap: rem(6);
+    color: var(--color-on-accent);
+    background: var(--color-main);
+    border: 0;
+    @include font(15, "SemiBold");
+    cursor: pointer;
+    @include transition(opacity);
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 2px;
+    }
+  }
+
+  // 드롭다운 상자
+  &__box {
+    width: rem(240);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: rem(10);
+    box-shadow: 0 0 rem(20) rem(5) rgba(0, 0, 0, 0.05);
+    position: absolute;
+    z-index: 30;
+
+    [data-theme="dark"] & {
+      box-shadow: 0 0 rem(20) rem(5) rgba(0, 0, 0, 0.2);
+    }
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  &__name {
+    padding: rem(12) rem(14);
+    display: flex;
+    flex-direction: column;
+    gap: rem(6);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  &__name-label {
+    color: var(--txt-color-base);
+    @include font(12, "Medium");
+  }
+
+  &__input {
+    width: 100%;
+    height: rem(40);
+    padding: 0 rem(12);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(14);
+    @include transition(border-color);
+
+    &:focus {
+      border-color: var(--color-main);
+      outline: none;
+    }
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  &__link {
+    width: 100%;
+    height: rem(50);
+    padding: 0 rem(14);
+    display: flex;
+    align-items: center;
+    gap: rem(10);
+    color: var(--txt-color-base);
+    background: none;
+    border: 0;
+    @include font(15, "Medium");
+    text-align: left;
+    cursor: pointer;
+    @include transition(background-color);
+
+    &:hover {
+      background: var(--color-tab-bg);
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: -2px;
+    }
+  }
+
+  &__ico {
+    @include size(20);
+    flex-shrink: 0;
+    display: block;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  }
+
+  // ── 사이드바 (1024px 이상) ──
+  &--nav {
+    padding: rem(16);
+    flex-shrink: 0;
+
+    @include below_shell {
+      display: none;
+    }
+  }
+
+  &--nav &__btn {
+    width: 100%;
+    height: rem(48);
+    padding: 0 rem(16);
+    border-radius: 9999px;
+  }
+
+  // 사이드바 카드 안쪽 폭에 맞춰, 버튼 위로 연다
+  &--nav &__box {
+    right: rem(16);
+    bottom: calc(100% - #{rem(8)});
+    left: rem(16);
+    width: auto;
+  }
+
+  // 접은 사이드바: 원형 버튼 + 첫 글자. 카드(80px) 안에는 상자가 안 들어가서 오른쪽 바깥으로 연다
+  &--nav#{&}--collapsed &__btn {
+    @include size(48);
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  &--nav#{&}--collapsed &__txt {
+    @include visually-hidden;
+  }
+
+  &--nav#{&}--collapsed &__initial {
+    display: block;
+  }
+
+  &--nav#{&}--collapsed &__box {
+    width: rem(240);
+    right: auto;
+    bottom: rem(16);
+    left: calc(100% + #{rem(8)});
+  }
+
+  // ── 툴바 (1024px 미만) ──
+  &--toolbar {
+    margin-left: rem(8);
+
+    @include shell {
+      display: none;
+    }
+  }
+
+  &--toolbar &__btn {
+    @include size(40);
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  &--toolbar &__txt {
+    @include visually-hidden;
+  }
+
+  &--toolbar &__initial {
+    display: block;
+  }
+
+  &--toolbar &__box {
+    top: calc(100% + #{rem(8)});
+    right: 0;
+    max-width: calc(100vw - #{rem(24)});
+  }
+}

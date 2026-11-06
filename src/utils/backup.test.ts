@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { backupReminder, backupFileName, BACKUP_INTERVAL_DAYS } from './backup';
+import { backupReminder, backupFileName, readBackupFile, BACKUP_INTERVAL_DAYS } from './backup';
 
 const TODAY = '2026-11-04';
 
@@ -52,5 +52,17 @@ describe('backupFileName', () => {
   it('날짜를 붙여 파일 이름을 만든다', () => {
     expect(backupFileName('2026-11-04')).toBe('todolist-backup-20261104.json');
     expect(backupFileName('2027-01-02')).toBe('todolist-backup-20270102.json');
+  });
+});
+
+describe('readBackupFile', () => {
+  it('JSON 파일을 읽어 값을 돌려준다', async () => {
+    const file = new File([JSON.stringify({ version: 1, todos: [] })], 'backup.json', { type: 'application/json' });
+    await expect(readBackupFile(file)).resolves.toEqual({ version: 1, todos: [] });
+  });
+
+  it('JSON이 아니면 reject한다', async () => {
+    const file = new File(['이건 JSON이 아닙니다'], 'backup.json', { type: 'application/json' });
+    await expect(readBackupFile(file)).rejects.toBeTruthy();
   });
 });

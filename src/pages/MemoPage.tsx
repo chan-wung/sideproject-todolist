@@ -26,6 +26,8 @@ interface Props {
 
 // 메모장 화면. 왼쪽에 메모 목록(검색·고정·드래그 정렬), 오른쪽에 제목·연결된 할 일·내용을 나란히 보여 준다.
 export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos, onLinkMemo, onUnlinkMemo, onCopyText, onShareText, onKakaoShareText }: Props) {
+  // 연차·휴가는 메모를 연결하지 않으므로 연결 후보에서 뺀다
+  const linkableTodos = todos.filter(t => t.kind !== 'leave');
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
@@ -271,9 +273,9 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                     <ChevronIcon className={`memo-page__linked-toggle-icon${linkedCollapsed ? ' memo-page__linked-toggle-icon--collapsed' : ''}`} />
                   </button>
                   {!linkedCollapsed && (
-                    todos.length > 0 ? (
+                    linkableTodos.length > 0 ? (
                       <div className="memo-page__linked-checklist" id="memo-linked-checklist">
-                        {todos.map(t => {
+                        {linkableTodos.map(t => {
                           const isLinked = activeId != null && (t.memoIds ?? []).includes(activeId);
                           return (
                             <label key={t.id} className="form-chk form-chk--checkbox">

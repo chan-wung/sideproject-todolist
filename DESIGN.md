@@ -328,7 +328,7 @@ Calm, direct, practical. This is a tool used in real work — voice reflects tha
 
 **Easing**: `ease` (all.3s) as default via `@include transition()`. No spring/bounce except scroll-top button `translateY(-2px)` on hover.
 
-**Scroll-top button**: `position: fixed; right: 24px; bottom: 24px`. Appears via `IntersectionObserver` when todo input leaves viewport. Hover: `translateY(-2px)` + darker blue.
+**Scroll-top button**: `position: fixed; right: 24px; bottom: 24px`. Appears when the page is scrolled down (`window.scrollY > 0`, scroll listener — no `IntersectionObserver`). Hover: `translateY(-2px)` + darker blue.
 
 **Card hover**: `translateY(-1px)` + shadow increase over 250ms `ease`.
 

@@ -310,6 +310,7 @@ export function useTodos() {
   function linkMemoToTodo(todoId: string, memoId: string) {
     setTodos(prev => prev.map(t => {
       if (t.id !== todoId) return t;
+      if (t.kind === 'leave') return t; // 연차·휴가는 메모를 연결하지 않는다
       if ((t.memoIds ?? []).includes(memoId)) return t; // 중복 방지
       return { ...t, memoIds: [...(t.memoIds ?? []), memoId] };
     }));

@@ -149,6 +149,21 @@ test.describe('두 탭 충돌', () => {
     await b.reload()
     await expect(todo(b, 'E2E B탭 업무')).toBeVisible()
   })
+
+  test('편집 없이 이 탭의 내용으로 계속해도 새로고침 뒤 이 탭 내용이 남는다', async ({ context }) => {
+    const a = await context.newPage()
+    const b = await context.newPage()
+    await a.goto('/todos')
+    await b.goto('/todos')
+    await addTodo(a, 'E2E 먼저 쓴 탭 업무') // 이 탭(b)은 비어 있는 채로 알림만 받는다
+    await expect(b.getByText(/다른 탭\(또는 창\)에서 데이터가 바뀌었습니다/)).toBeVisible()
+
+    await b.getByRole('button', { name: '이 탭 내용으로 계속' }).click() // 추가 편집 없이 선택
+    await expect(b.getByText(/다른 탭\(또는 창\)에서 데이터가 바뀌었습니다/)).toHaveCount(0)
+
+    await b.reload()
+    await expect(todo(b, 'E2E 먼저 쓴 탭 업무')).toHaveCount(0) // 이 탭의 내용(빈 목록)이 저장됐다
+  })
 })
 
 test.describe('좁은 화면과 동작 줄이기', () => {

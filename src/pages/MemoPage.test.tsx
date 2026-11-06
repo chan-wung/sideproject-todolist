@@ -133,15 +133,15 @@ describe('MemoPage', () => {
     const more = () => fireEvent.click(getByLabelText('더보기'));
 
     more();
-    fireEvent.click(getByRole('menuitem', { name: '클립보드 복사' }));
+    fireEvent.click(getByRole('button', { name: '클립보드 복사' }));
     expect(onCopyText).toHaveBeenCalledWith('서버 계정\n\n아이디: test', '메모를 클립보드에 복사했습니다.');
 
     more();
-    fireEvent.click(getByRole('menuitem', { name: '공유' }));
+    fireEvent.click(getByRole('button', { name: '공유' }));
     expect(onShareText).toHaveBeenCalledWith('서버 계정', '서버 계정\n\n아이디: test');
 
     more();
-    fireEvent.click(getByRole('menuitem', { name: '카카오톡 공유' }));
+    fireEvent.click(getByRole('button', { name: '카카오톡 공유' }));
     expect(onKakaoShareText).toHaveBeenCalledWith('서버 계정\n\n아이디: test');
   });
 

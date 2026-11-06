@@ -104,7 +104,6 @@ exports[`TodoItem > 렌더 스냅샷 > 기본 보기 모드 1`] = `
           >
             <button
               aria-expanded="false"
-              aria-haspopup="true"
               aria-label="더보기"
               class="todo-item__btn todo-item__btn--more"
               type="button"
@@ -325,7 +324,6 @@ exports[`TodoItem > 렌더 스냅샷 > 기한 초과 1`] = `
           >
             <button
               aria-expanded="false"
-              aria-haspopup="true"
               aria-label="더보기"
               class="todo-item__btn todo-item__btn--more"
               type="button"
@@ -547,7 +545,6 @@ exports[`TodoItem > 렌더 스냅샷 > 더보기 메뉴 열림 1`] = `
           >
             <button
               aria-expanded="true"
-              aria-haspopup="true"
               aria-label="더보기"
               class="todo-item__btn todo-item__btn--more todo-item__btn--more-active"
               type="button"
@@ -575,11 +572,9 @@ exports[`TodoItem > 렌더 스냅샷 > 더보기 메뉴 열림 1`] = `
             </button>
             <div
               class="todo-item__menu"
-              role="menu"
             >
               <button
                 class="todo-item__menu-item"
-                role="menuitem"
                 type="button"
               >
                 <svg
@@ -606,7 +601,6 @@ exports[`TodoItem > 렌더 스냅샷 > 더보기 메뉴 열림 1`] = `
               </button>
               <button
                 class="todo-item__menu-item"
-                role="menuitem"
                 type="button"
               >
                 <svg
@@ -649,7 +643,6 @@ exports[`TodoItem > 렌더 스냅샷 > 더보기 메뉴 열림 1`] = `
               </button>
               <button
                 class="todo-item__menu-item"
-                role="menuitem"
                 type="button"
               >
                 <svg
@@ -664,7 +657,6 @@ exports[`TodoItem > 렌더 스냅샷 > 더보기 메뉴 열림 1`] = `
               </button>
               <button
                 class="todo-item__menu-item"
-                role="menuitem"
                 type="button"
               >
                 <svg
@@ -944,7 +936,6 @@ exports[`TodoItem > 렌더 스냅샷 > 선택 모드(선택됨) + 수동 정렬 
           >
             <button
               aria-expanded="false"
-              aria-haspopup="true"
               aria-label="더보기"
               class="todo-item__btn todo-item__btn--more"
               type="button"
@@ -1166,7 +1157,6 @@ exports[`TodoItem > 렌더 스냅샷 > 완료 + 고정 1`] = `
           >
             <button
               aria-expanded="false"
-              aria-haspopup="true"
               aria-label="더보기"
               class="todo-item__btn todo-item__btn--more"
               type="button"
@@ -1983,7 +1973,6 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 + 연결 메모 + 반복 �
           >
             <button
               aria-expanded="false"
-              aria-haspopup="true"
               aria-label="더보기"
               class="todo-item__btn todo-item__btn--more"
               type="button"
@@ -2222,6 +2211,45 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 + 연결 메모 + 반복 �
             </span>
           </label>
           <button
+            aria-label="위로 이동: 자료 수집"
+            class="todo-item__btn-sub-move"
+            disabled=""
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 15 12 9 18 15"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="아래로 이동: 자료 수집"
+            class="todo-item__btn-sub-move"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </button>
+          <button
             aria-label="하위 항목 수정"
             class="todo-item__btn-sub-edit"
             type="button"
@@ -2319,6 +2347,44 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 + 연결 메모 + 반복 �
             </span>
           </label>
           <button
+            aria-label="위로 이동: 초안 작성"
+            class="todo-item__btn-sub-move"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 15 12 9 18 15"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="아래로 이동: 초안 작성"
+            class="todo-item__btn-sub-move"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </button>
+          <button
             aria-label="하위 항목 수정"
             class="todo-item__btn-sub-edit"
             type="button"
@@ -2415,6 +2481,45 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 + 연결 메모 + 반복 �
               검토 요청
             </span>
           </label>
+          <button
+            aria-label="위로 이동: 검토 요청"
+            class="todo-item__btn-sub-move"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 15 12 9 18 15"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="아래로 이동: 검토 요청"
+            class="todo-item__btn-sub-move"
+            disabled=""
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </button>
           <button
             aria-label="하위 항목 수정"
             class="todo-item__btn-sub-edit"
@@ -2585,7 +2690,6 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 접힘 + 레거시 반복 �
           >
             <button
               aria-expanded="false"
-              aria-haspopup="true"
               aria-label="더보기"
               class="todo-item__btn todo-item__btn--more"
               type="button"
@@ -2798,6 +2902,45 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 접힘 + 레거시 반복 �
             </span>
           </label>
           <button
+            aria-label="위로 이동: 자료 수집"
+            class="todo-item__btn-sub-move"
+            disabled=""
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 15 12 9 18 15"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="아래로 이동: 자료 수집"
+            class="todo-item__btn-sub-move"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </button>
+          <button
             aria-label="하위 항목 수정"
             class="todo-item__btn-sub-edit"
             type="button"
@@ -2895,6 +3038,44 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 접힘 + 레거시 반복 �
             </span>
           </label>
           <button
+            aria-label="위로 이동: 초안 작성"
+            class="todo-item__btn-sub-move"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 15 12 9 18 15"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="아래로 이동: 초안 작성"
+            class="todo-item__btn-sub-move"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </button>
+          <button
             aria-label="하위 항목 수정"
             class="todo-item__btn-sub-edit"
             type="button"
@@ -2991,6 +3172,45 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 접힘 + 레거시 반복 �
               검토 요청
             </span>
           </label>
+          <button
+            aria-label="위로 이동: 검토 요청"
+            class="todo-item__btn-sub-move"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 15 12 9 18 15"
+              />
+            </svg>
+          </button>
+          <button
+            aria-label="아래로 이동: 검토 요청"
+            class="todo-item__btn-sub-move"
+            disabled=""
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </button>
           <button
             aria-label="하위 항목 수정"
             class="todo-item__btn-sub-edit"

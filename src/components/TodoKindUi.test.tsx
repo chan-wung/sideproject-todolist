@@ -56,7 +56,7 @@ describe('TodoInput 종류 선택', () => {
 
   it('기간 칸에서 시작일과 마감일을 고르면 둘 다 넘기고, 하루만 고르면 마감일만 넘긴다', () => {
     const utils = renderInput();
-    const pick = (day: string) => fireEvent.click(within(utils.container.querySelector('.date-range-picker__dropdown') as HTMLElement).getByRole('button', { name: day }));
+    const pick = (day: string) => fireEvent.click(within(utils.container.querySelector('.date-range-picker__dropdown') as HTMLElement).getByRole('button', { name: new RegExp(`월 ${day}일`) }));
     const openPicker = () => fireEvent.click(utils.getByRole('button', { name: '기간' }));
 
     openPicker();

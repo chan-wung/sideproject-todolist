@@ -380,6 +380,9 @@
   &__more-item {
     width: 100%;
     padding: rem(8) rem(10);
+    display: flex;
+    align-items: center;
+    gap: rem(8);
     color: var(--txt-color-base);
     background: transparent;
     border: none;
@@ -393,6 +396,17 @@
     &:hover {
       color: var(--color-main);
       background: var(--color-main-5);
+    }
+
+    svg {
+      width: rem(14);
+      height: rem(14);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: default;
+      pointer-events: none;
     }
   }
 

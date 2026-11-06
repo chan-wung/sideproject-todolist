@@ -186,12 +186,12 @@ describe('TodoItem', () => {
 
   describe('더보기 메뉴', () => {
     it('열면 4개 항목이 보이고 aria-expanded가 바뀐다', () => {
-      const { getByLabelText, getAllByRole } = setup();
+      const { container, getByLabelText } = setup();
       const btn = getByLabelText('더보기');
       expect(btn.getAttribute('aria-expanded')).toBe('false');
       fireEvent.click(btn);
       expect(btn.getAttribute('aria-expanded')).toBe('true');
-      expect(getAllByRole('menuitem').map(el => el.textContent)).toEqual(['클립보드에 복사', '공유', '카카오톡 공유', '할 일 복사']);
+      expect(Array.from(container.querySelectorAll('.todo-item__menu-item')).map(el => el.textContent)).toEqual(['클립보드에 복사', '공유', '카카오톡 공유', '할 일 복사']);
     });
 
     it.each([
@@ -200,39 +200,39 @@ describe('TodoItem', () => {
       ['카카오톡 공유', 'onKakaoShare', true],
       ['할 일 복사', 'onDuplicate', false],
     ] as const)('"%s" 선택 시 %s를 호출하고 메뉴를 닫는다', (label, handlerName, withTodo) => {
-      const { getByLabelText, getByText, queryByRole, handlers, todo } = setup();
+      const { container, getByLabelText, getByText, handlers, todo } = setup();
       fireEvent.click(getByLabelText('더보기'));
       fireEvent.click(getByText(label));
       expect(handlers[handlerName]).toHaveBeenCalledWith(withTodo ? todo : 't1');
-      expect(queryByRole('menu')).toBeNull();
+      expect(container.querySelector('.todo-item__menu')).toBeNull();
     });
 
     it('바깥을 누르면 닫힌다', () => {
-      const { getByLabelText, queryByRole } = setup();
+      const { container, getByLabelText } = setup();
       fireEvent.click(getByLabelText('더보기'));
       fireEvent.mouseDown(document.body);
-      expect(queryByRole('menu')).toBeNull();
+      expect(container.querySelector('.todo-item__menu')).toBeNull();
     });
 
     it('메뉴 안쪽을 눌러서는 닫히지 않는다', () => {
-      const { getByLabelText, getByRole } = setup();
+      const { container, getByLabelText } = setup();
       fireEvent.click(getByLabelText('더보기'));
-      fireEvent.mouseDown(getByRole('menu'));
-      expect(getByRole('menu')).toBeTruthy();
+      fireEvent.mouseDown((container.querySelector('.todo-item__menu') as HTMLElement));
+      expect((container.querySelector('.todo-item__menu') as HTMLElement)).toBeTruthy();
     });
 
     it('Esc로 닫힌다', () => {
-      const { getByLabelText, queryByRole } = setup();
+      const { container, getByLabelText } = setup();
       fireEvent.click(getByLabelText('더보기'));
       fireEvent.keyDown(document, { key: 'Escape' });
-      expect(queryByRole('menu')).toBeNull();
+      expect(container.querySelector('.todo-item__menu')).toBeNull();
     });
 
     it('더보기 버튼을 다시 누르면 닫힌다', () => {
-      const { getByLabelText, queryByRole } = setup();
+      const { container, getByLabelText } = setup();
       fireEvent.click(getByLabelText('더보기'));
       fireEvent.click(getByLabelText('더보기'));
-      expect(queryByRole('menu')).toBeNull();
+      expect(container.querySelector('.todo-item__menu')).toBeNull();
     });
   });
 

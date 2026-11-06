@@ -125,7 +125,8 @@
       background: var(--color-tab-bg);
     }
 
-    &:focus-visible {
+    &:focus-visible,
+    &:focus-within { // 가져오기: 숨은 파일 입력에 키보드 포커스가 오면 줄 전체에 포커스 표시
       outline: 2px dashed var(--color-main);
       outline-offset: -2px;
     }
@@ -200,7 +201,7 @@
   }
 
   &--toolbar &__btn {
-    @include size(40);
+    @include size(44);
     padding: 0;
     border-radius: 50%;
   }

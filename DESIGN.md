@@ -324,4 +324,4 @@ Calm, direct, practical. This is a tool used in real work — voice reflects tha
 
 **Card hover**: `translateY(-1px)` + shadow increase over 250ms `ease`.
 
-No reduce-motion override implemented yet — add `@media (prefers-reduced-motion: reduce)` to suppress transforms if needed.
+`base/_reset.scss`에 `@media (prefers-reduced-motion: reduce)` 공통 규칙이 있어 전환·애니메이션·부드러운 스크롤을 사실상 끈다(개별 컴포넌트에서 다시 켜지 않는다).

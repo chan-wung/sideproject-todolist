@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
 import { useCalendarMonth } from '../hooks/useCalendarMonth';
-import { dateStr, todayStr } from '../utils/date';
+import { dateStr, formatFullDate, todayStr } from '../utils/date';
 import { PickerTrigger, PickerHeader, PickerGrid } from './DatePickerParts';
 import { cx } from '../utils/classNames';
 
@@ -20,6 +20,7 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
   const [pendingStart, setPendingStart] = useState<string | null>(null);
   const [hoverDate, setHoverDate] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const { year, month, label, blankCount, dayCount, goPrev, goNext } = useCalendarMonth(startValue || endValue);
 
@@ -27,7 +28,7 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
     setIsOpen(false);
     setPendingStart(null);
     setHoverDate(null);
-  }, { escape: false });
+  }, { focusRef: triggerRef });
 
   function handleDayClick(dateStr: string) {
     if (!pendingStart) {
@@ -86,6 +87,10 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
           isRangeEnd ? 'date-range-picker__cell--range-end' : '',
         )}
         onClick={() => handleDayClick(str)}
+        data-day={day}
+        aria-label={formatFullDate(str)}
+        aria-pressed={isRangeStart || isRangeEnd}
+        aria-current={isToday ? 'date' : undefined}
         onMouseEnter={() => { if (pendingStart) setHoverDate(str); }}
       >
         {day}
@@ -108,14 +113,15 @@ export default function DateRangePicker({ startValue, endValue, onChange, placeh
         value={displayText || <span className="date-range-picker__placeholder">{placeholder}</span>}
         hasValue={!!(startValue || endValue)}
         onClear={handleClear}
+        buttonRef={triggerRef}
         aria-labelledby={ariaLabelledby}
       />
 
       {isOpen && (
-        <div className="date-range-picker__dropdown">
+        <div className="date-range-picker__dropdown" role="dialog" aria-label="기간 선택">
           <PickerHeader block="date-range-picker" label={label} onPrev={goPrev} onNext={goNext} />
 
-          <p className="date-range-picker__hint">{pendingStart ? '종료일을 선택하세요 (하루만이면 같은 날을 다시 누르세요)' : '시작일을 선택하세요'}</p>
+          <p className="date-range-picker__hint" aria-live="polite">{pendingStart ? '종료일을 선택하세요 (하루만이면 같은 날을 다시 누르세요)' : '시작일을 선택하세요'}</p>
 
           <PickerGrid block="date-range-picker" blankCount={blankCount}>
             {days}

@@ -50,6 +50,12 @@ export function diffDays(from: string, to: string): number {
 }
 
 // '2026-11-04' → '11월 4일 (수)'
+// 스크린리더용 전체 날짜 이름: '2026년 11월 6일 금요일'
+export function formatFullDate(dateStr: string): string {
+  const d = parseLocalDate(dateStr);
+  return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${WEEKDAYS[d.getDay()]}요일`;
+}
+
 export function formatMonthDayWeekday(dateStr: string): string {
   const d = parseLocalDate(dateStr);
   return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WEEKDAYS[d.getDay()]})`;

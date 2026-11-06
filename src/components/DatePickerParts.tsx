@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode, RefObject } from 'react';
 import { WEEKDAYS } from '../hooks/useCalendarMonth';
 import { CalendarIcon, ClearIcon } from './icons';
 
@@ -14,13 +14,16 @@ interface TriggerProps {
   /** 값이 있어야 지우기 버튼이 나온다 */
   hasValue: boolean;
   onClear: (e: React.MouseEvent) => void;
+  /** Esc로 닫은 뒤 포커스를 돌려받을 입력 버튼 */
+  buttonRef?: RefObject<HTMLButtonElement>;
   'aria-labelledby'?: string;
 }
 
-export function PickerTrigger({ block, isOpen, onToggle, value, hasValue, onClear, 'aria-labelledby': ariaLabelledby }: TriggerProps) {
+export function PickerTrigger({ block, isOpen, onToggle, value, hasValue, onClear, buttonRef, 'aria-labelledby': ariaLabelledby }: TriggerProps) {
   return (
     <div className={`${block}__trigger-wrap`}>
       <button
+        ref={buttonRef}
         type="button"
         className={`${block}__input ${isOpen ? `${block}__input--active` : ''}`}
         onClick={onToggle}
@@ -66,10 +69,23 @@ interface GridProps {
   children: ReactNode;
 }
 
-// 요일 머리줄 + 앞 빈칸 + 날짜 칸
+// 방향키로 옮길 칸 수 (좌우는 하루, 위아래는 한 주)
+const ARROW_STEP: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+
+// 요일 머리줄 + 앞 빈칸 + 날짜 칸. 날짜 칸은 data-day를 달고 있어야 방향키로 오갈 수 있다.
 export function PickerGrid({ block, blankCount, children }: GridProps) {
+  function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    const step = ARROW_STEP[e.key];
+    if (step === undefined) return;
+    const days = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>('button[data-day]'));
+    const current = days.indexOf(document.activeElement as HTMLButtonElement);
+    if (current === -1) return;
+    e.preventDefault();
+    days[Math.min(days.length - 1, Math.max(0, current + step))].focus(); // 이번 달 안에서만 움직인다
+  }
+
   return (
-    <div className={`${block}__grid`}>
+    <div className={`${block}__grid`} onKeyDown={handleKeyDown}>
       {WEEKDAYS.map(d => (
         <div key={d} className={`${block}__cell ${block}__cell--head`}>{d}</div>
       ))}

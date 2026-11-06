@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { Todo } from '../types/todo';
-import { CheckIcon, CloseIcon, DragHandleIcon, EditIcon } from './icons';
+import { ArrowDownIcon, ArrowUpIcon, CheckIcon, CloseIcon, DragHandleIcon, EditIcon } from './icons';
 import { cx } from '../utils/classNames';
 import { isImeComposing } from '../utils/ime';
 
@@ -25,6 +25,7 @@ export default function TodoItemSubtasks({ todo, subText: outerSubText, onSubTex
   const [editSubText, setEditSubText] = useState('');
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const dragFromRef = useRef<number | null>(null);
+  const total = (todo.subtasks ?? []).length;
 
   function handleAddSubtask() {
     if (!subText.trim()) return;
@@ -102,6 +103,28 @@ export default function TodoItemSubtasks({ todo, subText: outerSubText, onSubTex
                   />
                   <span className="form-chk__text">{sub.text}</span>
                 </label>
+                {total > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      className="todo-item__btn-sub-move"
+                      onClick={() => onReorderSubtasks(todo.id, index, index - 1)}
+                      disabled={index === 0}
+                      aria-label={`위로 이동: ${sub.text}`}
+                    >
+                      <ArrowUpIcon />
+                    </button>
+                    <button
+                      type="button"
+                      className="todo-item__btn-sub-move"
+                      onClick={() => onReorderSubtasks(todo.id, index, index + 1)}
+                      disabled={index === total - 1}
+                      aria-label={`아래로 이동: ${sub.text}`}
+                    >
+                      <ArrowDownIcon />
+                    </button>
+                  </>
+                )}
                 <button
                   type="button"
                   className="todo-item__btn-sub-edit"

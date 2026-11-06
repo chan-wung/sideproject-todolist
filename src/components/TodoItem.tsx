@@ -16,6 +16,9 @@ import { truncate } from '../utils/text';
 interface Props {
   todo: Todo;
   manualSort?: boolean;
+  /** 수동 정렬일 때, 보이는 목록에서 바로 위/아래 항목과 자리를 바꾸는 키보드·터치용 이동(맨 위/맨 아래면 없음) */
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
   selectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
@@ -38,7 +41,7 @@ interface Props {
   onOpenMemo: (memoId: string) => void;
 }
 
-export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
+export default function TodoItem({ todo, manualSort, onMoveUp, onMoveDown, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   // 하위 항목 입력 초안은 카드가 들고 있어서, 편집 모드로 바뀌며 하위 항목 목록이 사라졌다 돌아와도 남는다
@@ -138,6 +141,8 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               onShare={onShare}
               onKakaoShare={onKakaoShare}
               onDuplicate={onDuplicate}
+              onMoveUp={onMoveUp}
+              onMoveDown={onMoveDown}
             />
           </div>
         </div>

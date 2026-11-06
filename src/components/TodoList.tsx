@@ -56,7 +56,7 @@ export default function TodoList({ todos, filterStatus, sortKey, categories, mem
 
   return (
     <ul className="todo-list">
-      {todos.map(todo => (
+      {todos.map((todo, index) => (
         <li
           key={todo.id}
           className={cx(
@@ -83,6 +83,8 @@ export default function TodoList({ todos, filterStatus, sortKey, categories, mem
             memos={memos}
             onOpenMemo={onOpenMemo}
             manualSort={manualSort}
+            onMoveUp={manualSort && index > 0 ? () => onReorderTodos(todo.id, todos[index - 1].id) : undefined}
+            onMoveDown={manualSort && index < todos.length - 1 ? () => onReorderTodos(todo.id, todos[index + 1].id) : undefined}
             selectionMode={selectionMode}
             isSelected={selectedIds?.has(todo.id)}
             onToggleSelect={onToggleSelect}

@@ -10,7 +10,7 @@ function setup(leaveTitlesOn: (date: string) => string[] = () => []) {
   const pickDate = (day: number) => {
     fireEvent.click(utils.getByRole('button', { name: '날짜' }));
     const dropdown = utils.container.querySelector('.date-picker__dropdown') as HTMLElement;
-    fireEvent.click(within(dropdown).getByRole('button', { name: String(day) }));
+    fireEvent.click(within(dropdown).getByRole('button', { name: new RegExp(`월 ${day}일`) }));
   };
   const add = () => fireEvent.click(utils.getByRole('button', { name: '추가' }));
   const reason = () => utils.getByLabelText('사유 (선택)') as HTMLInputElement;

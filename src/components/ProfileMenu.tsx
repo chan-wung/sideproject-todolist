@@ -29,8 +29,9 @@ export default function ProfileMenu({
 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const boxId = useId();
-  useDismiss(ref, open, () => setOpen(false));
+  useDismiss(ref, open, () => setOpen(false), { focusRef: buttonRef });
 
   const trimmed = name.trim();
   const label = trimmed ? `${trimmed} 님` : '이름 입력';
@@ -52,9 +53,9 @@ export default function ProfileMenu({
   return (
     <div ref={ref} className={cx('profile-menu', `profile-menu--${placement}`, collapsed && 'profile-menu--collapsed')}>
       <button
+        ref={buttonRef}
         type="button"
         className="profile-menu__btn"
-        aria-haspopup="true"
         aria-expanded={open}
         aria-controls={boxId}
         title="프로필 메뉴"

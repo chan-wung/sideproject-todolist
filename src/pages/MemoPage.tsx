@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useDismiss } from '../hooks/useDismiss';
 import ConfirmModal from '../components/ConfirmModal';
 import PageHead from '../components/PageHead';
-import { ChevronIcon, MoreIcon, NoteIcon, PaperclipIcon, PushPinIcon } from '../components/icons';
+import { ArrowDownIcon, ArrowUpIcon, ChevronIcon, MoreIcon, NoteIcon, PaperclipIcon, PushPinIcon } from '../components/icons';
 import { generateId } from '../utils/id';
 import { moveItem } from '../utils/list';
 import { memoToText } from '../utils/share';
@@ -37,8 +37,9 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
   const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
 
   const moreRef = useRef<HTMLDivElement>(null);
+  const moreBtnRef = useRef<HTMLButtonElement>(null);
 
-  useDismiss(moreRef, moreOpen, () => setMoreOpen(false));
+  useDismiss(moreRef, moreOpen, () => setMoreOpen(false), { focusRef: moreBtnRef });
 
   // 화면에 들어오면 메모가 하나도 없을 때 빈 기본 메모를 만든다.
   // (옛 단일 메모 이행과 '고른 메모가 없으면 첫 메모 고르기'는 useMemos가 맡는다)
@@ -50,6 +51,15 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
     }
   }, [memos, setMemos, setActiveId]);
 
+
+  // 키보드·터치용 순서 이동: 전체 메모 목록에서 바로 위/아래 메모와 자리를 바꾼다 (검색 중에도 같은 기준)
+  const activeIndex = memos.findIndex(m => m.id === activeId);
+  function handleMoveActive(delta: number) {
+    const to = activeIndex + delta;
+    if (activeIndex === -1 || to < 0 || to >= memos.length) return;
+    setMemos(moveItem(memos, activeIndex, to));
+    setMoreOpen(false);
+  }
 
   function handleAdd() {
     const newId = generateId();
@@ -229,20 +239,22 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                   />
                   <div className="memo-page__content-actions" ref={moreRef}>
                     <button
+                      ref={moreBtnRef}
                       type="button"
                       className={`memo-page__more-btn${moreOpen ? ' memo-page__more-btn--active' : ''}`}
                       onClick={() => setMoreOpen(prev => !prev)}
                       aria-label="더보기"
-                      aria-haspopup="true"
                       aria-expanded={moreOpen}
                     >
                       <MoreIcon size={18} decorative />
                     </button>
                     {moreOpen && (
-                      <div className="memo-page__more-menu" role="menu">
-                        <button type="button" className="memo-page__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleCopyActive(activeMemo); }}>클립보드 복사</button>
-                        <button type="button" className="memo-page__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleShareActive(activeMemo); }}>공유</button>
-                        <button type="button" className="memo-page__more-item" role="menuitem" onClick={() => { setMoreOpen(false); handleKakaoShareActive(activeMemo); }}>카카오톡 공유</button>
+                      <div className="memo-page__more-menu">
+                        <button type="button" className="memo-page__more-item" onClick={() => { setMoreOpen(false); handleCopyActive(activeMemo); }}>클립보드 복사</button>
+                        <button type="button" className="memo-page__more-item" onClick={() => { setMoreOpen(false); handleShareActive(activeMemo); }}>공유</button>
+                        <button type="button" className="memo-page__more-item" onClick={() => { setMoreOpen(false); handleKakaoShareActive(activeMemo); }}>카카오톡 공유</button>
+                        <button type="button" className="memo-page__more-item" disabled={activeIndex <= 0} onClick={() => handleMoveActive(-1)}><ArrowUpIcon />목록에서 위로 이동</button>
+                        <button type="button" className="memo-page__more-item" disabled={activeIndex === -1 || activeIndex >= memos.length - 1} onClick={() => handleMoveActive(1)}><ArrowDownIcon />목록에서 아래로 이동</button>
                       </div>
                     )}
                   </div>

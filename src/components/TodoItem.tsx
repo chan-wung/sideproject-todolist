@@ -41,6 +41,8 @@ interface Props {
 export default function TodoItem({ todo, manualSort, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  // 하위 항목 입력 초안은 카드가 들고 있어서, 편집 모드로 바뀌며 하위 항목 목록이 사라졌다 돌아와도 남는다
+  const [subText, setSubText] = useState('');
 
   const kind = normalizeKind(todo.kind);
   const isLeave = kind === 'leave';
@@ -210,6 +212,8 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
 
         <TodoItemSubtasks
           todo={todo}
+          subText={subText}
+          onSubTextChange={setSubText}
           onAddSubtask={onAddSubtask}
           onToggleSubtask={onToggleSubtask}
           onDeleteSubtask={onDeleteSubtask}

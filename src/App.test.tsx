@@ -172,3 +172,27 @@ describe('App 통합', () => {
     await waitFor(() => expect(stored('todolist-items')[0].memoIds).toEqual(['real']));
   });
 });
+
+describe('App 초안 보존', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    window.history.replaceState(null, '', '/todos');
+    window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
+  });
+  afterEach(() => {
+    cleanup();
+    localStorage.clear();
+  });
+
+  it('할 일 입력창에 쓰던 글은 다른 화면에 다녀와도 남는다', async () => {
+    render(<App />);
+    const field = () => screen.getByPlaceholderText(/크게 할 일을 입력하세요/) as HTMLTextAreaElement;
+    fireEvent.change(field(), { target: { value: '쓰다 만 글' } });
+
+    fireEvent.click(screen.getAllByText('메모장')[0].closest('a')!);
+    await waitFor(() => expect(screen.queryByPlaceholderText(/크게 할 일을 입력하세요/)).toBeNull());
+    fireEvent.click(screen.getAllByText('할 일')[0].closest('a')!);
+
+    await waitFor(() => expect(field().value).toBe('쓰다 만 글'));
+  });
+});

@@ -2,9 +2,13 @@ import { useRef, useState } from 'react';
 import type { Todo } from '../types/todo';
 import { CheckIcon, CloseIcon, DragHandleIcon, EditIcon } from './icons';
 import { cx } from '../utils/classNames';
+import { isImeComposing } from '../utils/ime';
 
 interface Props {
   todo: Todo;
+  /** 쓰던 하위 항목 입력. 주면 카드를 편집 모드로 바꿨다 돌아와도 유지된다 */
+  subText?: string;
+  onSubTextChange?: (text: string) => void;
   onAddSubtask: (todoId: string, text: string) => void;
   onToggleSubtask: (todoId: string, subId: string) => void;
   onDeleteSubtask: (todoId: string, subId: string) => void;
@@ -13,8 +17,10 @@ interface Props {
 }
 
 // 할 일 카드의 하위 항목 목록(체크·수정·삭제·드래그 정렬)과 추가 입력
-export default function TodoItemSubtasks({ todo, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks }: Props) {
-  const [subText, setSubText] = useState('');
+export default function TodoItemSubtasks({ todo, subText: outerSubText, onSubTextChange, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks }: Props) {
+  const [localSubText, setLocalSubText] = useState('');
+  const subText = outerSubText ?? localSubText;
+  const setSubText = onSubTextChange ?? setLocalSubText;
   const [editingSubId, setEditingSubId] = useState<string | null>(null);
   const [editSubText, setEditSubText] = useState('');
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
@@ -27,6 +33,7 @@ export default function TodoItemSubtasks({ todo, onAddSubtask, onToggleSubtask, 
   }
 
   function handleSubtaskKeyDown(e: React.KeyboardEvent) {
+    if (isImeComposing(e)) return;
     if (e.key === 'Enter') handleAddSubtask();
   }
 
@@ -65,6 +72,7 @@ export default function TodoItemSubtasks({ todo, onAddSubtask, onToggleSubtask, 
                   value={editSubText}
                   onChange={e => setEditSubText(e.target.value)}
                   onKeyDown={e => {
+                    if (isImeComposing(e)) return;
                     if (e.key === 'Enter') handleSaveSubEdit(sub.id);
                     if (e.key === 'Escape') setEditingSubId(null);
                   }}

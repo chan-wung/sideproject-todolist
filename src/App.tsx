@@ -11,6 +11,7 @@ import { useToast } from './hooks/useToast';
 import { useShareActions } from './hooks/useShareActions';
 import { useTheme } from './hooks/useTheme';
 import TodoPage from './pages/TodoPage';
+import { EMPTY_TODO_DRAFT, type TodoDraft } from './utils/todoDraft';
 import WeeklyReportPage from './pages/WeeklyReportPage';
 import CalendarPage from './pages/CalendarPage';
 import DashboardPage from './pages/DashboardPage';
@@ -185,6 +186,9 @@ export default function App() {
   }
 
   // 검증을 통과한 백업은 바로 적용하지 않고, 어느 구역이 몇 건 교체되는지 보여 준 뒤 확인을 받는다.
+  // 할 일 입력창에 쓰던 내용. 화면을 옮기면 입력창이 사라지므로 App이 들고 있다가 돌아오면 돌려준다.
+  const [todoDraft, setTodoDraft] = useState<TodoDraft>(EMPTY_TODO_DRAFT);
+
   const [pendingImport, setPendingImport] = useState<ParsedBackup | null>(null);
 
   function confirmImport() {
@@ -271,6 +275,7 @@ export default function App() {
 
   function handleResetTodos() {
     resetTodos();
+    setTodoDraft(EMPTY_TODO_DRAFT);
     handleClearSelection();
     showToast({ message: '할일을 초기화했습니다.', type: 'danger' });
   }
@@ -283,6 +288,7 @@ export default function App() {
   // 전체 초기화: 할 일·메모·완료 이력·반복 일정·주간보고(저장본·복사 기록)를 모두 비운다. 테마·이름 같은 설정은 유지한다.
   function handleResetAll() {
     resetTodos();
+    setTodoDraft(EMPTY_TODO_DRAFT);
     handleClearSelection();
     resetMemos();
     resetCompletionLog();
@@ -364,6 +370,8 @@ export default function App() {
       {view === 'todos' ? (
         <TodoPage
           inputProps={{
+            draft: todoDraft,
+            onDraftChange: setTodoDraft,
             onAdd: addTodo,
             categories: categoryOptions,
             leaveTitlesOn: date => allTodos.filter(t => normalizeKind(t.kind) === 'leave' && t.dueDate === date).map(t => t.text),

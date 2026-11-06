@@ -6,6 +6,7 @@ import type { Memo } from '../hooks/useMemos';
 import CategoryPickerModal from './CategoryPickerModal';
 import TodoDateField from './TodoDateField';
 import { RepeatIcon } from './icons';
+import { isImeComposing } from '../utils/ime';
 
 interface Props {
   todo: Todo;
@@ -57,6 +58,7 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
+    if (isImeComposing(e)) return; // 한글 조합 중 Enter/Esc는 조합을 확정·취소하는 키다
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSave();

@@ -7,26 +7,33 @@ import { leaveStatus, type LeaveInput } from '../utils/leave';
 import TodoDateField from './TodoDateField';
 import LeaveFields from './LeaveFields';
 import { PaperclipIcon } from './icons';
+import { isImeComposing } from '../utils/ime';
+import { EMPTY_TODO_DRAFT, type TodoDraft } from '../utils/todoDraft';
 
 interface Props {
+  /** 쓰던 내용. 주면 화면을 옮겼다 돌아와도 유지된다(없으면 이 컴포넌트가 직접 들고 있다) */
+  draft?: TodoDraft;
+  onDraftChange?: (draft: TodoDraft) => void;
   onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string, recurrence?: Todo['recurrence'], kind?: TodoKind, startDate?: string) => void;
   categories: string[];
   /** 그 날짜에 이미 등록된 연차·휴가의 제목들 (같은 연차를 중복 등록하지 않게 막는 데 쓴다) */
   leaveTitlesOn?: (date: string) => string[];
 }
 
-const EMPTY_LEAVE: LeaveInput = { type: 'annual', start: '', end: '', name: '', reason: '' };
 const NO_LEAVES = () => [] as string[];
 
-export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES }: Props) {
-  const [text, setText] = useState('');
-  const [priority, setPriority] = useState<Todo['priority']>('medium');
-  const [startDate, setStartDate] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [category, setCategory] = useState('');
-  const [recurrence, setRecurrence] = useState<Todo['recurrence']>('none');
-  const [kind, setKind] = useState<TodoKind>('task');
-  const [leave, setLeave] = useState<LeaveInput>(EMPTY_LEAVE);
+export default function TodoInput({ draft: outerDraft, onDraftChange, onAdd, categories, leaveTitlesOn = NO_LEAVES }: Props) {
+  const [localDraft, setLocalDraft] = useState<TodoDraft>(EMPTY_TODO_DRAFT);
+  const draft = outerDraft ?? localDraft;
+  const { text, priority, startDate, dueDate, category, recurrence, kind, leave } = draft;
+  const update = onDraftChange ?? setLocalDraft;
+  const patchDraft = (changes: Partial<TodoDraft>) => update({ ...draft, ...changes });
+  const setText = (v: string) => patchDraft({ text: v });
+  const setPriority = (v: Todo['priority']) => patchDraft({ priority: v });
+  const setCategory = (v: string) => patchDraft({ category: v });
+  const setRecurrence = (v: Todo['recurrence']) => patchDraft({ recurrence: v });
+  const setKind = (v: TodoKind) => patchDraft({ kind: v });
+  const setLeave = (v: LeaveInput) => patchDraft({ leave: v });
   const [toast, setToast] = useState('');
   const [toastKey, setToastKey] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -41,15 +48,9 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
     setToastKey(k => k + 1);
   }
 
+  // 등록에 성공하면 쓰던 내용을 지운다
   function resetForm() {
-    setText('');
-    setStartDate('');
-    setDueDate('');
-    setCategory('');
-    setPriority('medium');
-    setRecurrence('none');
-    setKind('task');
-    setLeave(EMPTY_LEAVE);
+    update(EMPTY_TODO_DRAFT);
   }
 
   // 연차·휴가: 이름·시각·사유를 제목 한 줄로 합쳐 날짜와 함께 등록한다 (날짜가 곧 보고서의 날짜)
@@ -81,6 +82,7 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (isImeComposing(e)) return; // 한글 조합 중 Enter는 글자 확정이지 등록이 아니다
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
@@ -135,7 +137,7 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
               kind={kind}
               startDate={startDate}
               dueDate={dueDate}
-              onChange={range => { setStartDate(range.startDate); setDueDate(range.dueDate); }}
+              onChange={range => patchDraft({ startDate: range.startDate, dueDate: range.dueDate })}
               aria-labelledby="todo-input-dueDate-label"
             />
           </div>

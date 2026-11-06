@@ -5,7 +5,7 @@ import { render, fireEvent, cleanup, within } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 import TodoItem from './TodoItem';
 import type { Todo } from '../types/todo';
-import type { Memo } from '../hooks/useMemos';
+import type { Memo } from '../types/memo';
 
 type Props = ComponentProps<typeof TodoItem>;
 

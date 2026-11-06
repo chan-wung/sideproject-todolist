@@ -169,7 +169,7 @@ npm run build
 
 ```text
 src/
-├─ App.tsx              화면 조립, 백업 가져오기/내보내기, 토스트
+├─ App.tsx              화면 조립, 토스트 (백업 흐름은 hooks/useBackupFlow)
 ├─ components/          UI 컴포넌트
 │  ├─ TodoItem.tsx      할 일 카드 (편집 폼·하위 항목·더보기 메뉴는 TodoItem*.tsx로 분리)
 │  ├─ *Modal.tsx        <dialog> 기반 모달들

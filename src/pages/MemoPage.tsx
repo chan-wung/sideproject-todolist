@@ -6,7 +6,7 @@ import { ArrowDownIcon, ArrowUpIcon, ChevronIcon, MoreIcon, NoteIcon, PaperclipI
 import { generateId } from '../utils/id';
 import { moveItem } from '../utils/list';
 import { memoToText } from '../utils/share';
-import type { Memo } from '../hooks/useMemos';
+import type { Memo } from '../types/memo';
 import type { Todo } from '../types/todo';
 import { cx } from '../utils/classNames';
 

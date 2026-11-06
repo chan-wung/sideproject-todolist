@@ -1,9 +1,9 @@
 import type { Todo, CompletionLogEntry, RecurrenceSeries } from '../types/todo';
-import type { Memo } from '../hooks/useMemos';
+import type { Memo } from '../types/memo';
 import { validateTodos, validateCompletionLog } from './todoData';
-import { validateMemos } from '../hooks/useMemos';
+import { validateMemos } from './memoData';
 import { validateRecurrenceSeries } from './recurrence';
-import { validateWeeklyReportData, type WeeklyReportData } from '../hooks/useWeeklyReports';
+import { validateWeeklyReportData, type WeeklyReportData } from './weeklyReportData';
 
 // 지금 앱이 내보내고 읽을 수 있는 백업 형식 버전. version이 없는 옛 파일(배열 포함)도 읽는다.
 export const BACKUP_VERSION = 1;

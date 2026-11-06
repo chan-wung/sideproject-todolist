@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { PRIORITY_LABEL, FREQUENCY_LABEL, KIND_LABEL, LEAVE_TYPE_LABEL } from '../constants/labels';
 import type { Todo, TodoUpdates, RecurrenceFrequency } from '../types/todo';
-import type { Memo } from '../hooks/useMemos';
+import type { Memo } from '../types/memo';
 import ConfirmModal from './ConfirmModal';
 import TodoItemEditForm from './TodoItemEditForm';
 import TodoItemMenu from './TodoItemMenu';

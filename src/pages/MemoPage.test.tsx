@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, fireEvent, cleanup, within } from '@testing-library/react';
 import MemoPage from './MemoPage';
-import type { Memo } from '../hooks/useMemos';
+import type { Memo } from '../types/memo';
 import type { Todo } from '../types/todo';
 
 const MEMOS: Memo[] = [

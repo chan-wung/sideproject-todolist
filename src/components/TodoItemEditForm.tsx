@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
 import type { Todo, TodoKind, TodoUpdates } from '../types/todo';
 import { normalizeKind, kindAllowsRecurrence, kindRequiresDate, dueDateLabel } from '../utils/kind';
-import type { Memo } from '../hooks/useMemos';
+import type { Memo } from '../types/memo';
 import CategoryPickerModal from './CategoryPickerModal';
 import TodoDateField from './TodoDateField';
 import { RepeatIcon } from './icons';

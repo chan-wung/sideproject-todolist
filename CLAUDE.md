@@ -25,7 +25,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - 주간보고 양식 스크린샷: 엑셀 한 칸(주 단위) 안에 `날짜 + 정기업무` 줄, 빈 줄, `[프로젝트] 내용` 줄들이 여러 줄로 들어갑니다. 주간보고 기능의 출력 형식 기준입니다.
 
 ## 코드 구조 (2026-11 리팩터링 이후)
-- `src/App.tsx`: 셸 조립(툴바·사이드바·본문), 화면 선택, 백업 가져오기/내보내기, 토스트. **상태(`useTodos`·`useMemos`)는 여기서 들고** 화면에는 props로 내려 줌
+- `src/App.tsx`: 셸 조립(툴바·사이드바·본문), 화면 선택, 토스트. 백업 내보내기·가져오기(검증 → 확인 → 적용 → 저장 결과 확인)는 `hooks/useBackupFlow`가 맡고 App은 각 상태 훅의 내보내기/교체 함수를 모아 넘긴다. **상태(`useTodos`·`useMemos`)는 여기서 들고** 화면에는 props로 내려 줌
 - `src/pages/`: 화면 단위. `DashboardPage`(대시보드), `TodoPage`(할 일, 조립만), `CalendarPage`(캘린더), `MemoPage`(메모장), `WeeklyReportPage`(주간보고). 화면 이름·메뉴는 `constants/labels.ts`의 `VIEW_*`, 주소 경로(`/todos`·`/report`, 해시 `#` 없음)로 구분
 - `src/components/`
   - `AppNav.tsx`: 화면 전환 메뉴. 폭 1024px 이상은 왼쪽 카드형 사이드바, 미만(태블릿·모바일)은 화면 아래에 고정되는 탭 바(아이콘+이름). 같은 마크업을 CSS로 두 모양으로 바꿈. 사이드바 맨 아래에는 `ProfileMenu`(`placement="nav"`)가 붙는다. 사이드바 접기·펴기 버튼은 메뉴가 아니라서 카드 오른쪽 위 모서리에 걸친 작은 원형 화살표로 둔다(메뉴 목록 안에 넣지 않는다)
@@ -47,11 +47,12 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `useTodos`: 할 일 상태와 필터·정렬·실행취소·완료 이력. 시리즈와 할 일을 **함께** 바꾸는 작업(승격·삭제·초기화·시작 시 마이그레이션)도 여기 있음
   - `useRecurrenceSeries`: 반복 시리즈 상태·저장·회차 생성·CRUD. `useTodos`가 내부에서 호출함
   - `useView`: 주소 경로 ↔ 현재 화면(`useSyncExternalStore`, `popstate`+자체 이벤트). `navigate(view)`로 이동, `migrateLegacyHash()`가 옛 `/#/report` 북마크를 `/report`로 바꿈(`main.tsx`에서 호출). 모르는 경로는 기본 화면(할 일)
+  - `useBackupFlow`: 백업 내보내기·가져오기 흐름(`pendingImport`·`confirmImport`·`exportBackup`·`importFile`)
   - `useCalendarMonth`: 달력에 보이는 달·월 이동·앞 빈칸·일수 (`DatePicker`·`DateRangePicker`·`CalendarPage`가 같이 씀)
   - `useSelection`(선택 모드), `useModalDialog`(열기/닫기·스크롤 잠금 + 바깥 클릭 닫기 핸들러를 돌려줌), `useDismiss`, `useTheme`(라이트/다크 저장 + `body[data-theme]`), `useDayChange`, `usePersistentState`, `useMemos`, `useWeeklyReports`(주별 보고서 저장본·복사 완료 기록)
   - `useToast`(토스트 상태), `useShareActions`(복사·공유·카카오 공유 실행 + 결과 토스트)
 - `src/constants/labels.ts`: 우선순위·반복 주기·업무 종류·화면 이름의 라벨과 옵션 목록
-- `src/utils/`: `date`(주 계산·기간 저장 모양 `normalizeRange` 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(캘린더 기간 항목 `buildCalendarItems`·띠 배치 `layoutWeek`/`layoutMonth`·주·일 보기 `sundayWeekDates`/`layoutTimed`), `calendarClass`(띠·배지 클래스 `itemClass`, 주말 색 `weekendMod`), `dashboard`(대시보드 숫자), `backup`(백업 파일 내려받기·`readBackupFile`로 읽기·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기·등록 가능 여부 `leaveStatus`·제목에서 시각 읽기 `leaveTimeRange`), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`readStorage`·`writeStorage`), `todoData`(할 일·완료 이력 검증과 옛 형식 마이그레이션 `validateTodos`·`validateCompletionLog`, `toCompletionLogEntry`), `todoFilter`(`filterTodos`·`sortTodos`), `classNames`(`cx`), `text`(`truncate`)
+- `src/utils/`: `date`(주 계산·기간 저장 모양 `normalizeRange` 포함), `recurrence`, `kind`(`normalizeKind`), `weeklyReport`(주간보고 글 생성), `calendar`(캘린더 기간 항목 `buildCalendarItems`·띠 배치 `layoutWeek`/`layoutMonth`·주·일 보기 `sundayWeekDates`/`layoutTimed`), `calendarClass`(띠·배지 클래스 `itemClass`, 주말 색 `weekendMod`), `dashboard`(대시보드 숫자), `backup`(백업 파일 내려받기·`readBackupFile`로 읽기·알림 판단), `backupData`(백업 파일 읽기·검증 `parseBackup`), `leave`(연차 제목 만들기·등록 가능 여부 `leaveStatus`·제목에서 시각 읽기 `leaveTimeRange`), `share`(복사·공유와 토스트 문구), `list`(`moveItem`), `storage`(`readStorage`·`writeStorage`), `memoData`(`validateMemos`)·`weeklyReportData`(주간보고 저장 데이터 타입과 `validateWeeklyReportData`)·`todoOps`(할 일 순수 변경 함수, 지금은 `withValidMemoLinks`), `todoData`(할 일·완료 이력 검증과 옛 형식 마이그레이션 `validateTodos`·`validateCompletionLog`, `toCompletionLogEntry`), `todoFilter`(`filterTodos`·`sortTodos`), `classNames`(`cx`), `text`(`truncate`)
 - **화면 모양**: 각 화면의 맨 위 제목은 그 화면 자신이 공용 `PageHead`(`h1`)로 그린다(앱 공통 헤더는 없음). 제목은 카드 밖(회색 배경 위)에 두고 카드 안에는 넣지 않는다. 본문(`.todo-app`)은 최대 폭 없이 사이드바 옆 공간을 꽉 채운다(`$site_max_width`는 좁은 화면의 메뉴 상자에만 남아 있음). 할 일 화면의 `QuickNav`는 목록 위 가로 칩 줄
 - **좁은 화면(1024px 미만)**: 메뉴는 아래 탭 바(`$tabbar_height` 56px, `position: fixed`)라서 본문 아래에 같은 높이의 여백(`.app-shell`의 `padding-bottom`)을 두고, `맨 위로` 버튼과 토스트는 그 위로 띄운다. 이 폭에 쓰는 스타일은 `@include below_shell`
 - **글자 크기**: 글자는 전부 `@include font(N)` 믹스인을 거치고, PC(1024px 이상)에서는 믹스인이 `$font_scale_pc`(1.125)를 곱한다(본문 16px → 18px). 비율을 바꾸려면 `_variables.scss`의 이 값만 고친다. `font-size`를 직접 쓰지 않는다(배율이 빠짐). 간격·상자 크기(`rem()`)는 배율을 받지 않는다
@@ -86,6 +87,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 | 배열 항목 순서 이동 | `moveItem` |
 | localStorage 쓰기 / 검증해서 읽기 | `writeStorage` / `readStorage(key, parse, fallback)` |
 | 할 일·완료 이력 검증·마이그레이션 | `utils/todoData.ts`(`validateTodos` 등). `hooks`에서 가져오지 않는다 |
+| 메모 타입·검증 / 주간보고 저장 데이터 타입·검증 | `types/memo.ts`·`utils/memoData.ts` / `utils/weeklyReportData.ts` (훅 파일에서 가져오지 않는다) |
 | 할 일 목록 필터·정렬 | `utils/todoFilter.ts`의 `filterTodos`/`sortTodos` |
 | 토스트 띄우기, 복사·공유 실행 | `useToast`, `useShareActions(showToast)` |
 | 조건부 클래스 이름 잇기 | `utils/classNames.ts`의 `cx(...)` (`[...].filter(Boolean).join(' ')`를 쓰지 않는다) |

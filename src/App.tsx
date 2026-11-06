@@ -19,7 +19,7 @@ import AppNav from './components/AppNav';
 import BackupReminder from './components/BackupReminder';
 import StorageNotice from './components/StorageNotice';
 import { useStorageStatus } from './hooks/useStorageStatus';
-import { retryFailedWrites, readCorruptBackups, discardCorruptBackups, getStorageStatus } from './utils/storage';
+import { retryFailedWrites, readCorruptBackups, discardCorruptBackups } from './utils/storage';
 import Toast from './components/Toast';
 import ScrollTopButton from './components/ScrollTopButton';
 import MemoPage from './pages/MemoPage';
@@ -32,10 +32,10 @@ import type { Todo, CompletionLogEntry } from './types/todo';
 import { normalizeKind } from './utils/kind';
 import { hasUnreportedWeek, shiftWeek } from './utils/weeklyReport';
 import { startOfWeek, todayStr } from './utils/date';
-import { downloadBackup, downloadCorruptBackups, readBackupFile } from './utils/backup';
-import { parseBackup, isUnsupportedBackupVersion, summarizeBackup, BACKUP_VERSION, type ParsedBackup } from './utils/backupData';
+import { downloadCorruptBackups } from './utils/backup';
+import { summarizeBackup } from './utils/backupData';
+import { useBackupFlow } from './hooks/useBackupFlow';
 import ConfirmModal from './components/ConfirmModal';
-import { flushSync } from 'react-dom';
 import { todoToText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
 import './styles/main.scss';
 
@@ -164,75 +164,8 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [undoId, performUndo, showToast]);
 
-  function getBackup() {
-    return { version: BACKUP_VERSION, todos: exportData(), memos, completionLog: exportCompletionLog(), recurrenceSeries: exportRecurrenceSeries(), weeklyReports: weeklyReports.data };
-  }
-
-  // 검증을 마친 백업에서 파일에 있던 구역만 덮어쓴다 (생략된 구역은 그대로, 빈 배열은 그 구역을 비움).
-  function applyBackup(backup: ParsedBackup) {
-    if (backup.todos) importData(backup.todos);
-    if (backup.memos) replaceMemos(backup.memos);
-    if (backup.completionLog) importCompletionLog(backup.completionLog);
-    if (backup.recurrenceSeries) importRecurrenceSeries(backup.recurrenceSeries);
-    if (backup.weeklyReports) weeklyReports.importData(backup.weeklyReports);
-  }
-
-  function handleImportResult(success: boolean) {
-    if (success) {
-      showToast({ message: '데이터를 성공적으로 불러왔습니다.', type: 'primary' });
-    } else {
-      showToast({ message: '데이터 불러오기에 실패했습니다.', type: 'danger' });
-    }
-  }
-
-  // 검증을 통과한 백업은 바로 적용하지 않고, 어느 구역이 몇 건 교체되는지 보여 준 뒤 확인을 받는다.
   // 할 일 입력창에 쓰던 내용. 화면을 옮기면 입력창이 사라지므로 App이 들고 있다가 돌아오면 돌려준다.
   const [todoDraft, setTodoDraft] = useState<TodoDraft>(EMPTY_TODO_DRAFT);
-
-  const [pendingImport, setPendingImport] = useState<ParsedBackup | null>(null);
-
-  function confirmImport() {
-    const backup = pendingImport;
-    setPendingImport(null);
-    if (!backup) return;
-    // 상태 반영과 저장(effect)을 끝낸 뒤 저장 결과를 확인한다. 선택 상태는 새 데이터와 맞지 않으므로 비운다.
-    flushSync(() => {
-      applyBackup(backup);
-      handleClearSelection();
-    });
-    if (getStorageStatus().failedKeys.length > 0) {
-      showToast({ message: '불러왔지만 브라우저에 저장하지 못한 부분이 있습니다. 먼저 내보내기로 파일을 보관하세요.', type: 'danger' });
-    } else {
-      handleImportResult(true);
-    }
-  }
-
-  function handleExportResult() {
-    markBackedUp();
-    showToast({ message: '데이터를 내보냈습니다.', type: 'success' });
-  }
-
-  // 프로필 메뉴의 내보내기와 알림 배너의 '지금 내보내기'가 같이 쓴다
-  function handleExportFromReminder() {
-    downloadBackup(getBackup());
-    handleExportResult();
-  }
-
-  // 프로필 메뉴의 가져오기: 파일을 읽어(JSON) 적용하고 결과를 토스트로 알린다
-  function handleImportFile(file: File) {
-    readBackupFile(file)
-      .then(parsed => {
-        const backup = parseBackup(parsed);
-        if (backup) {
-          setPendingImport(backup);
-        } else if (isUnsupportedBackupVersion(parsed)) {
-          showToast({ message: '이 앱보다 새로운 버전에서 만든 백업이라 불러올 수 없습니다.', type: 'danger' });
-        } else {
-          handleImportResult(false);
-        }
-      })
-      .catch(() => handleImportResult(false));
-  }
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -244,6 +177,21 @@ export default function App() {
     selectAll,
     clear: handleClearSelection,
   } = useSelection();
+
+  const { pendingImport, cancelImport, confirmImport, exportBackup, importFile } = useBackupFlow({
+    memos,
+    weeklyReports,
+    exportData,
+    exportCompletionLog,
+    exportRecurrenceSeries,
+    importData,
+    replaceMemos,
+    importCompletionLog,
+    importRecurrenceSeries,
+    showToast,
+    markBackedUp,
+    clearSelection: handleClearSelection,
+  });
 
   function handleSelectAll() {
     selectAll(filteredTodos.map(t => t.id));
@@ -323,8 +271,8 @@ export default function App() {
   const profile: ProfileMenuShared = {
     name: profileName,
     onNameChange: setProfileName,
-    onExport: handleExportFromReminder,
-    onImport: handleImportFile,
+    onExport: exportBackup,
+    onImport: importFile,
     onRecurrenceOpen: () => setIsRecurrenceOpen(true),
     onCompletionLogOpen: () => setIsCompletionLogOpen(true),
     onSettingsOpen: () => setIsSettingsOpen(true),
@@ -357,13 +305,13 @@ export default function App() {
       <StorageNotice
         saveFailed={storageStatus.failedKeys.length > 0}
         hasCorrupt={storageStatus.corruptKeys.length > 0}
-        onExport={handleExportFromReminder}
+        onExport={exportBackup}
         onRetry={() => { if (retryFailedWrites().length > 0) showToast({ message: '아직 저장하지 못했습니다. 내보내기로 파일을 보관해 두세요.', type: 'danger' }); else showToast({ message: '저장했습니다.', type: 'success' }); }}
         onDownloadCorrupt={() => downloadCorruptBackups(readCorruptBackups())}
         onDiscardCorrupt={discardCorruptBackups}
       />
       {reminder.show && (
-        <BackupReminder message={reminder.message} onExport={handleExportFromReminder} onSnooze={snooze} />
+        <BackupReminder message={reminder.message} onExport={exportBackup} onSnooze={snooze} />
       )}
       {/* 화면 칸: 푸터를 뺀 남는 높이를 가져가 짧은 화면에서도 푸터가 맨 아래에 붙게 한다 */}
       <div className="todo-app__view">
@@ -467,9 +415,9 @@ export default function App() {
           details={summarizeBackup(pendingImport)}
           confirmLabel="가져오기"
           confirmTone="main"
-          extraAction={{ label: '현재 데이터 내보내기', onClick: handleExportFromReminder }}
+          extraAction={{ label: '현재 데이터 내보내기', onClick: exportBackup }}
           onConfirm={confirmImport}
-          onCancel={() => setPendingImport(null)}
+          onCancel={cancelImport}
         />
       )}
 

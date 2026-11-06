@@ -9,19 +9,12 @@ import { moveItem } from '../utils/list';
 import { readStorage, writeStorage } from '../utils/storage';
 import { validateTodos, validateCompletionLog, toCompletionLogEntry } from '../utils/todoData';
 import { filterTodos, sortTodos } from '../utils/todoFilter';
+import { withValidMemoLinks } from '../utils/todoOps';
 import { completePastLeaves } from '../utils/leave';
 import { useRecurrenceSeries } from './useRecurrenceSeries';
 import { useDayChange } from './useDayChange';
 
 const STORAGE_KEY = 'todolist-items';
-
-// 유효한 메모만 연결로 남긴다. 바꿀 게 없으면 받은 객체를 그대로 돌려준다.
-function withValidMemoLinks(todo: Todo, valid: Set<string> | null): Todo {
-  if (!valid || !todo.memoIds || todo.memoIds.length === 0) return todo;
-  const filtered = todo.memoIds.filter(id => valid.has(id));
-  if (filtered.length === todo.memoIds.length) return todo;
-  return { ...todo, memoIds: filtered.length > 0 ? filtered : undefined };
-}
 
 // 실행취소에 필요한 최소 정보. 지운 것과 그 위치만 기억한다.
 type UndoAction =

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Todo, FilterStatus, SortKey, TodoUpdates } from '../types/todo';
-import type { Memo } from '../hooks/useMemos';
+import type { Memo } from '../types/memo';
 import TodoItem from './TodoItem';
 import { CheckCircleIcon, ChecklistIcon, NoteIcon } from './icons';
 import { cx } from '../utils/classNames';

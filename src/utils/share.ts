@@ -1,5 +1,5 @@
 import type { Todo, CompletionLogEntry } from '../types/todo';
-import type { Memo } from '../hooks/useMemos';
+import type { Memo } from '../types/memo';
 
 export type ShareResult = 'shared' | 'copied' | 'failed' | 'canceled';
 

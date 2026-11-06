@@ -73,6 +73,7 @@ export default function TodoItemEditForm({ todo, categories, memos, onSave, onCa
           <textarea
             ref={inputRef}
             className="todo-item__edit-field todo-item__edit-field--textarea"
+            aria-label="할 일 내용 수정"
             value={editText}
             onChange={e => setEditText(e.target.value)}
             onKeyDown={handleKeyDown}

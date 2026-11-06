@@ -16,6 +16,22 @@ html {
   scroll-behavior: smooth;
 }
 
+// 시스템에서 '동작 줄이기'를 켠 사용자에게는 부드러운 스크롤과 전환·애니메이션을 사실상 끈다
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+    scroll-behavior: auto;
+  }
+}
+
 // ── 3. body ───────────────────────────────────
 body {
   @include Default_font_sub();

@@ -198,6 +198,7 @@ exports[`TodoItem > 렌더 스냅샷 > 기본 보기 모드 1`] = `
         class="todo-item__sub-add"
       >
         <input
+          aria-label="새 하위 항목 내용"
           class="todo-item__sub-add-field"
           placeholder="하위 항목 추가"
           type="text"
@@ -419,6 +420,7 @@ exports[`TodoItem > 렌더 스냅샷 > 기한 초과 1`] = `
         class="todo-item__sub-add"
       >
         <input
+          aria-label="새 하위 항목 내용"
           class="todo-item__sub-add-field"
           placeholder="하위 항목 추가"
           type="text"
@@ -756,6 +758,7 @@ exports[`TodoItem > 렌더 스냅샷 > 더보기 메뉴 열림 1`] = `
         class="todo-item__sub-add"
       >
         <input
+          aria-label="새 하위 항목 내용"
           class="todo-item__sub-add-field"
           placeholder="하위 항목 추가"
           type="text"
@@ -1035,6 +1038,7 @@ exports[`TodoItem > 렌더 스냅샷 > 선택 모드(선택됨) + 수동 정렬 
         class="todo-item__sub-add"
       >
         <input
+          aria-label="새 하위 항목 내용"
           class="todo-item__sub-add-field"
           placeholder="하위 항목 추가"
           type="text"
@@ -1256,6 +1260,7 @@ exports[`TodoItem > 렌더 스냅샷 > 완료 + 고정 1`] = `
         class="todo-item__sub-add"
       >
         <input
+          aria-label="새 하위 항목 내용"
           class="todo-item__sub-add-field"
           placeholder="하위 항목 추가"
           type="text"
@@ -1291,6 +1296,7 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 1`] = `
         class="todo-item__edit-main"
       >
         <textarea
+          aria-label="할 일 내용 수정"
           class="todo-item__edit-field todo-item__edit-field--textarea"
           rows="3"
         >
@@ -1587,6 +1593,7 @@ exports[`TodoItem > 렌더 스냅샷 > 편집 모드 — 반복 시리즈 회차
         class="todo-item__edit-main"
       >
         <textarea
+          aria-label="할 일 내용 수정"
           class="todo-item__edit-field todo-item__edit-field--textarea"
           rows="3"
         >
@@ -2451,6 +2458,7 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 + 연결 메모 + 반복 �
         class="todo-item__sub-add"
       >
         <input
+          aria-label="새 하위 항목 내용"
           class="todo-item__sub-add-field"
           placeholder="하위 항목 추가"
           type="text"
@@ -3026,6 +3034,7 @@ exports[`TodoItem > 렌더 스냅샷 > 하위 항목 접힘 + 레거시 반복 �
         class="todo-item__sub-add"
       >
         <input
+          aria-label="새 하위 항목 내용"
           class="todo-item__sub-add-field"
           placeholder="하위 항목 추가"
           type="text"

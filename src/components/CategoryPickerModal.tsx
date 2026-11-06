@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
 
 interface Props {
@@ -12,6 +12,7 @@ const CUSTOM = '__custom__';
 
 export default function CategoryPickerModal({ categories, value, onApply, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   const isPreset = categories.includes(value);
   const [selected, setSelected] = useState(isPreset ? value : CUSTOM);
   const [customText, setCustomText] = useState(isPreset ? '' : value);
@@ -26,10 +27,10 @@ export default function CategoryPickerModal({ categories, value, onApply, onClos
   }
 
   return (
-    <dialog ref={dialogRef} className="category-picker-modal" onClick={handleBackdropClick} onCancel={onClose}>
+    <dialog ref={dialogRef} className="category-picker-modal" aria-labelledby={titleId} onClick={handleBackdropClick} onCancel={onClose}>
       <div className="category-picker-modal__container">
         <div className="category-picker-modal__header">
-          <h2 className="category-picker-modal__tit">프로젝트 선택</h2>
+          <h2 className="category-picker-modal__tit" id={titleId}>프로젝트 선택</h2>
           <button type="button" className="category-picker-modal__close" onClick={onClose} aria-label="닫기">
             ×
           </button>

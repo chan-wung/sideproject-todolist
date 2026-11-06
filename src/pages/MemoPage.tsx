@@ -222,6 +222,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                 <div className="memo-page__title-row">
                   <input
                     className="memo-page__title-input"
+                    aria-label="메모 제목"
                     value={activeMemo.title}
                     onChange={(e) => updateActiveMemo({ title: e.target.value })}
                     placeholder="메모 제목 (예: 서버 접속 정보, 가나다상사)"
@@ -288,6 +289,7 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
                 </div>
                 <textarea
                   className="memo-page__textarea"
+                  aria-label="메모 내용"
                   value={activeMemo.content}
                   onChange={(e) => updateActiveMemo({ content: e.target.value })}
                   placeholder="계정 정보, IP 주소 등을 이곳에 작성하세요..."

@@ -78,7 +78,7 @@ export default function DashboardPage({ todos, completionLog }: Props) {
 
         <div className="dashboard__grid">
           <section className="dashboard__card dashboard__card--alert">
-            <h3 className="dashboard__card-tit">이번 주 못 한 정기 업무</h3>
+            <h2 className="dashboard__card-tit">이번 주 못 한 정기 업무</h2>
             {stats.pendingRoutines.length === 0 ? (
               <p className="dashboard__empty">이번 주 마감인 정기 업무를 모두 마쳤습니다.</p>
             ) : (
@@ -94,7 +94,7 @@ export default function DashboardPage({ todos, completionLog }: Props) {
           </section>
 
           <section className="dashboard__card">
-            <h3 className="dashboard__card-tit">이번 주 프로젝트별 완료</h3>
+            <h2 className="dashboard__card-tit">이번 주 프로젝트별 완료</h2>
             {stats.byCategory.length === 0 ? (
               <p className="dashboard__empty">이번 주 완료한 일이 없습니다.</p>
             ) : (
@@ -113,7 +113,7 @@ export default function DashboardPage({ todos, completionLog }: Props) {
           </section>
 
           <section className="dashboard__card">
-            <h3 className="dashboard__card-tit">최근 {stats.trend.length}주 완료 수</h3>
+            <h2 className="dashboard__card-tit">최근 {stats.trend.length}주 완료 수</h2>
             <ul className="dashboard__trend">
               {stats.trend.map((w, i) => (
                 <li
@@ -131,7 +131,7 @@ export default function DashboardPage({ todos, completionLog }: Props) {
           </section>
 
           <section className="dashboard__card">
-            <h3 className="dashboard__card-tit">밀린 일</h3>
+            <h2 className="dashboard__card-tit">밀린 일</h2>
             {stats.overdue.length === 0 ? (
               <p className="dashboard__empty">마감이 지난 미완료 일이 없습니다.</p>
             ) : (
@@ -151,7 +151,7 @@ export default function DashboardPage({ todos, completionLog }: Props) {
           </section>
 
           <section className="dashboard__card">
-            <h3 className="dashboard__card-tit">이번 주 연차·휴가</h3>
+            <h2 className="dashboard__card-tit">이번 주 연차·휴가</h2>
             {stats.leaveThisWeek.length === 0 ? (
               <p className="dashboard__empty">이번 주 연차·휴가 일정이 없습니다.</p>
             ) : (

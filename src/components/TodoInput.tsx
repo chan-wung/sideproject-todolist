@@ -196,6 +196,7 @@ export default function TodoInput({ draft: outerDraft, onDraftChange, onAdd, cat
         ) : (
           <textarea
             className="todo-input__field todo-input__field--textarea"
+            aria-label="할 일 내용"
             placeholder="크게 할 일을 입력하세요... (줄바꿈: Shift+Enter)"
             value={text}
             onChange={handleTextChange}

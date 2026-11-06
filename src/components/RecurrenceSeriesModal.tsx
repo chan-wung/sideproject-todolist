@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
 import type { Todo, RecurrenceSeries, RecurrenceFrequency, TodoKind } from '../types/todo';
@@ -111,6 +111,7 @@ function SeriesFields({ value, onChange, showEndDate }: {
 
 export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, todos, categories, onAdd, onUpdate, onEnd, onResume, onDelete }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   const [addForm, setAddForm] = useState<SeriesInput>(EMPTY_ADD);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<SeriesInput>(EMPTY_ADD);
@@ -169,10 +170,10 @@ export default function RecurrenceSeriesModal({ isOpen, onClose, seriesList, tod
   const ordered = [...activeSeries, ...endedSeries];
 
   return (
-    <dialog ref={dialogRef} className="recurrence-modal" onCancel={onClose} onClick={handleBackdropClick}>
+    <dialog ref={dialogRef} className="recurrence-modal" aria-labelledby={titleId} onCancel={onClose} onClick={handleBackdropClick}>
       <div className="recurrence-modal__container">
         <div className="recurrence-modal__header">
-          <h2 className="recurrence-modal__tit">반복 일정</h2>
+          <h2 className="recurrence-modal__tit" id={titleId}>반복 일정</h2>
           <button type="button" className="recurrence-modal__close" onClick={onClose} aria-label="닫기">
             <span aria-hidden="true">&times;</span>
           </button>

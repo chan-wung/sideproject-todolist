@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
 import { PRIORITY_LABEL } from '../constants/labels';
 import type { CompletionLogEntry } from '../types/todo';
@@ -34,6 +34,7 @@ function groupByDate(entries: CompletionLogEntry[]): [string, CompletionLogEntry
 
 export default function CompletionLogModal({ isOpen, onClose, entries, onReset, onDeleteEntry, onCopyEntry, onShareEntry, onCopyAll, onShareAll, onKakaoShareAll }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<CompletionLogEntry | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -58,10 +59,10 @@ export default function CompletionLogModal({ isOpen, onClose, entries, onReset, 
   const groups = groupByDate(filteredEntries);
 
   return (
-    <dialog ref={dialogRef} className="completion-log-modal" onCancel={onClose} onClick={handleBackdropClick}>
+    <dialog ref={dialogRef} className="completion-log-modal" aria-labelledby={titleId} onCancel={onClose} onClick={handleBackdropClick}>
       <div className="completion-log-modal__container">
         <div className="completion-log-modal__header">
-          <h2 className="completion-log-modal__tit">완료 이력</h2>
+          <h2 className="completion-log-modal__tit" id={titleId}>완료 이력</h2>
           <button type="button" className="completion-log-modal__close" onClick={onClose} aria-label="닫기">
             <span aria-hidden="true">&times;</span>
           </button>

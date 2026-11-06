@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, cleanup } from '@testing-library/react';
 import type { RefObject } from 'react';
 import { useModalDialog } from './useModalDialog';
 
@@ -24,6 +24,7 @@ describe('useModalDialog', () => {
   });
 
   afterEach(() => {
+    cleanup(); // 열린 채 남은 훅이 다음 테스트의 잠금 횟수에 섞이지 않게 한다
     Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
     Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
     document.body.innerHTML = '';
@@ -65,6 +66,44 @@ describe('useModalDialog', () => {
     renderHook(() => useModalDialog(ref, true));
     expect(showModal).not.toHaveBeenCalled();
     expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  describe('모달이 겹쳐 열릴 때', () => {
+    it('자식만 닫으면 부모가 열려 있는 동안 스크롤 잠금을 유지하고, 마지막이 닫히면 풀린다', () => {
+      const parent = setup(true);
+      const child = setup(true);
+      expect(document.body.style.overflow).toBe('hidden');
+
+      child.hook.rerender({ open: false });
+      expect(child.dialog.open).toBe(false);
+      expect(document.body.style.overflow).toBe('hidden'); // 부모는 아직 열려 있다
+
+      parent.hook.rerender({ open: false });
+      expect(document.body.style.overflow).toBe('');
+    });
+
+    it('자식을 언마운트해도 부모의 잠금은 유지된다', () => {
+      setup(true);
+      const child = setup(true);
+      child.hook.unmount();
+      expect(document.body.style.overflow).toBe('hidden');
+    });
+
+    it('닫힌 모달 인스턴스가 다시 그려져도 열린 모달의 잠금을 풀지 않는다', () => {
+      setup(true);
+      const closed = setup(false);
+      closed.hook.rerender({ open: false });
+      expect(document.body.style.overflow).toBe('hidden');
+    });
+
+    it('첫 모달이 열리기 전의 overflow 값을 마지막에 복원한다', () => {
+      document.body.style.overflow = 'scroll';
+      const a = setup(true);
+      const b = setup(true);
+      a.hook.rerender({ open: false });
+      b.hook.rerender({ open: false });
+      expect(document.body.style.overflow).toBe('scroll');
+    });
   });
 
   it('열린 채 언마운트되면 닫고 스크롤 잠금을 푼다', () => {

@@ -69,6 +69,7 @@ export default function TodoItemSubtasks({ todo, subText: outerSubText, onSubTex
                 <input
                   className="todo-item__edit-field todo-item__edit-field--sm"
                   type="text"
+                  aria-label="하위 항목 수정"
                   value={editSubText}
                   onChange={e => setEditSubText(e.target.value)}
                   onKeyDown={e => {
@@ -126,6 +127,7 @@ export default function TodoItemSubtasks({ todo, subText: outerSubText, onSubTex
       <div className="todo-item__sub-add">
         <input
           className="todo-item__sub-add-field"
+          aria-label="새 하위 항목 내용"
           type="text"
           placeholder="하위 항목 추가"
           value={subText}

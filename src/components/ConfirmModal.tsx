@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useId, useRef } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
 
 interface Props {
@@ -17,14 +17,15 @@ interface Props {
 
 export default function ConfirmModal({ message, details, confirmLabel = '삭제', confirmTone = 'danger', extraAction, onConfirm, onCancel }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const msgId = useId();
 
   // 마운트되면 바로 열린다. Escape로 닫힐 때의 상태 동기화는 <dialog onCancel>로 위임
   const handleBackdropClick = useModalDialog(dialogRef, true, onCancel);
 
   return (
-    <dialog ref={dialogRef} className="confirm-modal" onClick={handleBackdropClick} onCancel={onCancel}>
+    <dialog ref={dialogRef} className="confirm-modal" aria-labelledby={msgId} onClick={handleBackdropClick} onCancel={onCancel}>
       <div className="confirm-modal__container">
-        <p className="confirm-modal__msg">{message}</p>
+        <p className="confirm-modal__msg" id={msgId}>{message}</p>
         {details && details.length > 0 && (
           <ul className="confirm-modal__list">
             {details.map(line => <li key={line}>{line}</li>)}

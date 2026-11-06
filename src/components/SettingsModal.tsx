@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { useModalDialog } from '../hooks/useModalDialog';
 import ConfirmModal from './ConfirmModal';
 import { formatDate } from '../utils/date';
@@ -28,6 +28,7 @@ const CONFIRM_MESSAGES: Record<Exclude<PendingAction, null>, string> = {
 export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMemos, onResetAll, onResetCompletionLog, notifyEnabled, onToggleNotify, lastBackup }: Props) {
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   const handleBackdropClick = useModalDialog(dialogRef, isOpen, onClose);
 
@@ -51,10 +52,10 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
   }
 
   return (
-    <dialog ref={dialogRef} className="settings-modal" onCancel={onClose} onClick={handleBackdropClick}>
+    <dialog ref={dialogRef} className="settings-modal" aria-labelledby={titleId} onCancel={onClose} onClick={handleBackdropClick}>
       <div className="settings-modal__container">
         <div className="settings-modal__header">
-          <h2 className="settings-modal__tit">설정</h2>
+          <h2 className="settings-modal__tit" id={titleId}>설정</h2>
           <button type="button" className="settings-modal__close" onClick={onClose} aria-label="닫기">
             <span aria-hidden="true">&times;</span>
           </button>

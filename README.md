@@ -71,7 +71,7 @@ Vite + React + TypeScript 기반의 사이드 프로젝트입니다.
 
 - **서브태스크 (하위 항목)**
   - 각 할 일에 세부 체크리스트 추가 / 수정 / 삭제
-  - **드래그 핸들로 순서 변경** (네이티브 HTML5 DnD, 라이브러리 없음)
+  - **드래그 핸들로 순서 변경** (네이티브 HTML5 DnD, 라이브러리 없음) + 키보드·터치용 위/아래 이동 버튼 (터치 화면에서는 44px)
   - 진행도 배지 표시 (예: 2/4)
   - 모든 서브태스크 완료 시 상위 항목도 완료 처리
   - **개별/전체 접기·펴기:** 하위 항목을 항목별 또는 전체 목록 단위로 접어 리스트를 압축 표시 (접힘 상태는 새로고침 후에도 유지, 직접 정렬 시 편의성 향상)
@@ -175,6 +175,7 @@ npm run build
 ```text
 src/
 ├─ App.tsx              화면 조립, 토스트 (백업 흐름은 hooks/useBackupFlow)
+├─ pages/               화면 단위 (대시보드·할 일·캘린더·메모장·주간보고)
 ├─ components/          UI 컴포넌트
 │  ├─ TodoItem.tsx      할 일 카드 (편집 폼·하위 항목·더보기 메뉴는 TodoItem*.tsx로 분리)
 │  ├─ *Modal.tsx        <dialog> 기반 모달들
@@ -182,11 +183,13 @@ src/
 ├─ hooks/               상태·동작 훅
 │  ├─ useTodos.ts       할 일 상태, 필터·정렬, 실행취소, 완료 이력
 │  ├─ useRecurrenceSeries.ts  반복 시리즈 상태와 회차 자동 생성
-│  └─ useModalDialog / useDismiss / useDayChange / useSelection ...
-├─ constants/labels.ts  우선순위·반복 주기 라벨과 옵션
-├─ utils/               날짜·반복·공유·목록 이동·저장 유틸
+│  ├─ useBackupFlow.ts  백업 내보내기·가져오기 흐름 (검증 → 확인 → 적용 → 저장 결과 확인)
+│  └─ useModalDialog / useDismiss / useDayChange / useKeepInViewport / useSelection ...
+├─ constants/           labels.ts(우선순위·반복 주기 라벨과 옵션), storageKeys.ts(구역별 저장 키)
+├─ utils/               날짜·반복·공유·목록 이동·저장(storage.ts)·데이터 검증(todoData·memoData 등)·동작 줄이기(motion) 유틸
 ├─ types/todo.ts        데이터 타입
 └─ styles/              SCSS (abstracts → base → components, 컴포넌트마다 한 파일)
+e2e/                    Playwright 브라우저 통합 테스트 (npm run e2e)
 ```
 
 개발 시 지켜야 할 규칙과 작업 전 알아둘 상황은 [`CLAUDE.md`](./CLAUDE.md)에 정리돼 있습니다.

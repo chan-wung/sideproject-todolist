@@ -1,0 +1,60 @@
+// =============================================
+// STORAGE NOTICE (저장 실패·손상 데이터 안내)
+// =============================================
+
+.storage-notice {
+  margin-bottom: rem(16);
+  padding: rem(12) rem(16);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: rem(10) rem(16);
+  background: color-mix(in srgb, var(--color-danger) 6%, transparent);
+  border: 1px solid var(--color-danger);
+  border-radius: 16px;
+
+  &__txt {
+    flex: 1;
+    min-width: rem(200);
+    color: var(--txt-color-tit);
+    @include font(13, "Medium");
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: rem(8);
+  }
+
+  &__btn {
+    height: rem(34);
+    padding: 0 rem(14);
+    color: var(--txt-color-base);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    @include font(13, "SemiBold");
+    cursor: pointer;
+    @include transition(background-color border-color);
+
+    &:hover {
+      border-color: var(--color-danger);
+    }
+
+    &:focus-visible {
+      outline: 2px dashed var(--color-main);
+      outline-offset: 2px;
+    }
+
+    &--main {
+      color: var(--color-on-accent);
+      background: var(--color-danger);
+      border-color: var(--color-danger);
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+  }
+}

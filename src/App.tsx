@@ -16,6 +16,9 @@ import CalendarPage from './pages/CalendarPage';
 import DashboardPage from './pages/DashboardPage';
 import AppNav from './components/AppNav';
 import BackupReminder from './components/BackupReminder';
+import StorageNotice from './components/StorageNotice';
+import { useStorageStatus } from './hooks/useStorageStatus';
+import { retryFailedWrites, readCorruptBackups, discardCorruptBackups } from './utils/storage';
 import Toast from './components/Toast';
 import ScrollTopButton from './components/ScrollTopButton';
 import MemoPage from './pages/MemoPage';
@@ -28,7 +31,7 @@ import type { Todo, CompletionLogEntry } from './types/todo';
 import { normalizeKind } from './utils/kind';
 import { hasUnreportedWeek, shiftWeek } from './utils/weeklyReport';
 import { startOfWeek, todayStr } from './utils/date';
-import { downloadBackup, readBackupFile } from './utils/backup';
+import { downloadBackup, downloadCorruptBackups, readBackupFile } from './utils/backup';
 import { parseBackup } from './utils/backupData';
 import { todoToText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
 import './styles/main.scss';
@@ -131,6 +134,7 @@ export default function App() {
   });
 
   const hasData = allTodos.length > 0 || memos.length > 0 || completionLog.length > 0 || recurrenceSeries.length > 0 || Object.keys(weeklyReports.data.drafts).length > 0 || weeklyReports.data.copiedWeeks.length > 0;
+  const storageStatus = useStorageStatus();
   const { lastBackup, reminder, markBackedUp, snooze } = useBackupReminder(hasData);
   const [navCollapsed, setNavCollapsed] = usePersistentState<boolean>('todolist-pref-nav-collapsed', false);
 
@@ -311,6 +315,14 @@ export default function App() {
       <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} profile={profile} reportAttention={hasUnreportedLastWeek} />
       <div className="app-shell__content">
       <div className="todo-app">
+      <StorageNotice
+        saveFailed={storageStatus.failedKeys.length > 0}
+        hasCorrupt={storageStatus.corruptKeys.length > 0}
+        onExport={handleExportFromReminder}
+        onRetry={() => { if (retryFailedWrites().length > 0) showToast({ message: '아직 저장하지 못했습니다. 내보내기로 파일을 보관해 두세요.', type: 'danger' }); else showToast({ message: '저장했습니다.', type: 'success' }); }}
+        onDownloadCorrupt={() => downloadCorruptBackups(readCorruptBackups())}
+        onDiscardCorrupt={discardCorruptBackups}
+      />
       {reminder.show && (
         <BackupReminder message={reminder.message} onExport={handleExportFromReminder} onSnooze={snooze} />
       )}

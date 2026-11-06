@@ -53,13 +53,23 @@ export function readBackupFile(file: Blob): Promise<unknown> {
   });
 }
 
-// 백업 데이터를 JSON 파일로 내려받는다.
-export function downloadBackup(data: unknown): void {
+// 데이터를 JSON 파일로 내려받는다.
+function downloadJson(data: unknown, fileName: string): void {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = backupFileName(todayStr());
+  a.download = fileName;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// 백업 데이터를 JSON 파일로 내려받는다.
+export function downloadBackup(data: unknown): void {
+  downloadJson(data, backupFileName(todayStr()));
+}
+
+// 읽을 수 없어 보관해 둔 저장 원문을 내려받는다. 백업 파일로 가져오기가 되지 않도록 이름을 다르게 한다.
+export function downloadCorruptBackups(raws: Record<string, string>): void {
+  downloadJson(raws, `todolist-unreadable-${todayStr().replace(/-/g, '')}.json`);
 }

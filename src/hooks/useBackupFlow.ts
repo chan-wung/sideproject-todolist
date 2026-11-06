@@ -6,7 +6,8 @@ import type { ToastState } from './useToast';
 import type { WeeklyReportData } from '../utils/weeklyReportData';
 import { downloadBackup, readBackupFile } from '../utils/backup';
 import { parseBackup, isUnsupportedBackupVersion, BACKUP_VERSION, type ParsedBackup } from '../utils/backupData';
-import { getStorageStatus } from '../utils/storage';
+import { unsavedKeysAmong } from '../utils/storage';
+import { TODOS_KEY, SERIES_KEY, MEMOS_KEY, COMPLETION_LOG_KEY, WEEKLY_REPORTS_KEY } from '../constants/storageKeys';
 
 // 백업 내보내기·가져오기에 필요한 현재 데이터와 구역별 교체 함수. App이 각 상태 훅에서 모아 넘긴다.
 interface Deps {
@@ -69,8 +70,16 @@ export function useBackupFlow(deps: Deps) {
       applyBackup(backup);
       clearSelection();
     });
-    if (getStorageStatus().failedKeys.length > 0) {
-      showToast({ message: '불러왔지만 브라우저에 저장하지 못한 부분이 있습니다. 먼저 내보내기로 파일을 보관하세요.', type: 'danger' });
+    // 이번에 가져온 구역만 확인한다 (저장 실패뿐 아니라 다른 탭 충돌로 멈춘 것도 저장되지 않은 것이다)
+    const touched = [
+      backup.todos && TODOS_KEY,
+      backup.memos && MEMOS_KEY,
+      backup.completionLog && COMPLETION_LOG_KEY,
+      backup.recurrenceSeries && SERIES_KEY,
+      backup.weeklyReports && WEEKLY_REPORTS_KEY,
+    ].filter((k): k is string => !!k);
+    if (unsavedKeysAmong(touched).length > 0) {
+      showToast({ message: '불러왔지만 브라우저에 저장하지 못한 부분이 있습니다. 화면 위 안내를 확인하고, 먼저 내보내기로 파일을 보관하세요.', type: 'danger' });
     } else {
       showImportResult(true);
     }

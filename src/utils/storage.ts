@@ -1,3 +1,5 @@
+import { TODOS_KEY, SERIES_KEY } from '../constants/storageKeys';
+
 // ── 저장 상태 (저장에 실패한 키, 보관된 손상 원문) ───────────────────────
 // 화면이 구독해 "저장하지 못함"·"읽을 수 없는 데이터" 안내를 보여 줄 수 있게 한다.
 export const CORRUPT_BACKUP_PREFIX = 'todolist-corrupt:';
@@ -21,6 +23,7 @@ const blocked = new Map<string, unknown>();
 // 읽을 수 없는 원문을 따로 보관하지 못한 키(용량 부족·이미 다른 보관본 있음·읽기 자체 실패).
 // 원본이 기본값으로 덮어쓰여 사라지지 않도록 사용자가 풀어 줄 때까지 이 키의 저장을 멈추고, 원문은 메모리에 들고 있는다. null은 원문을 읽지 못한 경우.
 const held = new Map<string, string | null>();
+const lastValue = new Map<string, unknown>(); // 키별로 이 탭이 마지막으로 저장하려던 값 (저장됐든 막혔든)
 const listeners = new Set<() => void>();
 let snapshot: StorageStatus | null = null;
 
@@ -84,11 +87,13 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// 이 탭의 내용으로 계속한다: 지금 저장소의 값을 기준으로 삼고, 멈춰 둔 최신 값을 저장한다 (다른 탭의 변경을 덮어쓴다).
+// 이 탭의 내용으로 계속한다: 지금 저장소의 값을 기준으로 삼고, 이 탭의 최신 값을 저장한다 (다른 탭의 변경을 덮어쓴다).
+// storage 이벤트만 받고 그 뒤 편집이 없었던 키는 멈춰 둔 값이 없으므로 마지막으로 저장하려던 값을 쓴다.
 export function keepThisTabData() {
-  for (const key of stale) {
+  for (const key of [...stale]) {
     const now = currentRaw(key);
     if (now !== undefined) known.set(key, now);
+    if (!blocked.has(key) && lastValue.has(key)) blocked.set(key, lastValue.get(key));
   }
   stale.clear();
   for (const [key, value] of [...blocked]) {
@@ -104,8 +109,25 @@ export function resetStorageTracking() {
   stale.clear();
   blocked.clear();
   held.clear();
+  lastValue.clear();
   unsaved.clear();
   changed();
+}
+
+// 한 키의 저장이 다른 키에 기대는 관계. 반복 일정의 생성 기록(커서)이 할 일 저장보다 앞서 저장되면,
+// 회차가 저장되지 않았는데 이미 만든 것으로 남아 영영 다시 만들어지지 않는다.
+// 그래서 기대는 키(왼쪽)는 기대받는 키(오른쪽)가 저장 실패·다른 탭 충돌·원본 보호 중이면 저장하지 않고 기다린다.
+const DEPENDS_ON: Record<string, string> = { [SERIES_KEY]: TODOS_KEY };
+
+function baseIsPending(key: string): boolean {
+  const base = DEPENDS_ON[key];
+  return base !== undefined && (unsaved.has(base) || stale.has(base) || blocked.has(base) || held.has(base));
+}
+
+// 지정한 구역 키 중 지금 저장되지 않은 것(저장 실패·다른 탭 충돌로 멈춤·원본 보호로 멈춤)을 돌려준다.
+// 가져오기·초기화가 끝난 뒤 "성공" 안내를 해도 되는지 판단할 때 쓴다. 다른 구역의 기존 문제는 세지 않는다.
+export function unsavedKeysAmong(keys: string[]): string[] {
+  return keys.filter(k => unsaved.has(k) || stale.has(k) || blocked.has(k) || held.has(k));
 }
 
 // localStorage에 JSON으로 저장한다. 용량 초과·사생활 보호 모드 등으로 실패해도 앱은 계속 동작한다.
@@ -113,6 +135,18 @@ export function resetStorageTracking() {
 export function writeStorage(key: string, value: unknown): boolean {
   try {
     const serialized = JSON.stringify(value);
+    lastValue.set(key, value);
+    if (baseIsPending(key)) {
+      // 기대는 키의 짝이 아직 저장되지 않았다: 저장하지 않고 기다린다 (짝이 저장되면 재시도·계속 선택에서 함께 저장)
+      if (unsaved.has(DEPENDS_ON[key])) {
+        const isNew = !unsaved.has(key);
+        unsaved.set(key, value);
+        if (isNew) changed();
+      } else {
+        blocked.set(key, value);
+      }
+      return false;
+    }
     if (held.has(key)) {
       // 읽지 못한 원본을 지키는 중: 저장하지 않고 최신 값만 보관한다 (풀리면 그 값을 저장)
       blocked.set(key, value);

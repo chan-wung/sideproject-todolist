@@ -23,7 +23,9 @@ import { useUpdateReady } from './hooks/useUpdateReady';
 import { useStableCallbacks } from './hooks/useStableCallbacks';
 import { applyUpdate, dismissUpdate } from './utils/pwaUpdate';
 import { useStorageStatus } from './hooks/useStorageStatus';
-import { retryFailedWrites, readCorruptBackups, discardCorruptBackups, keepThisTabData } from './utils/storage';
+import { flushSync } from 'react-dom';
+import { TODOS_KEY, SERIES_KEY, MEMOS_KEY, COMPLETION_LOG_KEY, WEEKLY_REPORTS_KEY } from './constants/storageKeys';
+import { unsavedKeysAmong, retryFailedWrites, readCorruptBackups, discardCorruptBackups, keepThisTabData } from './utils/storage';
 import Toast from './components/Toast';
 import ScrollTopButton from './components/ScrollTopButton';
 import MemoPage from './pages/MemoPage';
@@ -228,32 +230,43 @@ export default function App() {
     showToast({ message: '할 일을 복사해서 아래에 추가했습니다.', type: 'success' });
   }
 
+  // 초기화를 상태에 반영하고 저장(effect)까지 끝낸 뒤, 대상 구역이 실제로 저장됐을 때만 완료 안내를 한다.
+  // 다른 탭 충돌·저장 실패로 저장되지 않았다면 재로드 때 옛 데이터가 되살아나므로 성공 토스트로 덮지 않는다.
+  function resetAndNotify(keys: string[], run: () => void, doneMessage: string) {
+    flushSync(run);
+    if (unsavedKeysAmong(keys).length > 0) {
+      showToast({ message: '초기화했지만 브라우저에 저장하지 못한 부분이 있습니다. 화면 위 안내를 확인하세요.', type: 'danger' });
+    } else {
+      showToast({ message: doneMessage, type: 'danger' });
+    }
+  }
+
   function handleResetTodos() {
-    resetTodos();
-    clearTodoDraft();
-    handleClearSelection();
-    showToast({ message: '할일을 초기화했습니다.', type: 'danger' });
+    resetAndNotify([TODOS_KEY, SERIES_KEY], () => {
+      resetTodos();
+      clearTodoDraft();
+      handleClearSelection();
+    }, '할일을 초기화했습니다.');
   }
 
   function handleResetMemos() {
-    resetMemos();
-    showToast({ message: '메모를 초기화했습니다.', type: 'danger' });
+    resetAndNotify([MEMOS_KEY], resetMemos, '메모를 초기화했습니다.');
   }
 
   // 전체 초기화: 할 일·메모·완료 이력·반복 일정·주간보고(저장본·복사 기록)를 모두 비운다. 테마·이름 같은 설정은 유지한다.
   function handleResetAll() {
-    resetTodos();
-    clearTodoDraft();
-    handleClearSelection();
-    resetMemos();
-    resetCompletionLog();
-    weeklyReports.reset();
-    showToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
+    resetAndNotify([TODOS_KEY, SERIES_KEY, MEMOS_KEY, COMPLETION_LOG_KEY, WEEKLY_REPORTS_KEY], () => {
+      resetTodos();
+      clearTodoDraft();
+      handleClearSelection();
+      resetMemos();
+      resetCompletionLog();
+      weeklyReports.reset();
+    }, '전체 데이터를 초기화했습니다.');
   }
 
   function handleResetCompletionLog() {
-    resetCompletionLog();
-    showToast({ message: '완료 이력을 초기화했습니다.', type: 'danger' });
+    resetAndNotify([COMPLETION_LOG_KEY], resetCompletionLog, '완료 이력을 초기화했습니다.');
   }
 
   function handleDeleteLogEntry(entry: CompletionLogEntry) {

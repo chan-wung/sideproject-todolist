@@ -1,8 +1,9 @@
 import { usePersistentState } from './usePersistentState';
+import { WEEKLY_REPORTS_KEY } from '../constants/storageKeys';
 import { validateWeeklyReportData, type WeeklyReportData } from '../utils/weeklyReportData';
 
 
-const STORAGE_KEY = 'todolist-weekly-reports';
+const STORAGE_KEY = WEEKLY_REPORTS_KEY;
 const INITIAL_DATA: WeeklyReportData = { drafts: {}, copiedWeeks: [] };
 
 

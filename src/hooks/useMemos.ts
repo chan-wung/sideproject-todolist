@@ -6,7 +6,7 @@ import { validateMemos } from '../utils/memoData';
 import type { Memo } from '../types/memo';
 
 
-const MEMOS_KEY = 'todolist-memos-array';
+import { MEMOS_KEY } from '../constants/storageKeys';
 const LEGACY_CONTENT_KEY = 'todolist-memo-content'; // 메모가 하나뿐이던 옛 버전의 저장 키
 
 // 새 형식의 메모 목록이 아직 한 번도 저장되지 않았을 때만(키가 없을 때), 옛 단일 메모를 '기본 메모'로 옮긴다.

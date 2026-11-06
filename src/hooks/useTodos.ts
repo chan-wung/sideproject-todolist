@@ -7,6 +7,7 @@ import { generateId } from '../utils/id';
 import { normalizeKind } from '../utils/kind';
 import { moveItem } from '../utils/list';
 import { readStorage, writeStorage } from '../utils/storage';
+import { TODOS_KEY, COMPLETION_LOG_KEY } from '../constants/storageKeys';
 import { validateTodos, validateCompletionLog, toCompletionLogEntry } from '../utils/todoData';
 import { filterTodos, sortTodos } from '../utils/todoFilter';
 import { withValidMemoLinks } from '../utils/todoOps';
@@ -14,7 +15,7 @@ import { completePastLeaves } from '../utils/leave';
 import { useRecurrenceSeries } from './useRecurrenceSeries';
 import { useDayChange } from './useDayChange';
 
-const STORAGE_KEY = 'todolist-items';
+const STORAGE_KEY = TODOS_KEY;
 
 // 실행취소에 필요한 최소 정보. 지운 것과 그 위치만 기억한다.
 type UndoAction =
@@ -25,6 +26,8 @@ export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>(() => readStorage(STORAGE_KEY, validateTodos, []));
   const todosRef = useRef(todos);
   todosRef.current = todos;
+  // 이 저장 effect는 useRecurrenceSeries보다 먼저 선언해야 한다: 같은 렌더에서 할 일이 시리즈(생성 기록)보다 먼저 저장된다.
+  useEffect(() => { writeStorage(STORAGE_KEY, todos); }, [todos]);
   const {
     recurrenceSeries,
     setRecurrenceSeries,
@@ -45,13 +48,11 @@ export function useTodos() {
   const [query, setQuery] = usePersistentState<string>('todolist-pref-query', '');
   const [dueScope, setDueScope] = usePersistentState<DueScope>('todolist-pref-due', 'all', oneOf('all', 'today', 'week', 'overdue'));
   const [recurrenceOnly, setRecurrenceOnly] = usePersistentState<boolean>('todolist-pref-recurrence-only', false);
-  const [completionLog, setCompletionLog] = usePersistentState<CompletionLogEntry[]>('todolist-completion-log', [], validateCompletionLog);
+  const [completionLog, setCompletionLog] = usePersistentState<CompletionLogEntry[]>(COMPLETION_LOG_KEY, [], validateCompletionLog);
   // 실행취소는 "방금 한 삭제"만 되돌린다. 전체 스냅샷을 복원하면 그 뒤에 한 추가·수정까지 같이 사라진다.
   const [undoInfo, setUndoInfo] = useState<{ message: string; id: number } | null>(null);
   const undoActionRef = useRef<UndoAction | null>(null);
   const undoSeqRef = useRef(0);
-
-  useEffect(() => { writeStorage(STORAGE_KEY, todos); }, [todos]);
 
   // 같은 안내 문구로 연속 삭제해도 새 실행취소로 인식되도록 번호(id)를 매번 올린다.
   function registerUndo(message: string, action: UndoAction) {

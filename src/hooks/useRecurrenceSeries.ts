@@ -7,8 +7,9 @@ import { generateId } from '../utils/id';
 import { normalizeKind } from '../utils/kind';
 import { readStorage, writeStorage } from '../utils/storage';
 import { useDayChange } from './useDayChange';
+import { SERIES_KEY } from '../constants/storageKeys';
 
-const SERIES_STORAGE_KEY = 'todolist-recurrence-series';
+const SERIES_STORAGE_KEY = SERIES_KEY;
 
 // 반복 시리즈 상태와 저장, 도래한 회차 생성(materialize), 시리즈 규칙 CRUD.
 // 회차는 할 일 목록에 추가되므로 todos의 최신값(ref)과 setTodos를 받는다.

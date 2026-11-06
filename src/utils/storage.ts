@@ -5,9 +5,18 @@ export const CORRUPT_BACKUP_PREFIX = 'todolist-corrupt:';
 export interface StorageStatus {
   failedKeys: string[]; // 마지막 저장이 실패한 키
   corruptKeys: string[]; // 읽을 수 없어 보관된 원문의 원래 키
+  staleKeys: string[]; // 이 탭이 읽은 뒤 다른 탭(창)이 바꾼 키 — 덮어쓰지 않도록 저장을 멈춰 둔 상태
 }
 
 const unsaved = new Map<string, unknown>(); // 실패한 키 → 저장하지 못한 최신 값 (재시도용)
+
+// ── 여러 탭/창 충돌 감지 ────────────────────────────────────────────
+// 같은 주소의 탭이 둘 이상이면 각자 메모리의 전체 배열을 저장하므로, 오래된 쪽이 저장하면 다른 탭의 변경을 지운다.
+// 이 탭이 마지막으로 읽거나 쓴 원문(known)과 지금 저장소의 원문이 다르면 다른 탭이 바꾼 것이다.
+// 그 키는 사용자가 고를 때까지 저장을 멈추고(blocked에 최신 값 보관), 화면의 내용은 그대로 둔다.
+const known = new Map<string, string | null>();
+const stale = new Set<string>();
+const blocked = new Map<string, unknown>();
 const listeners = new Set<() => void>();
 let snapshot: StorageStatus | null = null;
 
@@ -36,15 +45,75 @@ export function subscribeStorageStatus(listener: () => void) {
 }
 
 export function getStorageStatus(): StorageStatus {
-  snapshot ??= { failedKeys: [...unsaved.keys()].sort(), corruptKeys: scanCorruptKeys() };
+  snapshot ??= { failedKeys: [...unsaved.keys()].sort(), corruptKeys: scanCorruptKeys(), staleKeys: [...stale].sort() };
   return snapshot;
+}
+
+function currentRaw(key: string): string | null | undefined {
+  try { return localStorage.getItem(key); } catch { return undefined; } // undefined: 읽을 수 없음
+}
+
+// 이 탭이 알고 있는 원문과 저장소의 원문이 다르면(저장소가 비어 있는 경우는 잃을 게 없으니 제외) 다른 탭이 바꾼 것이다.
+function isChangedElsewhere(key: string): boolean {
+  if (!known.has(key)) return false;
+  const now = currentRaw(key);
+  return now !== undefined && now !== null && now !== known.get(key);
+}
+
+// 다른 탭에서 온 storage 이벤트: 저장을 시도하기 전에도 바뀐 것을 알린다.
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', e => {
+    if (e.storageArea && e.storageArea !== window.localStorage) return;
+    const keys = e.key === null ? [...known.keys()] : known.has(e.key) ? [e.key] : [];
+    let any = false;
+    for (const key of keys) {
+      if (stale.has(key) || (e.newValue ?? null) === known.get(key)) continue;
+      stale.add(key);
+      any = true;
+    }
+    if (any) changed();
+  });
+}
+
+// 이 탭의 내용으로 계속한다: 지금 저장소의 값을 기준으로 삼고, 멈춰 둔 최신 값을 저장한다 (다른 탭의 변경을 덮어쓴다).
+export function keepThisTabData() {
+  for (const key of stale) {
+    const now = currentRaw(key);
+    if (now !== undefined) known.set(key, now);
+  }
+  stale.clear();
+  for (const [key, value] of [...blocked]) {
+    blocked.delete(key);
+    writeStorage(key, value);
+  }
+  changed();
+}
+
+// 테스트용: 추적 중인 상태를 모두 비운다
+export function resetStorageTracking() {
+  known.clear();
+  stale.clear();
+  blocked.clear();
+  unsaved.clear();
+  changed();
 }
 
 // localStorage에 JSON으로 저장한다. 용량 초과·사생활 보호 모드 등으로 실패해도 앱은 계속 동작한다.
 // 저장에 성공했는지 돌려준다. 실패한 키와 값은 기억해 두었다가 retryFailedWrites로 다시 시도한다.
 export function writeStorage(key: string, value: unknown): boolean {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    const serialized = JSON.stringify(value);
+    if (isChangedElsewhere(key)) {
+      // 다른 탭이 먼저 바꿨다: 덮어쓰지 않고 최신 값만 보관해 둔다
+      const isNew = !stale.has(key);
+      stale.add(key);
+      blocked.set(key, value);
+      if (isNew) changed();
+      return false;
+    }
+    localStorage.setItem(key, serialized);
+    known.set(key, serialized);
+    blocked.delete(key);
     if (unsaved.delete(key)) changed();
     return true;
   } catch (e) {
@@ -104,6 +173,7 @@ export function readStorage<T>(key: string, parse: (raw: unknown) => T | null, f
   let raw: string | null = null;
   try {
     raw = localStorage.getItem(key);
+    known.set(key, raw); // 이 탭이 읽은 시점의 원문 (다른 탭 변경 감지의 기준)
     if (!raw) return fallback;
     const parsed = parse(JSON.parse(raw));
     if (parsed !== null) return parsed;

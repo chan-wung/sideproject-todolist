@@ -1,6 +1,10 @@
 interface Props {
   saveFailed: boolean;
   hasCorrupt: boolean;
+  /** 다른 탭(창)이 이 탭이 읽은 뒤에 데이터를 바꿔 저장을 멈춘 상태 */
+  hasStale?: boolean;
+  onKeepThisTab?: () => void;
+  onReload?: () => void;
   onExport: () => void;
   onRetry: () => void;
   onDownloadCorrupt: () => void;
@@ -8,10 +12,28 @@ interface Props {
 }
 
 // 브라우저에 저장하지 못했거나, 읽을 수 없는 저장 데이터가 있을 때 화면 위에 보여 주는 안내.
-export default function StorageNotice({ saveFailed, hasCorrupt, onExport, onRetry, onDownloadCorrupt, onDiscardCorrupt }: Props) {
-  if (!saveFailed && !hasCorrupt) return null;
+export default function StorageNotice({ saveFailed, hasCorrupt, hasStale = false, onKeepThisTab, onReload, onExport, onRetry, onDownloadCorrupt, onDiscardCorrupt }: Props) {
+  if (!saveFailed && !hasCorrupt && !hasStale) return null;
   return (
     <>
+      {hasStale && (
+        <aside className="storage-notice" role="alert">
+          <p className="storage-notice__txt">
+            다른 탭(또는 창)에서 데이터가 바뀌었습니다. 덮어쓰지 않도록 이 탭의 저장을 멈춰 두었고, 지금 화면의 내용은 그대로입니다. 어느 쪽 내용을 쓸지 고르세요. 이 탭의 내용으로 계속하면 다른 탭의 변경이 사라지고, 다른 탭의 내용을 불러오면 이 탭에서 저장하지 못한 변경이 사라지니 필요하면 먼저 내보내기로 보관하세요.
+          </p>
+          <div className="storage-notice__actions">
+            <button type="button" className="storage-notice__btn storage-notice__btn--main" onClick={onExport}>
+              지금 내보내기
+            </button>
+            <button type="button" className="storage-notice__btn" onClick={onKeepThisTab}>
+              이 탭 내용으로 계속
+            </button>
+            <button type="button" className="storage-notice__btn" onClick={onReload}>
+              다른 탭 내용 불러오기
+            </button>
+          </div>
+        </aside>
+      )}
       {saveFailed && (
         <aside className="storage-notice" role="alert">
           <p className="storage-notice__txt">

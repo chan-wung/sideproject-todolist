@@ -19,7 +19,7 @@ import AppNav from './components/AppNav';
 import BackupReminder from './components/BackupReminder';
 import StorageNotice from './components/StorageNotice';
 import { useStorageStatus } from './hooks/useStorageStatus';
-import { retryFailedWrites, readCorruptBackups, discardCorruptBackups } from './utils/storage';
+import { retryFailedWrites, readCorruptBackups, discardCorruptBackups, keepThisTabData } from './utils/storage';
 import Toast from './components/Toast';
 import ScrollTopButton from './components/ScrollTopButton';
 import MemoPage from './pages/MemoPage';
@@ -305,6 +305,9 @@ export default function App() {
       <StorageNotice
         saveFailed={storageStatus.failedKeys.length > 0}
         hasCorrupt={storageStatus.corruptKeys.length > 0}
+        hasStale={storageStatus.staleKeys.length > 0}
+        onKeepThisTab={keepThisTabData}
+        onReload={() => window.location.reload()}
         onExport={exportBackup}
         onRetry={() => { if (retryFailedWrites().length > 0) showToast({ message: '아직 저장하지 못했습니다. 내보내기로 파일을 보관해 두세요.', type: 'danger' }); else showToast({ message: '저장했습니다.', type: 'success' }); }}
         onDownloadCorrupt={() => downloadCorruptBackups(readCorruptBackups())}

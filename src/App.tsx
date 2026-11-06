@@ -335,6 +335,7 @@ export default function App() {
         saveFailed={storageStatus.failedKeys.length > 0}
         hasCorrupt={storageStatus.corruptKeys.length > 0}
         hasStale={storageStatus.staleKeys.length > 0}
+        hasHeld={storageStatus.heldKeys.length > 0}
         onKeepThisTab={keepThisTabData}
         onReload={() => window.location.reload()}
         onExport={exportBackup}

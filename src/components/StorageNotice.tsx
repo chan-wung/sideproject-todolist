@@ -3,6 +3,8 @@ interface Props {
   hasCorrupt: boolean;
   /** 다른 탭(창)이 이 탭이 읽은 뒤에 데이터를 바꿔 저장을 멈춘 상태 */
   hasStale?: boolean;
+  /** 읽을 수 없는 원문을 보관하지 못해 원본을 지키려고 저장을 멈춘 상태 */
+  hasHeld?: boolean;
   onKeepThisTab?: () => void;
   onReload?: () => void;
   onExport: () => void;
@@ -12,7 +14,7 @@ interface Props {
 }
 
 // 브라우저에 저장하지 못했거나, 읽을 수 없는 저장 데이터가 있을 때 화면 위에 보여 주는 안내.
-export default function StorageNotice({ saveFailed, hasCorrupt, hasStale = false, onKeepThisTab, onReload, onExport, onRetry, onDownloadCorrupt, onDiscardCorrupt }: Props) {
+export default function StorageNotice({ saveFailed, hasCorrupt, hasStale = false, hasHeld = false, onKeepThisTab, onReload, onExport, onRetry, onDownloadCorrupt, onDiscardCorrupt }: Props) {
   if (!saveFailed && !hasCorrupt && !hasStale) return null;
   return (
     <>
@@ -52,7 +54,9 @@ export default function StorageNotice({ saveFailed, hasCorrupt, hasStale = false
       {hasCorrupt && (
         <aside className="storage-notice" role="status">
           <p className="storage-notice__txt">
-            읽을 수 없는 저장 데이터가 있어 해당 부분은 비어 있는 상태로 시작했습니다. 원래 내용은 따로 보관해 두었으니 필요하면 내려받으세요.
+            {hasHeld
+              ? '읽을 수 없는 저장 데이터가 있어 해당 부분은 비어 있는 상태로 시작했습니다. 원래 내용을 브라우저에 따로 보관하지 못해, 지워지지 않도록 그 부분의 저장을 멈춰 두었습니다. 원문을 먼저 내려받은 뒤 ‘보관본 지우기’를 누르면 저장이 다시 시작됩니다.'
+              : '읽을 수 없는 저장 데이터가 있어 해당 부분은 비어 있는 상태로 시작했습니다. 원래 내용은 따로 보관해 두었으니 필요하면 내려받으세요.'}
           </p>
           <div className="storage-notice__actions">
             <button type="button" className="storage-notice__btn storage-notice__btn--main" onClick={onDownloadCorrupt}>

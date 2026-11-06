@@ -1,5 +1,5 @@
 import type { Todo, RecurrenceSeries, RecurrenceFrequency } from '../types/todo';
-import { addDaysStr, occurrencesInRange } from './date';
+import { addDaysStr, occurrencesInRange, isValidDateStr, isValidTimestamp } from './date';
 import { generateId } from './id';
 import { normalizeKind } from './kind';
 
@@ -179,9 +179,18 @@ export function validateRecurrenceSeries(incoming: unknown): RecurrenceSeries[] 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ok = incoming.every((o: any) =>
     o && typeof o.id === 'string' && typeof o.text === 'string' &&
-    isRecurrenceFrequency(o.frequency) && typeof o.anchorDate === 'string'
+    isRecurrenceFrequency(o.frequency) && isValidDateStr(o.anchorDate)
   );
   if (!ok) return null;
+  if (new Set(incoming.map((o: { id: string }) => o.id)).size !== incoming.length) return null; // ID 중복은 몰래 줄이지 않고 거부
+  // 날짜·시각은 없으면 옛 데이터로 보지만, 있는데 달력에 없는 값이면 회차가 조용히 안 만들어지므로 거부한다
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const datesOk = incoming.every((o: any) =>
+    (o.endDate === undefined || isValidDateStr(o.endDate)) &&
+    (o.lastMaterializedDate === undefined || isValidDateStr(o.lastMaterializedDate)) &&
+    (o.createdAt === undefined || isValidTimestamp(o.createdAt))
+  );
+  if (!datesOk) return null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return incoming.map((o: any) => ({
     id: o.id,
@@ -196,10 +205,10 @@ export function validateRecurrenceSeries(incoming: unknown): RecurrenceSeries[] 
     memoIds: Array.isArray(o.memoIds)
       ? o.memoIds.filter((m: unknown) => typeof m === 'string')
       : undefined,
-    endDate: typeof o.endDate === 'string' ? o.endDate : undefined,
+    endDate: o.endDate,
     kind: normalizeKind(o.kind),
     status: o.status === 'ended' ? 'ended' : 'active',
-    lastMaterializedDate: typeof o.lastMaterializedDate === 'string' ? o.lastMaterializedDate : undefined,
-    createdAt: typeof o.createdAt === 'string' ? o.createdAt : new Date().toISOString(),
+    lastMaterializedDate: o.lastMaterializedDate,
+    createdAt: o.createdAt ?? new Date().toISOString(),
   }));
 }

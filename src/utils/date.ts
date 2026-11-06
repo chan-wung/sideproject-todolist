@@ -24,6 +24,11 @@ export function isValidDateStr(value: unknown): value is string {
   return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
 }
 
+// 날짜·시각 문자열(ISO 등)이 실제로 읽히는 시각인지
+export function isValidTimestamp(value: unknown): value is string {
+  return typeof value === 'string' && value !== '' && !Number.isNaN(Date.parse(value));
+}
+
 export function isOverdue(dueDate?: string): boolean {
   if (!dueDate) return false;
   return parseLocalDate(dueDate) < new Date(new Date().toDateString());

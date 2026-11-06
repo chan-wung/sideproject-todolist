@@ -596,7 +596,7 @@ describe('useTodos', () => {
       const { result } = renderHook(() => useTodos());
       act(() => {
         result.current.addTodo('일반', 'medium', '', '');
-        result.current.addTodo('연차', 'medium', '2026-11-04', '', 'none', 'leave');
+        result.current.addTodo('연차', 'medium', '2099-11-04', '', 'none', 'leave');
       });
       const byText = (text: string) => result.current.allTodos.find(t => t.text === text)!;
       expect(byText('일반').kind).toBe('task');
@@ -652,7 +652,7 @@ describe('useTodos', () => {
     it('완료한 연차를 지우면 이력에 날짜가 남고, 불러올 때도 유지된다', () => {
       const { result } = renderHook(() => useTodos());
       act(() => {
-        result.current.addTodo('연차', 'medium', '2026-11-04', '', 'none', 'leave');
+        result.current.addTodo('연차', 'medium', '2099-11-04', '', 'none', 'leave');
       });
       const id = result.current.allTodos[0].id;
       act(() => {
@@ -661,10 +661,10 @@ describe('useTodos', () => {
       act(() => {
         result.current.deleteTodo(id);
       });
-      expect(result.current.completionLog[0].dueDate).toBe('2026-11-04');
+      expect(result.current.completionLog[0].dueDate).toBe('2099-11-04');
 
       const reloaded = validateCompletionLog(JSON.parse(JSON.stringify(result.current.completionLog)));
-      expect(reloaded![0].dueDate).toBe('2026-11-04');
+      expect(reloaded![0].dueDate).toBe('2099-11-04');
       expect(validateCompletionLog([{ id: 'x', text: 't', completedAt: '2026-11-01T00:00:00' }])![0].dueDate).toBeUndefined();
     });
   });

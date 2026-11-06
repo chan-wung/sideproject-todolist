@@ -40,23 +40,15 @@ export default function MemoPage({ memos, setMemos, activeId, setActiveId, todos
 
   useDismiss(moreRef, moreOpen, () => setMoreOpen(false));
 
-  // 화면에 들어오면 메모가 하나도 없을 때 기본 메모를 만들고, 선택된 메모가 없거나 사라졌으면 첫 메모를 고른다.
+  // 화면에 들어오면 메모가 하나도 없을 때 빈 기본 메모를 만든다.
+  // (옛 단일 메모 이행과 '고른 메모가 없으면 첫 메모 고르기'는 useMemos가 맡는다)
   useEffect(() => {
     if (memos.length === 0) {
-      let oldContent = '';
-      try {
-        const raw = localStorage.getItem('todolist-memo-content');
-        if (raw) oldContent = JSON.parse(raw);
-      } catch {
-        // ignore
-      }
       const newId = generateId();
-      setMemos([{ id: newId, title: '기본 메모', content: oldContent }]);
+      setMemos([{ id: newId, title: '기본 메모', content: '' }]);
       setActiveId(newId);
-    } else if (!activeId || !memos.find(m => m.id === activeId)) {
-      setActiveId(memos[0].id);
     }
-  }, [memos, activeId, setMemos, setActiveId]);
+  }, [memos, setMemos, setActiveId]);
 
 
   function handleAdd() {

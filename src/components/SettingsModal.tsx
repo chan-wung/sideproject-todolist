@@ -21,7 +21,7 @@ type PendingAction = 'todos' | 'memos' | 'all' | 'completionLog' | null;
 const CONFIRM_MESSAGES: Record<Exclude<PendingAction, null>, string> = {
   todos: '모든 할일이 삭제됩니다. 계속할까요?',
   memos: '모든 메모가 삭제됩니다. 계속할까요?',
-  all: '할일, 메모, 저장한 주간보고가 삭제됩니다. 계속할까요?',
+  all: '할일, 메모, 완료 이력, 반복 일정, 저장한 주간보고(복사 기록 포함)가 모두 삭제됩니다. 이름·테마 같은 설정은 유지됩니다. 계속할까요?',
   completionLog: '완료 이력이 모두 삭제됩니다. 계속할까요?',
 };
 
@@ -94,7 +94,7 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
               {lastBackup
                 ? `마지막 백업(내보내기): ${formatDate(lastBackup)}`
                 : '아직 백업한 적이 없습니다.'}
-              {' '}데이터는 이 브라우저에만 저장되므로, 상단 툴바의 내보내기로 파일을 보관해 두세요. 7일 넘게 백업하지 않으면 화면 위에서 알려 드립니다.
+              {' '}데이터는 이 브라우저에만 저장되므로, 프로필 메뉴의 내보내기로 파일을 보관해 두세요. 7일 넘게 백업하지 않으면 화면 위에서 알려 드립니다.
             </p>
           </section>
 
@@ -132,7 +132,7 @@ export default function SettingsModal({ isOpen, onClose, onResetTodos, onResetMe
               <li className="settings-modal__item settings-modal__item--all">
                 <div className="settings-modal__item-info">
                   <strong className="settings-modal__item-tit">전체 초기화</strong>
-                  <span className="settings-modal__item-desc">할일, 메모, 저장한 주간보고를 모두 삭제합니다.</span>
+                  <span className="settings-modal__item-desc">할일, 메모, 완료 이력, 반복 일정, 주간보고를 모두 삭제합니다. 설정은 유지됩니다.</span>
                 </div>
                 <button type="button" className="settings-modal__reset-btn settings-modal__reset-btn--all" onClick={() => setPendingAction('all')}>
                   전체 초기화

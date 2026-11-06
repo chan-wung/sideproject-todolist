@@ -15,6 +15,14 @@ import { useDayChange } from './useDayChange';
 
 const STORAGE_KEY = 'todolist-items';
 
+// 유효한 메모만 연결로 남긴다. 바꿀 게 없으면 받은 객체를 그대로 돌려준다.
+function withValidMemoLinks(todo: Todo, valid: Set<string> | null): Todo {
+  if (!valid || !todo.memoIds || todo.memoIds.length === 0) return todo;
+  const filtered = todo.memoIds.filter(id => valid.has(id));
+  if (filtered.length === todo.memoIds.length) return todo;
+  return { ...todo, memoIds: filtered.length > 0 ? filtered : undefined };
+}
+
 // 실행취소에 필요한 최소 정보. 지운 것과 그 위치만 기억한다.
 type UndoAction =
   | { kind: 'todos'; removed: { todo: Todo; index: number; afterId: string | null }[]; logEntries: CompletionLogEntry[] }
@@ -32,8 +40,12 @@ export function useTodos() {
     endRecurrenceSeries,
     resumeRecurrenceSeries,
     exportRecurrenceSeries,
-    importRecurrenceSeries,
+    importRecurrenceSeries: importSeriesRaw,
   } = useRecurrenceSeries(todosRef, setTodos);
+  // 가져오기·시작 시 구형 반복 이행과 도래 회차 생성, 지난 연차 완료를 다시 돌리라는 신호
+  const [reconcileTick, setReconcileTick] = useState(0);
+  // 휴지통에 없는(지워진) 메모를 가리키는 연결을 되살리지 않기 위해 마지막으로 확인한 메모 id를 기억한다
+  const validMemoIdsRef = useRef<Set<string> | null>(null);
   const [filterStatus, setFilterStatus] = usePersistentState<FilterStatus>('todolist-pref-status', 'active', oneOf('all', 'active', 'completed'));
   const [filterCategory, setFilterCategory] = usePersistentState<string>('todolist-pref-category', 'all');
   const [sortKey, setSortKey] = usePersistentState<SortKey>('todolist-pref-sort', 'default', oneOf('default', 'priority', 'dueDate', 'manual'));
@@ -79,9 +91,10 @@ export function useTodos() {
         const next = [...prev];
         for (const r of removed) { // 원래 순서대로 넣어야 앞 항목이 먼저 자리를 잡는다
           if (next.some(t => t.id === r.todo.id)) continue;
+          const todo = withValidMemoLinks(r.todo, validMemoIdsRef.current);
           const after = r.afterId === null ? -1 : next.findIndex(t => t.id === r.afterId);
           const at = r.afterId === null ? 0 : after === -1 ? Math.min(r.index, next.length) : after + 1;
-          next.splice(at, 0, r.todo);
+          next.splice(at, 0, todo);
         }
         return next;
       });
@@ -128,8 +141,11 @@ export function useTodos() {
     const trimmed = text.trim();
     const cat = category.trim() || '기본';
 
+    // 연차·휴가는 하루짜리이고 반복할 수 없다 (입력창이 숨겨 주더라도 여기서도 지킨다)
+    const isLeave = normalizeKind(kind) === 'leave';
+
     // 반복 주기를 고르면 개별 할 일이 아니라 '반복 시리즈'를 만든다.
-    if (recurrence && recurrence !== 'none') {
+    if (!isLeave && recurrence && recurrence !== 'none') {
       addRecurrenceSeries({
         text: trimmed,
         category: cat,
@@ -147,20 +163,21 @@ export function useTodos() {
       completed: false,
       priority,
       // 시작일은 마감일이 있고 그보다 앞설 때만 저장한다
-      startDate: startDate && dueDate && startDate < dueDate ? startDate : undefined,
+      startDate: !isLeave && startDate && dueDate && startDate < dueDate ? startDate : undefined,
       dueDate: dueDate || undefined,
       category: cat,
       createdAt: new Date().toISOString(),
       kind,
     };
     setTodos(prev => [next, ...prev]);
+    if (isLeave) completeLeaves(); // 이미 지난 날짜의 연차를 등록했다면 바로 완료 처리
   }
 
-  // 앱 실행 시 1회: 레거시 반복 데이터를 시리즈로 전환하고, 도래한 회차를 생성한다.
-  const didInitRecurrence = useRef(false);
+  // 앱 실행 시, 그리고 백업을 가져온 직후: 레거시 반복 데이터를 시리즈로 전환하고, 도래한 회차를 생성하고, 지난 연차를 완료한다.
+  const handledTick = useRef(-1);
   useEffect(() => {
-    if (didInitRecurrence.current) return;
-    didInitRecurrence.current = true;
+    if (handledTick.current === reconcileTick) return; // StrictMode의 이중 실행 방지
+    handledTick.current = reconcileTick;
     const today = todayStr();
     const migrated = migrateLegacyRecurrence(todos, recurrenceSeries);
     const { newTodos, nextSeries, changed } = materializeDueOccurrences(migrated.series, migrated.todos, today);
@@ -170,8 +187,9 @@ export function useTodos() {
     if (migrated.changed || changed) {
       setRecurrenceSeries(nextSeries);
     }
+    setTodos(prev => completePastLeaves(prev, today));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [reconcileTick]);
 
   // 날짜가 지난 연차·휴가는 직접 체크하지 않아도 완료로 바꾼다. 앱을 열 때, 그리고 날짜가 바뀌거나 탭이 다시 보일 때 확인한다.
   const completeLeaves = useCallback(() => setTodos(prev => completePastLeaves(prev, todayStr())), []);
@@ -226,6 +244,13 @@ export function useTodos() {
 
   function updateTodo(id: string, updates: TodoUpdates) {
     const { recurrence, ...rest } = updates;
+    // 연차·휴가는 시작일(기간)·반복·메모 연결을 갖지 않는다. 종류를 연차로 바꿀 때 숨은 값도 함께 지운다.
+    const target = todosRef.current.find(t => t.id === id);
+    const isLeave = normalizeKind('kind' in rest ? rest.kind : target?.kind) === 'leave';
+    if (isLeave) {
+      rest.startDate = '';
+      rest.memoIds = undefined;
+    }
     // 날짜는 updates에 키가 있을 때만 바꾼다 (값이 비면 지움). 메모 연결처럼 일부만 고칠 때 기간이 날아가지 않게 한다.
     setTodos(prev =>
       prev.map(t => t.id === id ? {
@@ -235,9 +260,10 @@ export function useTodos() {
         dueDate: 'dueDate' in rest ? rest.dueDate || undefined : t.dueDate,
       } : t)
     );
-    if (recurrence && recurrence !== 'none') {
+    if (!isLeave && recurrence && recurrence !== 'none') {
       promoteTodoToSeries(id, recurrence, rest);
     }
+    if (isLeave) completeLeaves();
   }
 
   // 원본 바로 아래에 사본을 만든다. 템플릿처럼 다시 쓸 수 있도록 완료 상태는 초기화하고,
@@ -275,7 +301,8 @@ export function useTodos() {
   function addSubtask(todoId: string, text: string) {
     if (!text.trim()) return;
     setTodos(prev => prev.map(t => t.id === todoId
-      ? { ...t, subtasks: [...(t.subtasks ?? []), { id: generateId(), text: text.trim(), completed: false }], subtasksCollapsed: false }
+      // 완료된 할 일에 미완료 하위 항목이 생기면 완료를 풀어 다시 진행 중으로 되돌린다
+      ? { ...t, subtasks: [...(t.subtasks ?? []), { id: generateId(), text: text.trim(), completed: false }], subtasksCollapsed: false, completed: false, completedAt: undefined }
       : t));
   }
 
@@ -394,9 +421,16 @@ export function useTodos() {
     return true;
   }
 
+  function importRecurrenceSeries(valid: RecurrenceSeries[]): boolean {
+    importSeriesRaw(valid);
+    setReconcileTick(t => t + 1);
+    return true;
+  }
+
   function importData(validTodos: Todo[]): boolean {
     dismissUndo(); // 가져오기 전 데이터로 되돌아가지 않게 남은 실행취소를 버린다
     setTodos(validTodos);
+    setReconcileTick(t => t + 1);
     return true;
   }
 
@@ -454,20 +488,31 @@ export function useTodos() {
     removeTodos(`선택한 항목 ${ids.length}개를 삭제했습니다.`, new Set(ids));
   }
 
+  // 없어진 메모를 가리키는 연결을 할 일과 반복 시리즈(앞으로 만들 회차가 이어받는 연결)에서 함께 지운다.
   const pruneMemoLinks = useCallback((validMemoIds: string[]) => {
     const validSet = new Set(validMemoIds);
+    validMemoIdsRef.current = validSet;
     setTodos(prev => {
       let changed = false;
       const next = prev.map(t => {
-        if (!t.memoIds || t.memoIds.length === 0) return t;
-        const filtered = t.memoIds.filter(id => validSet.has(id));
-        if (filtered.length === t.memoIds.length) return t;
-        changed = true;
-        return { ...t, memoIds: filtered.length > 0 ? filtered : undefined };
+        const pruned = withValidMemoLinks(t, validSet);
+        if (pruned !== t) changed = true;
+        return pruned;
       });
       return changed ? next : prev;
     });
-  }, []);
+    setRecurrenceSeries(prev => {
+      let changed = false;
+      const next = prev.map(s => {
+        if (!s.memoIds || s.memoIds.length === 0) return s;
+        const filtered = s.memoIds.filter(id => validSet.has(id));
+        if (filtered.length === s.memoIds.length) return s;
+        changed = true;
+        return { ...s, memoIds: filtered.length > 0 ? filtered : undefined };
+      });
+      return changed ? next : prev;
+    });
+  }, [setRecurrenceSeries]);
 
   return {
     allTodos: todos,

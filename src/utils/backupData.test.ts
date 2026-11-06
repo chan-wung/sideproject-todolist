@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseBackup } from './backupData';
+import { parseBackup, isUnsupportedBackupVersion, summarizeBackup } from './backupData';
 
 // 업무·업체 이름은 모두 가상의 이름이다.
 const TODO = { id: 't1', text: '유지보수', completed: false, priority: 'high', category: '가나시청', createdAt: '2026-11-01T09:00:00', dueDate: '2026-11-10', kind: 'routine' };
@@ -85,5 +85,31 @@ describe('parseBackup', () => {
     const first = parseBackup(exported);
     const second = parseBackup(JSON.parse(JSON.stringify({ version: 1, ...first })));
     expect(second).toEqual(first);
+  });
+});
+
+describe('백업 버전과 가져오기 요약', () => {
+  it('version이 없거나 지원 범위(1)면 읽는다', () => {
+    expect(parseBackup({ todos: [] })).not.toBeNull();
+    expect(parseBackup({ version: 1, todos: [] })).not.toBeNull();
+  });
+
+  it('이 앱보다 새로운 version, 숫자가 아닌 version은 거부한다', () => {
+    expect(parseBackup({ version: 2, todos: [] })).toBeNull();
+    expect(parseBackup({ version: '1', todos: [] })).toBeNull();
+    expect(parseBackup({ version: 0, todos: [] })).toBeNull();
+    expect(isUnsupportedBackupVersion({ version: 2, todos: [] })).toBe(true);
+    expect(isUnsupportedBackupVersion({ version: 1 })).toBe(false);
+    expect(isUnsupportedBackupVersion([])).toBe(false); // 옛 배열 형식
+  });
+
+  it('요약은 파일에 있던 구역만, 빈 구역은 0건으로 보여 준다', () => {
+    const backup = parseBackup({
+      version: 1,
+      todos: [{ id: 'a', text: 't' }],
+      completionLog: [],
+      weeklyReports: { drafts: { '2026-11-02': '글' }, copiedWeeks: [] },
+    })!;
+    expect(summarizeBackup(backup)).toEqual(['할 일 1건', '완료 이력 0건', '주간보고 저장본 1건 · 복사 기록 0건']);
   });
 });

@@ -32,11 +32,12 @@ export function isToday(dueDate?: string): boolean {
   if (!dueDate) return false;
   return parseLocalDate(dueDate).toDateString() === new Date().toDateString();
 }
+// 마감일이 이번 주(월요일~일요일, 주간보고·대시보드와 같은 기준)에 드는지. 이번 주에 이미 지난 날도 포함한다.
 export function isThisWeek(dueDate?: string): boolean {
   if (!dueDate) return false;
-  const d = new Date(parseLocalDate(dueDate).toDateString()).getTime();
-  const today = new Date(new Date().toDateString()).getTime();
-  return d >= today && d <= today + 7 * MS_PER_DAY;
+  const day = toLocalDateStr(dueDate);
+  const weekStart = startOfWeek(todayStr());
+  return day >= weekStart && day <= endOfWeek(weekStart);
 }
 export function formatDate(dateStr: string): string {
   const d = parseLocalDate(dateStr);

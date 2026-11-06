@@ -18,7 +18,7 @@ import AppNav from './components/AppNav';
 import BackupReminder from './components/BackupReminder';
 import StorageNotice from './components/StorageNotice';
 import { useStorageStatus } from './hooks/useStorageStatus';
-import { retryFailedWrites, readCorruptBackups, discardCorruptBackups } from './utils/storage';
+import { retryFailedWrites, readCorruptBackups, discardCorruptBackups, getStorageStatus } from './utils/storage';
 import Toast from './components/Toast';
 import ScrollTopButton from './components/ScrollTopButton';
 import MemoPage from './pages/MemoPage';
@@ -32,7 +32,9 @@ import { normalizeKind } from './utils/kind';
 import { hasUnreportedWeek, shiftWeek } from './utils/weeklyReport';
 import { startOfWeek, todayStr } from './utils/date';
 import { downloadBackup, downloadCorruptBackups, readBackupFile } from './utils/backup';
-import { parseBackup } from './utils/backupData';
+import { parseBackup, isUnsupportedBackupVersion, summarizeBackup, BACKUP_VERSION, type ParsedBackup } from './utils/backupData';
+import ConfirmModal from './components/ConfirmModal';
+import { flushSync } from 'react-dom';
 import { todoToText, completionLogEntryToText, completionLogEntriesToText } from './utils/share';
 import './styles/main.scss';
 
@@ -109,10 +111,12 @@ export default function App() {
   const { memos, setMemos, activeId, setActiveId, resetMemos, replaceMemos } = useMemos();
   const weeklyReports = useWeeklyReports();
 
+  // 없어진 메모의 연결을 지운다. 메모 목록(id)이 바뀔 때, 그리고 가져오기 등으로 할 일·반복 일정이 통째로 바뀔 때 돈다.
+  // 메모 글을 쓸 때는 id가 그대로라 돌지 않고, 지울 연결이 없으면 상태를 바꾸지 않아 다시 그리지 않는다.
+  const memoIdsKey = memos.map(m => m.id).join('|');
   useEffect(() => {
-    if (memos.length === 0) return;
-    pruneMemoLinks(memos.map(m => m.id));
-  }, [memos, pruneMemoLinks]);
+    pruneMemoLinks(memoIdsKey ? memoIdsKey.split('|') : []);
+  }, [memoIdsKey, allTodos, recurrenceSeries, pruneMemoLinks]);
 
   const [notifyEnabled, setNotifyEnabled] = usePersistentState<boolean>('todolist-pref-notify', false);
   useDueNotifications(allTodos, notifyEnabled);
@@ -160,19 +164,16 @@ export default function App() {
   }, [undoId, performUndo, showToast]);
 
   function getBackup() {
-    return { version: 1, todos: exportData(), memos, completionLog: exportCompletionLog(), recurrenceSeries: exportRecurrenceSeries(), weeklyReports: weeklyReports.data };
+    return { version: BACKUP_VERSION, todos: exportData(), memos, completionLog: exportCompletionLog(), recurrenceSeries: exportRecurrenceSeries(), weeklyReports: weeklyReports.data };
   }
 
-  // 백업 파일을 검증(parseBackup)한 뒤, 파일에 있던 구역만 덮어쓴다. 검증에 실패하면 아무것도 바꾸지 않는다.
-  function applyBackup(parsed: unknown): boolean {
-    const backup = parseBackup(parsed);
-    if (!backup) return false;
+  // 검증을 마친 백업에서 파일에 있던 구역만 덮어쓴다 (생략된 구역은 그대로, 빈 배열은 그 구역을 비움).
+  function applyBackup(backup: ParsedBackup) {
     if (backup.todos) importData(backup.todos);
     if (backup.memos) replaceMemos(backup.memos);
     if (backup.completionLog) importCompletionLog(backup.completionLog);
     if (backup.recurrenceSeries) importRecurrenceSeries(backup.recurrenceSeries);
     if (backup.weeklyReports) weeklyReports.importData(backup.weeklyReports);
-    return true;
   }
 
   function handleImportResult(success: boolean) {
@@ -180,6 +181,25 @@ export default function App() {
       showToast({ message: '데이터를 성공적으로 불러왔습니다.', type: 'primary' });
     } else {
       showToast({ message: '데이터 불러오기에 실패했습니다.', type: 'danger' });
+    }
+  }
+
+  // 검증을 통과한 백업은 바로 적용하지 않고, 어느 구역이 몇 건 교체되는지 보여 준 뒤 확인을 받는다.
+  const [pendingImport, setPendingImport] = useState<ParsedBackup | null>(null);
+
+  function confirmImport() {
+    const backup = pendingImport;
+    setPendingImport(null);
+    if (!backup) return;
+    // 상태 반영과 저장(effect)을 끝낸 뒤 저장 결과를 확인한다. 선택 상태는 새 데이터와 맞지 않으므로 비운다.
+    flushSync(() => {
+      applyBackup(backup);
+      handleClearSelection();
+    });
+    if (getStorageStatus().failedKeys.length > 0) {
+      showToast({ message: '불러왔지만 브라우저에 저장하지 못한 부분이 있습니다. 먼저 내보내기로 파일을 보관하세요.', type: 'danger' });
+    } else {
+      handleImportResult(true);
     }
   }
 
@@ -197,7 +217,16 @@ export default function App() {
   // 프로필 메뉴의 가져오기: 파일을 읽어(JSON) 적용하고 결과를 토스트로 알린다
   function handleImportFile(file: File) {
     readBackupFile(file)
-      .then(parsed => handleImportResult(applyBackup(parsed)))
+      .then(parsed => {
+        const backup = parseBackup(parsed);
+        if (backup) {
+          setPendingImport(backup);
+        } else if (isUnsupportedBackupVersion(parsed)) {
+          showToast({ message: '이 앱보다 새로운 버전에서 만든 백업이라 불러올 수 없습니다.', type: 'danger' });
+        } else {
+          handleImportResult(false);
+        }
+      })
       .catch(() => handleImportResult(false));
   }
 
@@ -242,6 +271,7 @@ export default function App() {
 
   function handleResetTodos() {
     resetTodos();
+    handleClearSelection();
     showToast({ message: '할일을 초기화했습니다.', type: 'danger' });
   }
 
@@ -250,9 +280,12 @@ export default function App() {
     showToast({ message: '메모를 초기화했습니다.', type: 'danger' });
   }
 
+  // 전체 초기화: 할 일·메모·완료 이력·반복 일정·주간보고(저장본·복사 기록)를 모두 비운다. 테마·이름 같은 설정은 유지한다.
   function handleResetAll() {
     resetTodos();
+    handleClearSelection();
     resetMemos();
+    resetCompletionLog();
     weeklyReports.reset();
     showToast({ message: '전체 데이터를 초기화했습니다.', type: 'danger' });
   }
@@ -419,6 +452,18 @@ export default function App() {
         <WeeklyReportPage todos={allTodos} completionLog={completionLog} onCopy={runCopy} drafts={weeklyReports.data.drafts} onSaveDraft={weeklyReports.saveDraft} onResetDraft={weeklyReports.resetDraft} onMarkCopied={weeklyReports.markCopied} hasUnreportedLastWeek={hasUnreportedLastWeek} />
       )}
       </div>
+
+      {pendingImport && (
+        <ConfirmModal
+          message="이 파일의 데이터로 아래 구역을 교체합니다. 파일에 없는 구역은 그대로 둡니다."
+          details={summarizeBackup(pendingImport)}
+          confirmLabel="가져오기"
+          confirmTone="main"
+          extraAction={{ label: '현재 데이터 내보내기', onClick: handleExportFromReminder }}
+          onConfirm={confirmImport}
+          onCancel={() => setPendingImport(null)}
+        />
+      )}
 
       <SettingsModal
         isOpen={isSettingsOpen}

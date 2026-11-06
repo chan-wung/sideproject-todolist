@@ -6,6 +6,7 @@ import { materializeDueOccurrences, validateRecurrenceSeries } from '../utils/re
 import { generateId } from '../utils/id';
 import { normalizeKind } from '../utils/kind';
 import { readStorage, writeStorage } from '../utils/storage';
+import { useDayChange } from './useDayChange';
 
 const SERIES_STORAGE_KEY = 'todolist-recurrence-series';
 
@@ -28,8 +29,17 @@ export function useRecurrenceSeries(
   const applyMaterialize = useCallback((seriesList: RecurrenceSeries[], alwaysPersistSeries = false) => {
     const { newTodos, nextSeries, changed } = materializeDueOccurrences(seriesList, todosRef.current, todayStr());
     if (changed || alwaysPersistSeries) setRecurrenceSeries(nextSeries);
-    if (newTodos.length > 0) setTodos(prev => [...newTodos, ...prev]);
+    // 같은 회차(seriesId + dueDate)는 한 번만 넣는다. focus·visibility·자정 알림이 잇따라 와도 중복 생성되지 않는다.
+    if (newTodos.length > 0) {
+      setTodos(prev => {
+        const fresh = newTodos.filter(n => !prev.some(t => t.seriesId === n.seriesId && t.dueDate === n.dueDate));
+        return fresh.length > 0 ? [...fresh, ...prev] : prev;
+      });
+    }
   }, [todosRef, setTodos]);
+
+  // 자정이 지났을 때도 같은 함수로 회차를 만든다 (탭 복귀는 아래 이벤트가 맡는다).
+  useDayChange(() => applyMaterialize(recurrenceSeriesRef.current));
 
   // 앱을 열어둔 채 날짜가 바뀌었을 때에도 회차가 생기도록, 창이 다시 활성화되면 점검한다.
   useEffect(() => {

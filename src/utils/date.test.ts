@@ -54,11 +54,14 @@ describe('date utils', () => {
     expect(isOverdue(undefined)).toBe(false);
   });
 
-  it('isThisWeek', () => {
-    expect(isThisWeek('2026-07-02')).toBe(true);
-    expect(isThisWeek('2026-07-09')).toBe(true); // +7 days
-    expect(isThisWeek('2026-07-10')).toBe(false); // +8 days
-    expect(isThisWeek('2026-07-01')).toBe(false); // yesterday
+  it('isThisWeek는 오늘(목)이 속한 월요일~일요일을 본다', () => {
+    expect(isThisWeek('2026-07-02')).toBe(true); // 오늘
+    expect(isThisWeek('2026-06-29')).toBe(true); // 월요일 — 이번 주에 이미 지난 날도 포함
+    expect(isThisWeek('2026-07-05')).toBe(true); // 일요일
+    expect(isThisWeek('2026-07-06')).toBe(false); // 다음 주 월요일
+    expect(isThisWeek('2026-06-28')).toBe(false); // 지난 주 일요일
+    expect(isThisWeek('2026-07-03T10:00:00')).toBe(true); // 시각이 붙은 값
+    expect(isThisWeek(undefined)).toBe(false);
   });
 
   it('formatDate', () => {

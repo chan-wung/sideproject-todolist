@@ -152,13 +152,4 @@ describe('MemoPage', () => {
     expect(created).toMatchObject({ title: '기본 메모' });
     expect(setActiveId).toHaveBeenCalledWith(created.id);
   });
-
-  it('고른 메모가 없거나 사라졌으면 첫 메모를 고른다', () => {
-    const none = setup({ activeId: null });
-    expect(none.setActiveId).toHaveBeenCalledWith('m1');
-    cleanup();
-
-    const gone = setup({ activeId: 'deleted' });
-    expect(gone.setActiveId).toHaveBeenCalledWith('m1');
-  });
 });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Todo, TodoKind } from '../types/todo';
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS, LEAVE_TYPES, type LeaveType } from '../constants/labels';
 import { kindAllowsRecurrence, dueDateLabel } from '../utils/kind';
@@ -11,9 +11,15 @@ import { isImeComposing } from '../utils/ime';
 import { EMPTY_TODO_DRAFT, type TodoDraft } from '../utils/todoDraft';
 
 interface Props {
-  /** 쓰던 내용. 주면 화면을 옮겼다 돌아와도 유지된다(없으면 이 컴포넌트가 직접 들고 있다) */
+  /** 처음 보여 줄 쓰던 내용. 주면 화면을 옮겼다 돌아와도 이어서 쓸 수 있다 */
   draft?: TodoDraft;
+  /**
+   * 쓰던 내용을 밖(App)에 맡길 때 불린다: 등록해서 비워질 때와 이 입력창이 사라질 때(화면 이동).
+   * 키를 칠 때마다 부르지 않는다 — 부모가 다시 그려지면 카드 수백 장이 함께 다시 그려져 입력이 느려진다.
+   */
   onDraftChange?: (draft: TodoDraft) => void;
+  /** 값이 바뀌면 쓰던 내용을 비운다 (데이터 초기화 때 부모가 올린다) */
+  resetToken?: number;
   onAdd: (text: string, priority: Todo['priority'], dueDate: string, category: string, recurrence?: Todo['recurrence'], kind?: TodoKind, startDate?: string) => void;
   categories: string[];
   /** 그 날짜에 이미 등록된 연차·휴가의 제목들 (같은 연차를 중복 등록하지 않게 막는 데 쓴다) */
@@ -22,12 +28,27 @@ interface Props {
 
 const NO_LEAVES = () => [] as string[];
 
-export default function TodoInput({ draft: outerDraft, onDraftChange, onAdd, categories, leaveTitlesOn = NO_LEAVES }: Props) {
-  const [localDraft, setLocalDraft] = useState<TodoDraft>(EMPTY_TODO_DRAFT);
-  const draft = outerDraft ?? localDraft;
+export default function TodoInput({ draft: initialDraft, onDraftChange, resetToken, onAdd, categories, leaveTitlesOn = NO_LEAVES }: Props) {
+  // 쓰던 내용은 여기서 들고 있다 (키 입력마다 App 상태를 바꾸지 않는다)
+  const [draft, setDraft] = useState<TodoDraft>(initialDraft ?? EMPTY_TODO_DRAFT);
   const { text, priority, startDate, dueDate, category, recurrence, kind, leave } = draft;
-  const update = onDraftChange ?? setLocalDraft;
-  const patchDraft = (changes: Partial<TodoDraft>) => update({ ...draft, ...changes });
+  const patchDraft = (changes: Partial<TodoDraft>) => setDraft(prev => ({ ...prev, ...changes }));
+
+  // 화면을 옮겨 이 입력창이 사라질 때 마지막 내용을 부모에게 맡긴다
+  const latestDraft = useRef(draft);
+  latestDraft.current = draft;
+  const onDraftChangeRef = useRef(onDraftChange);
+  onDraftChangeRef.current = onDraftChange;
+  useEffect(() => () => onDraftChangeRef.current?.(latestDraft.current), []);
+
+  // 부모가 초기화를 요청하면(데이터 초기화) 쓰던 내용을 비운다
+  const lastResetToken = useRef(resetToken);
+  useEffect(() => {
+    if (lastResetToken.current === resetToken) return;
+    lastResetToken.current = resetToken;
+    setDraft(EMPTY_TODO_DRAFT);
+  }, [resetToken]);
+
   const setText = (v: string) => patchDraft({ text: v });
   const setPriority = (v: Todo['priority']) => patchDraft({ priority: v });
   const setCategory = (v: string) => patchDraft({ category: v });
@@ -50,7 +71,8 @@ export default function TodoInput({ draft: outerDraft, onDraftChange, onAdd, cat
 
   // 등록에 성공하면 쓰던 내용을 지운다
   function resetForm() {
-    update(EMPTY_TODO_DRAFT);
+    setDraft(EMPTY_TODO_DRAFT);
+    onDraftChange?.(EMPTY_TODO_DRAFT);
   }
 
   // 연차·휴가: 이름·시각·사유를 제목 한 줄로 합쳐 날짜와 함께 등록한다 (날짜가 곧 보고서의 날짜)

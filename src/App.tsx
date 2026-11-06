@@ -20,6 +20,7 @@ import BackupReminder from './components/BackupReminder';
 import StorageNotice from './components/StorageNotice';
 import UpdateNotice from './components/UpdateNotice';
 import { useUpdateReady } from './hooks/useUpdateReady';
+import { useStableCallbacks } from './hooks/useStableCallbacks';
 import { applyUpdate, dismissUpdate } from './utils/pwaUpdate';
 import { useStorageStatus } from './hooks/useStorageStatus';
 import { retryFailedWrites, readCorruptBackups, discardCorruptBackups, keepThisTabData } from './utils/storage';
@@ -170,6 +171,8 @@ export default function App() {
 
   // 할 일 입력창에 쓰던 내용. 화면을 옮기면 입력창이 사라지므로 App이 들고 있다가 돌아오면 돌려준다.
   const [todoDraft, setTodoDraft] = useState<TodoDraft>(EMPTY_TODO_DRAFT);
+  const [draftResetToken, setDraftResetToken] = useState(0); // 올리면 열려 있는 입력창도 비운다
+  const clearTodoDraft = () => { setTodoDraft(EMPTY_TODO_DRAFT); setDraftResetToken(t => t + 1); };
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -227,7 +230,7 @@ export default function App() {
 
   function handleResetTodos() {
     resetTodos();
-    setTodoDraft(EMPTY_TODO_DRAFT);
+    clearTodoDraft();
     handleClearSelection();
     showToast({ message: '할일을 초기화했습니다.', type: 'danger' });
   }
@@ -240,7 +243,7 @@ export default function App() {
   // 전체 초기화: 할 일·메모·완료 이력·반복 일정·주간보고(저장본·복사 기록)를 모두 비운다. 테마·이름 같은 설정은 유지한다.
   function handleResetAll() {
     resetTodos();
-    setTodoDraft(EMPTY_TODO_DRAFT);
+    clearTodoDraft();
     handleClearSelection();
     resetMemos();
     resetCompletionLog();
@@ -288,6 +291,27 @@ export default function App() {
     navigate('memo');
   }
 
+  // 목록 카드가 쓰는 핸들러는 주소를 고정해 넘긴다: 바뀐 카드만 다시 그려지게 (TodoItem·TodoList의 React.memo)
+  const listHandlers = useStableCallbacks({
+    onOpenMemo: handleOpenMemo,
+    onToggle: toggleTodo,
+    onDelete: deleteTodo,
+    onUpdate: updateTodo,
+    onPin: pinTodo,
+    onCopy: handleCopyTodo,
+    onShare: handleShareTodo,
+    onKakaoShare: handleKakaoShareTodo,
+    onDuplicate: handleDuplicateTodo,
+    onAddSubtask: addSubtask,
+    onToggleSubtask: toggleSubtask,
+    onDeleteSubtask: deleteSubtask,
+    onUpdateSubtask: updateSubtask,
+    onReorderSubtasks: reorderSubtasks,
+    onReorderTodos: reorderTodos,
+    onToggleSubtasksCollapsed: toggleSubtasksCollapsed,
+    onToggleSelect: handleToggleSelect,
+  });
+
   return (
     <>
       {toast && (
@@ -328,6 +352,7 @@ export default function App() {
           inputProps={{
             draft: todoDraft,
             onDraftChange: setTodoDraft,
+            resetToken: draftResetToken,
             onAdd: addTodo,
             categories: categoryOptions,
             leaveTitlesOn: date => allTodos.filter(t => normalizeKind(t.kind) === 'leave' && t.dueDate === date).map(t => t.text),
@@ -374,25 +399,9 @@ export default function App() {
             sortKey,
             categories: categoryOptions,
             memos,
-            onOpenMemo: handleOpenMemo,
-            onToggle: toggleTodo,
-            onDelete: deleteTodo,
-            onUpdate: updateTodo,
-            onPin: pinTodo,
-            onCopy: handleCopyTodo,
-            onShare: handleShareTodo,
-            onKakaoShare: handleKakaoShareTodo,
-            onDuplicate: handleDuplicateTodo,
-            onAddSubtask: addSubtask,
-            onToggleSubtask: toggleSubtask,
-            onDeleteSubtask: deleteSubtask,
-            onUpdateSubtask: updateSubtask,
-            onReorderSubtasks: reorderSubtasks,
-            onReorderTodos: reorderTodos,
-            onToggleSubtasksCollapsed: toggleSubtasksCollapsed,
+            ...listHandlers,
             selectionMode,
             selectedIds,
-            onToggleSelect: handleToggleSelect,
           }}
         />
       ) : view === 'dashboard' ? (

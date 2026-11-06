@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { PRIORITY_LABEL, FREQUENCY_LABEL, KIND_LABEL, LEAVE_TYPE_LABEL } from '../constants/labels';
 import type { Todo, TodoUpdates, RecurrenceFrequency } from '../types/todo';
 import type { Memo } from '../types/memo';
@@ -41,7 +41,7 @@ interface Props {
   onOpenMemo: (memoId: string) => void;
 }
 
-export default function TodoItem({ todo, manualSort, onMoveUp, onMoveDown, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
+function TodoItem({ todo, manualSort, onMoveUp, onMoveDown, selectionMode, isSelected, onToggleSelect, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onToggleSubtasksCollapsed, categories, memos, onOpenMemo }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   // 하위 항목 입력 초안은 카드가 들고 있어서, 편집 모드로 바뀌며 하위 항목 목록이 사라졌다 돌아와도 남는다
@@ -237,3 +237,6 @@ export default function TodoItem({ todo, manualSort, onMoveUp, onMoveDown, selec
     </div>
   );
 }
+
+// 목록에서 바뀐 카드만 다시 그린다 (핸들러는 App이 useStableCallbacks로 주소를 고정해 넘긴다)
+export default memo(TodoItem);

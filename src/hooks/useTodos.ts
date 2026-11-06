@@ -427,9 +427,11 @@ export function useTodos() {
     return true;
   }
 
-  const categories = useMemo(() => {
-    return ['all', ...Array.from(new Set(todos.map(t => t.category)))];
-  }, [todos]);
+  // 프로젝트 이름 목록은 이름이 실제로 바뀔 때만 새 배열로 (할 일 하나를 고쳐도 모든 카드가 다시 그려지지 않게)
+  const categoryNames = Array.from(new Set(todos.map(t => t.category)));
+  const categoriesKey = categoryNames.join('\u0000');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const categories = useMemo(() => ['all', ...categoryNames], [categoriesKey]);
 
   // 'all' 없이 실제 프로젝트만 (입력창 자동완성·일괄 변경 등에서 사용)
   const categoryOptions = useMemo(() => categories.slice(1), [categories]);
@@ -440,9 +442,12 @@ export function useTodos() {
     }
   }, [categories, filterCategory, setFilterCategory]);
 
-  const filteredTodos = sortTodos(
-    filterTodos(todos, { filterStatus, filterCategory, query, dueScope, recurrenceOnly }),
-    sortKey,
+  // 오늘 날짜가 바뀌면 '오늘 마감' 같은 범위도 달라지므로 날짜를 의존값에 넣는다
+  const today = todayStr();
+  const filteredTodos = useMemo(
+    () => sortTodos(filterTodos(todos, { filterStatus, filterCategory, query, dueScope, recurrenceOnly }), sortKey),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- today는 값으로 쓰지 않고 날짜가 바뀌면 다시 계산하려는 의존값이다
+    [todos, filterStatus, filterCategory, query, dueScope, recurrenceOnly, sortKey, today],
   );
 
   const activeCount = todos.filter(t => !t.completed).length;

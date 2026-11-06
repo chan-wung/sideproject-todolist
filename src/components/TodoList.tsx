@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Todo, FilterStatus, SortKey, TodoUpdates } from '../types/todo';
 import type { Memo } from '../types/memo';
@@ -39,7 +39,7 @@ const EMPTY_MESSAGES: Record<FilterStatus, { icon: ReactNode; text: string }> = 
   completed: { icon: <NoteIcon size="1em" />, text: '완료된 항목이 없어요.' },
 };
 
-export default function TodoList({ todos, filterStatus, sortKey, categories, memos, onOpenMemo, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onReorderTodos, onToggleSubtasksCollapsed, selectionMode, selectedIds, onToggleSelect }: Props) {
+function TodoList({ todos, filterStatus, sortKey, categories, memos, onOpenMemo, onToggle, onDelete, onPin, onCopy, onShare, onKakaoShare, onDuplicate, onUpdate, onAddSubtask, onToggleSubtask, onDeleteSubtask, onUpdateSubtask, onReorderSubtasks, onReorderTodos, onToggleSubtasksCollapsed, selectionMode, selectedIds, onToggleSelect }: Props) {
   const manualSort = sortKey === 'manual';
   const dragFromIdRef = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -108,3 +108,5 @@ export default function TodoList({ todos, filterStatus, sortKey, categories, mem
     </ul>
   );
 }
+
+export default memo(TodoList);

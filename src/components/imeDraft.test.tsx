@@ -4,6 +4,7 @@ import type { ComponentProps } from 'react';
 import TodoInput from './TodoInput';
 import TodoItem from './TodoItem';
 import type { Todo } from '../types/todo';
+import { EMPTY_TODO_DRAFT } from '../utils/todoDraft';
 
 // 한글 조합 중 Enter는 확정 키다: keyCode 229 / isComposing=true
 const composingEnter = { key: 'Enter', isComposing: true, keyCode: 229 };
@@ -99,21 +100,42 @@ describe('작성 중 내용 보존', () => {
     expect((getByPlaceholderText('하위 항목 추가') as HTMLInputElement).value).toBe('쓰던 중');
   });
 
-  it('할 일 입력: draft를 밖에서 주면 다시 그려도(화면 이동 뒤 복귀) 값이 유지되고, 등록하면 비워진다', () => {
-    const onAdd = vi.fn();
-    let draft: ComponentProps<typeof TodoInput>['draft'];
-    const onDraftChange = vi.fn((d: NonNullable<typeof draft>) => { draft = d; });
-    const { getByPlaceholderText, unmount } = render(<TodoInput onAdd={onAdd} categories={[]} draft={undefined} onDraftChange={onDraftChange} />);
-    fireEvent.change(getByPlaceholderText(/크게 할 일을/), { target: { value: '쓰던 글' } });
-    expect(draft!.text).toBe('쓰던 글');
-    unmount();
+  it('할 일 입력: 키를 칠 때마다 부모에 알리지 않고, 화면을 떠날 때(언마운트) 쓰던 내용을 맡긴다', () => {
+    const onDraftChange = vi.fn();
+    const { getByPlaceholderText, unmount } = render(<TodoInput onAdd={vi.fn()} categories={[]} onDraftChange={onDraftChange} />);
+    const field = getByPlaceholderText(/크게 할 일을/);
+    fireEvent.change(field, { target: { value: '쓰' } });
+    fireEvent.change(field, { target: { value: '쓰던' } });
+    fireEvent.change(field, { target: { value: '쓰던 글' } });
+    expect(onDraftChange).not.toHaveBeenCalled(); // 부모가 다시 그려지면 카드 수백 장이 같이 그려져 입력이 느려진다
 
-    const again = render(<TodoInput onAdd={onAdd} categories={[]} draft={draft} onDraftChange={onDraftChange} />);
-    const field = again.getByPlaceholderText(/크게 할 일을/) as HTMLTextAreaElement;
+    unmount();
+    expect(onDraftChange).toHaveBeenCalledTimes(1);
+    expect(onDraftChange.mock.calls[0][0].text).toBe('쓰던 글');
+  });
+
+  it('할 일 입력: 맡겨 둔 draft로 다시 열면 이어서 쓸 수 있고, 등록하면 비워서 알린다', () => {
+    const onAdd = vi.fn();
+    const onDraftChange = vi.fn();
+    const draft = { ...EMPTY_TODO_DRAFT, text: '쓰던 글' };
+    const { getByPlaceholderText } = render(<TodoInput onAdd={onAdd} categories={[]} draft={draft} onDraftChange={onDraftChange} />);
+    const field = getByPlaceholderText(/크게 할 일을/) as HTMLTextAreaElement;
     expect(field.value).toBe('쓰던 글');
 
     fireEvent.keyDown(field, enter);
     expect(onAdd).toHaveBeenCalledTimes(1);
-    expect(draft!.text).toBe(''); // 등록 성공 뒤 초안 삭제
+    expect(onDraftChange).toHaveBeenLastCalledWith(EMPTY_TODO_DRAFT); // 등록 성공 뒤 초안 삭제
+    expect(field.value).toBe('');
+  });
+
+  it('할 일 입력: resetToken이 바뀌면 열려 있는 입력창도 비운다', () => {
+    const { getByPlaceholderText, rerender } = render(<TodoInput onAdd={vi.fn()} categories={[]} resetToken={0} />);
+    const field = getByPlaceholderText(/크게 할 일을/) as HTMLTextAreaElement;
+    fireEvent.change(field, { target: { value: '쓰던 글' } });
+    rerender(<TodoInput onAdd={vi.fn()} categories={[]} resetToken={0} />);
+    expect(field.value).toBe('쓰던 글'); // 같은 값이면 그대로
+
+    rerender(<TodoInput onAdd={vi.fn()} categories={[]} resetToken={1} />);
+    expect(field.value).toBe('');
   });
 });

@@ -47,13 +47,6 @@
       border-color: var(--color-main);
       outline: none;
     }
-
-    // 셀렉트는 공통 select 규칙의 화살표 아이콘을 background가 덮어쓰므로 다시 붙인다
-    &--select {
-      padding-right: rem(30);
-      background: svgIcoArrowDown($gray5, var(--color-white)) calc(100% - 10px) 50% / 10px no-repeat;
-      cursor: pointer;
-    }
   }
 
   &__info {

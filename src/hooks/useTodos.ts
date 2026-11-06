@@ -9,7 +9,9 @@ import { moveItem } from '../utils/list';
 import { readStorage, writeStorage } from '../utils/storage';
 import { validateTodos, toCompletionLogEntry } from '../utils/todoData';
 import { filterTodos, sortTodos } from '../utils/todoFilter';
+import { completePastLeaves } from '../utils/leave';
 import { useRecurrenceSeries } from './useRecurrenceSeries';
+import { useDayChange } from './useDayChange';
 
 const STORAGE_KEY = 'todolist-items';
 
@@ -144,6 +146,11 @@ export function useTodos() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 날짜가 지난 연차·휴가는 직접 체크하지 않아도 완료로 바꾼다. 앱을 열 때, 그리고 날짜가 바뀌거나 탭이 다시 보일 때 확인한다.
+  const completeLeaves = useCallback(() => setTodos(prev => completePastLeaves(prev, todayStr())), []);
+  useEffect(completeLeaves, [completeLeaves]);
+  useDayChange(completeLeaves);
 
   function toggleTodo(id: string) {
     setTodos(prev => prev.map(t => {

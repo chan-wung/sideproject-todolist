@@ -35,9 +35,9 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
   - `PageHead.tsx`: 화면 맨 위 제목 줄. 다섯 화면 공용
   - `AppToolbar.tsx`: 상단 툴바. 1024px 이상에서는 화면 위에 고정(높이 64px). 1024px 미만에서는 버튼이 아이콘만 보이는 한 줄(글자는 `app-toolbar__txt`로 감싸 스크린리더용으로 남기고 `title`로 도움말)
   - `TodoItem.tsx`: 할 일 카드(조립만 담당). 편집 폼 `TodoItemEditForm`, 하위 항목 `TodoItemSubtasks`, 더보기 메뉴 `TodoItemMenu`로 분리됨
-  - `TodoInput.tsx`: 할 일 입력창. 종류를 `연차·휴가`로 고르면 글 입력칸 대신 `LeaveFields`(연차 종류·시각·사유 칸)가 나온다. 스크롤로 화면 위에 붙을 때 뒤가 비치지 않도록 `::before`와 배경색 그림자를 깔아 둔다
+  - `TodoInput.tsx`: 할 일 입력창. 종류를 `연차·휴가`로 고르면 글 입력칸 대신 `LeaveFields`(시각·휴가 이름·사유 칸)가 나오고, 옵션 줄에서는 `우선순위`·`프로젝트`·`반복 주기`가 숨고 `연차 종류` 셀렉트가 들어오며 상세 옵션이 자동으로 펼쳐진다(등록은 우선순위 `medium`·프로젝트 빈 값으로 고정). 카드 수정 폼(`TodoItemEditForm`)도 연차이면 같은 칸을 숨긴다. 스크롤로 화면 위에 붙을 때 뒤가 비치지 않도록 `::before`와 배경색 그림자를 깔아 둔다
   - `TodoDateField.tsx`: 등록·편집 폼이 같이 쓰는 날짜 칸(연차는 날짜 하나 `DatePicker`, 그 밖은 시작일~마감일 `DateRangePicker`)
-  - `LeaveFields.tsx`: 연차 입력칸 묶음(화면만 그리고 값·등록은 `TodoInput`이 가짐)
+  - `LeaveFields.tsx`: 연차 입력칸 묶음(연차 종류 셀렉트는 빼고 시각·이름·사유·안내만. 화면만 그리고 값·등록은 `TodoInput`이 가짐)
   - `DatePickerParts.tsx`: `DatePicker`·`DateRangePicker`가 같이 쓰는 입력 칸·월 이동 헤더·요일/날짜 격자(`block` 접두사로 클래스 이름은 각 선택기 그대로). 두 선택기의 공통 스타일은 `abstracts/_date-picker-base.scss`의 `date-picker-base` 믹스인
   - `ScrollTopButton.tsx`: 스크롤이 내려가 있을 때만 나오는 `맨 위로` 버튼(스크롤 감지 포함)
   - `icons.tsx`: 인라인 SVG 아이콘 컴포넌트(툴바·메뉴 아이콘 포함, 이모지 대신 쓴다). 일부는 `size`·`className`·`decorative`를 받는다(`size="1em"`이면 글자 크기를 따름). **글자 옆에 붙일 때는 `className="ico-text"`**: 전역 reset이 `svg`를 `display: block`으로 두기 때문에 이 클래스 없이는 줄이 바뀐다
@@ -64,7 +64,7 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - 기간: `Todo.startDate`(선택)가 있으면 시작일~`dueDate` 기간 업무, 없으면 마감일 하루짜리. `startDate < dueDate`일 때만 저장한다(`validateTodos`가 아니면 버림, `updateTodo`는 날짜 키가 있을 때만 바꿈). 완료 이력에도 `startDate`를 남긴다. 반복 일정은 마감일 기준이라 시작일을 쓰지 않는다
 - 캘린더는 **모든 항목**을 보여 준다: 할 일(완료 포함)은 `startDate ?? dueDate ?? 등록일` 기간에, 완료 정리된 이력(기간이 없는 옛 이력은 완료한 날)과 반복 예정 회차도 같이. 띠는 날짜 칸 층(`calendar__cells`) 위에 얹는 별도 층(`calendar__bars`, `pointer-events: none`)이고 한 주에 3줄까지, 넘치면 날짜 칸에 `+N`. `완료한 항목 숨기기` 체크박스(`todolist-pref-calendar-hide-done`)로 완료분을 뺄 수 있다
 - 캘린더 보기는 `월/주/일`(`CALENDAR_VIEW_*`, 고른 값은 `todolist-pref-calendar-view`)이고 주는 **일요일 시작**이다. 보고 있는 날짜 `anchor` 하나로 세 보기를 모두 정한다. 주·일 보기의 시간 칸에는 **하루짜리 시간 연차**(제목이 `연차 HH:MM~HH:MM`)만 놓이고 나머지는 모두 `종일` 줄(할 일에는 시각 필드가 없다). 시간 칸 높이는 1시간 `rem(48)` 고정이라 블록 위치는 하루의 분(0~1440)을 %로 계산한다. 일요일은 `--color-sunday`(빨강), 토요일은 `--color-saturday`(파랑) 변수를 쓴다
-- 연차·휴가는 날짜(`dueDate`) 필수·반복 불가·시작일 없음. 완료 이력에도 `dueDate`를 남겨 정리된 연차가 주간보고에서 날짜를 잃지 않게 함
+- 연차·휴가는 날짜(`dueDate`) 필수·반복 불가·시작일 없음. 날짜가 지나면 `useTodos`가 앱 시작·날짜 변경·탭 복귀 때 `completePastLeaves`(`utils/leave.ts`)로 **자동 완료**한다(완료 시각은 그날 23:59:59). 카드(`TodoItem`)는 우선순위·프로젝트·메모 연결 대신 `leaveTypeOf(제목)`으로 읽은 연차 종류를 보여 준다(종류는 따로 저장하지 않고 제목에서 읽음). 완료 이력에도 `dueDate`를 남겨 정리된 연차가 주간보고에서 날짜를 잃지 않게 함
 - 주간보고는 하위 항목도 제목 아래에 `- 내용`으로 넣는다(연차는 제외, `하위 항목 포함` 체크박스 `todolist-pref-report-subtasks`로 끔). 같은 제목은 한 덩어리로 합치고 하위 항목은 겹치지 않게 모은다
 - 주간보고의 자동 생성 글은 **완료 상태로 남은 할 일 + 완료 이력**에서 그때그때 계산함(`buildWeeklyReport`). 사용자가 직접 고친 글은 주 시작일별로 따로 저장하며, `초기화`를 누르면 저장본을 지움. `텍스트 복사`한 주는 완료로 기록해 지난주 미보고 알림에 씀
 

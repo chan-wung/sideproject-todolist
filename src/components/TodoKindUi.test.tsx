@@ -92,10 +92,11 @@ describe('TodoInput 종류 선택', () => {
     expect(utils.getByText('연차·휴가는 날짜를 선택해 주세요.')).toBeTruthy();
   });
 
-  it('연차·휴가를 고르면 반복 주기를 못 고른다', () => {
+  it('연차·휴가를 고르면 반복 주기 칸이 아예 사라진다', () => {
     const utils = renderInput();
+    expect(utils.queryByLabelText('반복 주기')).not.toBeNull();
     fireEvent.change(utils.getByLabelText('종류'), { target: { value: 'leave' } });
-    expect((utils.getByLabelText('반복 주기') as HTMLSelectElement).disabled).toBe(true);
+    expect(utils.queryByLabelText('반복 주기')).toBeNull();
   });
 });
 
@@ -113,6 +114,26 @@ describe('TodoItem 종류 배지와 편집', () => {
 
     const leave = renderItem(makeTodo({ kind: 'leave', dueDate: '2026-11-04' }));
     expect(within(leave.container).getByText('연차·휴가')).toBeTruthy();
+  });
+
+  it('연차 카드는 우선순위·프로젝트·메모 연결 대신 연차 종류를 보여 준다', () => {
+    const { container, queryByText, getByText } = renderItem(makeTodo({ kind: 'leave', text: '오전 반차 (병원)', category: '기본', dueDate: '2026-11-04' }));
+    expect(getByText('오전 반차')).toBeTruthy();
+    expect(queryByText('기본')).toBeNull();
+    expect(queryByText('보통')).toBeNull();
+    expect(container.querySelector('.todo-item__memo-link')).toBeNull();
+    cleanup();
+
+    const task = renderItem(makeTodo({ category: '춘천시청' }));
+    expect(task.getByText('춘천시청')).toBeTruthy();
+    expect(task.getByText('보통')).toBeTruthy();
+    expect(task.container.querySelector('.todo-item__memo-link')).not.toBeNull();
+  });
+
+  it('연차 카드의 수정 폼에는 연결 메모 칸이 없다', () => {
+    const { container, queryByText } = renderItem(makeTodo({ kind: 'leave', text: '연차', dueDate: '2026-11-04' }));
+    fireEvent.click(container.querySelector('.todo-item__btn--edit') as HTMLElement);
+    expect(queryByText('연결 메모')).toBeNull();
   });
 
   function enterEdit(container: HTMLElement) {
@@ -154,5 +175,19 @@ describe('TodoItem 종류 배지와 편집', () => {
     expect(getByRole('alert').textContent).toContain('날짜');
     fireEvent.click(save);
     expect(onUpdate).not.toHaveBeenCalled();
+  });
+
+  it('편집 폼에서 연차·휴가를 고르면 우선순위·프로젝트·반복 주기 칸이 사라지고 기본값으로 저장된다', () => {
+    const { container, getByLabelText, queryByLabelText, onUpdate } = renderItem(
+      makeTodo({ priority: 'high', category: '춘천시청', dueDate: '2099-01-01' }),
+    );
+    enterEdit(container);
+    expect(queryByLabelText('우선순위')).not.toBeNull();
+    fireEvent.change(getByLabelText('종류'), { target: { value: 'leave' } });
+    expect(queryByLabelText('우선순위')).toBeNull();
+    expect(queryByLabelText('프로젝트')).toBeNull();
+    expect(queryByLabelText('반복 주기')).toBeNull();
+    fireEvent.click(container.querySelector('.todo-item__edit-actions .btn--main') as HTMLElement);
+    expect(onUpdate).toHaveBeenCalledWith('t1', expect.objectContaining({ kind: 'leave', priority: 'medium', category: '기본', recurrence: undefined }));
   });
 });

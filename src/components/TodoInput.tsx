@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Todo, TodoKind } from '../types/todo';
-import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS } from '../constants/labels';
+import { PRIORITY_LABEL, PRIORITY_OPTIONS, FREQUENCY_LABEL, FREQUENCY_OPTIONS, KIND_LABEL, KIND_OPTIONS, LEAVE_TYPES, type LeaveType } from '../constants/labels';
 import { kindAllowsRecurrence, dueDateLabel } from '../utils/kind';
 import Toast from './Toast';
 import { leaveStatus, type LeaveInput } from '../utils/leave';
@@ -32,6 +32,8 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
   const [isExpanded, setIsExpanded] = useState(false);
 
   const isLeave = kind === 'leave';
+  // 연차는 날짜가 꼭 필요하니 상세 옵션이 접혀 있어도 펼쳐 둔다
+  const optionsOpen = isExpanded || isLeave;
   const leaveState = leaveStatus(leave, dueDate ? leaveTitlesOn(dueDate) : []);
 
   function warn(message: string) {
@@ -55,7 +57,8 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
     if (!dueDate) return warn('연차·휴가는 날짜를 선택해 주세요.');
     if (leaveState.duplicate) return warn('이 날 이미 같은 연차·휴가가 등록되어 있습니다.');
     if (!leaveState.canSubmit || !leaveState.text) return warn(leaveState.timeError ?? '연차·휴가 내용을 입력해 주세요.');
-    onAdd(leaveState.text, priority, dueDate, category, 'none', 'leave', '');
+    // 우선순위·프로젝트 칸은 연차에서 숨기므로, 일반 업무에서 넣어 둔 값이 따라 들어가지 않게 고정한다
+    onAdd(leaveState.text, 'medium', dueDate, '', 'none', 'leave', '');
     resetForm();
   }
 
@@ -88,15 +91,17 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
     <form className="todo-input" onSubmit={handleSubmit}>
       {toast && <Toast key={toastKey} message={toast} onClose={() => setToast('')} />}
 
-      <button
-        type="button"
-        className={`todo-input__toggle-btn ${isExpanded ? 'todo-input__toggle-btn--expanded' : ''}`}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        {isExpanded ? '상세 옵션 접기' : '상세 옵션 열기'}
-      </button>
+      {!isLeave && (
+        <button
+          type="button"
+          className={`todo-input__toggle-btn ${isExpanded ? 'todo-input__toggle-btn--expanded' : ''}`}
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          {isExpanded ? '상세 옵션 접기' : '상세 옵션 열기'}
+        </button>
+      )}
 
-      <div className={`todo-input__options ${isExpanded ? 'todo-input__options--expanded' : ''}`}>
+      <div className={`todo-input__options ${optionsOpen ? 'todo-input__options--expanded' : ''}`}>
         <div className="todo-input__row todo-input__row--flex">
           <div>
             <label className="todo-input__label" htmlFor="todo-input-kind">종류</label>
@@ -110,17 +115,19 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
             </select>
           </div>
 
-          <div>
-            <label className="todo-input__label" htmlFor="todo-input-priority">우선순위</label>
-            <select
-              id="todo-input-priority"
-              className={`todo-input__select todo-input__select--${priority}`}
-              value={priority}
-              onChange={e => setPriority(e.target.value as Todo['priority'])}
-            >
-              {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
-            </select>
-          </div>
+          {!isLeave && (
+            <div>
+              <label className="todo-input__label" htmlFor="todo-input-priority">우선순위</label>
+              <select
+                id="todo-input-priority"
+                className={`todo-input__select todo-input__select--${priority}`}
+                value={priority}
+                onChange={e => setPriority(e.target.value as Todo['priority'])}
+              >
+                {PRIORITY_OPTIONS.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="todo-input__label" id="todo-input-dueDate-label">{dueDateLabel(kind)}</label>
@@ -133,36 +140,51 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
             />
           </div>
 
-          <div>
-            <label className="todo-input__label" htmlFor="todo-input-category">프로젝트</label>
-            <input
-              id="todo-input-category"
-              className="todo-input__field"
-              type="text"
-              placeholder="예: 업무, 개인..."
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-              list="category-options-input"
-              autoComplete="off"
-            />
-            <datalist id="category-options-input">
-              {categories.map(c => <option key={c} value={c} />)}
-            </datalist>
-          </div>
+          {isLeave ? (
+            <div>
+              <label className="todo-input__label" htmlFor="todo-input-leave-type">연차 종류</label>
+              <select
+                id="todo-input-leave-type"
+                className="todo-input__select"
+                value={leave.type}
+                onChange={e => setLeave({ ...leave, type: e.target.value as LeaveType })}
+              >
+                {LEAVE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+              </select>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="todo-input__label" htmlFor="todo-input-category">프로젝트</label>
+                <input
+                  id="todo-input-category"
+                  className="todo-input__field"
+                  type="text"
+                  placeholder="예: 업무, 개인..."
+                  value={category}
+                  onChange={e => setCategory(e.target.value)}
+                  list="category-options-input"
+                  autoComplete="off"
+                />
+                <datalist id="category-options-input">
+                  {categories.map(c => <option key={c} value={c} />)}
+                </datalist>
+              </div>
 
-          <div>
-            <label className="todo-input__label" htmlFor="todo-input-recurrence">반복 주기</label>
-            <select
-              id="todo-input-recurrence"
-              className="todo-input__select"
-              value={kindAllowsRecurrence(kind) ? recurrence : 'none'}
-              onChange={e => setRecurrence(e.target.value as Todo['recurrence'])}
-              disabled={!kindAllowsRecurrence(kind)}
-            >
-              <option value="none">반복 안 함</option>
-              {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}
-            </select>
-          </div>
+              <div>
+                <label className="todo-input__label" htmlFor="todo-input-recurrence">반복 주기</label>
+                <select
+                  id="todo-input-recurrence"
+                  className="todo-input__select"
+                  value={recurrence}
+                  onChange={e => setRecurrence(e.target.value as Todo['recurrence'])}
+                >
+                  <option value="none">반복 안 함</option>
+                  {FREQUENCY_OPTIONS.map(f => <option key={f} value={f}>{FREQUENCY_LABEL[f]}</option>)}
+                </select>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -182,7 +204,7 @@ export default function TodoInput({ onAdd, categories, leaveTitlesOn = NO_LEAVES
       </div>
 
       <div className="todo-input__footer-row">
-        <p className="todo-input__hint"><PaperclipIcon className="ico-text" />메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>
+        {!isLeave && <p className="todo-input__hint"><PaperclipIcon className="ico-text" />메모 연결은 할 일을 저장한 후 카드에서 할 수 있어요.</p>}
         <button className="todo-input__btn" type="submit">추가</button>
       </div>
     </form>

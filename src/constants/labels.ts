@@ -38,6 +38,8 @@ export const LEAVE_TYPES: { id: LeaveType; label: string }[] = [
   { id: 'custom', label: '기타' },
 ];
 
+export const LEAVE_TYPE_LABEL = Object.fromEntries(LEAVE_TYPES.map(t => [t.id, t.label])) as Record<LeaveType, string>;
+
 // 상단 메뉴(화면 전환). 주소(/todos)와 1:1로 대응한다.
 export type View = 'dashboard' | 'todos' | 'calendar' | 'memo' | 'report';
 

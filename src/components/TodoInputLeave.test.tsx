@@ -31,6 +31,40 @@ describe('TodoInput — 연차·휴가 등록', () => {
     expect(Array.from(type.options).map(o => o.textContent)).toEqual(['연차', '오전 반차', '오후 반차', '시간 연차', '기타']);
   });
 
+  it('연차를 고르면 우선순위·프로젝트·반복 주기 칸과 메모 안내가 사라지고, 일반으로 돌리면 다시 나온다', () => {
+    const { toLeave, queryByLabelText, queryByText, getByLabelText } = setup();
+    expect(queryByLabelText('우선순위')).not.toBeNull();
+    expect(queryByText(/메모 연결은/)).not.toBeNull();
+    toLeave();
+    expect(queryByLabelText('우선순위')).toBeNull();
+    expect(queryByLabelText('프로젝트')).toBeNull();
+    expect(queryByLabelText('반복 주기')).toBeNull();
+    expect(queryByText(/메모 연결은/)).toBeNull();
+    fireEvent.change(getByLabelText('종류'), { target: { value: 'task' } });
+    expect(queryByLabelText('우선순위')).not.toBeNull();
+    expect(queryByLabelText('프로젝트')).not.toBeNull();
+    expect(queryByLabelText('반복 주기')).not.toBeNull();
+  });
+
+  it('접힌 상태에서 연차를 고르면 상세 옵션이 펼쳐지고 접기 버튼은 숨는다', () => {
+    const { toLeave, container, queryByRole } = setup();
+    expect(container.querySelector('.todo-input__options--expanded')).toBeNull();
+    toLeave();
+    expect(container.querySelector('.todo-input__options--expanded')).not.toBeNull();
+    expect(queryByRole('button', { name: /상세 옵션/ })).toBeNull();
+  });
+
+  it('일반 업무에서 넣어 둔 우선순위·프로젝트는 연차 등록에 따라 들어가지 않는다', () => {
+    const { toLeave, pickDate, add, onAdd, getByLabelText } = setup();
+    fireEvent.change(getByLabelText('우선순위'), { target: { value: 'high' } });
+    fireEvent.change(getByLabelText('프로젝트'), { target: { value: '춘천시청' } });
+    toLeave();
+    pickDate(6);
+    add();
+    const [, priority, , category] = onAdd.mock.calls[0];
+    expect([priority, category]).toEqual(['medium', '']);
+  });
+
   it('날짜를 안 골랐으면 등록하지 않고 안내한다', () => {
     const { toLeave, add, onAdd, getAllByText } = setup();
     toLeave();

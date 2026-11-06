@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PRIORITY_LABEL, FREQUENCY_LABEL, KIND_LABEL } from '../constants/labels';
+import { PRIORITY_LABEL, FREQUENCY_LABEL, KIND_LABEL, LEAVE_TYPE_LABEL } from '../constants/labels';
 import type { Todo, TodoUpdates, RecurrenceFrequency } from '../types/todo';
 import type { Memo } from '../hooks/useMemos';
 import ConfirmModal from './ConfirmModal';
@@ -9,6 +9,7 @@ import TodoItemSubtasks from './TodoItemSubtasks';
 import { ChevronIcon, DeleteIcon, DragHandleIcon, EditIcon, PaperclipIcon, PinIcon, RepeatIcon } from './icons';
 import { isOverdue, formatDate } from '../utils/date';
 import { normalizeKind } from '../utils/kind';
+import { leaveTypeOf } from '../utils/leave';
 import { cx } from '../utils/classNames';
 import { truncate } from '../utils/text';
 
@@ -42,6 +43,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
   const [showConfirm, setShowConfirm] = useState(false);
 
   const kind = normalizeKind(todo.kind);
+  const isLeave = kind === 'leave';
   const overdue = !todo.completed && isOverdue(todo.dueDate);
   const done = (todo.subtasks ?? []).filter(s => s.completed).length;
   const total = (todo.subtasks ?? []).length;
@@ -138,10 +140,15 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           </div>
         </div>
         <div className="todo-item__meta">
-          <span className={`todo-item__badge todo-item__badge--${todo.priority}`}>
-            {PRIORITY_LABEL[todo.priority]}
-          </span>
-          {todo.category && (
+          {/* 연차·휴가는 우선순위·프로젝트를 쓰지 않으므로, 프로젝트 자리에 연차 종류를 보여 준다 */}
+          {!isLeave && (
+            <span className={`todo-item__badge todo-item__badge--${todo.priority}`}>
+              {PRIORITY_LABEL[todo.priority]}
+            </span>
+          )}
+          {isLeave ? (
+            <span className="todo-item__category">{LEAVE_TYPE_LABEL[leaveTypeOf(todo.text)]}</span>
+          ) : todo.category && (
             <span className="todo-item__category">{todo.category}</span>
           )}
           {(todo.seriesId || (todo.recurrence && todo.recurrence !== 'none')) && (
@@ -152,7 +159,7 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
           {kind !== 'task' && (
             <span className={`todo-item__badge todo-item__badge--kind-${kind}`}>{KIND_LABEL[kind]}</span>
           )}
-          {linkedMemos.map(m => (
+          {!isLeave && linkedMemos.map(m => (
             <button
               key={m.id}
               type="button"
@@ -162,14 +169,16 @@ export default function TodoItem({ todo, manualSort, selectionMode, isSelected, 
               <PaperclipIcon className="ico-text" />{m.title || '제목 없음'}
             </button>
           ))}
-          <button
-            type="button"
-            className={`todo-item__memo-link todo-item__memo-link--empty${linkedMemos.length > 0 ? ' todo-item__memo-link--add' : ''}`}
-            onClick={() => setIsEditing(true)}
-            aria-label={linkedMemos.length > 0 ? '메모 추가 연결' : '메모 연결'}
-          >
-            {linkedMemos.length > 0 ? '+ 메모' : <><PaperclipIcon className="ico-text" />메모 연결</>}
-          </button>
+          {!isLeave && (
+            <button
+              type="button"
+              className={`todo-item__memo-link todo-item__memo-link--empty${linkedMemos.length > 0 ? ' todo-item__memo-link--add' : ''}`}
+              onClick={() => setIsEditing(true)}
+              aria-label={linkedMemos.length > 0 ? '메모 추가 연결' : '메모 연결'}
+            >
+              {linkedMemos.length > 0 ? '+ 메모' : <><PaperclipIcon className="ico-text" />메모 연결</>}
+            </button>
+          )}
           {total > 0 && (
             <div className="todo-item__sub-meta">
               <span className="todo-item__sub-progress">진행도 {done}/{total}</span>

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { leaveBase, leaveError, composeLeaveText, isSameLeave, leaveStatus, type LeaveInput } from './leave';
+import { leaveBase, leaveError, composeLeaveText, isSameLeave, leaveStatus, type LeaveInput, leaveTypeOf, completePastLeaves } from './leave';
+import type { Todo } from '../types/todo';
 
 function input(overrides: Partial<LeaveInput> = {}): LeaveInput {
   return { type: 'annual', start: '', end: '', name: '', reason: '', ...overrides };
@@ -99,5 +100,50 @@ describe('leaveStatus', () => {
     expect(s.duplicate).toBe(true);
     expect(s.canSubmit).toBe(false);
     expect(leaveStatus(input({ type: 'am' }), ['연차 (병원 진료)']).canSubmit).toBe(true);
+  });
+});
+
+describe('leaveTypeOf', () => {
+  it('제목에서 연차 종류를 알아낸다 (사유가 붙어도 같다)', () => {
+    expect(leaveTypeOf('연차')).toBe('annual');
+    expect(leaveTypeOf('연차 (병원 진료)')).toBe('annual');
+    expect(leaveTypeOf('오전 반차')).toBe('am');
+    expect(leaveTypeOf('오후 반차 (자녀 행사)')).toBe('pm');
+    expect(leaveTypeOf('연차 14:00~15:00')).toBe('hourly');
+    expect(leaveTypeOf('연차 14:00~15:00 (병원 진료)')).toBe('hourly');
+  });
+
+  it('직접 지은 이름은 기타로 본다', () => {
+    expect(leaveTypeOf('병가 (독감)')).toBe('custom');
+    expect(leaveTypeOf('연차 휴가')).toBe('custom');
+  });
+});
+
+describe('completePastLeaves', () => {
+  const todo = (over: Partial<Todo>): Todo => ({
+    id: 'a', text: '연차', completed: false, priority: 'medium', category: '기본',
+    createdAt: '2026-11-01T09:00:00', kind: 'leave', dueDate: '2026-11-05', ...over,
+  });
+
+  it('날짜가 지난 연차는 그날 끝 시각으로 완료 처리한다', () => {
+    const [done] = completePastLeaves([todo({})], '2026-11-06');
+    expect(done.completed).toBe(true);
+    expect(done.completedAt).toBe(new Date('2026-11-05T23:59:59').toISOString());
+  });
+
+  it('오늘이거나 앞으로의 연차, 날짜 없는 연차, 일반 업무는 그대로 둔다', () => {
+    const list = [
+      todo({ id: 'today', dueDate: '2026-11-06' }),
+      todo({ id: 'future', dueDate: '2026-11-09' }),
+      todo({ id: 'nodate', dueDate: undefined }),
+      todo({ id: 'task', kind: 'task' }),
+      todo({ id: 'routine', kind: 'routine' }),
+    ];
+    expect(completePastLeaves(list, '2026-11-06')).toBe(list);
+  });
+
+  it('이미 완료된 연차의 완료 시각은 바꾸지 않고, 바뀐 것이 없으면 같은 배열을 돌려준다', () => {
+    const list = [todo({ completed: true, completedAt: '2026-11-05T08:00:00.000Z' })];
+    expect(completePastLeaves(list, '2026-11-06')).toBe(list);
   });
 });

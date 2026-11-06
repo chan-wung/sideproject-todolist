@@ -1,4 +1,6 @@
 import type { LeaveType } from '../constants/labels';
+import type { Todo } from '../types/todo';
+import { normalizeKind } from './kind';
 
 // 연차·휴가의 이름·시각·사유를 보고서에 찍힐 한 줄(`연차 14:00~15:00 (병원 진료)`)로 합친다.
 // 할 일의 제목 한 줄에 합쳐서 저장하므로 목록·완료 이력·백업·주간보고가 그대로 같이 쓴다.
@@ -51,6 +53,16 @@ export function leaveTimeRange(text: string): { start: string; end: string } | n
   return { start: m[1], end: m[2] };
 }
 
+// 저장된 제목으로 연차 종류를 알아낸다(종류는 따로 저장하지 않고 제목 한 줄에 들어 있다).
+// 어느 형식도 아니면(병가 등 직접 지은 이름) '기타'.
+export function leaveTypeOf(text: string): LeaveType {
+  if (/^오전 반차(?: |$)/.test(text)) return 'am';
+  if (/^오후 반차(?: |$)/.test(text)) return 'pm';
+  if (leaveTimeRange(text)) return 'hourly';
+  if (/^연차(?: \(|$)/.test(text)) return 'annual';
+  return 'custom';
+}
+
 // 이미 저장된 제목이 같은 이름(사유만 다른 경우 포함)의 연차인지
 export function isSameLeave(savedText: string, base: string): boolean {
   return savedText === base || savedText.startsWith(`${base} (`);
@@ -72,4 +84,17 @@ export function leaveStatus(input: LeaveInput, savedLeaves: string[]): LeaveStat
   const text = composeLeaveText(input);
   const duplicate = !!base && savedLeaves.some(saved => isSameLeave(saved, base));
   return { text, timeError: leaveError(input), duplicate, canSubmit: !!text && !duplicate };
+}
+
+// 날짜(dueDate)가 지난 연차·휴가를 완료 처리한다. 연차는 그날이 지나면 끝난 일이라 직접 체크하지 않아도 된다.
+// 완료 시각은 쉬는 날의 끝(23:59:59)으로 남겨 완료 이력·대시보드에서도 그날로 잡히게 한다.
+// 바꿀 것이 없으면 받은 배열을 그대로 돌려준다(불필요한 다시 그리기·저장을 막는다).
+export function completePastLeaves(todos: Todo[], today: string): Todo[] {
+  let changed = false;
+  const next = todos.map(t => {
+    if (t.completed || normalizeKind(t.kind) !== 'leave' || !t.dueDate || t.dueDate >= today) return t;
+    changed = true;
+    return { ...t, completed: true, completedAt: new Date(`${t.dueDate}T23:59:59`).toISOString() };
+  });
+  return changed ? next : todos;
 }

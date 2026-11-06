@@ -1,4 +1,3 @@
-import { LEAVE_TYPES, type LeaveType } from '../constants/labels';
 import { formatReportDate } from '../utils/date';
 import type { LeaveInput, LeaveStatus } from '../utils/leave';
 
@@ -12,7 +11,8 @@ interface Props {
 }
 
 // 할 일 입력창에서 종류를 '연차·휴가'로 골랐을 때 글 입력칸 대신 나오는 입력칸 묶음.
-// 종류는 셀렉박스로 고르고, 시간 연차일 때만 시작·종료 시각, 기타일 때만 이름 칸이 나온다. 사유는 자유 입력.
+// 연차 종류 셀렉트는 입력창의 옵션 줄(TodoInput)에 있고, 여기서는 그 종류에 따라 시간 연차일 때만
+// 시작·종료 시각, 기타일 때만 이름 칸이 나온다. 사유는 자유 입력.
 // 값과 등록은 바깥(TodoInput)이 들고 있고, 이 컴포넌트는 칸과 안내만 그린다.
 export default function LeaveFields({ value, onChange, date, status }: Props) {
   const set = (patch: Partial<LeaveInput>) => onChange({ ...value, ...patch });
@@ -20,17 +20,6 @@ export default function LeaveFields({ value, onChange, date, status }: Props) {
   return (
     <div className="leave-fields">
       <div className="leave-fields__row">
-        <label className="leave-fields__field">
-          <span className="leave-fields__label">연차 종류</span>
-          <select
-            className="leave-fields__control leave-fields__control--select"
-            value={value.type}
-            onChange={e => set({ type: e.target.value as LeaveType })}
-          >
-            {LEAVE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-          </select>
-        </label>
-
         {value.type === 'hourly' && (
           <>
             <label className="leave-fields__field">

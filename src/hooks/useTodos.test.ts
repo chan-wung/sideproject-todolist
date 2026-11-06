@@ -391,6 +391,34 @@ describe('useTodos', () => {
     });
   });
 
+  describe('지난 연차 자동 완료', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+      localStorage.clear();
+    });
+
+    it('앱을 열 때 날짜가 지난 연차는 완료로 바뀌고, 오늘·앞으로의 연차와 일반 업무는 그대로다', () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2026-11-06T10:00:00'));
+      const mk = (id: string, over: object) => ({
+        id, text: id, completed: false, priority: 'medium', category: '기본', createdAt: '2026-11-01T09:00:00', ...over,
+      });
+      localStorage.setItem('todolist-items', JSON.stringify([
+        mk('past', { kind: 'leave', dueDate: '2026-11-05' }),
+        mk('today', { kind: 'leave', dueDate: '2026-11-06' }),
+        mk('future', { kind: 'leave', dueDate: '2026-11-09' }),
+        mk('task', { dueDate: '2026-11-05' }),
+      ]));
+      const { result } = renderHook(() => useTodos());
+      const byId = Object.fromEntries(result.current.allTodos.map(t => [t.id, t]));
+      expect(byId.past.completed).toBe(true);
+      expect(byId.past.completedAt).toBeTruthy();
+      expect(byId.today.completed).toBe(false);
+      expect(byId.future.completed).toBe(false);
+      expect(byId.task.completed).toBe(false);
+    });
+  });
+
   describe('localStorage migration', () => {
     it('migrates raw stored data on init', () => {
       localStorage.setItem('todolist-items', JSON.stringify([{ id: '1', text: 't', memoId: 'memo-a' }]));

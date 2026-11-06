@@ -138,6 +138,7 @@
 
     @include below_tab {
       width: 100%;
+      flex-wrap: wrap; // 버튼이 많은 줄은 좁은 화면(320px)에서 화면 밖으로 넘치지 않고 다음 줄로 내려간다
     }
   }
 

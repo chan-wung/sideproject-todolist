@@ -170,6 +170,8 @@ test.describe('좁은 화면과 동작 줄이기', () => {
   test('320px 화면에서 기간 선택 팝업이 화면 밖으로 넘치지 않는다', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 700 })
     await page.goto('/todos')
+    // 팝업을 열기 전에도 필터·정렬 막대 등이 화면 밖으로 넘치지 않는다 (글꼴이 다른 환경에서도 같아야 한다)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320)
     await page.getByRole('button', { name: '상세 옵션 열기' }).click()
     await page.locator('.date-range-picker__input').first().click()
 

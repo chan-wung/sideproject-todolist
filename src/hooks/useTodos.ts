@@ -20,7 +20,10 @@ const STORAGE_KEY = TODOS_KEY;
 // 실행취소에 필요한 최소 정보. 지운 것과 그 위치만 기억한다.
 type UndoAction =
   | { kind: 'todos'; removed: { todo: Todo; index: number; afterId: string | null }[]; logEntries: CompletionLogEntry[] }
-  | { kind: 'subtask'; todoId: string; subtask: Subtask; index: number; before: Pick<Todo, 'completed' | 'completedAt'>; afterCompleted: boolean };
+  | { kind: 'subtask'; todoId: string; subtask: Subtask; index: number; before: Pick<Todo, 'completed' | 'completedAt'>; afterCompleted: boolean; afterSig: string };
+
+// 하위 항목 목록의 모양(id와 완료값). 삭제 직후와 같은지 비교해 그 뒤에 사용자가 바꾼 것이 있는지 판단한다.
+const subtaskSig = (list: Subtask[] | undefined) => (list ?? []).map(s => `${s.id}:${s.completed ? 1 : 0}`).join(',');
 
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>(() => readStorage(STORAGE_KEY, validateTodos, []));
@@ -97,13 +100,17 @@ export function useTodos() {
         setCompletionLog(prev => prev.filter(e => !added.has(e)));
       }
     } else {
-      const { todoId, subtask, index, before, afterCompleted } = action;
+      const { todoId, subtask, index, before, afterCompleted, afterSig } = action;
       setTodos(prev => prev.map(t => {
         if (t.id !== todoId || (t.subtasks ?? []).some(s => s.id === subtask.id)) return t;
         const subtasks = [...(t.subtasks ?? [])];
         subtasks.splice(Math.min(index, subtasks.length), 0, subtask);
-        // 삭제 직후의 완료 상태 그대로일 때만 삭제 전 상태로 돌린다 (그 사이 사용자가 바꿨다면 존중)
-        return t.completed === afterCompleted ? { ...t, subtasks, completed: before.completed, completedAt: before.completedAt } : { ...t, subtasks };
+        // 삭제 직후와 하위 항목·완료 상태가 모두 그대로일 때만 삭제 전 완료 상태로 돌린다.
+        const untouched = t.completed === afterCompleted && subtaskSig(t.subtasks) === afterSig;
+        if (untouched) return { ...t, subtasks, completed: before.completed, completedAt: before.completedAt };
+        // 그 뒤에 사용자가 바꿨다면 그 상태를 존중한다. 다만 미완료 하위 항목이 돌아왔는데 부모가 완료면 진행 중으로 되돌린다.
+        if (!subtask.completed && t.completed) return { ...t, subtasks, completed: false, completedAt: undefined };
+        return { ...t, subtasks };
       }));
     }
   }, [setCompletionLog]);
@@ -374,6 +381,7 @@ export function useTodos() {
       index,
       before: { completed: parent.completed, completedAt: parent.completedAt },
       afterCompleted,
+      afterSig: subtaskSig(parent.subtasks!.filter(s => s.id !== subId)),
     });
   }
 

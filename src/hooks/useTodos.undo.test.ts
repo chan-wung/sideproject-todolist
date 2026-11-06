@@ -145,4 +145,75 @@ describe('useTodos 실행취소 범위', () => {
     expect(texts(hook).sort()).toEqual(['A', 'B', 'C']);
     expect(hook.result.current.completionLog).toEqual([]);
   });
+  // R06: 하위 항목 Undo는 삭제 뒤에 사용자가 바꾼 부모 완료 상태를 덮어쓰면 안 된다
+  describe('하위 항목 삭제 실행취소와 부모 완료 상태', () => {
+    // 부모에 하위 항목 2개를 모두 완료해 부모가 완료된 상태로 만든다. 돌려주는 값: [부모 id, 첫 하위 항목 id]
+    function completedParent(hook: ReturnType<typeof setup>) {
+      const p = add(hook, 'P');
+      act(() => { hook.result.current.addSubtask(p, 's1'); });
+      act(() => { hook.result.current.addSubtask(p, 's2'); });
+      const subs = () => hook.result.current.allTodos.find(t => t.id === p)!.subtasks!;
+      act(() => { hook.result.current.toggleSubtask(p, subs()[0].id); });
+      act(() => { hook.result.current.toggleSubtask(p, subs()[1].id); });
+      expect(hook.result.current.allTodos.find(t => t.id === p)!.completed).toBe(true);
+      return { p, subs, parent: () => hook.result.current.allTodos.find(t => t.id === p)! };
+    }
+
+    it('완료된 하위 항목 하나뿐인 부모에서 삭제 → 새 미완료 하위 항목 추가 → 실행취소: 부모는 진행 중으로 남는다', () => {
+      const hook = setup();
+      const p = add(hook, 'P');
+      act(() => { hook.result.current.addSubtask(p, 'done'); });
+      const subs = () => hook.result.current.allTodos.find(t => t.id === p)!.subtasks!;
+      const parent = () => hook.result.current.allTodos.find(t => t.id === p)!;
+      act(() => { hook.result.current.toggleSubtask(p, subs()[0].id); });
+      expect(parent().completed).toBe(true);
+      act(() => { hook.result.current.deleteSubtask(p, subs()[0].id); });
+      act(() => { hook.result.current.addSubtask(p, 'new'); });
+      expect(parent().completed).toBe(false);
+
+      act(() => { hook.result.current.performUndo(); });
+
+      expect(subs().map(s => [s.text, s.completed])).toEqual([['done', true], ['new', false]]);
+      expect(parent().completed).toBe(false);
+      expect(parent().completedAt).toBeUndefined();
+    });
+
+    it('삭제 → 다른 하위 항목 체크 해제 → 실행취소: 해제한 상태가 남는다', () => {
+      const hook = setup();
+      const { p, subs, parent } = completedParent(hook);
+      act(() => { hook.result.current.deleteSubtask(p, subs()[0].id); });
+      act(() => { hook.result.current.toggleSubtask(p, subs()[0].id); }); // 남은 s2 체크 해제
+      expect(parent().completed).toBe(false);
+
+      act(() => { hook.result.current.performUndo(); });
+
+      expect(subs().map(s => s.completed)).toEqual([true, false]);
+      expect(parent().completed).toBe(false); // 되돌아온 완료 상태가 해제를 덮지 않는다
+    });
+
+    it('아무것도 바꾸지 않았다면 삭제 전 완료 상태와 완료 시각이 그대로 돌아온다', () => {
+      const hook = setup();
+      const { p, subs, parent } = completedParent(hook);
+      const completedAt = parent().completedAt;
+      act(() => { hook.result.current.deleteSubtask(p, subs()[0].id); });
+
+      act(() => { hook.result.current.performUndo(); });
+
+      expect(parent().completed).toBe(true);
+      expect(parent().completedAt).toBe(completedAt);
+    });
+
+    it('삭제 → 부모를 직접 해제 → 실행취소: 해제한 상태를 존중한다', () => {
+      const hook = setup();
+      const { p, subs, parent } = completedParent(hook);
+      act(() => { hook.result.current.deleteSubtask(p, subs()[0].id); });
+      act(() => { hook.result.current.toggleTodo(p); }); // 부모 직접 해제
+      expect(parent().completed).toBe(false);
+
+      act(() => { hook.result.current.performUndo(); });
+
+      expect(parent().completed).toBe(false);
+      expect(subs()).toHaveLength(2);
+    });
+  });
 });

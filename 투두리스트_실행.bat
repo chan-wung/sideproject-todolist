@@ -1,26 +1,6 @@
-﻿@echo off
-chcp 65001 >nul
-title 업무용 투두리스트
-
-echo =======================================
-echo 🚀 업무용 투두리스트 서버를 시작합니다...
-echo.
-echo ⚠️ 이 검은 창을 닫으면 투두리스트 접속이 끊어집니다.
-echo 업무가 끝날 때까지 창을 최소화해 두세요.
-echo =======================================
-
-:: node_modules 폴더가 없으면 npm install 먼저 실행
-if not exist "node_modules\" (
-    echo.
-    echo 📦 초기 설치가 필요합니다. 패키지를 설치 중입니다 (최초 1회만 진행)...
-    call npm install
-    echo ✅ 설치 완료!
-)
-
-:: 브라우저를 먼저 띄우기 (크롬 강제 실행)
-start chrome http://localhost:5173
-
-:: 개발 서버 실행
-npm run dev
-
-pause
+@echo off
+rem ASCII only on purpose: batch files containing Korean break depending on the console code page.
+rem All logic and Korean messages live in scripts\launch.ps1 (UTF-8 with BOM, which PowerShell reads correctly).
+cd /d "%~dp0"
+powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\launch.ps1"
+exit /b %errorlevel%

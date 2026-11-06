@@ -18,6 +18,9 @@ import DashboardPage from './pages/DashboardPage';
 import AppNav from './components/AppNav';
 import BackupReminder from './components/BackupReminder';
 import StorageNotice from './components/StorageNotice';
+import UpdateNotice from './components/UpdateNotice';
+import { useUpdateReady } from './hooks/useUpdateReady';
+import { applyUpdate, dismissUpdate } from './utils/pwaUpdate';
 import { useStorageStatus } from './hooks/useStorageStatus';
 import { retryFailedWrites, readCorruptBackups, discardCorruptBackups, keepThisTabData } from './utils/storage';
 import Toast from './components/Toast';
@@ -140,6 +143,7 @@ export default function App() {
 
   const hasData = allTodos.length > 0 || memos.length > 0 || completionLog.length > 0 || recurrenceSeries.length > 0 || Object.keys(weeklyReports.data.drafts).length > 0 || weeklyReports.data.copiedWeeks.length > 0;
   const storageStatus = useStorageStatus();
+  const updateReady = useUpdateReady();
   const { lastBackup, reminder, markBackedUp, snooze } = useBackupReminder(hasData);
   const [navCollapsed, setNavCollapsed] = usePersistentState<boolean>('todolist-pref-nav-collapsed', false);
 
@@ -302,6 +306,7 @@ export default function App() {
       <AppNav current={view} collapsed={navCollapsed} onToggleCollapsed={() => setNavCollapsed(prev => !prev)} profile={profile} reportAttention={hasUnreportedLastWeek} />
       <div className="app-shell__content">
       <div className="todo-app">
+      {updateReady && <UpdateNotice onApply={applyUpdate} onLater={dismissUpdate} />}
       <StorageNotice
         saveFailed={storageStatus.failedKeys.length > 0}
         hasCorrupt={storageStatus.corruptKeys.length > 0}

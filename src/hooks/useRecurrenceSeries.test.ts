@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, cleanup } from '@testing-library/react';
 import { useState, useRef } from 'react';
 import { useRecurrenceSeries } from './useRecurrenceSeries';
 import type { Todo } from '../types/todo';
@@ -24,6 +24,7 @@ describe('useRecurrenceSeries', () => {
     vi.setSystemTime(new Date('2026-07-10T10:00:00'));
   });
   afterEach(() => {
+    cleanup();
     vi.useRealTimers();
   });
 

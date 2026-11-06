@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, cleanup } from '@testing-library/react';
 import { useDayChange } from './useDayChange';
 
 function setVisibility(state: 'visible' | 'hidden') {
@@ -13,6 +13,7 @@ describe('useDayChange', () => {
   });
 
   afterEach(() => {
+    cleanup();
     vi.useRealTimers();
   });
 

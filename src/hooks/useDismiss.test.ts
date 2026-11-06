@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, cleanup } from '@testing-library/react';
 import { useDismiss } from './useDismiss';
 
 function setup(open: boolean, options?: { escape?: boolean }) {
@@ -20,6 +20,7 @@ const keyDown = (key: string) => document.dispatchEvent(new KeyboardEvent('keydo
 
 describe('useDismiss', () => {
   afterEach(() => {
+    cleanup();
     document.body.innerHTML = '';
   });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, cleanup } from '@testing-library/react';
 import { useTodos } from './useTodos';
 import { migrateTodo, validateTodos, validateCompletionLog } from '../utils/todoData';
 import { validateRecurrenceSeries } from '../utils/recurrence';
@@ -8,6 +8,8 @@ describe('useTodos', () => {
   beforeEach(() => {
     localStorage.clear();
   });
+
+  afterEach(cleanup);
 
   describe('migrateTodo', () => {
     it('migrates memoId to memoIds', () => {

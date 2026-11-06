@@ -141,7 +141,8 @@ npm run build    # tsc -b + vite build (타입 체크 포함)
 - **화면 확인 범위**: 다크모드와 좁은 화면(폭 390px·700px·820px·1042px 프레임)에서 할 일·캘린더·주간보고·대시보드·메모장과 아래 탭 바·툴바를 눈으로 확인했다. 실제 휴대폰·태블릿 기기, 주소창이 접히는 모바일 브라우저(탭 바 위치)는 확인하지 못했다.
 - **배포 설정 필요**: 주소가 `/report`처럼 경로 방식이라 정적 호스팅에서는 모든 경로를 `index.html`로 돌려주는 설정이 필요하다(없으면 새로고침 시 404). 개발 서버·`vite preview`는 기본으로 된다. 어떤 호스팅에 올릴지는 아직 정해지지 않았다.
 - **글자 배율**: PC(1024px 이상)만 1.125배로 키웠다. 상자 높이가 `rem()`으로 고정된 곳은 글자가 커져도 높이는 그대로라, 새 UI를 만들 때 PC 폭에서 글자가 넘치지 않는지 본다.
-- **통합 테스트**: `src/App.test.tsx`가 백업 가져오기(확인·취소·버전 거부)·전체 초기화·메모 연결 정리를 앱 전체로 확인한다. `<dialog>`의 `showModal`/`close`를 모킹하고 `vi.useFakeTimers({ shouldAdvanceTime: true })`를 쓴다.
+- **테스트 격리·CI**: 렌더하는 테스트 파일은 모두 `afterEach(cleanup)`을 갖고(훅 테스트 포함), fake timer는 `useRealTimers`, `vi.spyOn`은 `restoreAllMocks`로 되돌린다. `npx vitest run --sequence.shuffle.files --sequence.shuffle.tests --sequence.seed=N`으로 섞어 돌려도 통과해야 한다(시드 1~3 확인). 여러 탭/저장 상태를 건드리는 테스트는 `resetStorageTracking()`을 쓴다. `.github/workflows/ci.yml`이 push(main)·PR마다 `npm ci` → lint → test → build를 돌린다(Node 22, 배포·비밀키 없음). 테스트 경고 중 `Both esbuild and oxc options were set`·`esbuild option ... deprecated`는 `@vitejs/plugin-react`(Vite 5용)가 vitest 하위 Vite 8에서 내는 설정 경고이고, `Not implemented: navigation to another Document`는 jsdom이 링크 이동을 구현하지 않아서 나는 메시지다. 둘 다 실패가 아니다.
+- **통합 테스트**: `src/App.test.tsx`가 백업 가져오기(확인·취소·버전 거부)·전체 초기화·메모 연결 정리를, `src/App.flows.test.tsx`가 백업 내보내기→가져오기 왕복(다섯 구역)과 주간보고 복사 성공/실패 기록을 앱 전체로 확인한다. `<dialog>`의 `showModal`/`close`를 모킹하고 `vi.useFakeTimers({ shouldAdvanceTime: true })`를 쓴다.
 - **작은 동작 차이**: 반복 회차 카드에서 종류를 바꾸면 그 회차만 바뀌고 시리즈 종류는 그대로입니다. 이전 완료 이력의 연차는 `dueDate`가 없어 주간보고에 들어가지 않습니다.
 - **남은 계획**: 처음 계획한 1~6단계는 모두 만들었습니다(대시보드, 캘린더, 백업 알림 포함). 남은 것은 아래 정리 항목들입니다.
 - **시작 화면**: 메뉴 맨 위는 `대시보드`지만 처음 열리는 화면(`DEFAULT_VIEW`)은 `할 일`입니다. 바꾸려면 `labels.ts`의 `DEFAULT_VIEW`를 고칩니다.

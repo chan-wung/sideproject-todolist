@@ -1,8 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { renderHook, act, cleanup } from '@testing-library/react';
 import { useSelection } from './useSelection';
 
 describe('useSelection', () => {
+  afterEach(cleanup);
+
   it('처음엔 선택 모드가 꺼져 있고 선택도 비어 있다', () => {
     const { result } = renderHook(() => useSelection());
     expect(result.current.selectionMode).toBe(false);

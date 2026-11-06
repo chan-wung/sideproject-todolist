@@ -7,6 +7,18 @@ const todoField = (page: Page) => page.getByRole('textbox', { name: '할 일 내
 
 const todo = (page: Page, text: string) => page.locator('.todo-item__txt', { hasText: text })
 
+// 문서 가로 폭이 화면 폭을 넘지 않는다. 실패하면 화면 밖으로 나간 요소를 메시지에 보여 준다 (환경마다 글꼴이 달라 원인을 바로 알 수 있게).
+async function expectNoHorizontalOverflow(page: Page, width: number) {
+  const { scrollWidth, offenders } = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    offenders: Array.from(document.querySelectorAll('body *'))
+      .filter(el => el.getBoundingClientRect().right > window.innerWidth + 0.5)
+      .slice(0, 6)
+      .map(el => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 50)} right=${Math.round(el.getBoundingClientRect().right)}`),
+  }))
+  expect(scrollWidth, `넘친 요소: ${offenders.join(' | ')}`).toBeLessThanOrEqual(width)
+}
+
 async function addTodo(page: Page, text: string) {
   await todoField(page).fill(text)
   await todoField(page).press('Enter')
@@ -171,7 +183,7 @@ test.describe('좁은 화면과 동작 줄이기', () => {
     await page.setViewportSize({ width: 320, height: 700 })
     await page.goto('/todos')
     // 팝업을 열기 전에도 필터·정렬 막대 등이 화면 밖으로 넘치지 않는다 (글꼴이 다른 환경에서도 같아야 한다)
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320)
+    await expectNoHorizontalOverflow(page, 320)
     await page.getByRole('button', { name: '상세 옵션 열기' }).click()
     await page.locator('.date-range-picker__input').first().click()
 
@@ -180,8 +192,7 @@ test.describe('좁은 화면과 동작 줄이기', () => {
     const box = (await dropdown.boundingBox())!
     expect(box.x).toBeGreaterThanOrEqual(0)
     expect(box.x + box.width).toBeLessThanOrEqual(320)
-    const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth)
-    expect(scrollWidth).toBeLessThanOrEqual(320 + 1)
+    await expectNoHorizontalOverflow(page, 320)
   })
 
   test('동작 줄이기를 켜면 컴포넌트 전환이 사실상 꺼지고, 끄면 그대로다', async ({ page }) => {
